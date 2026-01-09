@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+
+body {
+     font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+     display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+     -ms-overflow-style: none;
+     scrollbar-width: none;
+}
+
+/* Fade in animation */
+.fade-enter {
+     opacity: 0;
+     transform: translateY(-10px);
+}
+
+.fade-enter-active {
+     opacity: 1;
+     transform: translateY(0);
+     transition: opacity 300ms, transform 300ms;
+}

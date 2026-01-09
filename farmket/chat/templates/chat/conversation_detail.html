@@ -1,0 +1,500 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<style>
+    /* Smooth Scroll & Utilities */
+    #chat-messages { scroll-behavior: smooth; }
+    .message-bubble { max-width: 75%; }
+    
+    /* Typing Animation */
+    .typing-indicator span { animation: blink 1.4s infinite; }
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink {
+        0%, 60%, 100% { opacity: 1; transform: scale(1); }
+        30% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    /* Popups */
+    .emoji-picker { display: none; }
+    .emoji-picker.active { display: grid; }
+    .reaction-popup { animation: scaleIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    @keyframes scaleIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    
+    /* Scrollbar for chat area */
+    #chat-messages::-webkit-scrollbar { width: 6px; }
+    #chat-messages::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.1); border-radius: 10px; }
+    #chat-messages::-webkit-scrollbar-track { background-color: transparent; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-4 md:py-8 h-[calc(100vh-80px)] flex flex-col">
+    <div class="bg-white dark:bg-gray-900 rounded-3xl shadow-xl shadow-stone-200/50 dark:shadow-none border border-stone-200 dark:border-gray-800 overflow-hidden flex flex-col flex-1 relative">
+        
+        <div class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm px-6 py-4 border-b border-stone-100 dark:border-gray-800 flex items-center justify-between z-20 sticky top-0">
+            <div class="flex items-center gap-4">
+                <a href="{% url 'chat:conversations' %}" class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-stone-100 dark:hover:bg-gray-800 text-stone-500 transition-colors">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                
+                <div class="relative">
+                    {% if other_user.profile_picture %}
+                        <img src="{{ other_user.profile_picture.url }}" alt="{{ other_user.username }}" class="w-10 h-10 rounded-full object-cover border border-stone-200 dark:border-gray-700">
+                    {% else %}
+                        <div class="w-10 h-10 rounded-full bg-stone-100 dark:bg-gray-800 flex items-center justify-center border border-stone-200 dark:border-gray-700 text-stone-500 font-bold">
+                            {{ other_user.username|make_list|first|upper }}
+                        </div>
+                    {% endif %}
+                    <div class="online-indicator hidden absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-gray-900 rounded-full"></div>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-stone-900 dark:text-white leading-tight">{{ other_user.username }}</h3>
+                    <div class="text-xs text-stone-500 dark:text-stone-400" id="user-status">
+                        <span class="typing-indicator hidden font-medium text-emerald-600">typing...</span>
+                        <span class="offline-indicator">{{ other_user.user_type|title }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <button onclick="toggleSearch()" class="w-10 h-10 rounded-full hover:bg-stone-100 dark:hover:bg-gray-800 text-stone-500 transition-colors">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="search-bar" class="bg-stone-50 dark:bg-gray-800 px-6 py-3 border-b border-stone-100 dark:border-gray-700 hidden">
+            <form method="get" action="{% url 'chat:search_messages' conversation.id %}" class="flex gap-2">
+                <input type="text" name="q" placeholder="Search in conversation..." 
+                       class="flex-1 px-4 py-2 bg-white dark:bg-gray-700 border border-stone-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm">
+                <button type="submit" class="bg-stone-900 dark:bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:opacity-90">Search</button>
+            </form>
+        </div>
+        
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-stone-50 dark:bg-gray-900" 
+             style="background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 24px 24px; opacity: 1;">
+            
+            {% for message in messages %}
+                {% if not message.is_deleted or message.sender == user %}
+                    <div class="flex w-full {% if message.sender == user %}justify-end{% else %}justify-start{% endif %}" id="message-{{ message.id }}">
+                        <div class="message-bubble relative group max-w-[85%] md:max-w-[70%]">
+                            
+                            {% if message.reply_to %}
+                                <div class="bg-opacity-10 bg-black rounded-lg p-2 mb-1 text-xs border-l-2 border-emerald-500 flex flex-col gap-1 cursor-pointer opacity-75">
+                                    <span class="font-bold opacity-75">{{ message.reply_to.sender.username }}</span>
+                                    <span class="truncate">{{ message.reply_to.content|truncatewords:8 }}</span>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="relative px-5 py-3 shadow-sm text-sm md:text-base 
+                                {% if message.sender == user %}
+                                    bg-emerald-600 text-white rounded-2xl rounded-tr-sm
+                                {% else %}
+                                    bg-white dark:bg-gray-800 text-stone-800 dark:text-gray-100 rounded-2xl rounded-tl-sm border border-stone-100 dark:border-gray-700
+                                {% endif %}">
+                                
+                                {% if message.message_type == 'text' %}
+                                    {% if message.deleted_for_everyone %}
+                                        <p class="italic opacity-60 text-xs flex items-center gap-1"><i class="fas fa-ban"></i> Message deleted</p>
+                                    {% else %}
+                                        <p class="whitespace-pre-wrap break-words leading-relaxed">{{ message.content }}</p>
+                                    {% endif %}
+                                
+                                {% elif message.message_type == 'image' %}
+                                    <div class="rounded-lg overflow-hidden mb-1">
+                                        <img src="{{ message.image.url }}" class="max-w-full max-h-80 object-cover cursor-zoom-in hover:opacity-95 transition" onclick="openImageModal('{{ message.image.url }}')">
+                                    </div>
+                                    {% if message.content %}<p class="mt-2">{{ message.content }}</p>{% endif %}
+                                
+                                {% elif message.message_type == 'video' %}
+                                    <video controls class="rounded-lg max-w-full max-h-80">
+                                        <source src="{{ message.video.url }}" type="video/mp4">
+                                    </video>
+                                    {% if message.content %}<p class="mt-2">{{ message.content }}</p>{% endif %}
+                                
+                                {% elif message.message_type == 'document' %}
+                                    <a href="{{ message.document.url }}" download class="flex items-center gap-3 p-3 rounded-lg bg-black/5 hover:bg-black/10 transition-colors">
+                                        <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-emerald-600 shadow-sm"><i class="fas fa-file-alt"></i></div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="font-bold text-sm truncate">{{ message.file_name }}</p>
+                                            <p class="text-xs opacity-70">Download</p>
+                                        </div>
+                                    </a>
+                                    {% if message.content %}<p class="mt-2">{{ message.content }}</p>{% endif %}
+                                {% endif %}
+
+                                <div class="flex items-center justify-end gap-1 mt-1 select-none">
+                                    <span class="text-[10px] opacity-70">
+                                        {{ message.created_at|date:"H:i" }}
+                                        {% if message.is_edited %}<span class="ml-1">(edited)</span>{% endif %}
+                                    </span>
+                                    {% if message.sender == user %}
+                                        <span class="text-[10px]">
+                                            {% if message.read_at %}<i class="fas fa-check-double text-blue-200"></i>
+                                            {% elif message.delivered_at %}<i class="fas fa-check-double opacity-70"></i>
+                                            {% else %}<i class="fas fa-check opacity-70"></i>{% endif %}
+                                        </span>
+                                    {% endif %}
+                                </div>
+
+                                {% if message.reactions.all %}
+                                    <div class="absolute -bottom-3 left-4 flex gap-1">
+                                        {% for reaction in message.reactions.all %}
+                                            <span class="bg-white dark:bg-gray-700 text-xs px-1.5 py-0.5 rounded-full shadow-sm border border-stone-100 dark:border-gray-600 scale-100 hover:scale-110 transition cursor-default">
+                                                {{ reaction.reaction }}
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="absolute top-1/2 -translate-y-1/2 {% if message.sender == user %}left-0 -translate-x-full pr-2{% else %}right-0 translate-x-full pl-2{% endif %} hidden group-hover:flex items-center gap-1">
+                                <button onclick="showReactionPicker({{ message.id }})" class="w-8 h-8 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-stone-100 dark:border-gray-700 text-stone-400 hover:text-amber-500 hover:scale-110 transition flex items-center justify-center">
+                                    <i class="far fa-smile"></i>
+                                </button>
+                                <button onclick="replyToMessage({{ message.id }}, '{{ message.sender.username }}', '{{ message.content|truncatewords:5|escapejs }}')" class="w-8 h-8 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-stone-100 dark:border-gray-700 text-stone-400 hover:text-blue-500 hover:scale-110 transition flex items-center justify-center">
+                                    <i class="fas fa-reply"></i>
+                                </button>
+                                {% if message.sender == user and message.message_type == 'text' %}
+                                    <button onclick="editMessage({{ message.id }}, '{{ message.content|escapejs }}')" class="w-8 h-8 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-stone-100 dark:border-gray-700 text-stone-400 hover:text-stone-700 hover:scale-110 transition flex items-center justify-center">
+                                        <i class="fas fa-pen text-xs"></i>
+                                    </button>
+                                    <button onclick="deleteMessage({{ message.id }})" class="w-8 h-8 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-stone-100 dark:border-gray-700 text-stone-400 hover:text-red-500 hover:scale-110 transition flex items-center justify-center">
+                                        <i class="fas fa-trash-alt text-xs"></i>
+                                    </button>
+                                {% endif %}
+                            </div>
+
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+            
+            <div id="typing-indicator-bubble" class="hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl rounded-tl-sm border border-stone-100 dark:border-gray-700 px-4 py-3 shadow-sm inline-block">
+                    <div class="typing-indicator flex space-x-1">
+                        <span class="w-1.5 h-1.5 bg-stone-400 rounded-full"></span>
+                        <span class="w-1.5 h-1.5 bg-stone-400 rounded-full"></span>
+                        <span class="w-1.5 h-1.5 bg-stone-400 rounded-full"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="reply-bar" class="hidden bg-stone-50 dark:bg-gray-800 px-6 py-3 border-t border-stone-200 dark:border-gray-700 flex items-center justify-between animate-fade-in-up">
+            <div class="flex items-center gap-3 overflow-hidden">
+                <div class="w-1 h-10 bg-emerald-500 rounded-full"></div>
+                <div>
+                    <p class="text-xs font-bold text-emerald-600" id="reply-username">User</p>
+                    <p class="text-sm text-stone-600 dark:text-stone-300 truncate max-w-xs" id="reply-content">Message...</p>
+                </div>
+            </div>
+            <button onclick="cancelReply()" class="w-8 h-8 rounded-full hover:bg-stone-200 dark:hover:bg-gray-700 flex items-center justify-center transition">
+                <i class="fas fa-times text-stone-500"></i>
+            </button>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-900 border-t border-stone-100 dark:border-gray-800 p-4 md:p-5 relative z-20">
+            <div id="media-preview" class="hidden mb-4 p-3 bg-stone-50 dark:bg-gray-800 rounded-xl relative border border-stone-200 dark:border-gray-700">
+                <button onclick="clearMediaPreview()" class="absolute -top-2 -right-2 bg-stone-800 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-black shadow-md z-10">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+                <div id="preview-content" class="rounded-lg overflow-hidden"></div>
+            </div>
+            
+            <div class="flex items-end gap-3">
+                <div class="relative">
+                    <button onclick="toggleAttachMenu()" class="w-10 h-10 rounded-full bg-stone-100 dark:bg-gray-800 text-stone-500 hover:text-emerald-600 hover:bg-emerald-50 transition-colors flex items-center justify-center">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    
+                    <div id="attach-menu" class="hidden absolute bottom-full left-0 mb-3 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-stone-100 dark:border-gray-700 p-2 min-w-[200px] flex flex-col gap-1 transform transition-all origin-bottom-left">
+                        <label class="flex items-center gap-3 px-4 py-3 hover:bg-stone-50 dark:hover:bg-gray-700 rounded-xl cursor-pointer transition-colors">
+                            <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center"><i class="fas fa-image"></i></div>
+                            <span class="text-sm font-medium text-stone-700 dark:text-stone-200">Photo</span>
+                            <input type="file" accept="image/*" onchange="handleFileUpload(this, 'image')" class="hidden">
+                        </label>
+                        <label class="flex items-center gap-3 px-4 py-3 hover:bg-stone-50 dark:hover:bg-gray-700 rounded-xl cursor-pointer transition-colors">
+                            <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center"><i class="fas fa-video"></i></div>
+                            <span class="text-sm font-medium text-stone-700 dark:text-stone-200">Video</span>
+                            <input type="file" accept="video/*" onchange="handleFileUpload(this, 'video')" class="hidden">
+                        </label>
+                        <label class="flex items-center gap-3 px-4 py-3 hover:bg-stone-50 dark:hover:bg-gray-700 rounded-xl cursor-pointer transition-colors">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center"><i class="fas fa-file-alt"></i></div>
+                            <span class="text-sm font-medium text-stone-700 dark:text-stone-200">Document</span>
+                            <input type="file" accept=".pdf,.doc,.docx,.txt" onchange="handleFileUpload(this, 'document')" class="hidden">
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="flex-1 bg-stone-100 dark:bg-gray-800 rounded-2xl flex items-center px-2 py-1 border border-transparent focus-within:border-emerald-500/50 focus-within:bg-white dark:focus-within:bg-gray-800 transition-all">
+                    <button onclick="toggleEmojiPicker()" class="p-2 text-stone-400 hover:text-amber-500 transition-colors">
+                        <i class="far fa-smile text-xl"></i>
+                    </button>
+                    
+                    <textarea id="message-input" rows="1" placeholder="Type a message..." 
+                        class="flex-1 bg-transparent border-none focus:ring-0 text-stone-800 dark:text-white px-2 py-3 max-h-32 resize-none leading-relaxed placeholder-stone-400"
+                        onkeydown="handleKeyPress(event)" oninput="handleTyping(); autoResizeTextarea(this);"></textarea>
+                        
+                    <div id="emoji-picker" class="emoji-picker absolute bottom-full mb-4 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-stone-100 dark:border-gray-700 p-4 grid grid-cols-6 gap-2 w-72 h-48 overflow-y-auto">
+                        <button onclick="insertEmoji('😊')" class="hover:bg-stone-100 dark:hover:bg-gray-700 p-2 rounded text-xl">😊</button>
+                        <button onclick="insertEmoji('😂')" class="hover:bg-stone-100 dark:hover:bg-gray-700 p-2 rounded text-xl">😂</button>
+                        <button onclick="insertEmoji('❤️')" class="hover:bg-stone-100 dark:hover:bg-gray-700 p-2 rounded text-xl">❤️</button>
+                        <button onclick="insertEmoji('👍')" class="hover:bg-stone-100 dark:hover:bg-gray-700 p-2 rounded text-xl">👍</button>
+                        <button onclick="insertEmoji('🙏')" class="hover:bg-stone-100 dark:hover:bg-gray-700 p-2 rounded text-xl">🙏</button>
+                        <button onclick="insertEmoji('🔥')" class="hover:bg-stone-100 dark:hover:bg-gray-700 p-2 rounded text-xl">🔥</button>
+                        <button onclick="insertEmoji('🎉')" class="hover:bg-stone-100 dark:hover:bg-gray-700 p-2 rounded text-xl">🎉</button>
+                        <button onclick="insertEmoji('😢')" class="hover:bg-stone-100 dark:hover:bg-gray-700 p-2 rounded text-xl">😢</button>
+                        <button onclick="insertEmoji('😮')" class="hover:bg-stone-100 dark:hover:bg-gray-700 p-2 rounded text-xl">😮</button>
+                        <button onclick="insertEmoji('👋')" class="hover:bg-stone-100 dark:hover:bg-gray-700 p-2 rounded text-xl">👋</button>
+                        <button onclick="insertEmoji('💯')" class="hover:bg-stone-100 dark:hover:bg-gray-700 p-2 rounded text-xl">💯</button>
+                        <button onclick="insertEmoji('✅')" class="hover:bg-stone-100 dark:hover:bg-gray-700 p-2 rounded text-xl">✅</button>
+                    </div>
+                </div>
+                
+                <button onclick="sendMessage()" id="send-button" class="w-12 h-12 rounded-full bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 hover:bg-emerald-700 hover:scale-105 transition flex items-center justify-center">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="image-modal" class="fixed inset-0 bg-black/95 hidden z-50 flex items-center justify-center p-4 backdrop-blur-sm" onclick="closeImageModal()">
+    <button class="absolute top-6 right-6 text-white/70 hover:text-white text-4xl transition" onclick="closeImageModal()">
+        <i class="fas fa-times"></i>
+    </button>
+    <img id="modal-image" src="" alt="Full size" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl">
+</div>
+
+<div id="reaction-picker" class="fixed hidden z-50 bg-white dark:bg-gray-800 rounded-full shadow-xl border border-stone-100 dark:border-gray-700 p-2 flex gap-1 reaction-popup">
+    <button onclick="addReaction('👍')" class="p-2 hover:bg-stone-100 dark:hover:bg-gray-700 rounded-full transition text-xl">👍</button>
+    <button onclick="addReaction('❤️')" class="p-2 hover:bg-stone-100 dark:hover:bg-gray-700 rounded-full transition text-xl">❤️</button>
+    <button onclick="addReaction('😂')" class="p-2 hover:bg-stone-100 dark:hover:bg-gray-700 rounded-full transition text-xl">😂</button>
+    <button onclick="addReaction('😮')" class="p-2 hover:bg-stone-100 dark:hover:bg-gray-700 rounded-full transition text-xl">😮</button>
+    <button onclick="addReaction('😢')" class="p-2 hover:bg-stone-100 dark:hover:bg-gray-700 rounded-full transition text-xl">😢</button>
+</div>
+
+<script>
+    const conversationId = {{ conversation.id }};
+    const currentUserId = {{ user.id }};
+    let chatSocket;
+    let replyToMessageId = null;
+    let currentReactionMessageId = null;
+    let selectedMediaFile = null;
+    let selectedMediaType = null;
+    let typingTimer;
+
+    // WebSocket Init
+    function connectWebSocket() {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        chatSocket = new WebSocket(protocol + '//' + window.location.host + '/ws/chat/' + conversationId + '/');
+        
+        chatSocket.onopen = () => console.log('WS Connected');
+        chatSocket.onmessage = (e) => handleWebSocketMessage(JSON.parse(e.data));
+        chatSocket.onclose = () => setTimeout(connectWebSocket, 3000);
+    }
+
+    function handleWebSocketMessage(data) {
+        switch(data.type) {
+            case 'chat_message': appendMessage(data.message); break;
+            case 'typing_status': updateTypingStatus(data.is_typing); break;
+            case 'user_status': updateUserStatus(data.status); break;
+            case 'message_reaction': location.reload(); break; // Simple reload for reaction updates to sync UI
+            case 'message_deleted': document.getElementById('message-'+data.message_id)?.remove(); break;
+            case 'message_edited': location.reload(); break; 
+        }
+    }
+
+    // Helper: Insert message into DOM (Simplified logic, complex implementation handled by reload usually in basics)
+    function appendMessage(msg) {
+        // Ideally this constructs the HTML string based on the template above.
+        // For simplicity in this demo, we can just reload or do a simple append.
+        // A full implementation requires recreating the HTML structure in JS strings.
+        location.reload(); 
+        scrollToBottom();
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('message-input');
+        const message = input.value.trim();
+        if (!message && !selectedMediaFile) return;
+
+        if (selectedMediaFile) {
+            const formData = new FormData();
+            formData.append('content', message);
+            formData.append('media_type', selectedMediaType);
+            formData.append(selectedMediaType, selectedMediaFile); // Ensure key matches view expectation
+            
+            const btn = document.getElementById('send-button');
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+
+            fetch(`/chat/upload/${conversationId}/`, {
+                method: 'POST',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                if(data.success) {
+                    clearMediaPreview();
+                    input.value = '';
+                    cancelReply();
+                    autoResizeTextarea(input);
+                }
+            })
+            .finally(() => {
+                btn.innerHTML = originalIcon;
+                btn.disabled = false;
+            });
+        } else {
+            chatSocket.send(JSON.stringify({
+                type: 'chat_message',
+                message: message,
+                reply_to: replyToMessageId
+            }));
+            input.value = '';
+            cancelReply();
+            autoResizeTextarea(input);
+        }
+    }
+
+    // UI Helpers
+    function autoResizeTextarea(el) {
+        el.style.height = 'auto';
+        el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+    }
+
+    function scrollToBottom() {
+        const container = document.getElementById('chat-messages');
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function handleTyping() {
+        clearTimeout(typingTimer);
+        chatSocket.send(JSON.stringify({ type: 'typing_status', is_typing: true }));
+        typingTimer = setTimeout(() => chatSocket.send(JSON.stringify({ type: 'typing_status', is_typing: false })), 1000);
+    }
+
+    function updateTypingStatus(isTyping) {
+        const ind = document.getElementById('typing-indicator-bubble');
+        const headerInd = document.querySelector('.typing-indicator'); // In header
+        if(isTyping) {
+            ind.classList.remove('hidden');
+            if(headerInd) headerInd.classList.remove('hidden');
+            scrollToBottom();
+        } else {
+            ind.classList.add('hidden');
+            if(headerInd) headerInd.classList.add('hidden');
+        }
+    }
+
+    function updateUserStatus(status) {
+        const dots = document.querySelectorAll('.online-indicator');
+        dots.forEach(d => status === 'online' ? d.classList.remove('hidden') : d.classList.add('hidden'));
+    }
+
+    function replyToMessage(id, user, text) {
+        replyToMessageId = id;
+        document.getElementById('reply-bar').classList.remove('hidden');
+        document.getElementById('reply-username').innerText = user;
+        document.getElementById('reply-content').innerText = text;
+        document.getElementById('message-input').focus();
+    }
+
+    function cancelReply() {
+        replyToMessageId = null;
+        document.getElementById('reply-bar').classList.add('hidden');
+    }
+
+    // Reaction & Menu Logic
+    function showReactionPicker(id) {
+        currentReactionMessageId = id;
+        const picker = document.getElementById('reaction-picker');
+        const msgEl = document.getElementById(`message-${id}`);
+        // Position logic
+        const rect = msgEl.getBoundingClientRect();
+        picker.style.top = (rect.top - 50) + 'px';
+        picker.style.left = (rect.left + 20) + 'px';
+        picker.classList.remove('hidden');
+    }
+
+    function addReaction(emoji) {
+        chatSocket.send(JSON.stringify({ type: 'message_reaction', message_id: currentReactionMessageId, reaction: emoji }));
+        document.getElementById('reaction-picker').classList.add('hidden');
+    }
+
+    function handleFileUpload(input, type) {
+        const file = input.files[0];
+        if(!file) return;
+        selectedMediaFile = file;
+        selectedMediaType = type;
+        
+        const preview = document.getElementById('media-preview');
+        const content = document.getElementById('preview-content');
+        preview.classList.remove('hidden');
+        document.getElementById('attach-menu').classList.add('hidden');
+
+        if(type === 'image') {
+            const reader = new FileReader();
+            reader.onload = e => content.innerHTML = `<img src="${e.target.result}" class="max-h-32 rounded w-full object-cover">`;
+            reader.readAsDataURL(file);
+        } else {
+            content.innerHTML = `<div class="p-3 bg-white flex items-center gap-2"><i class="fas fa-file"></i> ${file.name}</div>`;
+        }
+    }
+
+    function clearMediaPreview() {
+        document.getElementById('media-preview').classList.add('hidden');
+        selectedMediaFile = null;
+        selectedMediaType = null;
+    }
+
+    function insertEmoji(char) {
+        const inp = document.getElementById('message-input');
+        inp.value += char;
+        document.getElementById('emoji-picker').classList.remove('active');
+        inp.focus();
+    }
+
+    function toggleEmojiPicker() { document.getElementById('emoji-picker').classList.toggle('active'); }
+    function toggleAttachMenu() { document.getElementById('attach-menu').classList.toggle('hidden'); }
+    function toggleSearch() { document.getElementById('search-bar').classList.toggle('hidden'); }
+    function openImageModal(url) { 
+        document.getElementById('modal-image').src = url; 
+        document.getElementById('image-modal').classList.remove('hidden'); 
+    }
+    function closeImageModal() { document.getElementById('image-modal').classList.add('hidden'); }
+    function handleKeyPress(e) { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+        connectWebSocket();
+        scrollToBottom();
+        
+        // Mark Read
+        fetch(`/chat/mark-read/{{ conversation.id }}/`, {
+            method: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'}
+        });
+
+        // Click outside listeners
+        document.addEventListener('click', (e) => {
+            if(!e.target.closest('#attach-menu') && !e.target.closest('[onclick="toggleAttachMenu()"]')) {
+                document.getElementById('attach-menu').classList.add('hidden');
+            }
+            if(!e.target.closest('#reaction-picker') && !e.target.closest('[onclick^="showReactionPicker"]')) {
+                document.getElementById('reaction-picker').classList.add('hidden');
+            }
+            if(!e.target.closest('.emoji-picker') && !e.target.closest('[onclick="toggleEmojiPicker()"]')) {
+                document.getElementById('emoji-picker').classList.remove('active');
+            }
+        });
+    });
+</script>
+{% endblock %}

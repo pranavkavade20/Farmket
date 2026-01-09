@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    
+    <nav class="flex mb-8 text-sm text-stone-500 dark:text-stone-400">
+        <a href="{% url 'products:home' %}" class="hover:text-emerald-600">Home</a>
+        <span class="mx-2">/</span>
+        <a href="{% url 'products:list' %}" class="hover:text-emerald-600">Products</a>
+        <span class="mx-2">/</span>
+        <span class="text-stone-800 dark:text-white font-medium">{{ product.name }}</span>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        
+        <div class="space-y-4">
+            <div class="relative aspect-[4/3] bg-stone-100 dark:bg-gray-800 rounded-3xl overflow-hidden shadow-lg border border-stone-100 dark:border-gray-700 group">
+                {% if product.images.first %}
+                    <img id="main-image" src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-stone-300"><i class="fas fa-image text-6xl"></i></div>
+                {% endif %}
+                
+                {% if product.is_organic %}
+                    <div class="absolute top-4 left-4 bg-emerald-600 text-white text-sm font-bold px-3 py-1.5 rounded-full shadow-md flex items-center gap-2">
+                        <i class="fas fa-leaf"></i> Organic
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if product.images.all|length > 1 %}
+                <div class="grid grid-cols-4 gap-4">
+                    {% for image in product.images.all %}
+                        <div class="aspect-square rounded-xl overflow-hidden cursor-pointer border-2 border-transparent hover:border-emerald-500 transition-all opacity-70 hover:opacity-100" onclick="changeImage('{{ image.image.url }}')">
+                            <img src="{{ image.image.url }}" class="w-full h-full object-cover">
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="flex flex-col">
+            
+            <div class="mb-6">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded-lg uppercase tracking-wide">
+                        {{ product.category.name }}
+                    </span>
+                    <div class="flex items-center text-amber-400 text-sm gap-1">
+                        <i class="fas fa-star"></i>
+                        <span class="font-bold text-stone-800 dark:text-white">{{ avg_rating|floatformat:1 }}</span>
+                        <span class="text-stone-400 dark:text-stone-500">({{ reviews.count }} reviews)</span>
+                    </div>
+                </div>
+
+                <h1 class="text-3xl md:text-4xl font-bold text-stone-800 dark:text-white mb-4 leading-tight">{{ product.name }}</h1>
+                
+                <div class="flex items-end gap-2 mb-6">
+                    <span class="text-4xl font-bold text-emerald-600 dark:text-emerald-400">₹{{ product.price }}</span>
+                    <span class="text-lg text-stone-500 dark:text-stone-400 mb-1">/ {{ product.unit }}</span>
+                </div>
+
+                <p class="text-stone-600 dark:text-stone-300 leading-relaxed mb-8">
+                    {{ product.description }}
+                </p>
+
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <div class="p-4 bg-stone-50 dark:bg-gray-800 rounded-xl">
+                        <p class="text-xs text-stone-500 uppercase font-bold">Harvest Date</p>
+                        <p class="text-stone-800 dark:text-white font-medium">{{ product.harvest_date|default:"Freshly Picked" }}</p>
+                    </div>
+                    <div class="p-4 bg-stone-50 dark:bg-gray-800 rounded-xl">
+                        <p class="text-xs text-stone-500 uppercase font-bold">Stock</p>
+                        <p class="text-stone-800 dark:text-white font-medium">{{ product.stock_quantity }} {{ product.unit }} Available</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 rounded-2xl p-4 flex items-center justify-between mb-8 shadow-sm">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-stone-100 dark:bg-gray-700 flex items-center justify-center text-stone-400 text-xl font-bold border-2 border-white dark:border-gray-600 shadow">
+                        {{ product.farmer.username|make_list|first|upper }}
+                    </div>
+                    <div>
+                        <p class="text-xs text-stone-500 dark:text-stone-400 uppercase font-bold">Sold by</p>
+                        <p class="text-stone-900 dark:text-white font-bold">{{ product.farmer.username }}</p>
+                        {% if product.farmer.farmer_profile.farm_name %}
+                            <p class="text-xs text-emerald-600">{{ product.farmer.farmer_profile.farm_name }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if user.is_authenticated and user != product.farmer %}
+                    <a href="{% url 'chat:start_conversation' product.farmer.id %}" class="text-stone-500 hover:text-emerald-600 dark:text-stone-400 dark:hover:text-emerald-400 transition-colors p-2">
+                        <i class="fas fa-comment-dots text-xl"></i>
+                    </a>
+                {% endif %}
+            </div>
+
+            <div class="mt-auto">
+                {% if user.is_authenticated and user.is_buyer %}
+                    <form method="post" action="{% url 'orders:add_to_cart' product.id %}" class="flex gap-4">
+                        {% csrf_token %}
+                        <div class="w-1/3">
+                            <input type="number" name="quantity" value="{{ product.minimum_order }}" min="{{ product.minimum_order }}" max="{{ product.stock_quantity }}" class="w-full h-full px-4 text-center text-lg font-bold bg-stone-50 dark:bg-gray-800 border border-stone-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none">
+                        </div>
+                        <button type="submit" class="flex-1 bg-stone-900 dark:bg-emerald-600 text-white py-4 rounded-xl font-bold text-lg shadow-xl hover:bg-stone-800 dark:hover:bg-emerald-700 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed" {% if not product.in_stock %}disabled{% endif %}>
+                            {% if product.in_stock %}
+                                Add to Cart - ₹<span id="total-price">{{ product.price }}</span>
+                            {% else %}
+                                Out of Stock
+                            {% endif %}
+                        </button>
+                    </form>
+                {% elif not user.is_authenticated %}
+                    <a href="{% url 'accounts:login' %}" class="block w-full text-center bg-emerald-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-emerald-700 transition">
+                        Login to Purchase
+                    </a>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+
+    <div class="mt-20 max-w-4xl">
+        <h2 class="text-2xl font-bold text-stone-800 dark:text-white mb-8">Customer Reviews</h2>
+        
+        {% if user.is_authenticated and user.is_buyer %}
+            <div class="bg-stone-50 dark:bg-gray-800 p-6 rounded-2xl mb-10 border border-stone-100 dark:border-gray-700">
+                <h3 class="font-bold text-stone-900 dark:text-white mb-4">Write a Review</h3>
+                <form method="post" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-xs font-bold text-stone-500 uppercase mb-2">Rating</label>
+                        {{ form.rating }} </div>
+                    <div>
+                        <label class="block text-xs font-bold text-stone-500 uppercase mb-2">Comment</label>
+                        {{ form.comment }}
+                    </div>
+                    <button type="submit" class="bg-emerald-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-emerald-700 transition">Post Review</button>
+                </form>
+            </div>
+        {% endif %}
+
+        <div class="space-y-6">
+            {% for review in reviews %}
+                <div class="flex gap-4 p-6 bg-white dark:bg-gray-800 rounded-2xl border border-stone-100 dark:border-gray-700 shadow-sm">
+                    <div class="shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center text-emerald-700 font-bold">
+                        {{ review.buyer.username|make_list|first|upper }}
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h4 class="font-bold text-stone-900 dark:text-white">{{ review.buyer.username }}</h4>
+                                <span class="text-xs text-stone-400">{{ review.created_at|date:"M d, Y" }}</span>
+                            </div>
+                            <div class="flex text-amber-400 text-sm">
+                                {% for i in "12345" %}
+                                    <i class="fas fa-star {% if forloop.counter > review.rating %}text-stone-200 dark:text-gray-600{% endif %}"></i>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <p class="text-stone-600 dark:text-stone-300">{{ review.comment }}</p>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-stone-500 italic">No reviews yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function changeImage(src) {
+        document.getElementById('main-image').src = src;
+    }
+
+    // Optional: Dynamic Price Update script
+    const quantityInput = document.querySelector('input[name="quantity"]');
+    const priceDisplay = document.getElementById('total-price');
+    const basePrice = {{ product.price }};
+
+    if (quantityInput && priceDisplay) {
+        quantityInput.addEventListener('input', (e) => {
+            const qty = e.target.value;
+            priceDisplay.innerText = (basePrice * qty).toFixed(2);
+        });
+    }
+    
+    // Style the django form fields
+    document.querySelectorAll('textarea, select').forEach(el => {
+        el.classList.add('w-full', 'px-4', 'py-3', 'bg-white', 'dark:bg-gray-700', 'border', 'border-stone-200', 'dark:border-gray-600', 'rounded-xl', 'focus:ring-2', 'focus:ring-emerald-500', 'outline-none');
+    });
+</script>
+{% endblock %}

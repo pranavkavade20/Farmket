@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-stone-900 dark:text-white">Order Trends</h1>
+            <p class="text-stone-500 dark:text-stone-400 mt-1">Status distribution and daily volume.</p>
+        </div>
+        <a href="{% url 'analytics:dashboard' %}" class="flex items-center text-sm font-bold text-stone-500 hover:text-emerald-600 dark:text-stone-400 dark:hover:text-emerald-400 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i> Back
+        </a>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-stone-100 dark:border-gray-700 p-8 mb-8">
+        <h2 class="text-lg font-bold text-stone-900 dark:text-white mb-6">Order Lifecycle</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {% for status in status_distribution %}
+                <div class="p-4 rounded-2xl border flex flex-col items-center justify-center text-center
+                    {% if status.status == 'pending' %}bg-amber-50 border-amber-100 dark:bg-amber-900/20 dark:border-amber-800
+                    {% elif status.status == 'confirmed' %}bg-blue-50 border-blue-100 dark:bg-blue-900/20 dark:border-blue-800
+                    {% elif status.status == 'processing' %}bg-purple-50 border-purple-100 dark:bg-purple-900/20 dark:border-purple-800
+                    {% elif status.status == 'shipped' %}bg-indigo-50 border-indigo-100 dark:bg-indigo-900/20 dark:border-indigo-800
+                    {% elif status.status == 'delivered' %}bg-emerald-50 border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-800
+                    {% elif status.status == 'cancelled' %}bg-red-50 border-red-100 dark:bg-red-900/20 dark:border-red-800
+                    {% endif %}">
+                    <span class="text-3xl font-bold text-stone-900 dark:text-white mb-1">{{ status.count }}</span>
+                    <span class="text-xs font-bold uppercase tracking-wide opacity-70">{{ status.status }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-stone-100 dark:border-gray-700 p-8 mb-8">
+        <h2 class="text-lg font-bold text-stone-900 dark:text-white mb-6">Daily Volume (30 Days)</h2>
+        <div class="h-64 flex items-end space-x-1">
+            {% for day in daily_orders %}
+                <div class="flex-1 flex flex-col items-center group relative">
+                    <div class="absolute -top-10 bg-stone-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-all mb-2 z-10 whitespace-nowrap">
+                        {{ day.count }} orders
+                    </div>
+                    <div class="w-full bg-emerald-200 dark:bg-emerald-900/30 rounded-t-sm hover:bg-emerald-500 dark:hover:bg-emerald-500 transition-all duration-300" 
+                         style="height: {% if day.count > 0 %}{{ day.count|add:5 }}%{% else %}2px{% endif %}">
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="flex justify-between mt-4 text-xs font-medium text-stone-400 uppercase tracking-wide">
+            <span>Last Month</span>
+            <span>Today</span>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-stone-100 dark:border-gray-700 overflow-hidden">
+        <div class="px-8 py-6 border-b border-stone-100 dark:border-gray-700 bg-stone-50/50 dark:bg-gray-700/30">
+            <h2 class="text-lg font-bold text-stone-900 dark:text-white">Transaction Log</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-stone-50 dark:bg-gray-800 border-b border-stone-100 dark:border-gray-700">
+                    <tr>
+                        <th class="px-8 py-4 text-xs font-bold text-stone-500 uppercase tracking-wider">Order ID</th>
+                        <th class="px-8 py-4 text-xs font-bold text-stone-500 uppercase tracking-wider">Buyer</th>
+                        <th class="px-8 py-4 text-xs font-bold text-stone-500 uppercase tracking-wider">Items</th>
+                        <th class="px-8 py-4 text-xs font-bold text-stone-500 uppercase tracking-wider">Total</th>
+                        <th class="px-8 py-4 text-xs font-bold text-stone-500 uppercase tracking-wider">Status</th>
+                        <th class="px-8 py-4 text-xs font-bold text-stone-500 uppercase tracking-wider">Date</th>
+                        <th class="px-8 py-4 text-xs font-bold text-stone-500 uppercase tracking-wider">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-100 dark:divide-gray-700">
+                    {% for order in orders %}
+                        <tr class="hover:bg-stone-50 dark:hover:bg-gray-700/50 transition-colors">
+                            <td class="px-8 py-4 font-bold text-stone-900 dark:text-white text-sm">#{{ order.order_number }}</td>
+                            <td class="px-8 py-4">
+                                <div class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-300">
+                                    <div class="w-6 h-6 rounded-full bg-stone-100 dark:bg-gray-600 flex items-center justify-center text-xs font-bold">
+                                        {{ order.buyer.username|make_list|first }}
+                                    </div>
+                                    {{ order.buyer.username }}
+                                </div>
+                            </td>
+                            <td class="px-8 py-4 text-sm text-stone-600 dark:text-stone-300">{{ order.items.count }} items</td>
+                            <td class="px-8 py-4 text-sm font-bold text-emerald-600 dark:text-emerald-400">₹{{ order.total_amount }}</td>
+                            <td class="px-8 py-4">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wide
+                                    {% if order.status == 'pending' %}bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400
+                                    {% elif order.status == 'delivered' %}bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400
+                                    {% elif order.status == 'cancelled' %}bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400
+                                    {% else %}bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400{% endif %}">
+                                    {{ order.status }}
+                                </span>
+                            </td>
+                            <td class="px-8 py-4 text-sm text-stone-500 dark:text-stone-400">{{ order.created_at|date:"M d" }}</td>
+                            <td class="px-8 py-4">
+                                <a href="{% url 'orders:order_detail' order.id %}" class="w-8 h-8 flex items-center justify-center rounded-lg bg-stone-100 dark:bg-gray-700 text-stone-500 hover:text-emerald-600 hover:bg-emerald-50 transition-colors">
+                                    <i class="fas fa-eye text-xs"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

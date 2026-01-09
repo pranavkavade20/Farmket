@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-stone-800 dark:text-white">List New Harvest</h1>
+        <p class="text-stone-500 dark:text-stone-400 mt-1">Share your fresh produce with the community.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <div class="lg:col-span-2 space-y-8">
+            <form method="post" enctype="multipart/form-data" class="space-y-8" id="productForm">
+                {% csrf_token %}
+                
+                <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 shadow-sm border border-stone-100 dark:border-gray-700">
+                    <h2 class="text-lg font-bold text-stone-800 dark:text-white flex items-center gap-2 mb-6">
+                        <span class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-sm"><i class="fas fa-carrot"></i></span>
+                        Product Details
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 gap-6">
+                        <div class="space-y-1">
+                            <label for="{{ form.name.id_for_label }}" class="block text-sm font-bold text-stone-700 dark:text-stone-300">Product Name <span class="text-red-500">*</span></label>
+                            {{ form.name }}
+                            {% if form.name.errors %} <p class="text-red-500 text-xs mt-1">{{ form.name.errors.0 }}</p> {% endif %}
+                        </div>
+
+                        <div class="space-y-1">
+                            <label for="{{ form.category.id_for_label }}" class="block text-sm font-bold text-stone-700 dark:text-stone-300">Category <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                {{ form.category }}
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-stone-500">
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </div>
+                            </div>
+                            {% if form.category.errors %} <p class="text-red-500 text-xs mt-1">{{ form.category.errors.0 }}</p> {% endif %}
+                        </div>
+
+                        <div class="flex items-center gap-3 p-4 bg-stone-50 dark:bg-gray-700/50 rounded-xl border border-stone-100 dark:border-gray-700">
+                            {{ form.is_organic }}
+                            <label for="{{ form.is_organic.id_for_label }}" class="text-sm font-medium text-stone-700 dark:text-stone-300 cursor-pointer select-none">
+                                This product is <span class="text-emerald-600 font-bold">Organic Certified</span>
+                            </label>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label for="{{ form.description.id_for_label }}" class="block text-sm font-bold text-stone-700 dark:text-stone-300">Description <span class="text-red-500">*</span></label>
+                            {{ form.description }}
+                            <p class="text-xs text-stone-400 mt-1 text-right">Be descriptive about taste and origin.</p>
+                            {% if form.description.errors %} <p class="text-red-500 text-xs mt-1">{{ form.description.errors.0 }}</p> {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 shadow-sm border border-stone-100 dark:border-gray-700">
+                    <h2 class="text-lg font-bold text-stone-800 dark:text-white flex items-center gap-2 mb-6">
+                        <span class="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400 text-sm"><i class="fas fa-tag"></i></span>
+                        Pricing & Inventory
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-1">
+                            <label class="block text-sm font-bold text-stone-700 dark:text-stone-300">Price (₹) <span class="text-red-500">*</span></label>
+                            {{ form.price }}
+                            {% if form.price.errors %} <p class="text-red-500 text-xs mt-1">{{ form.price.errors.0 }}</p> {% endif %}
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="block text-sm font-bold text-stone-700 dark:text-stone-300">Unit (e.g., kg, pcs) <span class="text-red-500">*</span></label>
+                            {{ form.unit }}
+                            {% if form.unit.errors %} <p class="text-red-500 text-xs mt-1">{{ form.unit.errors.0 }}</p> {% endif %}
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="block text-sm font-bold text-stone-700 dark:text-stone-300">Total Stock <span class="text-red-500">*</span></label>
+                            {{ form.stock_quantity }}
+                            {% if form.stock_quantity.errors %} <p class="text-red-500 text-xs mt-1">{{ form.stock_quantity.errors.0 }}</p> {% endif %}
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="block text-sm font-bold text-stone-700 dark:text-stone-300">Min. Order Qty <span class="text-red-500">*</span></label>
+                            {{ form.minimum_order }}
+                            {% if form.minimum_order.errors %} <p class="text-red-500 text-xs mt-1">{{ form.minimum_order.errors.0 }}</p> {% endif %}
+                        </div>
+                        
+                        <div class="space-y-1">
+                            <label class="block text-sm font-bold text-stone-700 dark:text-stone-300">Harvest Date</label>
+                            {{ form.harvest_date }}
+                        </div>
+
+                        <div class="flex items-center gap-3 p-4 bg-stone-50 dark:bg-gray-700/50 rounded-xl border border-stone-100 dark:border-gray-700 md:col-span-2">
+                            {{ form.is_available }}
+                            <label class="text-sm font-medium text-stone-700 dark:text-stone-300 cursor-pointer select-none">
+                                Make this product <span class="text-emerald-600 font-bold">Visible to Buyers</span> immediately
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 shadow-sm border border-stone-100 dark:border-gray-700">
+                    <h2 class="text-lg font-bold text-stone-800 dark:text-white flex items-center gap-2 mb-6">
+                        <span class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 text-sm"><i class="fas fa-images"></i></span>
+                        Gallery
+                    </h2>
+                    
+                    <div id="image-formset" class="space-y-4">
+                        {{ formset.management_form }}
+                        {% for form in formset %}
+                            <div class="p-4 rounded-xl bg-stone-50 dark:bg-gray-700/50 border border-stone-200 dark:border-gray-600 border-dashed">
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                                    <div class="flex-1">
+                                        <label class="block text-xs font-bold text-stone-500 uppercase mb-1">Image {{ forloop.counter }}</label>
+                                        {{ form.image }}
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        {{ form.is_primary }}
+                                        <span class="text-sm text-stone-600 dark:text-stone-300">Set as Primary</span>
+                                    </div>
+                                </div>
+                                {% if form.errors %} <p class="text-red-500 text-xs mt-2">{{ form.errors }}</p> {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <p class="mt-4 text-xs text-stone-400 flex items-center gap-1">
+                        <i class="fas fa-info-circle"></i> High-quality JPG/PNG images work best.
+                    </p>
+                </div>
+
+                <div class="flex items-center justify-end gap-4 pt-4">
+                    <a href="{% url 'products:my_products' %}" class="px-6 py-3 rounded-xl border border-stone-200 dark:border-gray-600 text-stone-600 dark:text-stone-300 font-bold hover:bg-stone-50 dark:hover:bg-gray-700 transition">
+                        Cancel
+                    </a>
+                    <button type="submit" class="px-8 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/40 transition-all transform hover:-translate-y-0.5">
+                        Publish Listing
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="lg:col-span-1">
+            <div class="sticky top-24 space-y-6">
+                <div class="bg-emerald-50 dark:bg-emerald-900/10 rounded-3xl p-6 border border-emerald-100 dark:border-emerald-900/30">
+                    <h3 class="font-bold text-emerald-800 dark:text-emerald-400 mb-4 flex items-center gap-2">
+                        <i class="fas fa-lightbulb"></i> Seller Tips
+                    </h3>
+                    <ul class="space-y-4">
+                        <li class="flex gap-3 text-sm text-emerald-900 dark:text-emerald-200/80">
+                            <i class="fas fa-check-circle mt-1 opacity-60"></i>
+                            <span><strong>Photos matter:</strong> Listings with clear, bright photos get 40% more clicks.</span>
+                        </li>
+                        <li class="flex gap-3 text-sm text-emerald-900 dark:text-emerald-200/80">
+                            <i class="fas fa-check-circle mt-1 opacity-60"></i>
+                            <span><strong>Be descriptive:</strong> Mention the taste, texture, and best uses for your produce.</span>
+                        </li>
+                        <li class="flex gap-3 text-sm text-emerald-900 dark:text-emerald-200/80">
+                            <i class="fas fa-check-circle mt-1 opacity-60"></i>
+                            <span><strong>Pricing:</strong> Check the "Marketplace" page to see competitive prices.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Targets all standard inputs
+        const inputs = document.querySelectorAll('#productForm input:not([type="checkbox"]):not([type="file"]), #productForm textarea, #productForm select');
+        
+        inputs.forEach(input => {
+            input.classList.add(
+                'w-full', 'px-4', 'py-3.5', 
+                'bg-stone-50', 'dark:bg-gray-700', 
+                'border', 'border-stone-200', 'dark:border-gray-600', 
+                'rounded-xl', 'text-stone-900', 'dark:text-white',
+                'focus:ring-2', 'focus:ring-emerald-500', 'focus:border-emerald-500', 
+                'outline-none', 'transition-all', 'appearance-none'
+            );
+        });
+
+        // Specific style for checkboxes
+        const checkboxes = document.querySelectorAll('#productForm input[type="checkbox"]');
+        checkboxes.forEach(box => {
+            box.classList.add('w-5', 'h-5', 'text-emerald-600', 'bg-stone-100', 'border-stone-300', 'rounded', 'focus:ring-emerald-500', 'dark:bg-gray-600', 'dark:border-gray-500');
+        });
+        
+        // Specific style for file inputs
+        const fileInputs = document.querySelectorAll('#productForm input[type="file"]');
+        fileInputs.forEach(input => {
+             input.classList.add('block', 'w-full', 'text-sm', 'text-stone-500', 'dark:text-stone-400',
+                'file:mr-4', 'file:py-2.5', 'file:px-4',
+                'file:rounded-full', 'file:border-0',
+                'file:text-xs', 'file:font-bold',
+                'file:bg-emerald-50', 'file:text-emerald-700',
+                'hover:file:bg-emerald-100', 'dark:file:bg-emerald-900/30', 'dark:file:text-emerald-400',
+                'cursor-pointer'
+             );
+        });
+    });
+</script>
+{% endblock %}

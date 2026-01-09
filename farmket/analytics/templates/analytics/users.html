@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-stone-900 dark:text-white">User Intelligence</h1>
+            <p class="text-stone-500 dark:text-stone-400 mt-1">Community growth and user base details.</p>
+        </div>
+        <a href="{% url 'analytics:dashboard' %}" class="flex items-center text-sm font-bold text-stone-500 hover:text-emerald-600 dark:text-stone-400 dark:hover:text-emerald-400 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i> Back
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-blue-600 text-white rounded-3xl p-6 shadow-lg shadow-blue-500/20 relative overflow-hidden">
+            <div class="relative z-10">
+                <p class="text-blue-100 text-xs font-bold uppercase tracking-wider">Total Users</p>
+                <p class="text-4xl font-bold mt-2">{{ users.count }}</p>
+            </div>
+            <i class="fas fa-users absolute -right-4 -bottom-4 text-8xl text-blue-500/30"></i>
+        </div>
+        
+        <div class="bg-emerald-600 text-white rounded-3xl p-6 shadow-lg shadow-emerald-500/20 relative overflow-hidden">
+            <div class="relative z-10">
+                <p class="text-emerald-100 text-xs font-bold uppercase tracking-wider">Farmers</p>
+                <p class="text-4xl font-bold mt-2">{{ users|length }}</p> </div>
+            <i class="fas fa-tractor absolute -right-4 -bottom-4 text-8xl text-emerald-500/30"></i>
+        </div>
+        
+        <div class="bg-purple-600 text-white rounded-3xl p-6 shadow-lg shadow-purple-500/20 relative overflow-hidden">
+            <div class="relative z-10">
+                <p class="text-purple-100 text-xs font-bold uppercase tracking-wider">Buyers</p>
+                <p class="text-4xl font-bold mt-2">{{ users|length }}</p> </div>
+            <i class="fas fa-shopping-bag absolute -right-4 -bottom-4 text-8xl text-purple-500/30"></i>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-stone-100 dark:border-gray-700 p-8 mb-8">
+        <h2 class="text-lg font-bold text-stone-900 dark:text-white mb-6">Registration Growth (Last 12 Months)</h2>
+        <div class="h-64 flex items-end justify-between space-x-2">
+            {% for month in user_growth %}
+                <div class="flex-1 flex flex-col items-center group relative">
+                    <div class="absolute -top-10 bg-stone-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity mb-2">
+                        {{ month.count }} users
+                    </div>
+                    <div class="w-full max-w-[40px] bg-emerald-100 dark:bg-emerald-900/30 rounded-t-lg hover:bg-emerald-500 dark:hover:bg-emerald-500 transition-all duration-300 relative overflow-hidden" 
+                         style="height: {{ month.count|add:15 }}%">
+                         <div class="absolute bottom-0 left-0 w-full bg-emerald-500 opacity-20 h-full"></div>
+                    </div>
+                    <p class="text-xs text-stone-500 mt-3 font-medium">{{ month.month|slice:":3" }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-stone-100 dark:border-gray-700 overflow-hidden">
+        <div class="px-8 py-6 border-b border-stone-100 dark:border-gray-700 bg-stone-50/50 dark:bg-gray-700/30">
+            <h2 class="text-lg font-bold text-stone-900 dark:text-white">User Directory</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-stone-50 dark:bg-gray-800 border-b border-stone-100 dark:border-gray-700">
+                    <tr>
+                        <th class="px-8 py-4 text-xs font-bold text-stone-500 uppercase tracking-wider">User</th>
+                        <th class="px-8 py-4 text-xs font-bold text-stone-500 uppercase tracking-wider">Role</th>
+                        <th class="px-8 py-4 text-xs font-bold text-stone-500 uppercase tracking-wider">Contact</th>
+                        <th class="px-8 py-4 text-xs font-bold text-stone-500 uppercase tracking-wider">Joined</th>
+                        <th class="px-8 py-4 text-xs font-bold text-stone-500 uppercase tracking-wider">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-100 dark:divide-gray-700">
+                    {% for user in users %}
+                        <tr class="hover:bg-stone-50 dark:hover:bg-gray-700/50 transition-colors">
+                            <td class="px-8 py-4">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-stone-100 dark:bg-gray-700 flex items-center justify-center text-stone-500 font-bold uppercase text-sm">
+                                        {{ user.username|make_list|first }}
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-stone-900 dark:text-white text-sm">{{ user.username }}</div>
+                                        <div class="text-xs text-stone-500">{{ user.get_full_name|default:"--" }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-8 py-4">
+                                <span class="px-2.5 py-1 text-xs font-bold rounded-full uppercase tracking-wide
+                                    {% if user.user_type == 'farmer' %}bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400
+                                    {% elif user.user_type == 'buyer' %}bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400
+                                    {% else %}bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400{% endif %}">
+                                    {{ user.user_type }}
+                                </span>
+                            </td>
+                            <td class="px-8 py-4">
+                                <div class="text-sm text-stone-600 dark:text-stone-300">{{ user.email }}</div>
+                                <div class="text-xs text-stone-400 mt-0.5">{{ user.phone_number|default:"No Phone" }}</div>
+                            </td>
+                            <td class="px-8 py-4 text-sm text-stone-600 dark:text-stone-300 font-medium">
+                                {{ user.created_at|date:"M d, Y" }}
+                            </td>
+                            <td class="px-8 py-4">
+                                {% if user.is_verified %}
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                        <i class="fas fa-check-circle"></i> Verified
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-stone-100 text-stone-600 dark:bg-gray-700 dark:text-stone-400">
+                                        <i class="fas fa-clock"></i> Pending
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

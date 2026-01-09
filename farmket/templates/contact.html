@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact Us - Farmket{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-stone-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+    
+    <div class="w-full max-w-6xl bg-white dark:bg-gray-800 rounded-[2rem] shadow-2xl shadow-stone-200/50 dark:shadow-none overflow-hidden flex flex-col md:flex-row">
+        
+        <div class="w-full md:w-5/12 bg-stone-900 relative p-10 md:p-12 text-white flex flex-col justify-between overflow-hidden">
+            <div class="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+            <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-amber-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+
+            <div class="relative z-10">
+                <h2 class="text-3xl font-bold mb-2">Get in touch</h2>
+                <p class="text-stone-400 mb-12">Have a question? Fill out the form or contact us directly. We usually respond within 24 hours.</p>
+
+                <div class="space-y-8">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-emerald-400 shrink-0">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Phone</h3>
+                            <p class="text-stone-400 text-sm">+91 987 654 3210</p>
+                            <p class="text-stone-500 text-xs mt-1">Mon-Sat 9am to 6pm</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-emerald-400 shrink-0">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Email</h3>
+                            <p class="text-stone-400 text-sm">support@farmket.com</p>
+                            <p class="text-stone-400 text-sm">sales@farmket.com</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-emerald-400 shrink-0">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Headquarters</h3>
+                            <p class="text-stone-400 text-sm leading-relaxed">
+                                123 Green Valley Road,<br>
+                                Agriculture District, Mumbai 400001
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative z-10 mt-12 flex gap-4">
+                <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-emerald-600 transition-colors"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-emerald-600 transition-colors"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-emerald-600 transition-colors"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+
+        <div class="w-full md:w-7/12 p-10 md:p-12 bg-white dark:bg-gray-800">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-stone-700 dark:text-stone-300">Your Name</label>
+                        <input type="text" name="name" required class="w-full px-4 py-3 bg-stone-50 dark:bg-gray-700 border border-stone-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="John Doe">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-stone-700 dark:text-stone-300">Email Address</label>
+                        <input type="email" name="email" required class="w-full px-4 py-3 bg-stone-50 dark:bg-gray-700 border border-stone-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="john@example.com">
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-stone-700 dark:text-stone-300">Subject</label>
+                    <input type="text" name="subject" required class="w-full px-4 py-3 bg-stone-50 dark:bg-gray-700 border border-stone-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="How can we help?">
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-stone-700 dark:text-stone-300">Message</label>
+                    <textarea name="message" rows="5" required class="w-full px-4 py-3 bg-stone-50 dark:bg-gray-700 border border-stone-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all resize-none" placeholder="Write your message here..."></textarea>
+                </div>
+
+                <button type="submit" class="w-full bg-stone-900 dark:bg-emerald-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-stone-800 dark:hover:bg-emerald-700 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2">
+                    <i class="fas fa-paper-plane"></i> Send Message
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

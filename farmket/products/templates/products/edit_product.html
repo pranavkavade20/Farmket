@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    
+    <div class="mb-8 flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-stone-800 dark:text-white">Edit Product</h1>
+            <p class="text-stone-500 dark:text-stone-400 mt-1">Update details for <span class="font-semibold text-emerald-600">{{ form.instance.name }}</span></p>
+        </div>
+        <a href="{% url 'products:detail' form.instance.slug %}" class="text-sm font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 hover:underline">
+            View Listing <i class="fas fa-external-link-alt ml-1"></i>
+        </a>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="space-y-8" id="editForm">
+        {% csrf_token %}
+        
+        <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 shadow-sm border border-stone-100 dark:border-gray-700">
+            <h2 class="text-lg font-bold text-stone-800 dark:text-white flex items-center gap-2 mb-6">
+                <span class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-sm"><i class="fas fa-edit"></i></span>
+                Core Information
+            </h2>
+            <div class="grid grid-cols-1 gap-6">
+                <div class="space-y-1">
+                    <label class="block text-sm font-bold text-stone-700 dark:text-stone-300">Product Name</label>
+                    {{ form.name }}
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-sm font-bold text-stone-700 dark:text-stone-300">Category</label>
+                    <div class="relative">{{ form.category }}</div>
+                </div>
+                <div class="flex items-center gap-3 p-4 bg-stone-50 dark:bg-gray-700/50 rounded-xl border border-stone-100 dark:border-gray-700">
+                    {{ form.is_organic }}
+                    <label class="text-sm font-medium text-stone-700 dark:text-stone-300">Organic Certified</label>
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-sm font-bold text-stone-700 dark:text-stone-300">Description</label>
+                    {{ form.description }}
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 shadow-sm border border-stone-100 dark:border-gray-700">
+             <h2 class="text-lg font-bold text-stone-800 dark:text-white flex items-center gap-2 mb-6">
+                <span class="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400 text-sm"><i class="fas fa-coins"></i></span>
+                Pricing & Stock
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-1"><label class="block text-sm font-bold text-stone-700 dark:text-stone-300">Price (₹)</label>{{ form.price }}</div>
+                <div class="space-y-1"><label class="block text-sm font-bold text-stone-700 dark:text-stone-300">Unit</label>{{ form.unit }}</div>
+                <div class="space-y-1"><label class="block text-sm font-bold text-stone-700 dark:text-stone-300">Stock</label>{{ form.stock_quantity }}</div>
+                <div class="space-y-1"><label class="block text-sm font-bold text-stone-700 dark:text-stone-300">Min Order</label>{{ form.minimum_order }}</div>
+                <div class="space-y-1"><label class="block text-sm font-bold text-stone-700 dark:text-stone-300">Harvest Date</label>{{ form.harvest_date }}</div>
+                <div class="flex items-center gap-3 p-4 bg-stone-50 dark:bg-gray-700/50 rounded-xl border border-stone-100 dark:border-gray-700 md:col-span-2">
+                    {{ form.is_available }}
+                    <label class="text-sm font-medium text-stone-700 dark:text-stone-300">Available for Sale</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 shadow-sm border border-stone-100 dark:border-gray-700">
+            <h2 class="text-lg font-bold text-stone-800 dark:text-white flex items-center gap-2 mb-6">
+                <span class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 text-sm"><i class="fas fa-camera"></i></span>
+                Manage Images
+            </h2>
+
+            {% if product.images.all %}
+                <div class="mb-6">
+                    <h3 class="text-sm font-bold text-stone-500 uppercase mb-3">Current Gallery</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {% for image in product.images.all %}
+                            <div class="relative group rounded-xl overflow-hidden aspect-square border border-stone-200 dark:border-gray-600">
+                                <img src="{{ image.image.url }}" class="w-full h-full object-cover">
+                                {% if image.is_primary %}
+                                    <span class="absolute top-2 right-2 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">Primary</span>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            <h3 class="text-sm font-bold text-stone-500 uppercase mb-3">Update / Replace</h3>
+            <div class="space-y-4">
+                {{ formset.management_form }}
+                {% for form in formset %}
+                    <div class="p-4 rounded-xl bg-stone-50 dark:bg-gray-700/50 border border-stone-200 dark:border-gray-600 border-dashed">
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <div class="flex-1">
+                                <label class="block text-xs font-bold text-stone-500 uppercase mb-1">Image Slot {{ forloop.counter }}</label>
+                                {{ form.image }}
+                            </div>
+                            <div class="flex flex-col gap-2 justify-center">
+                                <div class="flex items-center gap-2">
+                                    {{ form.is_primary }} <span class="text-sm text-stone-600 dark:text-stone-300">Primary</span>
+                                </div>
+                                {% if form.instance.pk %}
+                                    <div class="flex items-center gap-2">
+                                        {{ form.DELETE }} <span class="text-sm text-red-600 font-medium">Delete</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-4">
+            <a href="{% url 'products:delete' product.slug %}" class="text-red-500 hover:text-red-700 font-medium text-sm flex items-center gap-1">
+                <i class="fas fa-trash"></i> Delete Product
+            </a>
+            <div class="flex gap-4">
+                <a href="{% url 'products:my_products' %}" class="px-6 py-3 rounded-xl border border-stone-200 dark:border-gray-600 text-stone-600 dark:text-stone-300 font-bold hover:bg-stone-50 dark:hover:bg-gray-700 transition">Cancel</a>
+                <button type="submit" class="px-8 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/40 transition-all">Save Changes</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const inputs = document.querySelectorAll('#editForm input:not([type="checkbox"]):not([type="file"]), #editForm textarea, #editForm select');
+        inputs.forEach(input => {
+            input.classList.add('w-full', 'px-4', 'py-3.5', 'bg-stone-50', 'dark:bg-gray-700', 'border', 'border-stone-200', 'dark:border-gray-600', 'rounded-xl', 'text-stone-900', 'dark:text-white', 'focus:ring-2', 'focus:ring-emerald-500', 'focus:border-emerald-500', 'outline-none', 'transition-all');
+        });
+        document.querySelectorAll('#editForm input[type="checkbox"]').forEach(box => {
+            box.classList.add('w-5', 'h-5', 'text-emerald-600', 'rounded', 'focus:ring-emerald-500');
+        });
+         const fileInputs = document.querySelectorAll('#editForm input[type="file"]');
+        fileInputs.forEach(input => {
+             input.classList.add('block', 'w-full', 'text-sm', 'text-stone-500', 'dark:text-stone-400',
+                'file:mr-4', 'file:py-2.5', 'file:px-4', 'file:rounded-full', 'file:border-0', 'file:text-xs', 'file:font-bold',
+                'file:bg-emerald-50', 'file:text-emerald-700', 'hover:file:bg-emerald-100', 'dark:file:bg-emerald-900/30', 'dark:file:text-emerald-400', 'cursor-pointer'
+             );
+        });
+    });
+</script>
+{% endblock %}

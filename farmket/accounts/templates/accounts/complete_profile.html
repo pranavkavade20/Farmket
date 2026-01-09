@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    
+    <div class="mb-8 text-center md:text-left">
+        <h1 class="text-3xl font-bold text-stone-800 dark:text-white">Edit Profile</h1>
+        <p class="text-stone-500 dark:text-stone-400 mt-1">Keep your information up to date.</p>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl shadow-stone-200/50 dark:shadow-none border border-stone-100 dark:border-gray-700 overflow-hidden">
+        
+        <form method="post" enctype="multipart/form-data" id="profileForm">
+            {% csrf_token %}
+            
+            <div class="p-8 border-b border-stone-100 dark:border-gray-700">
+                <h2 class="text-lg font-bold text-stone-800 dark:text-white flex items-center gap-2 mb-6">
+                    <span class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-sm"><i class="fas fa-user"></i></span>
+                    Personal Information
+                </h2>
+                
+                <div class="grid grid-cols-1 gap-6">
+                    {% for field in user_form %}
+                        <div class="space-y-1">
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-stone-700 dark:text-stone-300">
+                                {{ field.label }}
+                            </label>
+                            
+                            <div class="relative">
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <p class="text-xs text-stone-400 mt-1">{{ field.help_text|safe }}</p>
+                                {% endif %}
+                            </div>
+
+                            {% if field.errors %}
+                                <div class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="p-8 bg-stone-50/50 dark:bg-gray-800/50">
+                <h2 class="text-lg font-bold text-stone-800 dark:text-white flex items-center gap-2 mb-6">
+                    <span class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 text-sm">
+                        {% if user.is_farmer %}<i class="fas fa-tractor"></i>{% else %}<i class="fas fa-shopping-bag"></i>{% endif %}
+                    </span>
+                    {% if user.is_farmer %}Farm Details{% else %}Buyer Details{% endif %}
+                </h2>
+
+                <div class="grid grid-cols-1 gap-6">
+                    {% for field in profile_form %}
+                        <div class="space-y-1">
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-stone-700 dark:text-stone-300">
+                                {{ field.label }}
+                            </label>
+                            
+                            <div class="relative">
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <p class="text-xs text-stone-400 mt-1">{{ field.help_text }}</p>
+                                {% endif %}
+                            </div>
+
+                            {% if field.errors %}
+                                <div class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="p-6 bg-white dark:bg-gray-800 border-t border-stone-100 dark:border-gray-700 flex flex-col-reverse md:flex-row justify-end gap-3">
+                <a href="{% url 'accounts:profile' %}" class="px-6 py-3 rounded-xl border border-stone-200 dark:border-gray-600 text-stone-600 dark:text-stone-300 font-semibold hover:bg-stone-50 dark:hover:bg-gray-700 transition text-center">
+                    Cancel
+                </a>
+                <button type="submit" class="px-8 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/40 transition-all transform hover:-translate-y-0.5">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Automatic styling for Django widgets
+    document.addEventListener("DOMContentLoaded", function() {
+        const formInputs = document.querySelectorAll('#profileForm input, #profileForm select, #profileForm textarea');
+        
+        formInputs.forEach(input => {
+            if (input.type === 'checkbox') {
+                 input.classList.add('w-5', 'h-5', 'text-emerald-600', 'rounded', 'border-gray-300', 'focus:ring-emerald-500');
+            } else if (input.type === 'file') {
+                 input.classList.add('block', 'w-full', 'text-sm', 'text-stone-500', 'dark:text-stone-400',
+                    'file:mr-4', 'file:py-2', 'file:px-4',
+                    'file:rounded-full', 'file:border-0',
+                    'file:text-sm', 'file:font-semibold',
+                    'file:bg-emerald-50', 'file:text-emerald-700',
+                    'hover:file:bg-emerald-100', 'dark:file:bg-emerald-900/30', 'dark:file:text-emerald-400'
+                 );
+            } else {
+                input.classList.add(
+                    'w-full', 'px-4', 'py-3', 'bg-white', 'dark:bg-gray-700', 
+                    'border', 'border-stone-200', 'dark:border-gray-600', 
+                    'rounded-xl', 'focus:ring-2', 'focus:ring-emerald-500', 
+                    'focus:border-emerald-500', 'dark:text-white', 
+                    'outline-none', 'transition-all'
+                );
+            }
+        });
+    });
+</script>
+{% endblock %}

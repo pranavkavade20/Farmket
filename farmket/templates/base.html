@@ -1,0 +1,242 @@
+{% load static tailwind_tags %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Farmket - Fresh from the farm to your table.">
+    <title>{% block title %}Farmket - Farm to Market{% endblock %}</title>
+    
+    <link rel="icon" href="{% static "logo/logo.png" %}" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static "css/style.css" %}">
+    {% tailwind_css %}
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-stone-50 text-stone-800 dark:bg-gray-900 dark:text-stone-100 transition-colors duration-300 min-h-screen flex flex-col antialiased">
+
+    <nav class="fixed w-full z-50 top-0 start-0 border-b border-stone-200/60 dark:border-gray-800 bg-white/80 dark:bg-gray-900/90 backdrop-blur-xl transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                
+                <div class="flex items-center gap-8">
+                    <a href="{% url 'products:home' %}" class="flex items-center gap-2 group shrink-0">
+                        <div class="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-green-400 dark:from-emerald-600 dark:to-green-500 shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform duration-300">
+                            <img src="{% static 'logo/logo.png' %}" alt="Farmket Logo" class="w-6 h-6 object-contain">
+                        </div>
+                        <span class="text-2xl font-bold tracking-tight text-stone-800 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                            Farmket
+                        </span>
+                    </a>
+
+                    <div class="hidden lg:flex items-center space-x-1">
+                        <a href="{% url 'products:home' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-gray-800 hover:text-emerald-600 transition-colors">Home</a>
+                        <a href="{% url 'products:list' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-gray-800 hover:text-emerald-600 transition-colors">Products</a>
+                        
+                        {% if user.is_authenticated %}
+                            {% if user.is_farmer %}
+                                <a href="{% url 'products:my_products' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-gray-800 hover:text-emerald-600 transition-colors">My Products</a>
+                                <a href="{% url 'products:add' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-gray-800 hover:text-emerald-600 transition-colors">
+                                    <i class="fas fa-plus-circle mr-1"></i> Add Product
+                                </a>
+                            {% endif %}
+                            
+                            <a href="{% url 'chat:conversations' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-gray-800 hover:text-emerald-600 transition-colors">
+                                <i class="fas fa-comments mr-1"></i> Messages
+                            </a>
+                            <a href="{% url 'orders:orders' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-gray-800 hover:text-emerald-600 transition-colors">Orders</a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    
+                    <button id="theme-toggle" type="button" class="p-2 text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-gray-800 rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:focus:ring-gray-700 transition-all">
+                        <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                        <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                    </button>
+
+                    {% if user.is_authenticated %}
+                        {% if user.is_buyer %}
+                            <a href="{% url 'orders:cart' %}" class="relative p-2 text-stone-600 dark:text-stone-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+                                <i class="fas fa-shopping-cart text-xl"></i>
+                            </a>
+                        {% endif %}
+
+                        <div class="relative ml-2" id="profile-dropdown-container">
+                            <button id="profile-btn" class="flex items-center gap-2 focus:outline-none rounded-full transition-shadow hover:ring-2 hover:ring-emerald-100">
+                                <div class="w-9 h-9 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-200 dark:border-emerald-800 shadow-sm">
+                                    {{ user.username|make_list|first|upper }}
+                                </div>
+                                <span class="hidden md:block text-sm font-semibold text-stone-700 dark:text-stone-300">{{ user.username }}</span>
+                                <i class="fas fa-chevron-down text-xs text-stone-400 hidden md:block"></i>
+                            </button>
+                            
+                            <div id="profile-menu" class="absolute right-0 mt-3 w-56 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-stone-100 dark:border-gray-700 hidden transform origin-top-right transition-all duration-200 z-50">
+                                <div class="px-5 py-4 border-b border-stone-100 dark:border-gray-700 md:hidden">
+                                    <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ user.username }}</p>
+                                </div>
+                                <div class="py-2">
+                                    <a href="{% url 'accounts:profile' %}" class="flex items-center gap-3 px-5 py-2.5 text-sm text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-gray-700 hover:text-emerald-600 transition-colors">
+                                        <i class="fas fa-user w-4"></i> Profile
+                                    </a>
+                                    
+                                    {% if user.is_staff %}
+                                        <a href="{% url 'analytics:dashboard' %}" class="flex items-center gap-3 px-5 py-2.5 text-sm text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-gray-700 hover:text-emerald-600 transition-colors">
+                                            <i class="fas fa-chart-line w-4"></i> Analytics
+                                        </a>
+                                        <a href="/admin/" class="flex items-center gap-3 px-5 py-2.5 text-sm text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-gray-700 hover:text-emerald-600 transition-colors">
+                                            <i class="fas fa-user-shield w-4"></i> Admin Panel
+                                        </a>
+                                    {% endif %}
+                                    
+                                    <div class="border-t border-stone-100 dark:border-gray-700 my-1"></div>
+                                    <a href="{% url 'accounts:logout' %}" class="flex items-center gap-3 px-5 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                                        <i class="fas fa-sign-out-alt w-4"></i> Logout
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="hidden md:flex gap-3">
+                            <a href="{% url 'accounts:login' %}" class="text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white px-4 py-2 text-sm font-medium transition-colors">Login</a>
+                            <a href="{% url 'accounts:register' %}" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-full text-sm font-medium shadow-md shadow-emerald-600/20 hover:shadow-lg hover:shadow-emerald-600/30 transition-all transform hover:-translate-y-0.5">Sign Up</a>
+                        </div>
+                    {% endif %}
+
+                    <button id="mobile-menu-btn" type="button" class="lg:hidden inline-flex items-center justify-center p-2 rounded-lg text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-gray-800 focus:outline-none transition-colors">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden lg:hidden bg-white dark:bg-gray-900 border-t border-stone-200 dark:border-gray-800 shadow-xl absolute w-full left-0 z-30">
+            <div class="px-4 pt-4 pb-6 space-y-1">
+                <a href="{% url 'products:home' %}" class="block px-3 py-3 rounded-lg text-base font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-gray-800 hover:text-emerald-600">Home</a>
+                <a href="{% url 'products:list' %}" class="block px-3 py-3 rounded-lg text-base font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-gray-800 hover:text-emerald-600">Products</a>
+                
+                {% if user.is_authenticated %}
+                    {% if user.is_farmer %}
+                        <a href="{% url 'products:my_products' %}" class="block px-3 py-3 rounded-lg text-base font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-gray-800 hover:text-emerald-600">My Products</a>
+                        <a href="{% url 'products:add' %}" class="block px-3 py-3 rounded-lg text-base font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-gray-800 hover:text-emerald-600">Add Product</a>
+                    {% endif %}
+                    
+                    <a href="{% url 'chat:conversations' %}" class="block px-3 py-3 rounded-lg text-base font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-gray-800 hover:text-emerald-600">Messages</a>
+                    <a href="{% url 'orders:orders' %}" class="block px-3 py-3 rounded-lg text-base font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-gray-800 hover:text-emerald-600">Orders</a>
+                    
+                    {% if user.is_staff %}
+                        <div class="border-t border-stone-100 dark:border-gray-800 my-2 pt-2">
+                            <a href="{% url 'analytics:dashboard' %}" class="block px-3 py-3 rounded-lg text-base font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-gray-800">Analytics</a>
+                            <a href="/admin/" class="block px-3 py-3 rounded-lg text-base font-bold text-stone-800 dark:text-white hover:bg-stone-50 dark:hover:bg-gray-800">Admin Panel</a>
+                        </div>
+                    {% endif %}
+
+                    <div class="border-t border-stone-100 dark:border-gray-800 my-2 pt-2">
+                        <a href="{% url 'accounts:logout' %}" class="block px-3 py-3 rounded-lg text-base font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">Logout</a>
+                    </div>
+                {% else %}
+                    <div class="grid grid-cols-2 gap-3 mt-4 pt-2 border-t border-stone-100 dark:border-gray-800">
+                        <a href="{% url 'accounts:login' %}" class="text-center w-full block px-3 py-3 rounded-lg border border-stone-200 dark:border-gray-700 text-stone-700 dark:text-stone-200 font-medium">Login</a>
+                        <a href="{% url 'accounts:register' %}" class="text-center w-full block px-3 py-3 rounded-lg bg-emerald-600 text-white font-medium shadow-md">Sign Up</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="h-20"></div>
+
+    {% if messages %}
+        <div id="toast-container" class="fixed top-24 right-5 z-50 flex flex-col gap-3 w-full max-w-sm">
+            {% for message in messages %}
+                <div class="transform transition-all duration-300 ease-out translate-x-0 opacity-100 flex items-center p-4 rounded-xl shadow-lg border backdrop-blur-md
+                    {% if message.tags == 'error' %} bg-red-50/90 text-red-800 border-red-100 dark:bg-red-900/90 dark:text-red-100 dark:border-red-800
+                    {% elif message.tags == 'success' %} bg-emerald-50/90 text-emerald-800 border-emerald-100 dark:bg-green-900/90 dark:text-green-100 dark:border-green-800
+                    {% else %} bg-white/90 text-stone-800 border-stone-100 dark:bg-gray-800/90 dark:text-stone-100 dark:border-gray-700 {% endif %}" role="alert">
+                    
+                    <div class="shrink-0 mr-3">
+                        {% if message.tags == 'error' %} <i class="fas fa-circle-xmark text-lg"></i>
+                        {% elif message.tags == 'success' %} <i class="fas fa-circle-check text-lg"></i>
+                        {% else %} <i class="fas fa-circle-info text-lg"></i> {% endif %}
+                    </div>
+                    <div class="text-sm font-medium">{{ message }}</div>
+                    <button type="button" class="ml-auto -mx-1.5 -my-1.5 rounded-lg p-1.5 inline-flex h-8 w-8 hover:bg-black/5 dark:hover:bg-white/10" onclick="this.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-in-up">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-stone-100 dark:bg-gray-900 border-t border-stone-200 dark:border-gray-800 mt-auto transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="col-span-1 md:col-span-1">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-green-400 dark:from-emerald-600 dark:to-green-500 shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform duration-300">
+                            <img src="{% static 'logo/logo.png' %}" alt="Farmket Logo" class="w-6 h-6 object-contain">
+                        </div>
+                        <span class="text-xl font-bold dark:text-white">Farmket</span>
+                    </div>
+                    <p class="text-stone-500 dark:text-stone-400 text-sm leading-relaxed">
+                        Connecting local farmers directly with buyers for fresh, organic, and sustainable products.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-stone-900 dark:text-white uppercase tracking-wider mb-4">Platform</h3>
+                    <ul class="space-y-3">
+                        <li><a href="{% url 'products:list' %}" class="text-stone-500 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 text-sm transition-colors">Browse Products</a></li>
+                        <li><a href="#" class="text-stone-500 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 text-sm transition-colors">Farmers Near Me</a></li>
+                        <li><a href="{% url 'products:about' %}" class="text-stone-500 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 text-sm transition-colors">About Us</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-stone-900 dark:text-white uppercase tracking-wider mb-4">Support</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-stone-500 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 text-sm transition-colors">Help Center</a></li>
+                        <li><a href="{% url 'products:contact' %}" class="text-stone-500 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 text-sm transition-colors">Contact Us</a></li>
+                        <li><a href="{% url 'products:faq' %}" class="text-stone-500 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 text-sm transition-colors">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-stone-900 dark:text-white uppercase tracking-wider mb-4">Newsletter</h3>
+                    <form class="flex flex-col gap-2">
+                        <input type="email" placeholder="Enter your email" class="bg-stone-50 dark:bg-gray-700 border border-stone-300 dark:border-gray-600 text-stone-900 dark:text-white text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5">
+                        <button type="button" class="text-white bg-emerald-600 hover:bg-emerald-700 focus:ring-4 focus:ring-emerald-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-emerald-600 dark:hover:bg-emerald-700 focus:outline-none dark:focus:ring-emerald-800 w-full">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="border-t border-stone-200 dark:border-gray-700 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-stone-400 text-sm">&copy; {% now "Y" %} Farmket. All rights reserved.</p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-stone-400 hover:text-stone-500 dark:hover:text-stone-300"><i class="fab fa-facebook text-xl"></i></a>
+                    <a href="#" class="text-stone-400 hover:text-stone-500 dark:hover:text-stone-300"><i class="fab fa-instagram text-xl"></i></a>
+                    <a href="#" class="text-stone-400 hover:text-stone-500 dark:hover:text-stone-300"><i class="fab fa-twitter text-xl"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+    <script>
+        // Immediate Theme Check
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    
+    <script src="{% static "script/script.js" %}"></script>
+</body>
+</html>

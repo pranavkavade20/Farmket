@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    
+    <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <a href="{% url 'orders:orders' %}" class="text-stone-500 hover:text-emerald-600 mb-2 inline-block"><i class="fas fa-arrow-left"></i> Back to Orders</a>
+            <h1 class="text-3xl font-bold text-stone-900 dark:text-white">Order #{{ order.order_number }}</h1>
+            <p class="text-stone-500 text-sm">Placed on {{ order.created_at|date:"M d, Y h:i A" }}</p>
+        </div>
+        <div class="px-4 py-2 bg-stone-100 dark:bg-gray-700 rounded-lg text-center">
+            <span class="block text-xs text-stone-500 uppercase font-bold">Total Amount</span>
+            <span class="text-xl font-bold text-emerald-600">₹{{ order.total_amount }}</span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <div class="lg:col-span-2 space-y-6">
+            
+            {% for item in items %}
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-stone-100 dark:border-gray-700 shadow-sm relative overflow-hidden">
+                
+                <div class="absolute top-0 left-0 w-1 h-full 
+                    {% if item.status == 'delivered' %}bg-emerald-500
+                    {% elif item.status == 'cancelled' %}bg-red-500
+                    {% elif item.status == 'shipped' %}bg-blue-500
+                    {% else %}bg-amber-400{% endif %}">
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="w-20 h-20 bg-stone-100 rounded-lg shrink-0 overflow-hidden">
+                        {% if item.product.images.first %}
+                            <img src="{{ item.product.images.first.image.url }}" class="w-full h-full object-cover">
+                        {% else %}
+                            <div class="flex items-center justify-center h-full text-stone-400"><i class="fas fa-carrot"></i></div>
+                        {% endif %}
+                    </div>
+
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold text-lg text-stone-900 dark:text-white">{{ item.product.name }}</h3>
+                                <p class="text-sm text-stone-500">Qty: {{ item.quantity }} × ₹{{ item.price }}</p>
+                                {% if user_is_buyer %}
+                                    <p class="text-xs text-stone-400 mt-1">Farmer: {{ item.farmer.username }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="text-right">
+                                <span class="px-3 py-1 rounded-full text-xs font-bold uppercase
+                                    {% if item.status == 'delivered' %}bg-emerald-100 text-emerald-700
+                                    {% elif item.status == 'shipped' %}bg-blue-100 text-blue-700
+                                    {% elif item.status == 'confirmed' %}bg-purple-100 text-purple-700
+                                    {% elif item.status == 'cancelled' %}bg-red-100 text-red-700
+                                    {% else %}bg-amber-100 text-amber-700{% endif %}">
+                                    {{ item.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+
+                        {% if not user_is_buyer and item.status != 'cancelled' and item.status != 'delivered' %}
+                        <div class="mt-6 pt-4 border-t border-stone-100 dark:border-gray-700 flex flex-wrap gap-2">
+                            <p class="w-full text-xs font-bold text-stone-400 uppercase mb-1">Update Status:</p>
+                            
+                            {% if item.status == 'pending' %}
+                                <form action="{% url 'orders:update_item_status' item.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="status" value="confirmed">
+                                    <button class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition">
+                                        Accept Order
+                                    </button>
+                                </form>
+                                <form action="{% url 'orders:update_item_status' item.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="status" value="cancelled">
+                                    <button class="px-4 py-2 bg-white border border-red-200 text-red-600 hover:bg-red-50 text-xs font-bold rounded-lg transition">
+                                        Reject
+                                    </button>
+                                </form>
+                            {% elif item.status == 'confirmed' %}
+                                <form action="{% url 'orders:update_item_status' item.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="status" value="shipped">
+                                    <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition">
+                                        <i class="fas fa-truck mr-1"></i> Mark as Shipped
+                                    </button>
+                                </form>
+                            {% elif item.status == 'shipped' %}
+                                <form action="{% url 'orders:update_item_status' item.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="status" value="delivered">
+                                    <button class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition">
+                                        <i class="fas fa-check-circle mr-1"></i> Mark Delivered
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if user_is_buyer %}
+                        <div class="mt-4">
+                            <div class="w-full bg-stone-100 h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-emerald-500 h-full transition-all duration-500" style="width: 
+                                    {% if item.status == 'pending' %}15%
+                                    {% elif item.status == 'confirmed' %}40%
+                                    {% elif item.status == 'shipped' %}75%
+                                    {% elif item.status == 'delivered' %}100%
+                                    {% else %}0%{% endif %}">
+                                </div>
+                            </div>
+                            <p class="text-xs text-stone-400 mt-1 text-right">
+                                {% if item.status == 'pending' %}Waiting for farmer...
+                                {% elif item.status == 'confirmed' %}Farmer is packing your order.
+                                {% elif item.status == 'shipped' %}On the way!
+                                {% elif item.status == 'delivered' %}Enjoy your fresh produce!
+                                {% endif %}
+                            </p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+
+        <div class="lg:col-span-1 space-y-6">
+            <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 border border-stone-100 dark:border-gray-700 shadow-sm">
+                <h3 class="font-bold text-stone-900 dark:text-white mb-4">Delivery Info</h3>
+                <p class="text-sm text-stone-600 mb-2"><i class="fas fa-map-marker-alt w-5 text-stone-400"></i> {{ order.delivery_address }}</p>
+                <p class="text-sm text-stone-600"><i class="fas fa-wallet w-5 text-stone-400"></i> {{ order.get_payment_method_display }}</p>
+                {% if order.notes %}
+                <div class="mt-4 p-3 bg-amber-50 rounded-xl border border-amber-100">
+                    <p class="text-xs font-bold text-amber-700 uppercase">Note</p>
+                    <p class="text-sm text-amber-800">{{ order.notes }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

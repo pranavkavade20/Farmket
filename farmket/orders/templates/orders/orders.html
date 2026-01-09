@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h1 class="text-2xl font-bold text-stone-900 dark:text-white mb-6">
+        {% if user.is_farmer %}Manage Orders{% else %}My Orders{% endif %}
+    </h1>
+
+    <div class="flex gap-2 overflow-x-auto pb-4 mb-4 no-scrollbar">
+        <button class="px-4 py-2 bg-emerald-600 text-white rounded-full text-sm font-bold">All</button>
+        <button class="px-4 py-2 bg-white border border-stone-200 text-stone-600 rounded-full text-sm font-bold">Pending</button>
+        <button class="px-4 py-2 bg-white border border-stone-200 text-stone-600 rounded-full text-sm font-bold">Completed</button>
+    </div>
+
+    <div class="space-y-4">
+        {% for order in orders %}
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-stone-200 dark:border-gray-700 p-5 hover:shadow-md transition">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <span class="text-xs font-bold text-stone-400">#{{ order.order_number }}</span>
+                    <h3 class="font-bold text-stone-800 dark:text-white">
+                        {{ order.created_at|date:"M d, Y" }}
+                    </h3>
+                </div>
+                <span class="px-3 py-1 bg-stone-100 text-stone-600 rounded-lg text-xs font-bold uppercase">
+                    {{ order.status }}
+                </span>
+            </div>
+
+            <div class="space-y-2 mb-4">
+                {% for item in order.items.all|slice:":3" %}
+                    {% if user.is_buyer or item.farmer == user %}
+                    <div class="flex justify-between text-sm">
+                        <span class="text-stone-600">{{ item.quantity }}x {{ item.product.name }}</span>
+                        <span class="text-emerald-600 font-medium">
+                            {% if user.is_farmer %}
+                                {{ item.status|title }} {% else %}
+                                ₹{{ item.subtotal }}
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <div class="flex justify-between items-center pt-4 border-t border-stone-100 dark:border-gray-700">
+                <span class="font-bold text-stone-900 dark:text-white">
+                    {% if user.is_farmer %}
+                        Order Total: ₹{{ order.total_amount }}
+                    {% else %}
+                        ₹{{ order.total_amount }}
+                    {% endif %}
+                </span>
+                <a href="{% url 'orders:order_detail' order.id %}" class="text-emerald-600 font-bold text-sm hover:underline">
+                    {% if user.is_farmer %}Process Order{% else %}Track Order{% endif %} &to;
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-12">
+            <p class="text-stone-500">No orders found.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

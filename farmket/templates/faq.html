@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}FAQ - Farmket{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
+    
+    <div class="text-center max-w-2xl mx-auto mb-16">
+        <span class="text-emerald-600 dark:text-emerald-400 font-bold tracking-wider uppercase text-sm">Support Center</span>
+        <h1 class="text-4xl md:text-5xl font-bold text-stone-900 dark:text-white mt-2 mb-6">How can we help you?</h1>
+        <p class="text-lg text-stone-500 dark:text-stone-400">Everything you need to know about buying fresh and selling local on Farmket.</p>
+        
+        <div class="mt-8 relative max-w-lg mx-auto">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i class="fas fa-search text-stone-400"></i>
+            </div>
+            <input type="text" placeholder="Search for answers..." class="w-full pl-11 pr-4 py-4 rounded-full border border-stone-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg shadow-stone-200/50 dark:shadow-none focus:ring-2 focus:ring-emerald-500 outline-none transition-all" disabled>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        
+        <div class="lg:col-span-4 hidden lg:block">
+            <div class="sticky top-24 space-y-8">
+                <div class="bg-stone-50 dark:bg-gray-800/50 rounded-3xl p-6 border border-stone-100 dark:border-gray-700">
+                    <h3 class="font-bold text-stone-900 dark:text-white mb-4">Categories</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#general" class="block px-4 py-2 rounded-lg bg-white dark:bg-gray-700 font-medium text-emerald-600 shadow-sm border border-stone-100 dark:border-gray-600">General</a></li>
+                        <li><a href="#farmers" class="block px-4 py-2 rounded-lg text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-gray-700 transition">For Farmers</a></li>
+                        <li><a href="#buyers" class="block px-4 py-2 rounded-lg text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-gray-700 transition">For Buyers</a></li>
+                        <li><a href="#safety" class="block px-4 py-2 rounded-lg text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-gray-700 transition">Safety & Quality</a></li>
+                    </ul>
+                </div>
+
+                <div class="bg-emerald-600 rounded-3xl p-8 text-white text-center relative overflow-hidden">
+                    <div class="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+                    <div class="absolute bottom-0 left-0 -ml-8 -mb-8 w-32 h-32 bg-black/10 rounded-full blur-2xl"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+                            <i class="fas fa-headset text-xl"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">Still need help?</h3>
+                        <p class="text-emerald-100 text-sm mb-6">Our support team is available 24/7 to assist you.</p>
+                        <a href="{% url 'products:contact' %}" class="inline-block px-6 py-2.5 bg-white text-emerald-700 font-bold rounded-full hover:bg-emerald-50 transition-colors">Contact Us</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-8 space-y-12">
+            
+            <section id="general">
+                <h2 class="text-2xl font-bold text-stone-900 dark:text-white mb-6 flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 flex items-center justify-center text-sm"><i class="fas fa-info"></i></span>
+                    General Questions
+                </h2>
+                <div class="space-y-4">
+                    {% include 'includes/faq_item.html' with question="What is Farmket?" answer="Farmket is an online marketplace that connects farmers directly with buyers, eliminating middlemen and ensuring fresh produce at fair prices. We support sustainable agriculture and empower local farmers." %}
+                    {% include 'includes/faq_item.html' with question="How does Farmket work?" answer="Farmers list their products on our platform, and buyers can browse, select, and purchase directly. Our real-time chat system allows direct communication for quality assurance." %}
+                    {% include 'includes/faq_item.html' with question="Is registration free?" answer="Yes! Registration is completely free for both farmers and buyers. We only charge a small commission on successful transactions to maintain the platform." %}
+                </div>
+            </section>
+
+            <section id="farmers">
+                <h2 class="text-2xl font-bold text-stone-900 dark:text-white mb-6 flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 flex items-center justify-center text-sm"><i class="fas fa-tractor"></i></span>
+                    For Farmers
+                </h2>
+                <div class="space-y-4">
+                    {% include 'includes/faq_item.html' with question="How do I list my products?" answer="After registering as a farmer, go to 'Add Product' from your dashboard. Fill in product details, upload images, set your price, and your product will be live." %}
+                    {% include 'includes/faq_item.html' with question="When do I receive payment?" answer="For COD orders, you receive payment upon delivery. For online payments, funds are transferred to your account within 3-5 business days." %}
+                    {% include 'includes/faq_item.html' with question="Can I update prices?" answer="Yes, you have full control. You can update product prices, stock quantity, and description details anytime from the 'My Products' section." %}
+                </div>
+            </section>
+
+            <section id="buyers">
+                <h2 class="text-2xl font-bold text-stone-900 dark:text-white mb-6 flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 flex items-center justify-center text-sm"><i class="fas fa-shopping-basket"></i></span>
+                    For Buyers
+                </h2>
+                <div class="space-y-4">
+                    {% include 'includes/faq_item.html' with question="How do I place an order?" answer="Browse products, add items to your cart, proceed to checkout, fill in delivery details, select payment method, and confirm your order." %}
+                    {% include 'includes/faq_item.html' with question="What payment methods are accepted?" answer="We accept Cash on Delivery (COD), UPI payments (Google Pay, PhonePe), credit/debit cards, and net banking." %}
+                    {% include 'includes/faq_item.html' with question="Can I cancel my order?" answer="Yes, you can cancel your order before it's confirmed by the farmer. Once shipped, cancellation may not be possible." %}
+                </div>
+            </section>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/html" id="faq-template">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-stone-200 dark:border-gray-700 overflow-hidden group">
+        <button class="w-full px-6 py-5 text-left flex items-center justify-between hover:bg-stone-50 dark:hover:bg-gray-700/50 transition-colors focus:outline-none" onclick="toggleAccordion(this)">
+            <span class="font-bold text-stone-800 dark:text-white text-lg">Question Text</span>
+            <span class="w-8 h-8 rounded-full bg-stone-100 dark:bg-gray-700 flex items-center justify-center text-stone-500 group-hover:text-emerald-600 transition-colors">
+                <i class="fas fa-plus text-sm transition-transform duration-300"></i>
+            </span>
+        </button>
+        <div class="hidden px-6 pb-6 text-stone-600 dark:text-stone-300 leading-relaxed border-t border-stone-100 dark:border-gray-700 pt-4">
+            Answer Text
+        </div>
+    </div>
+</script>
+
+<script>
+    function toggleAccordion(button) {
+        const content = button.nextElementSibling;
+        const icon = button.querySelector('i');
+        const wrapper = button.parentElement;
+
+        if (content.classList.contains('hidden')) {
+            // Open
+            content.classList.remove('hidden');
+            icon.classList.remove('fa-plus');
+            icon.classList.add('fa-minus');
+            icon.style.transform = 'rotate(180deg)';
+            wrapper.classList.add('ring-2', 'ring-emerald-500', 'ring-offset-2', 'dark:ring-offset-gray-900');
+        } else {
+            // Close
+            content.classList.add('hidden');
+            icon.classList.remove('fa-minus');
+            icon.classList.add('fa-plus');
+            icon.style.transform = 'rotate(0deg)';
+            wrapper.classList.remove('ring-2', 'ring-emerald-500', 'ring-offset-2', 'dark:ring-offset-gray-900');
+        }
+    }
+</script>
+{% endblock %}
