@@ -7,7 +7,36 @@
         <h1 class="text-3xl font-bold text-stone-900 dark:text-white">Platform Overview</h1>
         <p class="text-stone-500 dark:text-stone-400 mt-1">Real-time insights and performance metrics.</p>
     </div>
-    
+     
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <a href="{% url 'analytics:users' %}" class="group p-6 rounded-3xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg hover:shadow-blue-500/30 hover:-translate-y-1 transition-all">
+            <div class="flex justify-between items-start mb-4">
+                <i class="fas fa-users text-3xl opacity-80"></i>
+                <i class="fas fa-arrow-right opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all"></i>
+            </div>
+            <h3 class="text-xl font-bold">User Analytics</h3>
+            <p class="text-blue-100 text-sm mt-1">Deep dive into registration trends and activity.</p>
+        </a>
+        
+        <a href="{% url 'analytics:products' %}" class="group p-6 rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg hover:shadow-emerald-500/30 hover:-translate-y-1 transition-all">
+            <div class="flex justify-between items-start mb-4">
+                <i class="fas fa-box text-3xl opacity-80"></i>
+                <i class="fas fa-arrow-right opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all"></i>
+            </div>
+            <h3 class="text-xl font-bold">Product Analytics</h3>
+            <p class="text-emerald-100 text-sm mt-1">Analyze performance and revenue by product.</p>
+        </a>
+        
+        <a href="{% url 'analytics:orders' %}" class="group p-6 rounded-3xl bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg hover:shadow-purple-500/30 hover:-translate-y-1 transition-all">
+            <div class="flex justify-between items-start mb-4">
+                <i class="fas fa-shopping-cart text-3xl opacity-80"></i>
+                <i class="fas fa-arrow-right opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all"></i>
+            </div>
+            <h3 class="text-xl font-bold">Order Analytics</h3>
+            <p class="text-purple-100 text-sm mt-1">Track status distribution and sales volume.</p>
+        </a>
+    </div>
+
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-stone-100 dark:border-gray-700 shadow-sm relative overflow-hidden group">
             <div class="relative z-10">
@@ -194,35 +223,6 @@
                 </div>
             {% endfor %}
         </div>
-    </div>
-    
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <a href="{% url 'analytics:users' %}" class="group p-6 rounded-3xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg hover:shadow-blue-500/30 hover:-translate-y-1 transition-all">
-            <div class="flex justify-between items-start mb-4">
-                <i class="fas fa-users text-3xl opacity-80"></i>
-                <i class="fas fa-arrow-right opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all"></i>
-            </div>
-            <h3 class="text-xl font-bold">User Analytics</h3>
-            <p class="text-blue-100 text-sm mt-1">Deep dive into registration trends and activity.</p>
-        </a>
-        
-        <a href="{% url 'analytics:products' %}" class="group p-6 rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg hover:shadow-emerald-500/30 hover:-translate-y-1 transition-all">
-            <div class="flex justify-between items-start mb-4">
-                <i class="fas fa-box text-3xl opacity-80"></i>
-                <i class="fas fa-arrow-right opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all"></i>
-            </div>
-            <h3 class="text-xl font-bold">Product Analytics</h3>
-            <p class="text-emerald-100 text-sm mt-1">Analyze performance and revenue by product.</p>
-        </a>
-        
-        <a href="{% url 'analytics:orders' %}" class="group p-6 rounded-3xl bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg hover:shadow-purple-500/30 hover:-translate-y-1 transition-all">
-            <div class="flex justify-between items-start mb-4">
-                <i class="fas fa-shopping-cart text-3xl opacity-80"></i>
-                <i class="fas fa-arrow-right opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all"></i>
-            </div>
-            <h3 class="text-xl font-bold">Order Analytics</h3>
-            <p class="text-purple-100 text-sm mt-1">Track status distribution and sales volume.</p>
-        </a>
     </div>
 </div>
 {% endblock %}

@@ -48,7 +48,9 @@
                             <a href="{% url 'chat:conversations' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-gray-800 hover:text-emerald-600 transition-colors">
                                 <i class="fas fa-comments mr-1"></i> Messages
                             </a>
+                            {% if user.is_buyer or user.is_farmer%}
                             <a href="{% url 'orders:orders' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-gray-800 hover:text-emerald-600 transition-colors">Orders</a>
+                            {% endif %}
                         {% endif %}
                     </div>
                 </div>
