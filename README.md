@@ -76,6 +76,13 @@ Once it's running:
 
 Explore the templates in the `templates/` folder to see how pages look. The static files in `static/` handle styles and scripts.
 
+## Demo Videos
+
+Check out these quick videos to see Farmket in action:
+
+- [Login as Buyer](https://drive.google.com/file/d/1ZhMAcBu2UXOkAbW_r-0gKWyNWtCKDgNh/preview)
+- [Login as Farmer](https://drive.google.com/file/d/1-KoSFK6bPw7gCFEi1vPwHly59D-k6X5I/preview)
+
 ## Project Structure
 
 Here's a quick tour of the folders:
