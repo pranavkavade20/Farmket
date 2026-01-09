@@ -91,23 +91,4 @@ Here's a quick tour of the folders:
 - `templates/`: HTML files for the website.
 - `theme/`: Custom theme assets and build tools.
 
-## Contributing
-
-We love contributions! If you want to help make Farmket better:
-
-1. Fork the repo on GitHub.
-2. Create a new branch for your changes: `git checkout -b my-awesome-feature`
-3. Make your edits and test them.
-4. Submit a pull request with a clear description.
-
-Please follow our coding style (PEP 8 for Python) and add tests if you can. Let's build something great together!
-
-## License
-
-Farmket is open-source under the MIT License. Feel free to use, modify, and share it. Just give credit where it's due.
-
-## Support
-
-Got questions or stuck? Check the Django docs or open an issue on GitHub. We're here to help!
-
 Happy farming! 🌾🥕
