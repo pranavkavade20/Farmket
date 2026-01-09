@@ -17,7 +17,7 @@ Here's what makes Farmket special:
 - **Analytics Dashboard**: Sellers get insights into sales, orders, and user trends to grow their business.
 - **Search & Categories**: Find products quickly with search and organized categories.
 - **Responsive Design**: Works great on phones, tablets, and computers.
-- **Secure Payments**: (Note: Payment integration can be added based on your needs.)
+- **Secure Payments**: Payment integration can be added based on your needs in future.
 
 ## Getting Started
 
