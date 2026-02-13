@@ -101,9 +101,9 @@ def checkout_view(request):
 @login_required
 def orders_view(request):
     """
-    Dashboard logic:
-    - Buyers see all their Orders.
-    - Farmers see a list of Orders that contain THEIR items.
+        Dashboard logic:
+            - Buyers see all their Orders.
+            - Farmers see a list of Orders that contain THEIR items.
     """
     if request.user.is_buyer:
         orders = Order.objects.filter(buyer=request.user).order_by('-created_at')
@@ -144,7 +144,7 @@ def order_detail_view(request, order_id):
 def update_item_status(request, item_id):
     """
     API-like endpoint for Farmers to update the status of a specific item.
-    Example: Pending -> Confirmed -> Shipped -> Delivered
+    Pending -> Confirmed -> Shipped -> Delivered
     """
     item = get_object_or_404(OrderItem, id=item_id)
     
