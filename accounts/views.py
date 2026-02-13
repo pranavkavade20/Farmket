@@ -35,7 +35,7 @@ def register_view(request):
     return render(request, 'accounts/register.html', {'form': form})
 
 @csrf_protect
-@never_cache
+@never_cache # Decorator that adds headers to a response so that it will never be cached.
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('products:home')
@@ -65,16 +65,17 @@ def logout_view(request):
 def complete_profile_view(request):
     user = request.user
     
-    # Determine which profile form to use    
+    # Determine which profile form to use
     if user.is_farmer:
-        profile = user.farmer_profile
+        profile, _ = FarmerProfile.objects.get_or_create(user=user)
         ProfileFormClass = FarmerProfileForm
-    
-    if user.is_staff:
+
+    elif user.is_staff:
         profile = user
         ProfileFormClass = UserUpdateForm
+
     else:
-        profile = user.buyer_profile
+        profile, _ = BuyerProfile.objects.get_or_create(user=user)
         ProfileFormClass = BuyerProfileForm
     
     if request.method == 'POST':
