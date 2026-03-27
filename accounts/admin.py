@@ -5,10 +5,10 @@ from .models import User, FarmerProfile, BuyerProfile
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    list_display = ['username', 'email', 'user_type', 'is_verified', 'is_staff', 'created_at']
-    list_filter = ['user_type', 'is_verified', 'is_staff', 'is_superuser']
+    list_display = ['username', 'email','gender', 'user_type', 'is_verified', 'is_staff', 'created_at']
+    list_filter = ['user_type', 'gender','is_verified', 'is_staff', 'is_superuser']
     fieldsets = BaseUserAdmin.fieldsets + (
-        ('Custom Fields', {'fields': ('user_type', 'phone_number', 'address', 'profile_picture', 'is_verified')}),
+        ('Custom Fields', {'fields': ('user_type', 'gender', 'phone_number', 'address', 'profile_picture', 'is_verified')}),
     )
     search_fields = ['username', 'email', 'phone_number']
     date_hierarchy = 'created_at'

@@ -1,14 +1,15 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm
 from .models import User, FarmerProfile, BuyerProfile
 
 class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)
     user_type = forms.ChoiceField(choices=[('farmer', 'Farmer'), ('buyer', 'Buyer')])
+    gender = forms.ChoiceField(choices=[('female','Female'),('male',"Male"),('others',"Others")])
     
     class Meta:
         model = User
-        fields = ('username', 'email', 'user_type', 'phone_number', 'password1', 'password2')
+        fields = ('username', 'email', 'gender','user_type', 'phone_number', 'password1', 'password2')
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -8,7 +8,13 @@ class User(AbstractUser):
         ('buyer', 'Buyer'),
         ('admin', 'Admin'),
     )
-    
+    GENDER = (
+        ("female","Female"),
+        ("male","Male"),
+        ("others","Others")
+    )
+    email = models.EmailField(unique=True)
+    gender = models.CharField(max_length=10,choices=GENDER)
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)
     phone_regex = RegexValidator(
         regex=r'^\+?1?\d{9,15}$',
@@ -20,6 +26,8 @@ class User(AbstractUser):
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
     
     class Meta:
         ordering = ['-created_at']
