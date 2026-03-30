@@ -3,18 +3,33 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q, Avg
 from django.core.paginator import Paginator
-from .models import Product, Category
+from .models import Product, Category , User
 from .forms import ProductForm, ProductImageFormSet, ReviewForm
 
 def home_view(request):
     featured_products = Product.objects.filter(is_available=True).order_by('-created_at')[:8]
     categories = Category.objects.filter(is_active=True)
+    # 1. Filter only farmers who have a profile picture
+    active_farmers = User.objects.filter(
+        user_type='farmer'
+    ).exclude(profile_picture__isnull=True).exclude(profile_picture__exact='')
+
+    # 2. Get the total count of these farmers
+    total_farmers_count = active_farmers.count()
+
+    # 3. Get 2 random farmers (using order_by('?') randomizes the queryset)
+    random_farmers = active_farmers.order_by('?')[:2]
+
+    # 4. Calculate the remaining count for the "+X" badge
+    remaining_count = total_farmers_count - len(random_farmers)
     
     context = {
         'featured_products': featured_products,
         'categories': categories,
+        'random_farmers': random_farmers,
+        'remaining_count': remaining_count,
     }
-    return render(request, 'products/home.html', context)
+    return render(request, 'home.html', context)
 
 def about(request):
     return render(request,'about.html',)
