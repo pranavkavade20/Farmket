@@ -99,37 +99,122 @@
 
     </div>
 </div>
-<div class="mb-20">
-    <div class="flex justify-between items-end mb-8 px-2">
-        <div>
-            <h2 class="text-3xl font-bold text-stone-800 dark:text-white">Shop by Category</h2>
-            <p class="text-stone-500 dark:text-stone-400 mt-1">Find exactly what you need</p>
+
+
+<div class="py-16  transition-colors duration-300">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <div class="bg-gradient-to-b from-[#2B845C] to-[#E3F2E9] dark:from-[#184d35] dark:to-[#0f241a] rounded-[2.5rem] p-8 flex flex-col min-h-[480px] shadow-sm hover:shadow-xl transition-all duration-300 group">
+        <h3 class="text-white dark:text-gray-50 text-2xl font-extrabold uppercase leading-tight w-11/12 tracking-wide">
+          New to Farmket? Get 10% off your first harvest
+        </h3>
+        
+        <div class="flex-grow flex items-center justify-center py-6">
+          <div class="w-48 h-48 sm:w-56 sm:h-56 overflow-hidden shadow-2xl transition-transform duration-500 group-hover:scale-105" 
+               style="border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;">
+            <img src={% static "home/feature_1.jpg" %} alt="Fresh farm produce" class="w-full h-full object-cover" />
+          </div>
         </div>
-        <a href="{% url 'products:list' %}" class="hidden sm:flex items-center text-emerald-600 hover:text-emerald-700 font-medium transition-colors">
-            View All <i class="fas fa-arrow-right ml-2 text-sm"></i>
+
+        <div class="flex items-end justify-between gap-4 mt-auto">
+          <p class="text-gray-900 dark:text-gray-200 text-sm font-medium w-3/4 leading-snug">
+            Sign up today to connect with local farmers and enjoy fresh produce.
+          </p>
+          <button class="w-12 h-12 bg-[#1A1A1A] dark:bg-white rounded-full flex items-center justify-center text-white dark:text-black hover:bg-black dark:hover:bg-gray-200 transition-colors shrink-0 shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-b from-[#D8475E] to-[#FCEBEF] dark:from-[#802735] dark:to-[#2e0e14] rounded-[2.5rem] p-8 flex flex-col min-h-[480px] shadow-sm hover:shadow-xl transition-all duration-300 group">
+        <h3 class="text-white dark:text-gray-50 text-2xl font-extrabold uppercase leading-tight w-11/12 tracking-wide">
+          Zero Middlemen. Fair Prices For All.
+        </h3>
+        
+        <div class="flex-grow flex items-center justify-center py-6">
+          <div class="w-48 h-48 sm:w-56 sm:h-56 overflow-hidden shadow-2xl transition-transform duration-500 group-hover:scale-105" 
+               style="border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;">
+            <img src={% static "home/feature_2.jpg" %} alt="Farmer holding vegetables" class="w-full h-full object-cover" />
+          </div>
+        </div>
+
+        <div class="flex items-end justify-between gap-4 mt-auto">
+          <p class="text-gray-900 dark:text-gray-200 text-sm font-medium w-3/4 leading-snug">
+            Buy directly from verified farmers. They earn more, and you pay less.
+          </p>
+          <button class="w-12 h-12 bg-[#1A1A1A] dark:bg-white rounded-full flex items-center justify-center text-white dark:text-black hover:bg-black dark:hover:bg-gray-200 transition-colors shrink-0 shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-b from-[#FFE344] to-[#FFFBEA] dark:from-[#99861d] dark:to-[#2e2809] rounded-[2.5rem] p-8 flex flex-col min-h-[480px] shadow-sm hover:shadow-xl transition-all duration-300 group">
+        <h3 class="text-gray-900 dark:text-white text-2xl font-extrabold uppercase leading-tight w-11/12 tracking-wide">
+          Are you a farmer? Grow your business.
+        </h3>
+        
+        <div class="flex-grow flex items-center justify-center py-6">
+          <div class="w-48 h-48 sm:w-56 sm:h-56 overflow-hidden shadow-2xl transition-transform duration-500 group-hover:scale-105" 
+               style="border-radius: 50% 50% 30% 70% / 50% 60% 40% 50%;">
+            <img src={% static "home/feature_3.jpg" %} alt="Farmer using tablet" class="w-full h-full object-cover" />
+          </div>
+        </div>
+
+        <div class="flex items-end justify-between gap-4 mt-auto">
+          <p class="text-gray-900 dark:text-gray-200 text-sm font-medium w-3/4 leading-snug">
+            Set up your digital storefront and reach thousands of buyers instantly.
+          </p>
+          <button class="w-12 h-12 bg-[#1A1A1A] dark:bg-white rounded-full flex items-center justify-center text-white dark:text-black hover:bg-black dark:hover:bg-gray-200 transition-colors shrink-0 shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="mb-20">
+    <div class="flex justify-between items-center mb-8 px-2">
+        <div>
+            <h2 class="text-3xl font-bold text-stone-900 dark:text-white">Popular Categories</h2>
+            <p class="text-stone-500 dark:text-stone-400 mt-1 hidden sm:block">Find exactly what you need</p>
+        </div>
+        <a href="{% url 'products:list' %}" class="inline-flex items-center gap-2 bg-stone-900 dark:bg-white text-white dark:text-stone-900 pl-5 pr-1.5 py-1.5 rounded-full text-sm font-medium hover:bg-stone-800 dark:hover:bg-gray-100 transition-colors">
+            Show All 
+            <span class="bg-white dark:bg-stone-900 text-stone-900 dark:text-white rounded-full w-7 h-7 flex items-center justify-center">
+                <i class="fas fa-chevron-right text-[10px]"></i>
+            </span>
         </a>
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {% for category in categories %}
-            <a href="{% url 'products:list' %}?category={{ category.slug }}" class="group relative overflow-hidden bg-white dark:bg-gray-800 rounded-2xl border border-stone-100 dark:border-gray-700 hover:border-emerald-500/30 hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-300 p-6 flex flex-col items-center text-center">
+            <a href="{% url 'products:list' %}?category={{ category.slug }}" class="group relative overflow-hidden dark:bg-gray-800 rounded-2xl {% cycle 'bg-gradient-to-b from-indigo-100 to-indigo-50' 'bg-gradient-to-b from-sky-100 to-sky-50' 'bg-gradient-to-b from-purple-100 to-purple-50' 'bg-gradient-to-b from-rose-100 to-rose-50' 'bg-gradient-to-b from-emerald-100 to-emerald-50' 'bg-gradient-to-b from-amber-100 to-amber-50' %} dark:from-gray-800 dark:to-gray-800 hover:shadow-md transition-all duration-300 p-6 flex flex-col items-center text-center">
                 
-                <div class="w-20 h-20 mb-4 rounded-full bg-stone-50 dark:bg-gray-700 flex items-center justify-center group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/20 group-hover:scale-110 transition-all duration-300">
+                <div class="w-24 h-24 mb-4 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     {% if category.image %}
-                        <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-full h-full rounded-full object-cover">
+                        <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-full h-full object-contain drop-shadow-sm">
                     {% else %}
-                        <i class="fas fa-leaf text-3xl text-stone-400 dark:text-stone-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors"></i>
+                        <i class="fas fa-leaf text-4xl text-stone-300 dark:text-stone-600 group-hover:text-emerald-500 transition-colors"></i>
                     {% endif %}
                 </div>
                 
-                <h3 class="font-semibold text-lg text-stone-800 dark:text-white group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">{{ category.name }}</h3>
-                <span class="text-xs text-stone-500 mt-1 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">Browse Collection</span>
+                <h3 class="font-semibold text-base text-stone-900 dark:text-white mb-1">{{ category.name }}</h3>
             </a>
         {% empty %}
-            {% for i in "1234" %}
-            <div class="animate-pulse bg-gray-100 dark:bg-gray-800 rounded-2xl p-6 flex flex-col items-center">
-                <div class="w-20 h-20 bg-gray-200 dark:bg-gray-700 rounded-full mb-4"></div>
-                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+            {% for i in "123456" %}
+            <div class="animate-pulse bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 flex flex-col items-center">
+                <div class="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-full mb-4"></div>
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 mb-2"></div>
+                <div class="h-3 bg-gray-100 dark:bg-gray-600 rounded w-12"></div>
             </div>
             {% endfor %}
         {% endfor %}
@@ -208,6 +293,56 @@
         {% endfor %}
     </div>
 </div>
+
+
+<div class="bg-gradient-to-r from-[#E3F2FF] to-[#F4FAFF] dark:from-[#111827] dark:to-[#1f2937] overflow-hidden rounded-[2.5rem] max-w-[95%] mx-auto my-12 shadow-md dark:shadow-none transition-colors duration-300">
+  <div class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-12 md:py-0">
+    <div class="flex flex-col md:flex-row items-center justify-between min-h-[400px] md:min-h-[500px]">
+      
+      <div class="w-full md:w-1/2 z-10 py-10 text-center md:text-left">
+        <h2 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-white leading-[1.1] tracking-tight mb-6">
+          Ready To Fill Your Cart With Freshness?
+        </h2>
+        <p class="text-lg text-gray-700 dark:text-gray-300 mb-10 max-w-md mx-auto md:mx-0 font-medium leading-relaxed">
+          Shop farm-fresh groceries, daily essentials, and exclusive deals delivered straight to your door.
+        </p>
+        
+        <div class="flex flex-wrap justify-center md:justify-start gap-4">
+          <a href="#" class="bg-black dark:bg-white text-white dark:text-black rounded-xl px-5 py-2.5 flex items-center gap-3 hover:bg-gray-800 dark:hover:bg-gray-200 transition-transform hover:-translate-y-1 shadow-lg">
+            <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24">
+              <path d="M16.365 21.444c-1.312.63-2.673.744-4.225.044-1.528-.69-2.73-1.603-4.26-3.79-2.82-4.04-3.525-8.525-1.12-11.234 1.134-1.284 2.65-1.922 4.13-1.895 1.54.025 2.805.86 3.73.86.91 0 2.45-.96 4.29-.82 1.45.1 2.68.61 3.55 1.76-3.18 1.83-2.68 6.27.67 7.7-.72 1.87-1.7 3.8-3.05 5.5-1.02 1.25-2.22 2.5-3.715 1.83zM15.42 4.75c.81-1.05 1.3-2.43 1.14-3.75-1.15.06-2.55.77-3.4 1.83-.75.92-1.34 2.34-1.14 3.65 1.28.08 2.56-.63 3.4-1.73z"/>
+            </svg>
+            <div class="text-left">
+              <div class="text-[10px] uppercase tracking-wider text-gray-300 dark:text-gray-600 mb-[-2px]">Download on the</div>
+              <div class="text-base font-semibold leading-none">App Store</div>
+            </div>
+          </a>
+          
+          <a href="#" class="bg-black dark:bg-white text-white dark:text-black rounded-xl px-5 py-2.5 flex items-center gap-3 hover:bg-gray-800 dark:hover:bg-gray-200 transition-transform hover:-translate-y-1 shadow-lg">
+            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M17.436 12.871L3.904 20.61C3.418 20.887 2.803 20.537 2.803 19.972V4.027c0-.564.615-.915 1.101-.637l13.532 7.74c.48.274.48.966 0 1.24z" fill="#4CAF50"/>
+              <path d="M17.436 11.129L3.904 3.39C3.418 3.113 2.803 3.463 2.803 4.028V11h15.03c-.116-.27-.26-.52-.397-.871z" fill="#FFC107"/>
+              <path d="M17.436 12.871c.397-.227.665-.63.766-1.077H2.803v6.972c0 .565.615.915 1.101.638l13.532-7.74z" fill="#F44336"/>
+              <path d="M18.202 11.794c.328.187.328.625 0 .812l-1.637.937v-2.686l1.637.937z" fill="#2196F3"/>
+            </svg>
+            <div class="text-left">
+              <div class="text-[10px] uppercase tracking-wider text-gray-300 dark:text-gray-600 mb-[-2px]">Get it on</div>
+              <div class="text-base font-semibold leading-none">Google Play</div>
+            </div>
+          </a>
+        </div>
+      </div>
+      
+      <div class="w-full md:w-1/2 flex justify-center items-center mt-8 md:mt-0 relative h-full">
+        <img src={% static "home/Farmer.webp" %}
+             alt="Fresh vegetables in a basket" 
+             class="w-full h-auto max-w-[280px] sm:max-w-sm md:max-w-md lg:max-w-lg object-contain drop-shadow-2xl transition-transform duration-500 hover:scale-105" />
+      </div>
+      
+    </div>
+  </div>
+</div>
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const video = document.getElementById('hero-video');
