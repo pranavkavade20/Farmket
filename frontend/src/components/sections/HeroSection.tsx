@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import tomatoImg from '@/assets/images/hero-images/tomato.png';
 import broccoliImg from '@/assets/images/hero-images/broccoli.png';
+import herosectionvideo from '@/assets/videos/heroSection.mp4'
 
 export const HeroSection = () => {
   // Animation variants for staggered entrance
@@ -48,7 +49,7 @@ export const HeroSection = () => {
           className="w-full h-full object-cover scale-105" // scale-105 prevents edge flickering during load
         >
           {/* IMPORTANT: Replace this src with your actual app preview video */}
-          <source src="/assets/videos/farmket-app-usage.mp4" type="video/mp4" />
+          <source src={herosectionvideo} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
         
