@@ -3,7 +3,7 @@ import { useSEO } from '@/hooks';
 import { ProductCard, productService } from '@/features/products';
 import { ProductCardSkeleton, Button, Input } from '@/components/ui';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, SlidersHorizontal, X, Leaf, Filter } from 'lucide-react';
+import { Search, SlidersHorizontal, X, Leaf, Filter, ChevronDown, Check } from 'lucide-react';
 import type { Product, Category } from '@/types';
 import { useCart } from '@/features/buyer';
 import { useAuth } from '@/features/auth';
@@ -32,7 +32,14 @@ const Marketplace = () => {
   const [sortBy, setSortBy] = useState<SortOption>('-created_at');
   
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [isSortOpen, setIsSortOpen] = useState(false);
   const [total, setTotal] = useState(0);
+
+  const sortOptions: { label: string; value: SortOption }[] = [
+    { label: 'Newest First', value: '-created_at' },
+    { label: 'Price: Low to High', value: 'price' },
+    { label: 'Price: High to Low', value: '-price' },
+  ];
 
   useEffect(() => {
     productService.getCategories()
@@ -162,15 +169,49 @@ const Marketplace = () => {
               className="w-full rounded-full border border-transparent bg-white py-4 pl-14 pr-6 text-sm font-bold shadow-sm transition-all focus:border-gray-300 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-800 dark:bg-gray-900 dark:text-white dark:focus:ring-gray-800"
             />
           </div>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as SortOption)}
-            className="hidden sm:block rounded-full border border-transparent bg-white px-6 py-4 text-sm font-bold shadow-sm focus:border-gray-300 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-800 dark:bg-gray-900 dark:text-white dark:focus:ring-gray-800"
-          >
-            <option value="-created_at">Newest First</option>
-            <option value="price">Price: Low to High</option>
-            <option value="-price">Price: High to Low</option>
-          </select>
+          <div className="relative hidden sm:block">
+            <button
+              onClick={() => setIsSortOpen(!isSortOpen)}
+              className="flex items-center justify-between w-48 rounded-full border border-transparent bg-white px-6 py-4 text-sm font-bold shadow-sm transition-all focus:outline-none focus:ring-4 focus:ring-gray-100 hover:shadow-md dark:border-gray-800 dark:bg-gray-900 dark:text-white dark:focus:ring-gray-800 dark:hover:bg-gray-800"
+            >
+              <span className="truncate">{sortOptions.find(o => o.value === sortBy)?.label}</span>
+              <ChevronDown className={cn("h-4 w-4 text-gray-500 transition-transform duration-300", isSortOpen && "rotate-180")} />
+            </button>
+
+            <AnimatePresence>
+              {isSortOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsSortOpen(false)} />
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    className="absolute right-0 mt-3 w-56 rounded-[2rem] bg-white p-2 shadow-2xl ring-1 ring-gray-100 dark:bg-gray-900 dark:ring-gray-800 z-50 overflow-hidden"
+                  >
+                    {sortOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => {
+                          setSortBy(option.value);
+                          setIsSortOpen(false);
+                        }}
+                        className={cn(
+                          "w-full flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-bold transition-all",
+                          sortBy === option.value
+                            ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
+                            : "text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
+                        )}
+                      >
+                        {option.label}
+                        {sortBy === option.value && <Check className="h-4 w-4" />}
+                      </button>
+                    ))}
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </div>
           <Button variant="outline" className="lg:hidden rounded-full h-[52px] w-[52px] p-0" onClick={() => setShowMobileFilters(true)}>
             <Filter className="h-5 w-5" />
           </Button>

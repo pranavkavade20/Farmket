@@ -200,42 +200,42 @@ const Dashboard = () => {
         {/* Profile Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
-          className="rounded-[2.5rem] bg-gray-900 text-white dark:bg-[#111] dark:border dark:border-gray-800 shadow-2xl p-10 relative overflow-hidden"
+          className="rounded-[2.5rem] bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 shadow-sm p-10 relative overflow-hidden"
         >
           {/* Soft decorative glow */}
-          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 rounded-full bg-white/10 blur-3xl pointer-events-none" />
+          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 rounded-full bg-green-500/10 dark:bg-white/5 blur-3xl pointer-events-none" />
             
           <h2 className="text-xs font-black uppercase tracking-widest text-gray-400 mb-8">Your Profile</h2>
           <div className="flex flex-col items-center text-center relative z-10">
             {user?.profile_picture ? (
-              <img src={user.profile_picture} alt={user.full_name} className="h-28 w-28 rounded-[2rem] object-cover shadow-2xl mb-6 ring-4 ring-white/10" />
+              <img src={user.profile_picture} alt={user.full_name} className="h-28 w-28 rounded-[2rem] object-cover shadow-xl mb-6 ring-4 ring-gray-50 dark:ring-white/10" />
             ) : (
-              <div className="h-28 w-28 rounded-[2rem] bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-4xl font-black shadow-2xl mb-6 ring-4 ring-white/10">
+              <div className="h-28 w-28 rounded-[2rem] bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-4xl font-black shadow-xl mb-6 ring-4 ring-gray-50 dark:ring-white/10">
                 {(user?.first_name?.[0] ?? user?.username?.[0] ?? '?').toUpperCase()}
               </div>
             )}
-            <p className="text-2xl font-black text-white">{user?.full_name || user?.username}</p>
+            <p className="text-2xl font-black text-gray-900 dark:text-white">{user?.full_name || user?.username}</p>
             <p className="text-sm font-bold text-gray-400 mt-1">{user?.email}</p>
-            <span className="mt-4 inline-flex items-center rounded-full bg-white/10 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-white backdrop-blur-md border border-white/10">
+            <span className="mt-4 inline-flex items-center rounded-full bg-gray-100 dark:bg-white/10 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-gray-600 dark:text-white backdrop-blur-md border border-gray-200 dark:border-white/10">
               {user?.user_type ?? 'buyer'}
             </span>
           </div>
           
           <div className="mt-10 space-y-4 relative z-10">
             <Link to="/dashboard/profile" className="block">
-              <button className="w-full h-14 rounded-full bg-white text-gray-900 font-black text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform shadow-xl">
+              <button className="w-full h-14 rounded-full bg-gray-900 text-white dark:bg-white dark:text-gray-900 font-black text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform shadow-xl">
                 <User className="h-4 w-4" /> Edit Profile
               </button>
             </Link>
             {isFarmer ? (
               <Link to="/dashboard/analytics" className="block">
-                <button className="w-full h-14 rounded-full bg-white/10 text-white font-black text-sm flex items-center justify-center gap-2 hover:bg-white/20 transition-colors backdrop-blur-md">
+                <button className="w-full h-14 rounded-full bg-gray-100 text-gray-900 dark:bg-white/10 dark:text-white font-black text-sm flex items-center justify-center gap-2 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors backdrop-blur-md">
                   <TrendingUp className="h-4 w-4" /> View Analytics
                 </button>
               </Link>
             ) : (
               <Link to="/marketplace" className="block">
-                <button className="w-full h-14 rounded-full bg-white/10 text-white font-black text-sm flex items-center justify-center gap-2 hover:bg-white/20 transition-colors backdrop-blur-md">
+                <button className="w-full h-14 rounded-full bg-gray-100 text-gray-900 dark:bg-white/10 dark:text-white font-black text-sm flex items-center justify-center gap-2 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors backdrop-blur-md">
                   <Star className="h-4 w-4" /> Browse Products
                 </button>
               </Link>

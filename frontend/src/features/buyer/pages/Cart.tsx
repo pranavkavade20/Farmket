@@ -4,7 +4,7 @@ import { useCart } from '@/features/buyer';
 import { useAuth } from '@/features/auth';
 import { Button } from '@/components/ui';
 import { useSEO } from '@/hooks';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, ChevronRight, ShieldCheck, Truck, Tag, Lock } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, ChevronRight, ShieldCheck, Truck, Tag, Lock, Award } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { orderService, type PlaceOrderPayload } from '@/features/orders';
 import toast from 'react-hot-toast';
@@ -273,33 +273,33 @@ const Cart = () => {
         </div>
 
         {/* Right — Order Summary */}
-        <div className="lg:sticky lg:top-32 h-fit">
-          <div className="rounded-[2.5rem] bg-gray-900 text-white dark:bg-[#111] dark:border dark:border-gray-800 p-8 shadow-2xl relative overflow-hidden">
+        <div className="lg:sticky lg:top-32">
+          <div className="rounded-[2.5rem] bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 p-8 shadow-xl relative overflow-hidden">
             {/* Soft decorative glow */}
-            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 rounded-full bg-white/5 blur-3xl pointer-events-none" />
+            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 rounded-full bg-green-500/5 dark:bg-white/5 blur-3xl pointer-events-none" />
             
-            <h2 className="text-xl font-black mb-6 tracking-tight">Order Summary</h2>
-            <div className="space-y-4 text-sm font-bold text-gray-400">
+            <h2 className="text-xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">Order Summary</h2>
+            <div className="space-y-4 text-sm font-bold text-gray-500 dark:text-gray-400">
               {items.map((item) => (
                 <div key={item.id} className="flex justify-between items-center">
-                  <span className="truncate pr-4 flex-1">{item.product_details.name} <span className="text-gray-500 ml-1">×{item.quantity}</span></span>
-                  <span className="text-white">{fmt(item.subtotal)}</span>
+                  <span className="truncate pr-4 flex-1 text-gray-700 dark:text-gray-300">{item.product_details.name} <span className="text-gray-400 dark:text-gray-500 ml-1">×{item.quantity}</span></span>
+                  <span className="text-gray-900 dark:text-white">{fmt(item.subtotal)}</span>
                 </div>
               ))}
-              <div className="border-t border-gray-800 pt-6 mt-6 flex justify-between items-end">
-                <span className="text-sm font-black uppercase tracking-widest text-gray-500 mb-1">Total</span>
-                <span className="text-4xl font-black text-white leading-none">{fmt(total)}</span>
+              <div className="border-t border-gray-100 dark:border-gray-800 pt-6 mt-6 flex justify-between items-end">
+                <span className="text-sm font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">Total</span>
+                <span className="text-4xl font-black text-gray-900 dark:text-white leading-none">{fmt(total)}</span>
               </div>
             </div>
             
-            <div className="mt-10 space-y-4">
+            <div className="mt-10 space-y-4 relative z-10">
               <AnimatePresence mode="wait">
                 {step === 'cart' ? (
                   <motion.div key="checkout-btn" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
                     <button
                       onClick={() => setStep('checkout')}
                       id="proceed-to-checkout-btn"
-                      className="w-full h-16 rounded-full bg-white text-gray-900 hover:bg-gray-100 font-black text-base transition-all active:scale-95 shadow-[0_0_40px_rgba(255,255,255,0.1)] flex items-center justify-center gap-2"
+                      className="w-full h-16 rounded-full bg-gray-900 text-white hover:bg-black dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 font-black text-base transition-all hover:scale-[1.02] active:scale-95 shadow-xl flex items-center justify-center gap-2"
                     >
                       Proceed to Checkout <ChevronRight className="h-5 w-5" />
                     </button>
@@ -310,7 +310,7 @@ const Cart = () => {
                       id="place-order-btn"
                       onClick={handlePlaceOrder}
                       disabled={placing}
-                      className="w-full h-16 rounded-full bg-green-500 text-white hover:bg-green-400 font-black text-base transition-all active:scale-95 shadow-[0_0_40px_rgba(34,197,94,0.3)] flex items-center justify-center gap-3 disabled:opacity-60 disabled:pointer-events-none disabled:scale-100"
+                      className="w-full h-16 rounded-full bg-green-500 text-white hover:bg-green-400 font-black text-base transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-green-500/20 flex items-center justify-center gap-3 disabled:opacity-60 disabled:pointer-events-none disabled:scale-100"
                     >
                       {placing ? (
                         <>
@@ -333,24 +333,24 @@ const Cart = () => {
             </div>
 
             {/* Trust badges */}
-            <div className="mt-8 pt-6 border-t border-gray-800 grid grid-cols-3 gap-2 text-center relative z-10">
+            <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 grid grid-cols-3 gap-2 text-center relative z-10">
               <div className="flex flex-col items-center gap-2">
-                <div className="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center text-green-400">
+                <div className="h-10 w-10 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-green-500 dark:text-green-400">
                   <ShieldCheck className="h-5 w-5" />
                 </div>
-                <span className="text-[10px] uppercase tracking-widest font-bold text-gray-500 leading-tight">Secure<br/>Pay</span>
+                <span className="text-[10px] uppercase tracking-widest font-bold text-gray-400 dark:text-gray-500 leading-tight">Secure<br/>Pay</span>
               </div>
               <div className="flex flex-col items-center gap-2">
-                <div className="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center text-blue-400">
+                <div className="h-10 w-10 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-blue-500 dark:text-blue-400">
                   <Truck className="h-5 w-5" />
                 </div>
-                <span className="text-[10px] uppercase tracking-widest font-bold text-gray-500 leading-tight">Free<br/>Shipping</span>
+                <span className="text-[10px] uppercase tracking-widest font-bold text-gray-400 dark:text-gray-500 leading-tight">Free<br/>Shipping</span>
               </div>
               <div className="flex flex-col items-center gap-2">
-                <div className="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center text-yellow-400">
-                  <Tag className="h-5 w-5" />
+                <div className="h-10 w-10 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-yellow-500 dark:text-yellow-400">
+                  <Award className="h-5 w-5" />
                 </div>
-                <span className="text-[10px] uppercase tracking-widest font-bold text-gray-500 leading-tight">Best<br/>Price</span>
+                <span className="text-[10px] uppercase tracking-widest font-bold text-gray-400 dark:text-gray-500 leading-tight">Quality<br/>Guar</span>
               </div>
             </div>
           </div>
