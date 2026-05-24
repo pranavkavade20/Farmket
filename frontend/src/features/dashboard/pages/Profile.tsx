@@ -90,40 +90,40 @@ const Profile = () => {
   const initials = (user?.first_name?.[0] ?? user?.username?.[0] ?? '?').toUpperCase();
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">Profile Settings</h1>
+    <div className="mx-auto max-w-4xl pb-10">
+      <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-8 tracking-tight">Profile Settings</h1>
 
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Avatar Section */}
         <motion.div
           initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800 p-6 flex items-center gap-5"
+          className="rounded-[2.5rem] bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 p-8 flex items-center gap-6 shadow-sm"
         >
           <div className="relative">
             {user?.profile_picture ? (
               <img
                 src={user.profile_picture}
                 alt={user.full_name}
-                className="h-20 w-20 rounded-full object-cover ring-2 ring-green-200 dark:ring-green-800"
+                className="h-24 w-24 rounded-[1.5rem] object-cover ring-4 ring-gray-50 dark:ring-gray-900 shadow-md"
               />
             ) : (
-              <div className="h-20 w-20 rounded-full bg-gradient-to-br from-green-400 to-green-700 flex items-center justify-center text-white text-3xl font-bold ring-2 ring-green-200">
+              <div className="h-24 w-24 rounded-[1.5rem] bg-gradient-to-br from-gray-900 to-gray-700 dark:from-white dark:to-gray-200 flex items-center justify-center text-white dark:text-gray-900 text-3xl font-black shadow-md ring-4 ring-gray-50 dark:ring-gray-900">
                 {initials}
               </div>
             )}
             <label
               htmlFor="avatar-upload"
-              className="absolute -bottom-1 -right-1 h-7 w-7 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center cursor-pointer shadow-lg transition-colors"
+              className="absolute -bottom-2 -right-2 h-10 w-10 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center cursor-pointer shadow-xl ring-2 ring-gray-100 dark:ring-gray-900 hover:scale-110 transition-transform"
               aria-label="Upload avatar"
             >
-              <Camera className="h-3.5 w-3.5 text-white" />
+              <Camera className="h-5 w-5 text-gray-900 dark:text-white" />
               <input id="avatar-upload" type="file" accept="image/*" className="sr-only" onChange={handleAvatarUpload} />
             </label>
           </div>
           <div>
-            <p className="text-lg font-semibold text-gray-900 dark:text-white">{user?.full_name || user?.username}</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{user?.email}</p>
-            <span className="mt-1 inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/30 px-2.5 py-0.5 text-xs font-semibold text-green-700 dark:text-green-400 capitalize">
+            <p className="text-2xl font-black text-gray-900 dark:text-white">{user?.full_name || user?.username}</p>
+            <p className="text-base font-bold text-gray-500 dark:text-gray-400 mt-1">{user?.email}</p>
+            <span className="mt-2 inline-flex items-center rounded-full bg-gray-900 dark:bg-white px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white dark:text-gray-900">
               {user?.user_type}
             </span>
           </div>
@@ -132,60 +132,74 @@ const Profile = () => {
         {/* Profile Form */}
         <motion.div
           initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-          className="rounded-2xl bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800 p-6"
+          className="rounded-[2.5rem] bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 p-8 shadow-sm"
         >
-          <div className="flex items-center gap-2 mb-5">
-            <User className="h-4 w-4 text-green-600" />
-            <h2 className="text-base font-semibold text-gray-900 dark:text-white">Personal Information</h2>
-          </div>
-          <form onSubmit={handleSave} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="First Name"
-                name="first_name"
-                value={form.first_name}
-                onChange={handleChange}
-                placeholder="John"
-                icon={<User className="h-4 w-4" />}
-              />
-              <Input
-                label="Last Name"
-                name="last_name"
-                value={form.last_name}
-                onChange={handleChange}
-                placeholder="Doe"
-              />
+          <div className="flex items-center gap-3 mb-8">
+            <div className="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+               <User className="h-5 w-5 text-gray-900 dark:text-white" />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Personal Information</h2>
+          </div>
+          
+          <form onSubmit={handleSave} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email</label>
+                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">First Name</label>
+                <Input
+                  name="first_name"
+                  value={form.first_name}
+                  onChange={handleChange}
+                  placeholder="John"
+                  icon={<User className="h-5 w-5" />}
+                  className="h-16 text-base shadow-inner bg-gray-50 dark:bg-gray-900/50"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Last Name</label>
+                <Input
+                  name="last_name"
+                  value={form.last_name}
+                  onChange={handleChange}
+                  placeholder="Doe"
+                  className="h-16 text-base shadow-inner bg-gray-50 dark:bg-gray-900/50"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Email Address</label>
                 <div className="relative flex items-center">
-                  <Mail className="absolute left-3 h-4 w-4 text-gray-400" />
+                  <Mail className="absolute left-4 h-5 w-5 text-gray-400" />
                   <input
                     value={user?.email ?? ''}
                     readOnly
-                    className="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 pl-9 pr-4 py-2.5 text-sm text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                    className="w-full rounded-[1.5rem] border-none bg-gray-100 dark:bg-gray-900/80 pl-12 pr-6 py-5 text-base font-bold text-gray-400 cursor-not-allowed shadow-inner"
                   />
                 </div>
-                <p className="text-xs text-gray-400 mt-1">Email cannot be changed</p>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2 ml-2">Email cannot be changed</p>
               </div>
-              <Input
-                label="Phone Number"
-                name="phone_number"
-                type="tel"
-                value={form.phone_number}
-                onChange={handleChange}
-                placeholder="+91 9876543210"
-                icon={<Phone className="h-4 w-4" />}
-              />
+              <div>
+                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Phone Number</label>
+                <Input
+                  name="phone_number"
+                  type="tel"
+                  value={form.phone_number}
+                  onChange={handleChange}
+                  placeholder="+91 9876543210"
+                  icon={<Phone className="h-5 w-5" />}
+                  className="h-16 text-base shadow-inner bg-gray-50 dark:bg-gray-900/50"
+                />
+              </div>
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Gender</label>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Gender</label>
               <select
                 name="gender"
                 value={form.gender}
                 onChange={handleChange}
-                className="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full rounded-[1.5rem] border-none bg-gray-50 dark:bg-gray-900/50 px-6 py-5 text-base font-bold text-gray-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 shadow-inner appearance-none"
               >
                 <option value="">Prefer not to say</option>
                 <option value="male">Male</option>
@@ -193,9 +207,10 @@ const Profile = () => {
                 <option value="others">Others</option>
               </select>
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                <span className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> Address</span>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                <MapPin className="h-4 w-4" /> Address
               </label>
               <textarea
                 name="address"
@@ -203,11 +218,14 @@ const Profile = () => {
                 value={form.address}
                 onChange={handleChange}
                 placeholder="Your delivery address"
-                className="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full rounded-[1.5rem] border-none bg-gray-50 dark:bg-gray-900/50 px-6 py-5 text-base font-bold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 shadow-inner resize-none"
               />
             </div>
-            <div className="flex justify-end">
-              <Button type="submit" isLoading={saving} className="gap-2">Save Changes</Button>
+
+            <div className="flex justify-end pt-4">
+              <Button type="submit" isLoading={saving} className="h-14 rounded-full px-8 font-black tracking-wide shadow-xl bg-gray-900 text-white hover:bg-black dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100">
+                Save Changes
+              </Button>
             </div>
           </form>
         </motion.div>
@@ -215,41 +233,54 @@ const Profile = () => {
         {/* Password Change */}
         <motion.div
           initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="rounded-2xl bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800 p-6"
+          className="rounded-[2.5rem] bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 p-8 shadow-sm"
         >
-          <div className="flex items-center gap-2 mb-5">
-            <Shield className="h-4 w-4 text-green-600" />
-            <h2 className="text-base font-semibold text-gray-900 dark:text-white">Change Password</h2>
+          <div className="flex items-center gap-3 mb-8">
+            <div className="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+              <Shield className="h-5 w-5 text-gray-900 dark:text-white" />
+            </div>
+            <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Change Password</h2>
           </div>
-          <form onSubmit={handlePasswordChange} className="space-y-4">
-            <Input
-              label="Current Password"
-              name="current"
-              type="password"
-              value={passwordForm.current}
-              onChange={(e) => setPasswordForm((p) => ({ ...p, current: e.target.value }))}
-              placeholder="••••••••"
-            />
-            <div className="grid grid-cols-2 gap-4">
+          <form onSubmit={handlePasswordChange} className="space-y-6">
+            <div>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Current Password</label>
               <Input
-                label="New Password"
-                name="newPass"
+                name="current"
                 type="password"
-                value={passwordForm.newPass}
-                onChange={(e) => setPasswordForm((p) => ({ ...p, newPass: e.target.value }))}
-                placeholder="Min 8 chars"
-              />
-              <Input
-                label="Confirm New Password"
-                name="confirm"
-                type="password"
-                value={passwordForm.confirm}
-                onChange={(e) => setPasswordForm((p) => ({ ...p, confirm: e.target.value }))}
-                placeholder="Re-enter"
+                value={passwordForm.current}
+                onChange={(e) => setPasswordForm((p) => ({ ...p, current: e.target.value }))}
+                placeholder="••••••••"
+                className="h-16 text-base shadow-inner bg-gray-50 dark:bg-gray-900/50"
               />
             </div>
-            <div className="flex justify-end">
-              <Button type="submit" variant="outline" isLoading={changingPass}>Update Password</Button>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">New Password</label>
+                <Input
+                  name="newPass"
+                  type="password"
+                  value={passwordForm.newPass}
+                  onChange={(e) => setPasswordForm((p) => ({ ...p, newPass: e.target.value }))}
+                  placeholder="Min 8 chars"
+                  className="h-16 text-base shadow-inner bg-gray-50 dark:bg-gray-900/50"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Confirm New Password</label>
+                <Input
+                  name="confirm"
+                  type="password"
+                  value={passwordForm.confirm}
+                  onChange={(e) => setPasswordForm((p) => ({ ...p, confirm: e.target.value }))}
+                  placeholder="Re-enter"
+                  className="h-16 text-base shadow-inner bg-gray-50 dark:bg-gray-900/50"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end pt-4">
+              <Button type="submit" variant="outline" isLoading={changingPass} className="h-14 rounded-full px-8 font-black tracking-wide border-2">
+                Update Password
+              </Button>
             </div>
           </form>
         </motion.div>

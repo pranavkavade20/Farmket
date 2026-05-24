@@ -1,58 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { useSEO } from '@/hooks';
-import { Button, Input } from '@/components/ui';
+import { Button } from '@/components/ui';
 import { ProductCard, productService } from '@/features/products';
 import type { Product, Category } from '@/types';
 import { useCart } from '@/features/buyer';
 import { useAuth } from '@/features/auth';
 import toast from 'react-hot-toast';
 import {
-  ArrowRight, Search, Leaf, ShieldCheck, TrendingUp,
-  MapPin, Star, ChevronRight, Truck, CheckCircle2,
-  Apple, Wheat, Tractor
+  ArrowRight, ChevronRight, Apple, ShoppingBag
 } from 'lucide-react';
 import hero_section from '@/assets/images/hero.jpg';
 
-// ── Mock Data ───────────────────────────────────────────────────────────────
+// ── Mock Data for styling the premium category cards ───────────────
 const categoryStyles = [
-  { icon: <Leaf className="h-6 w-6" />, color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
-  { icon: <Apple className="h-6 w-6" />, color: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400' },
-  { icon: <Wheat className="h-6 w-6" />, color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
-  { icon: <ShieldCheck className="h-6 w-6" />, color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
+  { color: 'bg-[#F2FCE4] dark:bg-green-900/20' }, // Light Green
+  { color: 'bg-[#EBF8FE] dark:bg-blue-900/20' },  // Light Blue
+  { color: 'bg-[#FDF3E1] dark:bg-orange-900/20' }, // Light Orange
+  { color: 'bg-[#FCECF3] dark:bg-pink-900/20' },   // Light Pink
+  { color: 'bg-[#F0F2FD] dark:bg-indigo-900/20' }, // Light Indigo
+  { color: 'bg-[#FEF5E7] dark:bg-yellow-900/20' }, // Light Yellow
 ];
-
-const steps = [
-  { title: 'Search & Discover', desc: 'Browse thousands of fresh, locally grown products.', icon: <Search className="h-6 w-6" /> },
-  { title: 'Order Directly', desc: 'Buy straight from the farmers, ensuring fair prices for everyone.', icon: <CheckCircle2 className="h-6 w-6" /> },
-  { title: 'Fast Delivery', desc: 'Get farm-fresh produce delivered straight to your doorstep.', icon: <Truck className="h-6 w-6" /> },
-];
-
-const stats = [
-  { value: '5,000+', label: 'Verified Farmers' },
-  { value: '25k+', label: 'Happy Customers' },
-  { value: '18', label: 'States Covered' },
-  { value: '100%', label: 'Freshness Guarantee' },
-];
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } }),
-};
 
 // ── Components ──────────────────────────────────────────────────────────────
 const Home = () => {
   useSEO({
-    title: 'Farm to Table Marketplace',
-    description: 'Farmket connects farmers directly with buyers. Fresh produce, fair prices, zero middlemen.',
+    title: 'Farmket | Farm to Table Delivery',
+    description: 'Shop from thousands of farm-fresh fruits, vegetables, dairy, and daily essentials at unbeatable prices.',
   });
-  const navigate = useNavigate();
+  
   const { addToCart } = useCart();
   const { user } = useAuth();
-  const [searchQuery, setSearchQuery] = useState('');
+  
+  // States
   const [products, setProducts] = useState<Product[]>([]);
   const [categoriesList, setCategoriesList] = useState<Category[]>([]);
+  const [activeTab, setActiveTab] = useState('Fresh Vegetables');
 
   useEffect(() => {
     productService.getFeaturedProducts()
@@ -73,165 +56,232 @@ const Home = () => {
     toast.success(`${product.name} added to cart`);
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/marketplace?q=${encodeURIComponent(searchQuery)}`);
-    }
-  };
-
   return (
-    <div className="flex flex-col bg-[#F8FAFC] dark:bg-gray-950">
-      {/* 1. Announcement Bar */}
-      <div className="bg-green-600 px-4 py-2 text-center text-sm font-medium text-white sm:px-6 lg:px-8">
-        🌱 Fresh spring harvest is here! Get 20% off your first order with code <span className="font-bold underline">SPRING20</span>
-      </div>
+    <div className="flex flex-col bg-[#F5F5F5] dark:bg-[#0A0A0A] w-full min-h-screen">
+      
+      {/* 1. Main Content Wrapper */}
+      <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-16">
+        
+        {/* 2. Hero Section */}
+        <section className="relative overflow-hidden rounded-[2.5rem] bg-[#168748] px-8 py-16 sm:py-24 lg:px-16 shadow-xl w-full min-h-[500px] flex items-center">
+          
+          <div className="relative z-10 grid lg:grid-cols-2 gap-12 w-full">
+            <div className="flex flex-col justify-center items-start">
+              
+              <h1 className="text-6xl sm:text-7xl lg:text-[7rem] font-bold tracking-tighter text-white leading-[0.9] mb-8 font-sans">
+                Farm<span className="text-[#B9F046]">ket</span>
+              </h1>
 
-      {/* 3. Hero Section & 4. Search Bar */}
-      <section className="relative overflow-hidden pt-16 pb-24 lg:pt-24 lg:pb-32">
-        {/* Decorative background blobs */}
-        <div className="pointer-events-none absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full bg-green-200/40 blur-3xl dark:bg-green-900/20" />
-        <div className="pointer-events-none absolute top-40 -left-40 h-[500px] w-[500px] rounded-full bg-lime-200/30 blur-3xl dark:bg-lime-900/10" />
-
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <motion.div initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.1 } } }}>
-            <motion.div variants={fadeUp} custom={0} className="inline-flex items-center gap-2 rounded-full border border-green-200 bg-white/50 px-4 py-1.5 text-xs font-semibold text-green-700 backdrop-blur-sm dark:border-green-800 dark:bg-gray-900/50 dark:text-green-400 mb-6 shadow-sm">
-              <Leaf className="h-3.5 w-3.5" /> India's Premium Farm-to-Table Marketplace
-            </motion.div>
-            
-            <motion.h1 variants={fadeUp} custom={1} className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-[1.1]">
-              Fresh from the Farm,<br />
-              <span className="bg-gradient-to-r from-green-500 to-emerald-400 bg-clip-text text-transparent">
-                Delivered to You.
-              </span>
-            </motion.h1>
-
-            <motion.p variants={fadeUp} custom={2} className="mx-auto mt-6 max-w-2xl text-lg text-gray-600 dark:text-gray-400">
-              Skip the middlemen. Buy fresh, organic, and locally grown produce directly from verified farmers at fair prices.
-            </motion.p>
-
-            <motion.form variants={fadeUp} custom={3} onSubmit={handleSearch} className="mx-auto mt-10 max-w-xl relative flex items-center shadow-lg rounded-2xl">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-400">
-                <Search className="h-5 w-5" />
+              <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 text-sm font-bold text-white backdrop-blur-md border border-white/20 mb-8 absolute top-0 right-0 lg:right-auto lg:left-0 lg:-top-6 hidden lg:inline-flex">
+                Same-Day Delivery
               </div>
-              <input
-                type="text"
-                placeholder="Search for fresh vegetables, fruits, grains..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="block w-full rounded-2xl border-0 bg-white py-4 pl-12 pr-32 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-lg sm:leading-6 dark:bg-gray-900 dark:text-white dark:ring-gray-800"
-              />
-              <div className="absolute inset-y-1 right-1 flex items-center">
-                <Button type="submit" size="lg" className="h-full rounded-xl">
-                  Search
-                </Button>
-              </div>
-            </motion.form>
-          </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.4 }} className="mt-16 mx-auto max-w-5xl rounded-3xl overflow-hidden shadow-2xl ring-1 ring-gray-200 dark:ring-gray-800 relative group">
-            <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent z-10" />
-            <img src={hero_section} alt="Lush green farmland" className="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-105" />
-            <div className="absolute bottom-0 left-0 right-0 p-8 z-20 text-left">
-              <p className="text-white font-medium text-lg flex items-center gap-2"><MapPin className="h-5 w-5"/> Sourced from Ratnagiri Farms</p>
+              <p className="max-w-[400px] text-[15px] text-white/90 leading-relaxed font-medium mb-10">
+                Shop from thousands of farm-fresh fruits, vegetables, dairy, and daily essentials at unbeatable prices.
+              </p>
+
+              <Button size="lg" className="rounded-full bg-[#0A2617] hover:bg-black text-white px-8 py-7 text-[15px] font-bold shadow-xl border-none transition-transform hover:scale-105">
+                Shop Now <ChevronRight className="ml-2 h-5 w-5" />
+              </Button>
             </div>
-          </motion.div>
-        </div>
-      </section>
 
-      {/* 5. Categories */}
-      <section className="py-16 bg-white dark:bg-gray-950 border-y border-gray-100 dark:border-gray-900">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            {/* Right side floating image container */}
+            <div className="relative hidden lg:flex items-end justify-center">
+              <img 
+                src={hero_section} 
+                alt="Delivery person" 
+                className="w-full max-w-[500px] object-contain drop-shadow-2xl z-20 relative h-[500px] object-right-bottom mix-blend-normal"
+                style={{ maskImage: 'linear-gradient(to top, transparent 0%, black 15%)', WebkitMaskImage: 'linear-gradient(to top, transparent 0%, black 15%)' }}
+              />
+              {/* Floating Card */}
+              <div className="absolute bottom-16 -left-8 z-30 flex items-center gap-4 rounded-[1.5rem] bg-white/95 p-4 shadow-2xl backdrop-blur-xl border border-white/40 min-w-[220px]">
+                <div className="h-16 w-16 rounded-[1rem] bg-[#F2FCE4] flex items-center justify-center text-3xl shadow-sm">
+                  🥬
+                </div>
+                <div>
+                  <p className="font-extrabold text-gray-900 text-sm">Fresh Vegetables</p>
+                  <p className="text-sm font-bold text-gray-900 mt-0.5">$18.00 <span className="line-through text-gray-400 text-xs ml-1 font-semibold">$24.00</span></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 3. Popular Categories */}
+        <section>
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Shop by Category</h2>
-            <Link to="/marketplace" className="text-sm font-semibold text-green-600 hover:text-green-700 dark:text-green-500 flex items-center gap-1">
-              View all <ArrowRight className="h-4 w-4" />
+            <h2 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">Popular Categories</h2>
+            <Link to="/marketplace" className="rounded-full bg-[#111] px-5 py-2 text-xs font-bold text-white transition-all hover:bg-black flex items-center gap-2 dark:bg-white dark:text-gray-900">
+              Show All <ChevronRight className="h-3 w-3" />
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-            {categoriesList.slice(0, 4).map((c, i) => {
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {categoriesList.slice(0, 6).map((c, i) => {
               const style = categoryStyles[i % categoryStyles.length];
               return (
-                <Link key={c.id} to={`/marketplace?category=${c.slug}`} className="group flex flex-col items-center justify-center p-6 rounded-2xl bg-gray-50 hover:bg-white dark:bg-gray-900 dark:hover:bg-gray-800 transition-all shadow-sm ring-1 ring-gray-100 hover:shadow-md dark:ring-gray-800 hover:-translate-y-1">
-                  <div className={`mb-4 p-4 rounded-full ${style.color} transition-transform group-hover:scale-110`}>
-                    {style.icon}
+                <Link key={c.id} to={`/marketplace?category=${c.slug}`} className={`group flex flex-col items-center justify-center p-6 rounded-[2rem] bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1 shadow-[0_4px_20px_rgb(0,0,0,0.02)]`}>
+                  <div className={`h-[88px] w-[88px] flex items-center justify-center mb-4 rounded-3xl ${style.color} transition-transform group-hover:scale-105`}>
+                    <Apple className="h-10 w-10 text-gray-700 dark:text-gray-200 opacity-60 mix-blend-multiply" />
                   </div>
-                  <h3 className="font-semibold text-gray-900 dark:text-white text-center">{c.name}</h3>
+                  <h3 className="font-bold text-[15px] text-gray-900 dark:text-white text-center leading-tight">{c.name}</h3>
+                  <p className="text-[11px] text-gray-400 mt-1.5 font-bold uppercase tracking-wide">{Math.floor(Math.random() * 40) + 10} Product</p>
                 </Link>
               );
             })}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* 6. Featured Products */}
-      <section className="py-24 bg-[#F8FAFC] dark:bg-[#0a0f0d]">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-12">
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Fresh Arrivals</h2>
-              <p className="mt-2 text-gray-600 dark:text-gray-400">Handpicked produce directly from the farms to you.</p>
-            </div>
-            <Button variant="outline" className="hidden sm:flex" onClick={() => navigate('/marketplace')}>Browse Marketplace</Button>
+        {/* 4. Today's Fresh Picks */}
+        <section>
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">Today's Fresh Picks</h2>
+            <Link to="/marketplace" className="rounded-full bg-[#111] px-5 py-2 text-xs font-bold text-white transition-all hover:bg-black flex items-center gap-2 dark:bg-white dark:text-gray-900">
+              Show All <ChevronRight className="h-3 w-3" />
+            </Link>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-            {products.map((p, i) => (
-              <motion.div key={p.id} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-50px' }} variants={fadeUp}>
-                <ProductCard product={p} onAddToCart={handleAddToCart} />
-              </motion.div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {products.slice(0, 5).map((p) => (
+              <ProductCard key={p.id} product={p} onAddToCart={handleAddToCart} />
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* 8. How It Works */}
-      <section className="py-24 bg-white dark:bg-gray-950">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-16">How Farmket Works</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
-            <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-[2px] bg-gradient-to-r from-green-100 via-green-300 to-green-100 dark:from-green-900/30 dark:via-green-600/30 dark:to-green-900/30 -z-10" />
-            {steps.map((s, i) => (
-              <div key={s.title} className="flex flex-col items-center">
-                <div className="h-24 w-24 rounded-full bg-green-50 dark:bg-gray-900 ring-8 ring-white dark:ring-gray-950 flex items-center justify-center text-green-600 dark:text-green-500 shadow-inner mb-6">
-                  {s.icon}
+        {/* 5. Middle Section Grid (Light Blue Hero + Promo Banners) */}
+        <section className="grid lg:grid-cols-[1fr_350px] gap-6 w-full">
+          {/* Light Blue Banner */}
+          <div className="bg-[#EBF8FE] rounded-[2.5rem] p-10 lg:p-14 text-gray-900 flex flex-col md:flex-row items-center justify-between overflow-hidden relative min-h-[300px]">
+             <div className="relative z-10 md:w-3/5 text-left">
+               <h2 className="text-4xl lg:text-5xl font-black leading-[1.1] mb-4 text-[#0A2617]">
+                 Fresh Fruits & Vegetables.<br/>Delivered Daily.
+               </h2>
+               <p className="text-[15px] text-gray-600 font-medium mb-8 max-w-sm">
+                 We deliver everything you need straight to your door.
+               </p>
+               <Button className="rounded-full bg-[#111] hover:bg-black text-white px-6 py-6 text-sm font-bold shadow-xl">
+                  Shop Fresh Produce <ChevronRight className="ml-2 h-4 w-4" />
+               </Button>
+             </div>
+             <div className="relative z-10 md:w-2/5 flex justify-end mt-8 md:mt-0">
+                <div className="w-64 h-64 bg-white/40 rounded-full blur-3xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+                {/* Fallback Basket Placeholder */}
+                <div className="relative w-full aspect-square max-w-[300px] flex items-center justify-center">
+                   <div className="absolute inset-0 bg-[#D4F1F9] rounded-full opacity-50 blur-2xl"></div>
+                   <span className="text-9xl drop-shadow-2xl relative z-20">🧺</span>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{s.title}</h3>
-                <p className="text-gray-600 dark:text-gray-400 max-w-xs">{s.desc}</p>
+             </div>
+          </div>
+
+          {/* 3 Vertical Promo Banners */}
+          <div className="flex flex-col gap-4">
+            <div className="rounded-[2rem] bg-gradient-to-br from-[#419468] to-[#168748] p-6 text-white relative overflow-hidden flex-1 shadow-lg group">
+              <div className="relative z-10 max-w-[70%] h-full flex flex-col justify-between">
+                <h3 className="text-[15px] font-black leading-snug uppercase tracking-wide">NEW HERE? ENJOY 10% OFF YOUR FIRST ORDER</h3>
+                <div className="mt-4 flex items-end justify-between w-[140%]">
+                   <p className="text-xs text-white/80 font-medium max-w-[55%]">Sign up today and get instant savings on your first grocery purchase.</p>
+                   <button className="h-10 w-10 bg-black text-white rounded-full flex items-center justify-center hover:scale-110 transition-transform flex-shrink-0"><ChevronRight className="h-4 w-4"/></button>
+                </div>
               </div>
+            </div>
+            
+            <div className="rounded-[2rem] bg-gradient-to-br from-[#FF6B6B] to-[#F03E3E] p-6 text-white relative overflow-hidden flex-1 shadow-lg group">
+              <div className="relative z-10 max-w-[70%] h-full flex flex-col justify-between">
+                <h3 className="text-[15px] font-black leading-snug uppercase tracking-wide">FREE DELIVERY ON ORDERS OVER $50</h3>
+                <div className="mt-4 flex items-end justify-between w-[140%]">
+                   <p className="text-xs text-white/80 font-medium max-w-[55%]">Stock up on your weekly groceries and save more with zero delivery charges.</p>
+                   <button className="h-10 w-10 bg-black text-white rounded-full flex items-center justify-center hover:scale-110 transition-transform flex-shrink-0"><ChevronRight className="h-4 w-4"/></button>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-[2rem] bg-gradient-to-br from-[#FFD43B] to-[#FCC419] p-6 text-[#111] relative overflow-hidden flex-1 shadow-lg group">
+              <div className="relative z-10 max-w-[70%] h-full flex flex-col justify-between">
+                <h3 className="text-[15px] font-black leading-snug uppercase tracking-wide">FRESH GROCERIES FOR YOUR FAMILY, WITHOUT HASSLE.</h3>
+                <div className="mt-4 flex items-end justify-between w-[140%]">
+                   <p className="text-xs text-gray-800 font-medium max-w-[55%]">We deliver everything you need straight to your door.</p>
+                   <button className="h-10 w-10 bg-black text-white rounded-full flex items-center justify-center hover:scale-110 transition-transform flex-shrink-0"><ChevronRight className="h-4 w-4"/></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 6. Weekly Best Selling items */}
+        <section>
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+            <h2 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">Weekly Best Selling items</h2>
+            <Link to="/marketplace" className="rounded-full bg-[#111] px-5 py-2 text-xs font-bold text-white transition-all hover:bg-black flex items-center gap-2 dark:bg-white dark:text-gray-900 self-start md:self-auto">
+              Show All <ChevronRight className="h-3 w-3" />
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-2 overflow-x-auto pb-4 custom-scrollbar mb-4">
+            {['Fresh Vegetables', 'Fruits', 'Dairy & Eggs', 'Bakery', 'Meat & Fish', 'Beverages'].map((tab) => (
+              <button 
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`whitespace-nowrap px-6 py-2.5 rounded-full text-xs font-bold transition-all ${
+                  activeTab === tab 
+                  ? 'bg-[#168748] text-white shadow-md' 
+                  : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 shadow-sm'
+                }`}
+              >
+                {tab}
+              </button>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* 11. Statistics & Benefits */}
-      <section className="py-20 bg-brand-600 dark:bg-brand-700">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x-0 md:divide-x divide-green-500/30">
-            {stats.map((s, i) => (
-              <motion.div key={s.label} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="flex flex-col items-center">
-                <p className="text-4xl lg:text-5xl font-extrabold text-white mb-2">{s.value}</p>
-                <p className="text-sm font-medium text-green-100 uppercase tracking-wider">{s.label}</p>
-              </motion.div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {products.slice(0, 5).reverse().map((p) => (
+              <ProductCard key={p.id} product={p} onAddToCart={handleAddToCart} />
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* 13. Newsletter */}
-      <section className="py-24 bg-gray-50 dark:bg-[#0c1110]">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Stay Rooted With Us</h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
-            Subscribe to our newsletter for the latest seasonal produce alerts, exclusive discounts, and farming tips.
-          </p>
-          <form className="max-w-md mx-auto flex gap-2" onSubmit={(e) => e.preventDefault()}>
-            <Input type="email" placeholder="Enter your email address" className="flex-1" />
-            <Button type="submit" size="lg">Subscribe</Button>
-          </form>
-        </div>
-      </section>
+        {/* 7. Most Selling Products */}
+        <section>
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">Most Selling Products</h2>
+            <Link to="/marketplace" className="rounded-full bg-[#111] px-5 py-2 text-xs font-bold text-white transition-all hover:bg-black flex items-center gap-2 dark:bg-white dark:text-gray-900">
+              Show All <ChevronRight className="h-3 w-3" />
+            </Link>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {products.slice(0, 5).map((p) => (
+              <ProductCard key={p.id} product={p} onAddToCart={handleAddToCart} />
+            ))}
+          </div>
+        </section>
 
+        {/* 8. Premium CTA Section */}
+        <section>
+          <div className="rounded-[3rem] bg-[#EBF8FE] dark:bg-blue-950/20 px-10 py-16 lg:px-20 relative overflow-hidden flex flex-col md:flex-row items-center justify-between shadow-xl">
+            <div className="relative z-10 md:w-1/2 mb-10 md:mb-0">
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight text-[#0A2617] dark:text-white mb-6 leading-[1.1]">
+                Ready To Fill Your Cart With Freshness?
+              </h2>
+              <p className="text-[15px] text-gray-600 dark:text-gray-400 mb-8 font-medium max-w-md">
+                Shop farm-fresh groceries, daily essentials, and exclusive deals delivered straight to your door.
+              </p>
+              <div className="flex items-center gap-4">
+                <button className="h-14 px-8 bg-[#111] rounded-2xl text-white flex items-center justify-center font-bold hover:bg-black transition-colors shadow-xl text-sm">App Store</button>
+                <button className="h-14 px-8 bg-[#111] rounded-2xl text-white flex items-center justify-center font-bold hover:bg-black transition-colors shadow-xl text-sm">Google Play</button>
+              </div>
+            </div>
+            
+            <div className="md:w-1/2 relative flex justify-end">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-200/50 dark:bg-blue-900/30 blur-3xl rounded-full" />
+              {/* Fallback Basket */}
+              <div className="relative z-10 h-72 w-72 bg-white dark:bg-gray-900 rounded-full flex items-center justify-center shadow-2xl ring-[12px] ring-white/50 dark:ring-gray-900/50">
+                 <span className="text-9xl drop-shadow-2xl">🛒</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
     </div>
   );
 };

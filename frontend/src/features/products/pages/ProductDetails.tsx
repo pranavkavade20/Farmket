@@ -95,39 +95,39 @@ const ProductDetails = () => {
   const reviewsCount = product.reviews.length > 0 ? product.reviews.length : 124;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-[1600px] px-4 py-12 sm:px-6 lg:px-8 min-h-screen">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-sm text-gray-500 mb-8">
-        <Link to="/" className="hover:text-green-600">Home</Link>
+      <nav className="flex items-center gap-3 text-sm font-bold text-gray-400 mb-10">
+        <Link to="/" className="hover:text-gray-900 dark:hover:text-white transition-colors">Home</Link>
         <span>/</span>
-        <Link to="/marketplace" className="hover:text-green-600">Marketplace</Link>
+        <Link to="/marketplace" className="hover:text-gray-900 dark:hover:text-white transition-colors">Marketplace</Link>
         <span>/</span>
-        <span className="text-gray-900 dark:text-gray-200 font-medium">{product.category_name}</span>
+        <span className="text-gray-900 dark:text-gray-200">{product.category_name}</span>
       </nav>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 mb-20">
         {/* Image Gallery */}
-        <div className="space-y-4">
-          <div className="aspect-square rounded-3xl overflow-hidden bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 relative">
-            <img src={images[activeImage]} alt={product.name} className="w-full h-full object-cover" />
+        <div className="space-y-6">
+          <div className="aspect-square rounded-[3rem] overflow-hidden bg-[#F8F9FA] dark:bg-gray-900 relative flex items-center justify-center p-12">
+            <img src={images[activeImage]} alt={product.name} className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal transition-transform duration-500 hover:scale-110" />
             {product.is_organic && (
-              <div className="absolute top-4 left-4 bg-green-600 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-sm">
-                <Leaf className="h-3.5 w-3.5" /> ORGANIC
+              <div className="absolute top-8 left-8 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-5 py-2.5 rounded-full text-xs font-black flex items-center gap-2 shadow-xl tracking-widest uppercase">
+                <Leaf className="h-4 w-4" /> ORGANIC
               </div>
             )}
           </div>
           {images.length > 1 && (
-            <div className="flex gap-4 overflow-x-auto pb-2">
+            <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
               {images.map((img, idx) => (
                 <button
                   key={idx}
                   onClick={() => setActiveImage(idx)}
                   className={cn(
-                    "relative h-20 w-20 shrink-0 rounded-xl overflow-hidden border-2 transition-all",
-                    activeImage === idx ? "border-green-600" : "border-transparent opacity-60 hover:opacity-100"
+                    "relative h-24 w-24 shrink-0 rounded-[1.5rem] overflow-hidden border-2 transition-all p-2 bg-[#F8F9FA] dark:bg-gray-900",
+                    activeImage === idx ? "border-gray-900 dark:border-white shadow-lg" : "border-transparent opacity-60 hover:opacity-100 hover:-translate-y-1"
                   )}
                 >
-                  <img src={img} alt={`Thumbnail ${idx}`} className="w-full h-full object-cover" />
+                  <img src={img} alt={`Thumbnail ${idx}`} className="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal rounded-xl" />
                 </button>
               ))}
             </div>
@@ -135,36 +135,34 @@ const ProductDetails = () => {
         </div>
 
         {/* Product Info */}
-        <div className="flex flex-col">
-          <div className="mb-6 border-b border-gray-200 dark:border-gray-800 pb-6">
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-4 tracking-tight">{product.name}</h1>
+        <div className="flex flex-col justify-center">
+          <div className="mb-8">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white mb-6 tracking-tight leading-[1.1]">{product.name}</h1>
             
-            <div className="flex flex-wrap items-center gap-4 mb-4">
-              <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-md">
-                <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                <span className="font-semibold text-amber-700 dark:text-amber-400 text-sm">{avgRating}</span>
-                <span className="text-amber-600/70 dark:text-amber-500/70 text-sm ml-1">({reviewsCount} reviews)</span>
+            <div className="flex flex-wrap items-center gap-4 mb-8">
+              <div className="flex items-center gap-1.5 bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500 px-3 py-1.5 rounded-full font-bold text-sm">
+                <Star className="h-4 w-4 fill-current" />
+                {avgRating} ({reviewsCount} reviews)
               </div>
-              <span className="text-gray-300 dark:text-gray-700">|</span>
-              <div className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400 text-sm font-medium">
-                <MapPin className="h-4 w-4 text-green-600" /> Sourced directly from {product.farmer_name}
+              <div className="flex items-center gap-2 text-gray-500 font-bold text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-full">
+                <MapPin className="h-4 w-4 text-gray-900 dark:text-white" /> {product.farmer_name}
               </div>
             </div>
 
             <div className="flex items-end gap-3 mt-4">
-              <span className="text-4xl font-extrabold text-gray-900 dark:text-white">₹{product.price}</span>
-              <span className="text-lg text-gray-500 mb-1">/ {product.unit}</span>
+              <span className="text-5xl lg:text-6xl font-black text-gray-900 dark:text-white">₹{product.price}</span>
+              <span className="text-xl text-gray-400 font-bold mb-1.5">/ {product.unit}</span>
             </div>
             {!product.in_stock && (
-              <div className="mt-3 inline-flex items-center gap-1.5 text-red-600 bg-red-50 dark:bg-red-900/20 px-3 py-1 rounded-full text-sm font-medium">
-                <AlertCircle className="h-4 w-4" /> Out of Stock
+              <div className="mt-4 inline-flex items-center gap-2 text-red-600 bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded-full text-sm font-bold">
+                <AlertCircle className="h-5 w-5" /> Out of Stock
               </div>
             )}
           </div>
 
-          <div className="mb-8">
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Description</h3>
-            <p className="text-gray-600 dark:text-gray-400 leading-relaxed text-sm md:text-base">
+          <div className="mb-10">
+            <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-4">Description</h3>
+            <p className="text-gray-500 dark:text-gray-400 leading-relaxed text-base md:text-lg font-medium max-w-2xl">
               {product.description || 'Freshly harvested produce delivered directly to your doorstep. Grown with care and sustainable farming practices to ensure the best quality and taste.'}
             </p>
           </div>
@@ -172,65 +170,64 @@ const ProductDetails = () => {
           {/* Actions */}
           <div className="flex flex-col gap-4 mt-auto">
             <div className="flex items-center gap-4">
-              <div className="flex items-center border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-[#0c1110]">
+              <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-full h-16 p-2">
                 <button 
                   onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                  className="p-3 text-gray-500 hover:text-green-600 disabled:opacity-50"
+                  className="h-12 w-12 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center text-gray-900 dark:text-white shadow-sm hover:scale-105 transition-transform disabled:opacity-50"
                   disabled={!product.in_stock || quantity <= 1}
                 >
-                  <Minus className="h-4 w-4" />
+                  <Minus className="h-5 w-5" />
                 </button>
-                <span className="w-10 text-center font-semibold text-gray-900 dark:text-white">{quantity}</span>
+                <span className="w-16 text-center font-black text-xl text-gray-900 dark:text-white">{quantity}</span>
                 <button 
                   onClick={() => setQuantity(q => q + 1)}
-                  className="p-3 text-gray-500 hover:text-green-600 disabled:opacity-50"
+                  className="h-12 w-12 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center text-gray-900 dark:text-white shadow-sm hover:scale-105 transition-transform disabled:opacity-50"
                   disabled={!product.in_stock}
                 >
-                  <Plus className="h-4 w-4" />
+                  <Plus className="h-5 w-5" />
                 </button>
               </div>
               <Button 
-                size="lg" 
-                className="flex-1 h-[50px] text-lg gap-2" 
+                className="flex-1 h-16 text-lg gap-3 rounded-full font-black tracking-wide" 
                 onClick={handleAddToCart}
                 disabled={!product.in_stock}
               >
-                <ShoppingCart className="h-5 w-5" /> Add to Cart
+                <ShoppingCart className="h-6 w-6" /> ADD TO CART
               </Button>
             </div>
             
-            <div className="flex flex-col sm:flex-row items-center gap-4 mt-2">
-              <Button variant="outline" className="flex-1 w-full gap-2 border-gray-200 text-gray-600">
-                <Heart className="h-4 w-4" /> Save to Wishlist
+            <div className="flex flex-col sm:flex-row items-center gap-4 mt-4">
+              <Button variant="outline" className="flex-1 h-14 w-full gap-2 rounded-full font-bold text-gray-600 hover:text-gray-900 dark:text-gray-400 border-gray-200">
+                <Heart className="h-5 w-5" /> Save to Wishlist
               </Button>
               <Button 
-                variant="outline" 
-                className="flex-1 w-full gap-2 border-green-200 bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800 dark:border-green-900/30 dark:bg-green-900/20 dark:text-green-400 dark:hover:bg-green-900/40"
+                variant="secondary" 
+                className="flex-1 h-14 w-full gap-2 rounded-full font-bold bg-[#F2FCE4] text-green-900 hover:bg-[#E6F8CE] dark:bg-green-900/30 dark:text-green-400"
                 onClick={() => navigate('/messages')}
               >
-                <MessageSquare className="h-4 w-4" /> Chat with Farmer
+                <MessageSquare className="h-5 w-5" /> Chat with Farmer
               </Button>
             </div>
           </div>
 
           {/* Guarantees */}
-          <div className="grid grid-cols-2 gap-4 mt-8 pt-8 border-t border-gray-200 dark:border-gray-800">
-            <div className="flex items-start gap-3">
-              <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg text-green-600 shrink-0">
-                <Truck className="h-5 w-5" />
+          <div className="grid grid-cols-2 gap-6 mt-12 pt-10 border-t border-gray-100 dark:border-gray-800">
+            <div className="flex items-center gap-4">
+              <div className="h-14 w-14 rounded-full bg-[#EBF8FE] dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                <Truck className="h-6 w-6" />
               </div>
               <div>
-                <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Fast Delivery</h4>
-                <p className="text-xs text-gray-500 mt-0.5">Dispatched within 24 hours</p>
+                <h4 className="text-base font-bold text-gray-900 dark:text-white">Fast Delivery</h4>
+                <p className="text-sm text-gray-500 font-medium">Dispatched in 24h</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg text-green-600 shrink-0">
-                <ShieldCheck className="h-5 w-5" />
+            <div className="flex items-center gap-4">
+              <div className="h-14 w-14 rounded-full bg-[#F2FCE4] dark:bg-green-900/20 text-green-600 dark:text-green-400 flex items-center justify-center shrink-0">
+                <ShieldCheck className="h-6 w-6" />
               </div>
               <div>
-                <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Quality Promise</h4>
-                <p className="text-xs text-gray-500 mt-0.5">100% fresh guarantee</p>
+                <h4 className="text-base font-bold text-gray-900 dark:text-white">Quality Promise</h4>
+                <p className="text-sm text-gray-500 font-medium">100% fresh guarantee</p>
               </div>
             </div>
           </div>
@@ -238,71 +235,73 @@ const ProductDetails = () => {
       </div>
 
       {/* Reviews Section */}
-      <div className="mt-16 border-t border-gray-200 dark:border-gray-800 pt-16">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">Customer Reviews</h2>
+      <div className="mt-24 border-t border-gray-100 dark:border-gray-800 pt-20">
+        <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-10 tracking-tight">Customer Reviews</h2>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
           {/* Review List */}
           <div className="lg:col-span-2 space-y-6">
             {product.reviews.length === 0 ? (
-              <p className="text-gray-500 dark:text-gray-400 italic">No reviews yet. Be the first to review!</p>
+              <div className="p-12 text-center bg-[#F8F9FA] dark:bg-[#111] rounded-[3rem]">
+                 <p className="text-gray-500 dark:text-gray-400 font-bold text-lg">No reviews yet. Be the first to review!</p>
+              </div>
             ) : (
               product.reviews.map((rev) => (
-                <div key={rev.id} className="bg-white dark:bg-[#0c1110] p-6 rounded-2xl ring-1 ring-gray-200 dark:ring-gray-800 shadow-sm">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-semibold text-gray-900 dark:text-white">{rev.buyer_name}</span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                <div key={rev.id} className="bg-white dark:bg-[#111] p-8 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-gray-800 transition-all hover:shadow-lg hover:-translate-y-1">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="font-black text-gray-900 dark:text-white text-lg">{rev.buyer_name}</span>
+                    <span className="text-sm font-bold text-gray-400">
                       {new Date(rev.created_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}
                     </span>
                   </div>
-                  <div className="flex gap-1 mb-3">
+                  <div className="flex gap-1.5 mb-4 bg-gray-50 dark:bg-gray-900 w-fit px-3 py-1.5 rounded-full">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`h-4 w-4 ${i < rev.rating ? 'fill-amber-400 text-amber-400' : 'text-gray-300 dark:text-gray-700'}`} />
+                      <Star key={i} className={`h-4 w-4 ${i < rev.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200 dark:text-gray-700'}`} />
                     ))}
                   </div>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">{rev.comment}</p>
+                  <p className="text-gray-600 dark:text-gray-400 text-base font-medium leading-relaxed">{rev.comment}</p>
                 </div>
               ))
             )}
           </div>
 
           {/* Write a Review Form */}
-          <div className="h-fit sticky top-24 bg-white dark:bg-[#0c1110] p-6 rounded-2xl ring-1 ring-gray-200 dark:ring-gray-800 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Write a Review</h3>
+          <div className="h-fit sticky top-32 bg-[#F8F9FA] dark:bg-[#111] p-10 rounded-[3rem] shadow-sm">
+            <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-8 tracking-tight">Write a Review</h3>
             {user ? (
-              <form onSubmit={handleSubmitReview} className="space-y-4">
+              <form onSubmit={handleSubmitReview} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Rating</label>
+                  <label className="block text-xs font-black text-gray-400 dark:text-gray-500 mb-3 uppercase tracking-widest">Your Rating</label>
                   <div className="flex gap-2">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
                         type="button"
                         onClick={() => setRating(star)}
-                        className="focus:outline-none"
+                        className="focus:outline-none hover:scale-110 transition-transform"
                       >
-                        <Star className={`h-6 w-6 transition-colors ${star <= rating ? 'fill-amber-400 text-amber-400 hover:fill-amber-500 hover:text-amber-500' : 'text-gray-300 dark:text-gray-700 hover:text-gray-400'}`} />
+                        <Star className={`h-8 w-8 transition-colors ${star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300 dark:text-gray-700'}`} />
                       </button>
                     ))}
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Comment</label>
+                  <label className="block text-xs font-black text-gray-400 dark:text-gray-500 mb-3 uppercase tracking-widest">Your Review</label>
                   <textarea
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
-                    rows={4}
-                    placeholder="Share your experience with this product..."
-                    className="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors"
+                    rows={5}
+                    placeholder="Share your experience..."
+                    className="w-full rounded-[2rem] border border-transparent bg-white dark:bg-gray-900 px-6 py-5 text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 transition-all shadow-sm resize-none"
                   />
                 </div>
-                <Button type="submit" className="w-full" isLoading={isSubmittingReview}>Submit Review</Button>
+                <Button type="submit" className="w-full h-14 rounded-full font-black text-base" isLoading={isSubmittingReview}>Submit Review</Button>
               </form>
             ) : (
-              <div className="text-center py-6 bg-gray-50 dark:bg-gray-800/30 rounded-xl">
-                <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm">You must be logged in to write a review.</p>
+              <div className="text-center py-10">
+                <p className="text-gray-500 dark:text-gray-400 mb-6 font-bold">You must be logged in to write a review.</p>
                 <Link to="/login">
-                  <Button variant="outline" size="sm">Log In to Review</Button>
+                  <Button variant="primary" className="h-14 px-8 rounded-full font-black">Log In to Review</Button>
                 </Link>
               </div>
             )}

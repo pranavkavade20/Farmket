@@ -1,8 +1,8 @@
 import React from 'react';
 import type { Product } from '@/types';
 import { Link } from 'react-router-dom';
-import { Star, MapPin, Leaf, ShoppingCart, Eye } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Plus, Minus, Heart } from 'lucide-react';
+import { useCart } from '@/features/buyer';
 import { Button } from '@/components/ui';
 import { cn } from '@/lib/utils/cn';
 
@@ -12,98 +12,108 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
+  const { cart, updateQuantity } = useCart();
   const primaryImage = product.images.find((img) => img.is_primary)?.image ?? product.images[0]?.image;
-  const avgRating =
-    product.reviews.length > 0
-      ? product.reviews.reduce((sum, r) => sum + r.rating, 0) / product.reviews.length
-      : null;
+
+  // Check if item is already in cart to show the counter instead of 'Add to Cart'
+  const cartItem = cart?.items.find((item) => item.product.id === product.id);
+
+  const handleDecrease = () => {
+    if (cartItem && cartItem.quantity > 1) {
+      updateQuantity(cartItem.id, cartItem.quantity - 1);
+    }
+  };
+
+  const handleIncrease = () => {
+    if (cartItem) {
+      updateQuantity(cartItem.id, cartItem.quantity + 1);
+    }
+  };
 
   return (
-    <motion.div
-      whileHover={{ y: -4 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-      className="group rounded-2xl overflow-hidden bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800 shadow-sm hover:shadow-xl transition-shadow duration-300"
-    >
-      {/* Image */}
-      <div className="relative h-52 overflow-hidden bg-gray-100 dark:bg-gray-800">
-        <img
-          src={primaryImage ?? 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop'}
-          alt={product.name}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          loading="lazy"
-        />
-        {product.is_organic && (
-          <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-green-600 px-2.5 py-1 text-xs font-semibold text-white shadow">
-            <Leaf className="h-3 w-3" /> Organic
-          </span>
-        )}
-        <div className="absolute top-3 right-3 rounded-full bg-white/90 dark:bg-gray-900/90 px-2.5 py-1 text-xs font-bold text-green-700 dark:text-green-400 shadow">
-          ₹{parseFloat(product.price).toLocaleString('en-IN')}/{product.unit}
-        </div>
-      </div>
+    <div className="group relative flex flex-col rounded-[2rem] bg-white p-4 shadow-[0_4px_20px_rgb(0,0,0,0.03)] ring-1 ring-gray-100/50 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1 dark:bg-[#111] dark:ring-gray-800">
+      
+      {/* Favorite Button Overlay */}
+      <button className="absolute right-6 top-6 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-gray-400 opacity-0 shadow-sm backdrop-blur-sm transition-all hover:text-red-500 hover:scale-110 group-hover:opacity-100 dark:bg-gray-900/80 dark:text-gray-500">
+        <Heart className="h-4 w-4" />
+      </button>
 
-      {/* Content */}
-      <div className="p-4">
-        <div className="mb-1">
-          <span className="text-xs font-medium uppercase tracking-wider text-green-600 dark:text-green-500">
-            {product.category_name}
-          </span>
+      {/* Image Container */}
+      <Link to={`/marketplace/${product.slug}`} className="block">
+        <div className="relative mb-4 flex h-44 w-full items-center justify-center rounded-[1.5rem] bg-[#F5F7F6] p-6 transition-colors group-hover:bg-[#EDF2F0] dark:bg-gray-900 overflow-hidden">
+          <img
+            src={primaryImage ?? 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop'}
+            alt={product.name}
+            className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-105 mix-blend-multiply dark:mix-blend-normal"
+            loading="lazy"
+          />
         </div>
-        <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-1 truncate">
-          {product.name}
-        </h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">
-          {product.description}
+      </Link>
+
+      {/* Content Section */}
+      <div className="flex flex-1 flex-col px-2 text-center">
+        <Link to={`/marketplace/${product.slug}`}>
+          <h3 className="text-[15px] font-bold text-gray-900 dark:text-white truncate transition-colors hover:text-green-600 dark:hover:text-green-400 leading-tight">
+            {product.name}
+          </h3>
+        </Link>
+        
+        {/* Farmer Info */}
+        <p className="mt-1 text-xs font-semibold text-gray-400 dark:text-gray-500">
+          Local Farmers
         </p>
 
-        {/* Farmer info */}
-        <div className="flex items-center gap-2 mb-3">
-          <div className={cn('h-6 w-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-700 dark:text-green-400 text-xs font-bold')}>
-            {product.farmer_name.charAt(0).toUpperCase()}
+        {/* Price & Action */}
+        <div className="mt-5 flex flex-col gap-3">
+          <div className="text-center">
+            <span className="text-lg font-black text-gray-900 dark:text-white">
+              ${parseFloat(product.price).toFixed(2)}
+            </span>
+            <span className="text-xs font-bold text-gray-400 dark:text-gray-500 ml-1">
+              / per {product.unit}
+            </span>
           </div>
-          <span className="text-xs text-gray-600 dark:text-gray-400 truncate">{product.farmer_name}</span>
-        </div>
 
-        {/* Rating & CTA */}
-        <div className="flex items-center justify-between">
-          {avgRating !== null ? (
-            <div className="flex items-center gap-1">
-              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                {avgRating.toFixed(1)}
-              </span>
-              <span className="text-xs text-gray-400">({product.reviews.length})</span>
+          {cartItem ? (
+            <div className="flex h-10 items-center justify-between rounded-full bg-green-700 px-1 text-white shadow-md dark:bg-green-600">
+              <button 
+                onClick={handleDecrease}
+                className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/20 transition-colors"
+              >
+                <Minus className="h-4 w-4" />
+              </button>
+              <span className="text-sm font-bold">{cartItem.quantity}</span>
+              <button 
+                onClick={handleIncrease}
+                className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/20 transition-colors"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
             </div>
           ) : (
-            <span className="text-xs text-gray-400">No reviews yet</span>
-          )}
-
-          <div className="flex items-center gap-2">
-            <Link to={`/marketplace/${product.slug}`}>
-              <Button
-                size="sm"
-                variant="outline"
-                className="px-2.5 hover:bg-green-50 hover:text-green-600 hover:border-green-200 dark:hover:bg-green-900/30 dark:hover:text-green-400 dark:hover:border-green-800"
-                aria-label={`View ${product.name} details`}
-              >
-                <Eye className="h-4 w-4" />
-              </Button>
-            </Link>
             <Button
-              size="sm"
-              variant="primary"
               disabled={!product.in_stock}
               onClick={() => onAddToCart?.(product)}
-              className="gap-1.5"
-              aria-label={`Add ${product.name} to cart`}
+              className={cn(
+                "h-10 w-full rounded-full font-bold shadow-none transition-all flex items-center justify-center gap-1.5 text-sm",
+                product.in_stock
+                  ? "bg-gray-50 text-gray-900 hover:bg-green-700 hover:text-white dark:bg-gray-800 dark:text-white dark:hover:bg-green-600"
+                  : "bg-gray-50 text-gray-400 cursor-not-allowed dark:bg-gray-800/50"
+              )}
             >
-              <ShoppingCart className="h-3.5 w-3.5" />
-              {product.in_stock ? 'Add' : 'Sold out'}
+              {product.in_stock ? (
+                <>
+                  <Plus className="h-4 w-4" />
+                  Add To Cart
+                </>
+              ) : (
+                'Sold out'
+              )}
             </Button>
-          </div>
+          )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

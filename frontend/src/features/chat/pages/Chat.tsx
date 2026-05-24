@@ -3,7 +3,7 @@ import { useSEO } from '@/hooks';
 import { chatService, type Conversation, type ChatMessage, type ChatUser } from '@/features/chat';
 import { useAuth } from '@/features/auth';
 import { MessageSquare, MoreVertical, Phone, Video, Info, ArrowLeft, Loader2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { cn } from '@/lib/utils/cn';
 import toast from 'react-hot-toast';
 
@@ -236,11 +236,11 @@ const Chat = () => {
   }, []);
 
   return (
-    <div className="h-[calc(100vh-140px)] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-      <div className="bg-white dark:bg-gray-900 h-full rounded-3xl shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800 flex">
+    <div className="h-[calc(100vh-140px)] w-full max-w-[1400px] mx-auto pb-6">
+      <div className="bg-white dark:bg-[#111] h-full rounded-[3rem] shadow-sm ring-1 ring-gray-100 dark:ring-gray-800 overflow-hidden flex relative">
         
         {/* Sidebar */}
-        <div className={cn("w-full md:w-[350px] flex-shrink-0 border-r border-gray-100 dark:border-gray-800 md:block", selected ? "hidden" : "block")}>
+        <div className={cn("w-full md:w-[380px] flex-shrink-0 border-r border-gray-100 dark:border-gray-800 md:block bg-[#F8F9FA] dark:bg-gray-900/30", selected ? "hidden" : "block")}>
           <ChatSidebar
             loading={loadingConv}
             conversations={filteredConversations}
@@ -254,13 +254,13 @@ const Chat = () => {
         </div>
 
         {/* Chat Area */}
-        <div className={cn("flex-1 flex flex-col min-w-0 bg-[#f0f2f5] dark:bg-[#0b141a] relative md:flex", !selected ? "hidden" : "flex")}>
+        <div className={cn("flex-1 flex flex-col min-w-0 bg-[#f0f2f5] dark:bg-[#0A0A0A] relative md:flex", !selected ? "hidden" : "flex")}>
           {selected ? (
             <>
               {/* Top Bar */}
-              <div className="h-16 flex-shrink-0 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 px-4 flex items-center justify-between z-10">
-                <div className="flex items-center gap-3">
-                  <button onClick={() => setSelected(null)} className="md:hidden p-2 -ml-2 text-gray-500">
+              <div className="h-20 flex-shrink-0 bg-white/80 dark:bg-[#111]/80 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 px-6 flex items-center justify-between z-10">
+                <div className="flex items-center gap-4">
+                  <button onClick={() => setSelected(null)} className="md:hidden p-3 -ml-2 text-gray-500 bg-gray-100 rounded-full dark:bg-gray-800">
                     <ArrowLeft className="h-5 w-5" />
                   </button>
                   {(() => {
@@ -271,39 +271,37 @@ const Chat = () => {
                     
                     return (
                       <>
-                        <ChatAvatar name={name} src={icon} size={40} online={isOnline} />
+                        <ChatAvatar name={name} src={icon} size={48} online={isOnline} />
                         <div className="min-w-0">
-                          <h3 className="font-bold text-gray-900 dark:text-white truncate text-sm">{name}</h3>
-                          <p className="text-[11px] text-green-500 font-medium">
-                            {typingUser ? `${typingUser.name} is typing...` : (isOnline ? 'Online' : 'Last seen recently')}
+                          <h3 className="font-black text-gray-900 dark:text-white truncate text-base">{name}</h3>
+                          <p className="text-[11px] uppercase tracking-widest text-gray-500 font-bold mt-0.5">
+                            {typingUser ? <span className="text-green-500">{typingUser.name} is typing...</span> : (isOnline ? <span className="text-green-500">Online</span> : 'Offline')}
                           </p>
                         </div>
                       </>
                     );
                   })()}
                 </div>
-                <div className="flex items-center gap-1">
-                  <button className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"><Video className="h-5 w-5" /></button>
-                  <button className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"><Phone className="h-5 w-5" /></button>
-                  <button className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"><Info className="h-5 w-5" /></button>
+                <div className="flex items-center gap-2">
+                  <button className="h-12 w-12 flex items-center justify-center text-gray-500 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-full transition-colors"><Video className="h-5 w-5" /></button>
+                  <button className="h-12 w-12 flex items-center justify-center text-gray-500 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-full transition-colors"><Phone className="h-5 w-5" /></button>
+                  <button className="h-12 w-12 flex items-center justify-center text-gray-500 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-full transition-colors"><Info className="h-5 w-5" /></button>
                 </div>
               </div>
 
               {/* Messages List */}
               <div 
                 ref={scrollRef}
-                className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar"
-                style={{ backgroundImage: 'url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png")', backgroundBlendMode: 'overlay' }}
+                className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar relative"
               >
                 {loadingMsgs ? (
                   <div className="flex flex-col items-center justify-center h-full space-y-4">
-                    <Loader2 className="h-10 w-10 animate-spin text-green-500" />
-                    <p className="text-gray-500 text-sm">Loading messages...</p>
+                    <Loader2 className="h-10 w-10 animate-spin text-gray-400" />
                   </div>
                 ) : groupedMessages.map(group => (
-                  <div key={group.date} className="space-y-4">
-                    <div className="flex justify-center">
-                      <span className="px-3 py-1 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg text-[11px] font-semibold text-gray-500 shadow-sm uppercase tracking-wider border border-gray-100 dark:border-gray-700">
+                  <div key={group.date} className="space-y-6">
+                    <div className="flex justify-center my-6">
+                      <span className="px-4 py-1.5 bg-black/5 dark:bg-white/5 rounded-full text-[10px] font-black text-gray-500 uppercase tracking-widest">
                         {group.date === new Date().toDateString() ? 'Today' : group.date}
                       </span>
                     </div>
@@ -311,6 +309,7 @@ const Chat = () => {
                       const prevMsg = group.msgs[idx - 1];
                       const showAvatar = !prevMsg || prevMsg.sender !== msg.sender;
                       return (
+                         // Inside Chat component the message bubbles should be loaded correctly by the MessageBubble component.
                         <MessageBubble
                           key={msg.id}
                           msg={msg}
@@ -336,7 +335,7 @@ const Chat = () => {
               </div>
 
               {/* Input Area */}
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 bg-white dark:bg-[#111] p-4 border-t border-gray-100 dark:border-gray-800">
                 <ChatInput
                   sending={sending}
                   onSend={handleSendMessage}
@@ -347,19 +346,19 @@ const Chat = () => {
               </div>
             </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-              <div className="w-24 h-24 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-6">
-                <MessageSquare className="h-12 w-12 text-green-600" />
+            <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-white dark:bg-[#111]">
+              <div className="w-32 h-32 bg-gray-50 dark:bg-gray-900 rounded-full flex items-center justify-center mb-8 shadow-inner">
+                <MessageSquare className="h-12 w-12 text-gray-400" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Welcome to Farmket Chat</h2>
-              <p className="text-gray-500 max-w-sm mx-auto">
+              <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-3 tracking-tight">Your Messages</h2>
+              <p className="text-sm font-bold text-gray-400 max-w-sm mx-auto leading-relaxed">
                 Connect directly with farmers and buyers. Select a conversation to start messaging.
               </p>
               <button 
                 onClick={() => setIsNewChatOpen(true)}
-                className="mt-8 px-6 py-3 bg-green-600 text-white rounded-2xl font-bold hover:bg-green-700 transition-all shadow-lg hover:shadow-green-500/20 active:scale-95"
+                className="mt-10 px-8 h-14 bg-gray-900 dark:bg-white dark:text-gray-900 text-white rounded-full font-black text-sm uppercase tracking-widest hover:scale-105 transition-transform shadow-xl"
               >
-                Start New Conversation
+                Start New Chat
               </button>
             </div>
           )}

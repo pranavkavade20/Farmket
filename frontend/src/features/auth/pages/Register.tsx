@@ -83,124 +83,142 @@ const Register = () => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      className="text-center"
     >
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Create an Account</h1>
-      <p className="text-sm text-gray-500 dark:text-gray-400">
+      <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-3 tracking-tight">Create an Account</h1>
+      <p className="text-base font-bold text-gray-500 dark:text-gray-400">
         Already a member?{' '}
-        <Link to="/login" className="font-semibold text-green-600 hover:text-green-500 dark:text-green-500">
+        <Link to="/login" className="text-gray-900 dark:text-white hover:underline transition-colors">
           Sign in
         </Link>
       </p>
 
       {/* Role selector */}
-      <div className="mt-8 mb-6">
-        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">I am a…</p>
-        <div className="grid grid-cols-2 gap-3">
+      <div className="mt-10 mb-8 text-left">
+        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">I am a…</label>
+        <div className="grid grid-cols-2 gap-4">
           {(['buyer', 'farmer'] as UserType[]).map((role) => (
             <button
               key={role}
               type="button"
               onClick={() => setForm((p) => ({ ...p, user_type: role }))}
-              className={`flex flex-col items-center justify-center rounded-xl border-2 p-4 text-sm font-semibold capitalize transition-all ${
+              className={`flex flex-col items-center justify-center rounded-[1.5rem] border-2 p-4 text-sm font-black capitalize transition-all tracking-wide ${
                 form.user_type === role
-                  ? 'border-green-600 bg-green-50 text-green-700 dark:border-green-500 dark:bg-green-900/20 dark:text-green-400'
-                  : 'border-gray-200 text-gray-600 hover:border-gray-300 dark:border-gray-700 dark:text-gray-400'
+                  ? 'border-gray-900 bg-gray-900 text-white dark:border-white dark:bg-white dark:text-gray-900 shadow-md scale-[1.02]'
+                  : 'border-transparent bg-gray-50 text-gray-500 hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'
               }`}
               aria-pressed={form.user_type === role}
             >
-              {role === 'farmer' ? <Sprout className="mb-1.5 h-6 w-6" /> : <User className="mb-1.5 h-6 w-6" />}
+              {role === 'farmer' ? <Sprout className="mb-2 h-6 w-6" /> : <User className="mb-2 h-6 w-6" />}
               {role}
             </button>
           ))}
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-        <div className="grid grid-cols-2 gap-3">
+      <form onSubmit={handleSubmit} className="space-y-6 text-left" noValidate>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">First Name</label>
+            <Input
+              name="first_name"
+              type="text"
+              autoComplete="given-name"
+              placeholder="John"
+              value={form.first_name}
+              onChange={handleChange}
+              error={errors.first_name}
+              className="h-16 text-base shadow-inner bg-white/50 dark:bg-gray-900/50"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Last Name</label>
+            <Input
+              name="last_name"
+              type="text"
+              autoComplete="family-name"
+              placeholder="Doe"
+              value={form.last_name}
+              onChange={handleChange}
+              error={errors.last_name}
+              className="h-16 text-base shadow-inner bg-white/50 dark:bg-gray-900/50"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Email Address</label>
           <Input
-            label="First Name"
-            name="first_name"
-            type="text"
-            autoComplete="given-name"
-            placeholder="John"
-            value={form.first_name}
+            name="email"
+            type="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+            value={form.email}
             onChange={handleChange}
-            error={errors.first_name}
-          />
-          <Input
-            label="Last Name"
-            name="last_name"
-            type="text"
-            autoComplete="family-name"
-            placeholder="Doe"
-            value={form.last_name}
-            onChange={handleChange}
-            error={errors.last_name}
+            error={errors.email}
+            icon={<Mail className="h-5 w-5" />}
+            className="h-16 text-base shadow-inner bg-white/50 dark:bg-gray-900/50"
           />
         </div>
-        <Input
-          label="Email Address"
-          name="email"
-          type="email"
-          autoComplete="email"
-          placeholder="you@example.com"
-          value={form.email}
-          onChange={handleChange}
-          error={errors.email}
-          icon={<Mail className="h-4 w-4" />}
-        />
-        <Input
-          label="Phone Number (optional)"
-          name="phone_number"
-          type="tel"
-          autoComplete="tel"
-          placeholder="+91 9876543210"
-          value={form.phone_number ?? ''}
-          onChange={handleChange}
-          icon={<Phone className="h-4 w-4" />}
-        />
-        <Input
-          label="Password"
-          name="password"
-          type="password"
-          autoComplete="new-password"
-          placeholder="Min. 8 characters"
-          value={form.password}
-          onChange={handleChange}
-          error={errors.password}
-          icon={<Lock className="h-4 w-4" />}
-        />
-        <Input
-          label="Confirm Password"
-          name="confirm_password"
-          type="password"
-          autoComplete="new-password"
-          placeholder="Re-enter password"
-          value={form.confirm_password}
-          onChange={handleChange}
-          error={errors.confirm_password}
-          icon={<Lock className="h-4 w-4" />}
-        />
 
-        <div className="pt-2">
-          <Button type="submit" className="w-full" size="lg" isLoading={isLoading}>
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Phone Number</label>
+          <Input
+            name="phone_number"
+            type="tel"
+            autoComplete="tel"
+            placeholder="+91 9876543210"
+            value={form.phone_number ?? ''}
+            onChange={handleChange}
+            icon={<Phone className="h-5 w-5" />}
+            className="h-16 text-base shadow-inner bg-white/50 dark:bg-gray-900/50"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Password</label>
+          <Input
+            name="password"
+            type="password"
+            autoComplete="new-password"
+            placeholder="Min. 8 characters"
+            value={form.password}
+            onChange={handleChange}
+            error={errors.password}
+            icon={<Lock className="h-5 w-5" />}
+            className="h-16 text-base shadow-inner bg-white/50 dark:bg-gray-900/50"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Confirm Password</label>
+          <Input
+            name="confirm_password"
+            type="password"
+            autoComplete="new-password"
+            placeholder="Re-enter password"
+            value={form.confirm_password}
+            onChange={handleChange}
+            error={errors.confirm_password}
+            icon={<Lock className="h-5 w-5" />}
+            className="h-16 text-base shadow-inner bg-white/50 dark:bg-gray-900/50"
+          />
+        </div>
+
+        <div className="pt-4">
+          <Button type="submit" className="w-full h-16 rounded-full font-black text-lg tracking-wide shadow-xl" isLoading={isLoading}>
             Create Account
           </Button>
         </div>
 
-        <p className="text-xs text-center text-gray-400 dark:text-gray-500">
+        <p className="text-xs text-center text-gray-400 font-bold mt-6">
           By creating an account you agree to our{' '}
-          <Link to="/terms" className="underline hover:text-gray-600 dark:hover:text-gray-300">
-            Terms
-          </Link>{' '}
-          and{' '}
-          <Link to="/privacy" className="underline hover:text-gray-600 dark:hover:text-gray-300">
-            Privacy Policy
-          </Link>
-          .
+          <Link to="/terms" className="text-gray-900 dark:text-white hover:underline">Terms</Link>
+          {' '}and{' '}
+          <Link to="/privacy" className="text-gray-900 dark:text-white hover:underline">Privacy Policy</Link>.
         </p>
       </form>
     </motion.div>

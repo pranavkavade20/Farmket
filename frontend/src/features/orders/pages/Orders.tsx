@@ -38,16 +38,16 @@ const Orders = () => {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-      <div className="flex items-center justify-between mb-8">
+    <div className="mx-auto max-w-[1000px] pb-10">
+      <div className="flex items-end justify-between mb-10">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Orders</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">My Orders</h1>
+          <p className="text-sm font-bold text-gray-400 mt-2 uppercase tracking-widest">
             {orders.length} order{orders.length !== 1 ? 's' : ''} total
           </p>
         </div>
         <Link to="/marketplace">
-          <Button variant="outline" size="sm" className="gap-2">
+          <Button variant="outline" className="h-12 rounded-full px-6 font-black gap-2 shadow-sm border-2 hover:bg-gray-50 dark:hover:bg-gray-800">
             <ShoppingBag className="h-4 w-4" /> Shop More
           </Button>
         </Link>
@@ -57,47 +57,51 @@ const Orders = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="flex flex-col items-center py-24 text-center"
+          className="flex flex-col items-center py-32 text-center rounded-[3rem] bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 shadow-sm"
         >
-          <Package className="h-16 w-16 text-gray-300 dark:text-gray-700 mb-4" />
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No orders yet</h2>
-          <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-xs">
+          <div className="h-24 w-24 rounded-full bg-gray-50 dark:bg-gray-900 flex items-center justify-center mb-6">
+            <Package className="h-10 w-10 text-gray-400 dark:text-gray-600" />
+          </div>
+          <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-3">No orders yet</h2>
+          <p className="text-sm font-bold text-gray-400 mb-8 max-w-sm">
             Your orders will appear here once you make a purchase.
           </p>
           <Link to="/marketplace">
-            <Button className="gap-2">
-              <ShoppingBag className="h-4 w-4" /> Start Shopping
+            <Button className="h-14 rounded-full px-8 font-black gap-2 shadow-xl bg-gray-900 hover:bg-black dark:bg-white dark:text-gray-900 hover:scale-105 transition-transform">
+              <ShoppingBag className="h-5 w-5" /> Start Shopping
             </Button>
           </Link>
         </motion.div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {orders.map((order, i) => (
             <motion.div
               key={order.id}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
-              className="rounded-2xl bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800 p-5 hover:shadow-md transition-shadow"
+              className="group rounded-[2rem] bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 p-8 hover:shadow-xl transition-all duration-300"
             >
-              <div className="flex items-start justify-between">
+              <div className="flex items-start justify-between mb-6">
                 <div>
-                  <p className="font-bold text-gray-900 dark:text-white">{(order as any).order_number ?? `ORD-${String(order.id).padStart(4, '0')}`}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{fmtDate(order.created_at)}</p>
+                  <p className="text-lg font-black text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+                    {(order as any).order_number ?? `ORD-${String(order.id).padStart(4, '0')}`}
+                  </p>
+                  <p className="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest">{fmtDate(order.created_at)}</p>
                 </div>
                 <OrderStatusBadge status={order.status} />
               </div>
 
-              <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+              <div className="pt-6 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-xs font-black uppercase tracking-widest text-gray-400">
                     {order.items.length} item{order.items.length !== 1 ? 's' : ''}
                   </p>
-                  <p className="font-bold text-gray-900 dark:text-white mt-0.5">{fmt(order.total_amount)}</p>
+                  <p className="text-2xl font-black text-gray-900 dark:text-white mt-1">{fmt(order.total_amount)}</p>
                 </div>
                 <Link to={`/dashboard/orders/${order.id}`}>
-                  <Button variant="outline" size="sm" className="gap-1.5">
-                    View <ArrowRight className="h-3.5 w-3.5" />
+                  <Button variant="outline" className="h-12 rounded-full px-6 font-black gap-2 shadow-sm border-2 group-hover:bg-gray-900 group-hover:text-white group-hover:border-gray-900 dark:group-hover:bg-white dark:group-hover:text-gray-900 transition-all">
+                    View Details <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
               </div>

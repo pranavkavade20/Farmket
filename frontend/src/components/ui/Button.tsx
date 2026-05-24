@@ -10,19 +10,19 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', size = 'md', isLoading, children, disabled, ...props }, ref) => {
-    const baseStyles = 'inline-flex items-center justify-center rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none disabled:scale-100';
+    const baseStyles = 'inline-flex items-center justify-center rounded-full font-bold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 active:scale-95 disabled:opacity-50 disabled:pointer-events-none disabled:scale-100';
     
     const variants = {
-      primary: 'bg-green-600 text-white hover:bg-green-700 shadow-sm hover:shadow dark:bg-green-600 dark:hover:bg-green-500',
+      primary: 'bg-gray-900 text-white hover:bg-gray-800 hover:shadow-xl hover:-translate-y-0.5 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200',
       secondary: 'bg-green-50 text-green-700 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50',
       outline: 'border border-gray-200 bg-white hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm',
       ghost: 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100',
     };
 
     const sizes = {
-      sm: 'h-9 px-4 text-sm',
-      md: 'h-11 px-5',
-      lg: 'h-12 px-8 text-lg',
+      sm: 'h-10 px-6 text-xs',
+      md: 'h-12 px-8 text-sm',
+      lg: 'h-14 px-10 text-base',
     };
 
     return (

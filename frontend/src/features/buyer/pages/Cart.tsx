@@ -83,71 +83,71 @@ const Cart = () => {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-[1400px] px-4 py-12 sm:px-6 lg:px-8 min-h-screen">
       {/* Step indicator */}
-      <div className="flex items-center gap-0 text-sm mb-8 select-none">
+      <div className="flex items-center gap-0 text-sm mb-12 select-none">
         {/* Step 1 */}
-        <button onClick={() => setStep('cart')} className="flex items-center gap-2 group">
+        <button onClick={() => setStep('cart')} className="flex items-center gap-3 group">
           <span
-            className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
+            className={`h-10 w-10 rounded-full flex items-center justify-center text-sm font-black transition-all duration-300 ${
               step === 'cart'
-                ? 'bg-green-600 text-white shadow-lg shadow-green-200 dark:shadow-green-900/40 scale-110'
-                : 'bg-green-600 text-white opacity-70'
+                ? 'bg-gray-900 text-white shadow-lg shadow-gray-200 dark:bg-white dark:text-gray-900 dark:shadow-gray-900/40 scale-110'
+                : 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
             }`}
           >
             1
           </span>
-          <span className={`font-semibold transition-colors ${
-            step === 'cart' ? 'text-green-600 dark:text-green-400' : 'text-green-600/70 dark:text-green-500/70'
+          <span className={`font-black uppercase tracking-widest text-xs transition-colors ${
+            step === 'cart' ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'
           }`}>Cart</span>
         </button>
         {/* Connector */}
-        <div className="relative mx-3 flex-1 max-w-[60px]">
-          <div className="h-0.5 w-full bg-gray-200 dark:bg-gray-700 rounded" />
+        <div className="relative mx-6 flex-1 max-w-[80px]">
+          <div className="h-1 w-full bg-gray-100 dark:bg-gray-800 rounded-full" />
           <motion.div
-            className="absolute inset-y-0 left-0 h-0.5 bg-green-500 rounded"
+            className="absolute inset-y-0 left-0 h-1 bg-gray-900 dark:bg-white rounded-full"
             initial={{ width: '0%' }}
             animate={{ width: step === 'checkout' ? '100%' : '0%' }}
             transition={{ duration: 0.4, ease: 'easeInOut' }}
           />
         </div>
         {/* Step 2 */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <span
-            className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
+            className={`h-10 w-10 rounded-full flex items-center justify-center text-sm font-black transition-all duration-300 ${
               step === 'checkout'
-                ? 'bg-green-600 text-white shadow-lg shadow-green-200 dark:shadow-green-900/40 scale-110'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500'
+                ? 'bg-gray-900 text-white shadow-lg shadow-gray-200 dark:bg-white dark:text-gray-900 dark:shadow-gray-900/40 scale-110'
+                : 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500'
             }`}
           >
             2
           </span>
-          <span className={`font-semibold transition-colors ${
-            step === 'checkout' ? 'text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500'
+          <span className={`font-black uppercase tracking-widest text-xs transition-colors ${
+            step === 'checkout' ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'
           }`}>Checkout</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
         {/* Left — items / checkout form */}
-        <div className="lg:col-span-2 space-y-4">
+        <div className="lg:col-span-2 space-y-6">
           <AnimatePresence mode="wait">
             {step === 'cart' ? (
               <motion.div key="cart-step" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-8 tracking-tight">
                   Your Cart ({items.length} {items.length === 1 ? 'item' : 'items'})
                 </h1>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {items.map((item) => (
                     <motion.div
                       key={item.id}
                       layout
-                      initial={{ opacity: 0, y: 8 }}
+                      initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, x: -20 }}
-                      className="flex gap-4 rounded-2xl bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800 p-4"
+                      className="flex gap-6 rounded-[2rem] bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 p-6 shadow-sm hover:shadow-lg transition-all"
                     >
-                      <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800">
+                      <div className="h-28 w-28 flex-shrink-0 flex items-center justify-center rounded-[1.5rem] bg-[#F8F9FA] dark:bg-gray-900 p-3">
                         <img
                           src={
                             item.product_details.images.find((i) => i.is_primary)?.image ||
@@ -155,44 +155,44 @@ const Cart = () => {
                             'https://images.unsplash.com/photo-1542838132-92c53300491e?w=200&fit=crop'
                           }
                           alt={item.product_details.name}
-                          className="h-full w-full object-cover"
+                          className="max-h-full max-w-full object-contain mix-blend-multiply dark:mix-blend-normal"
                         />
                       </div>
-                      <div className="flex flex-1 flex-col justify-between">
-                        <div className="flex justify-between">
+                      <div className="flex flex-1 flex-col justify-between py-1">
+                        <div className="flex justify-between items-start">
                           <div>
-                            <p className="font-semibold text-gray-900 dark:text-white text-sm">
+                            <p className="font-black text-xl text-gray-900 dark:text-white mb-1">
                               {item.product_details.name}
                             </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                            <p className="text-sm font-bold text-gray-400">
                               by {item.product_details.farmer_name}
                             </p>
                           </div>
                           <button
                             onClick={() => removeItem(item.id)}
-                            className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                            className="h-10 w-10 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                             aria-label="Remove item"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
                         </div>
-                        <div className="flex items-center justify-between mt-2">
-                          <div className="flex items-center gap-2 rounded-xl bg-gray-100 dark:bg-gray-800 p-1">
+                        <div className="flex items-center justify-between mt-4">
+                          <div className="flex items-center gap-3 rounded-full bg-gray-100 dark:bg-gray-800 p-1">
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                              className="h-6 w-6 rounded-lg flex items-center justify-center hover:bg-white dark:hover:bg-gray-700 transition-colors"
+                              className="h-8 w-8 rounded-full flex items-center justify-center bg-white dark:bg-gray-700 shadow-sm hover:scale-105 transition-transform"
                             >
-                              <Minus className="h-3 w-3" />
+                              <Minus className="h-4 w-4 text-gray-900 dark:text-white" />
                             </button>
-                            <span className="w-6 text-center text-sm font-semibold">{item.quantity}</span>
+                            <span className="w-6 text-center text-base font-black text-gray-900 dark:text-white">{item.quantity}</span>
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="h-6 w-6 rounded-lg flex items-center justify-center hover:bg-white dark:hover:bg-gray-700 transition-colors"
+                              className="h-8 w-8 rounded-full flex items-center justify-center bg-white dark:bg-gray-700 shadow-sm hover:scale-105 transition-transform"
                             >
-                              <Plus className="h-3 w-3" />
+                              <Plus className="h-4 w-4 text-gray-900 dark:text-white" />
                             </button>
                           </div>
-                          <p className="font-bold text-gray-900 dark:text-white">
+                          <p className="text-2xl font-black text-gray-900 dark:text-white">
                             {fmt(item.subtotal)}
                           </p>
                         </div>
@@ -200,19 +200,19 @@ const Cart = () => {
                     </motion.div>
                   ))}
                 </div>
-                <div className="mt-4">
-                  <Link to="/marketplace" className="flex items-center gap-2 text-sm text-green-600 dark:text-green-500 hover:underline">
+                <div className="mt-8">
+                  <Link to="/marketplace" className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
                     <ArrowLeft className="h-4 w-4" /> Continue Shopping
                   </Link>
                 </div>
               </motion.div>
             ) : (
               <motion.div key="checkout-step" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Checkout</h2>
-                <div className="rounded-2xl bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800 p-6 space-y-5">
+                <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-8 tracking-tight">Checkout</h2>
+                <div className="rounded-[2.5rem] bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 p-8 space-y-8 shadow-sm">
                   {/* Delivery Address */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">
                       Delivery Address *
                     </label>
                     <textarea
@@ -220,28 +220,28 @@ const Cart = () => {
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
                       placeholder="Enter your full delivery address"
-                      className="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+                      className="w-full rounded-[1.5rem] border-none bg-[#F8F9FA] dark:bg-gray-900 px-6 py-5 text-sm font-bold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 transition-all resize-none"
                     />
                   </div>
 
                   {/* Payment Method */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">
                       Payment Method
                     </label>
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-3 gap-4">
                       {(['cod', 'upi', 'online'] as PaymentMethod[]).map((method) => (
                         <button
                           key={method}
                           type="button"
                           onClick={() => setPaymentMethod(method)}
-                          className={`rounded-xl border-2 py-3 px-4 text-sm font-semibold uppercase transition-all ${
+                          className={`rounded-[1.5rem] border-2 py-4 px-4 text-sm font-black uppercase tracking-widest transition-all ${
                             paymentMethod === method
-                              ? 'border-green-600 bg-green-50 text-green-700 dark:border-green-500 dark:bg-green-900/20 dark:text-green-400'
-                              : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300'
+                              ? 'border-gray-900 bg-gray-900 text-white dark:border-white dark:bg-white dark:text-gray-900 shadow-md scale-[1.02]'
+                              : 'border-transparent bg-[#F8F9FA] text-gray-500 dark:bg-gray-900 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                           }`}
                         >
-                          {method === 'cod' ? 'Cash' : method.toUpperCase()}
+                          {method === 'cod' ? 'Cash' : method}
                         </button>
                       ))}
                     </div>
@@ -249,7 +249,7 @@ const Cart = () => {
 
                   {/* Notes */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">
                       Order Notes (optional)
                     </label>
                     <textarea
@@ -257,13 +257,13 @@ const Cart = () => {
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
                       placeholder="Any special instructions for the farmer…"
-                      className="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+                      className="w-full rounded-[1.5rem] border-none bg-[#F8F9FA] dark:bg-gray-900 px-6 py-5 text-sm font-bold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 transition-all resize-none"
                     />
                   </div>
                 </div>
                 <button
                   onClick={() => setStep('cart')}
-                  className="mt-4 flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                  className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
                   <ArrowLeft className="h-4 w-4" /> Back to cart
                 </button>
@@ -273,42 +273,35 @@ const Cart = () => {
         </div>
 
         {/* Right — Order Summary */}
-        <div className="lg:sticky lg:top-24 h-fit">
-          <div className="rounded-2xl bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800 p-6">
-            <h2 className="text-base font-bold text-gray-900 dark:text-white mb-4">Order Summary</h2>
-            <div className="space-y-2 text-sm">
+        <div className="lg:sticky lg:top-32 h-fit">
+          <div className="rounded-[2.5rem] bg-gray-900 text-white dark:bg-[#111] dark:border dark:border-gray-800 p-8 shadow-2xl relative overflow-hidden">
+            {/* Soft decorative glow */}
+            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 rounded-full bg-white/5 blur-3xl pointer-events-none" />
+            
+            <h2 className="text-xl font-black mb-6 tracking-tight">Order Summary</h2>
+            <div className="space-y-4 text-sm font-bold text-gray-400">
               {items.map((item) => (
-                <div key={item.id} className="flex justify-between text-gray-600 dark:text-gray-400">
-                  <span className="truncate pr-2">{item.product_details.name} ×{item.quantity}</span>
-                  <span className="font-medium">{fmt(item.subtotal)}</span>
+                <div key={item.id} className="flex justify-between items-center">
+                  <span className="truncate pr-4 flex-1">{item.product_details.name} <span className="text-gray-500 ml-1">×{item.quantity}</span></span>
+                  <span className="text-white">{fmt(item.subtotal)}</span>
                 </div>
               ))}
-              <div className="border-t border-gray-200 dark:border-gray-800 pt-3 mt-3 flex justify-between font-bold text-gray-900 dark:text-white">
-                <span>Total</span>
-                <span>{fmt(total)}</span>
+              <div className="border-t border-gray-800 pt-6 mt-6 flex justify-between items-end">
+                <span className="text-sm font-black uppercase tracking-widest text-gray-500 mb-1">Total</span>
+                <span className="text-4xl font-black text-white leading-none">{fmt(total)}</span>
               </div>
             </div>
-            <div className="mt-6 space-y-3">
+            
+            <div className="mt-10 space-y-4">
               <AnimatePresence mode="wait">
                 {step === 'cart' ? (
                   <motion.div key="checkout-btn" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
                     <button
                       onClick={() => setStep('checkout')}
                       id="proceed-to-checkout-btn"
-                      className="group relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-4 text-white font-bold text-base shadow-lg shadow-green-500/30 hover:shadow-green-500/50 hover:from-green-600 hover:to-emerald-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 active:scale-[0.98]"
+                      className="w-full h-16 rounded-full bg-white text-gray-900 hover:bg-gray-100 font-black text-base transition-all active:scale-95 shadow-[0_0_40px_rgba(255,255,255,0.1)] flex items-center justify-center gap-2"
                     >
-                      {/* Shimmer sweep */}
-                      <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
-                      <span className="relative flex items-center justify-center gap-3">
-                        <span>Proceed to Checkout</span>
-                        <motion.span
-                          animate={{ x: [0, 4, 0] }}
-                          transition={{ repeat: Infinity, duration: 1.6, ease: 'easeInOut' }}
-                          className="flex items-center"
-                        >
-                          <ChevronRight className="h-5 w-5" />
-                        </motion.span>
-                      </span>
+                      Proceed to Checkout <ChevronRight className="h-5 w-5" />
                     </button>
                   </motion.div>
                 ) : (
@@ -317,25 +310,22 @@ const Cart = () => {
                       id="place-order-btn"
                       onClick={handlePlaceOrder}
                       disabled={placing}
-                      className="group relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4 text-white font-bold text-base shadow-lg shadow-green-600/30 hover:shadow-green-600/50 hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 active:scale-[0.98] disabled:opacity-60 disabled:pointer-events-none"
+                      className="w-full h-16 rounded-full bg-green-500 text-white hover:bg-green-400 font-black text-base transition-all active:scale-95 shadow-[0_0_40px_rgba(34,197,94,0.3)] flex items-center justify-center gap-3 disabled:opacity-60 disabled:pointer-events-none disabled:scale-100"
                     >
-                      <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/15 to-transparent group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
-                      <span className="relative flex items-center justify-center gap-2">
-                        {placing ? (
-                          <>
-                            <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z" />
-                            </svg>
-                            <span>Placing Order…</span>
-                          </>
-                        ) : (
-                          <>
-                            <Lock className="h-4 w-4 opacity-80" />
-                            <span>Place Order · {fmt(total)}</span>
-                          </>
-                        )}
-                      </span>
+                      {placing ? (
+                        <>
+                          <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z" />
+                          </svg>
+                          <span>Placing Order…</span>
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="h-4 w-4" />
+                          <span>Place Order · {fmt(total)}</span>
+                        </>
+                      )}
                     </button>
                   </motion.div>
                 )}
@@ -343,18 +333,24 @@ const Cart = () => {
             </div>
 
             {/* Trust badges */}
-            <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-              <div className="flex flex-col items-center gap-1">
-                <ShieldCheck className="h-4 w-4 text-green-500" />
-                <span className="text-[10px] text-gray-500 dark:text-gray-400 leading-tight">Secure Payment</span>
+            <div className="mt-8 pt-6 border-t border-gray-800 grid grid-cols-3 gap-2 text-center relative z-10">
+              <div className="flex flex-col items-center gap-2">
+                <div className="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center text-green-400">
+                  <ShieldCheck className="h-5 w-5" />
+                </div>
+                <span className="text-[10px] uppercase tracking-widest font-bold text-gray-500 leading-tight">Secure<br/>Pay</span>
               </div>
-              <div className="flex flex-col items-center gap-1">
-                <Truck className="h-4 w-4 text-green-500" />
-                <span className="text-[10px] text-gray-500 dark:text-gray-400 leading-tight">Free above ₹500</span>
+              <div className="flex flex-col items-center gap-2">
+                <div className="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center text-blue-400">
+                  <Truck className="h-5 w-5" />
+                </div>
+                <span className="text-[10px] uppercase tracking-widest font-bold text-gray-500 leading-tight">Free<br/>Shipping</span>
               </div>
-              <div className="flex flex-col items-center gap-1">
-                <Tag className="h-4 w-4 text-green-500" />
-                <span className="text-[10px] text-gray-500 dark:text-gray-400 leading-tight">Best Price</span>
+              <div className="flex flex-col items-center gap-2">
+                <div className="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center text-yellow-400">
+                  <Tag className="h-5 w-5" />
+                </div>
+                <span className="text-[10px] uppercase tracking-widest font-bold text-gray-500 leading-tight">Best<br/>Price</span>
               </div>
             </div>
           </div>

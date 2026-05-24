@@ -1,9 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import logo from '@/assets/images/logo.png';
-
-// ── Brand SVG icons ──────────────────────────────────────────────────────────
-// lucide-react v1+ removed brand icons, so we use inline SVGs instead.
+import { ArrowRight } from 'lucide-react';
 
 const XIcon = () => (
   <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true">
@@ -23,134 +21,95 @@ const LinkedinIcon = () => (
   </svg>
 );
 
-// ── Footer component ─────────────────────────────────────────────────────────
 const Footer = () => {
   return (
-    <footer className="bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="bg-white dark:bg-[#0A0A0A] overflow-hidden w-full border-t border-gray-100 dark:border-gray-900 mt-20">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8 py-20">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-8">
 
-          {/* Brand + Social */}
-          <div className="col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <img src={logo} alt="Farmket Logo" className="h-8 w-8 object-contain" />
-              <span className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+          {/* Brand & Socials */}
+          <div className="col-span-1 md:col-span-4 pr-8">
+            <Link to="/" className="flex items-center gap-2 mb-6">
+              <img src={logo} alt="Farmket Logo" className="h-10 w-10 object-contain" />
+              <span className="text-3xl font-black tracking-tighter text-gray-900 dark:text-white">
                 Farmket
               </span>
             </Link>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-              Connecting farmers directly with buyers for a sustainable agricultural future.
+            <p className="text-[15px] text-gray-500 dark:text-gray-400 mb-8 font-medium leading-relaxed max-w-sm">
+              Connecting farmers directly with buyers for a sustainable, fresh, and organic agricultural future.
             </p>
             <div className="flex space-x-4">
-              <a
-                href="https://x.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                aria-label="Follow us on X (Twitter)"
-              >
+              <a href="#" className="h-12 w-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-[#168748] hover:text-white dark:bg-gray-900 dark:hover:bg-[#168748] transition-all">
                 <XIcon />
               </a>
-              <a
-                href="https://github.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                aria-label="View our GitHub"
-              >
+              <a href="#" className="h-12 w-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-[#168748] hover:text-white dark:bg-gray-900 dark:hover:bg-[#168748] transition-all">
                 <GithubIcon />
               </a>
-              <a
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                aria-label="Connect on LinkedIn"
-              >
+              <a href="#" className="h-12 w-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-[#168748] hover:text-white dark:bg-gray-900 dark:hover:bg-[#168748] transition-all">
                 <LinkedinIcon />
               </a>
             </div>
           </div>
 
-          {/* Platform links */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white tracking-wider uppercase mb-4">
-              Platform
-            </h3>
-            <ul className="space-y-3">
-              <li>
-                <Link to="/marketplace" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
-                  Marketplace
-                </Link>
-              </li>
-              <li>
-                <Link to="/pricing" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
-                  Pricing
-                </Link>
-              </li>
-              <li>
-                <Link to="/about" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
-                  About Us
-                </Link>
-              </li>
+          {/* Nav Links */}
+          <div className="col-span-1 md:col-span-2">
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-6">Platform</h3>
+            <ul className="space-y-4">
+              {['Marketplace', 'Categories', 'Deals', 'Pricing', 'About Us'].map((link) => (
+                <li key={link}>
+                  <Link to={`/${link.toLowerCase().replace(' ', '')}`} className="text-[15px] font-bold text-gray-500 hover:text-[#168748] dark:text-gray-400 transition-colors">
+                    {link}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Support links */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white tracking-wider uppercase mb-4">
-              Support
-            </h3>
-            <ul className="space-y-3">
-              <li>
-                <Link to="/help" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
-                  Help Center
-                </Link>
-              </li>
-              <li>
-                <Link to="/terms" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
-                  Terms of Service
-                </Link>
-              </li>
-              <li>
-                <Link to="/privacy" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
-                  Privacy Policy
-                </Link>
-              </li>
+          <div className="col-span-1 md:col-span-2">
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-6">Support</h3>
+            <ul className="space-y-4">
+              {['Help Center', 'Track Order', 'Terms of Service', 'Privacy Policy'].map((link) => (
+                <li key={link}>
+                  <Link to={`/${link.toLowerCase().replace(' ', '')}`} className="text-[15px] font-bold text-gray-500 hover:text-[#168748] dark:text-gray-400 transition-colors">
+                    {link}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Newsletter */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white tracking-wider uppercase mb-4">
-              Subscribe
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-              Get the latest updates and offers directly to your inbox.
-            </p>
-            <form className="flex" onSubmit={(e) => e.preventDefault()}>
-              <input
-                type="email"
-                placeholder="Enter your email"
-                aria-label="Email for newsletter"
-                className="w-full min-w-0 rounded-l-md border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 placeholder-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
-              />
-              <button
-                type="submit"
-                className="shrink-0 rounded-r-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
-              >
-                Subscribe
-              </button>
-            </form>
+          {/* Newsletter Box */}
+          <div className="col-span-1 md:col-span-4">
+            <div className="rounded-[2rem] bg-[#F5F5F5] dark:bg-gray-900 p-8">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Join our Newsletter</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 font-medium">Get exclusive discounts and seasonal offers directly to your inbox.</p>
+              <form className="relative flex items-center" onSubmit={(e) => e.preventDefault()}>
+                <input
+                  type="email"
+                  placeholder="Email address..."
+                  className="w-full rounded-full border-none bg-white py-4 pl-6 pr-14 text-sm font-medium text-gray-900 shadow-sm outline-none focus:ring-2 focus:ring-[#168748] dark:bg-gray-950 dark:text-white"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-2 h-10 w-10 rounded-full bg-[#111] flex items-center justify-center text-white hover:bg-black hover:scale-105 transition-all shadow-md"
+                >
+                  <ArrowRight className="h-5 w-5" />
+                </button>
+              </form>
+            </div>
           </div>
 
         </div>
 
-        {/* Bottom bar */}
-        <div className="mt-8 border-t border-gray-200 dark:border-gray-800 pt-8">
-          <p className="text-sm text-gray-400 text-center">
-            &copy; {new Date().getFullYear()} Farmket, Inc. All rights reserved.
+        {/* Bottom */}
+        <div className="mt-16 pt-8 border-t border-gray-100 dark:border-gray-900 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-sm font-bold text-gray-400">
+            &copy; {new Date().getFullYear()} Farmket Inc. All rights reserved.
           </p>
+          <div className="flex items-center gap-6 text-sm font-bold text-gray-400">
+             <button className="hover:text-gray-900 dark:hover:text-white transition-colors">English (EN)</button>
+             <button className="hover:text-gray-900 dark:hover:text-white transition-colors">USD ($)</button>
+          </div>
         </div>
       </div>
     </footer>

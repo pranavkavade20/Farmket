@@ -8,30 +8,30 @@ interface SkeletonProps {
 export const Skeleton: React.FC<SkeletonProps> = ({ className }) => (
   <div
     className={cn(
-      'animate-pulse rounded-md bg-gray-200 dark:bg-gray-800',
+      'animate-pulse rounded-full bg-gray-200 dark:bg-gray-800',
       className
     )}
   />
 );
 
 export const ProductCardSkeleton: React.FC = () => (
-  <div className="rounded-2xl overflow-hidden bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800">
-    <Skeleton className="h-52 w-full rounded-none" />
-    <div className="p-4 space-y-3">
-      <Skeleton className="h-4 w-3/4" />
-      <Skeleton className="h-3 w-1/2" />
+  <div className="rounded-[2rem] p-6 bg-white dark:bg-gray-900 shadow-sm border border-gray-100 dark:border-gray-800">
+    <Skeleton className="h-[220px] w-full rounded-[1.5rem] mb-6" />
+    <div className="space-y-4">
+      <Skeleton className="h-5 w-3/4 rounded-xl" />
+      <Skeleton className="h-4 w-1/2 rounded-xl" />
       <div className="flex justify-between items-center pt-2">
-        <Skeleton className="h-6 w-20" />
-        <Skeleton className="h-9 w-24 rounded-lg" />
+        <Skeleton className="h-7 w-20 rounded-xl" />
+        <Skeleton className="h-10 w-24 rounded-full" />
       </div>
     </div>
   </div>
 );
 
 export const StatCardSkeleton: React.FC = () => (
-  <div className="rounded-2xl bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800 p-6 space-y-3">
-    <Skeleton className="h-4 w-1/3" />
-    <Skeleton className="h-8 w-1/2" />
-    <Skeleton className="h-3 w-2/3" />
+  <div className="rounded-[2rem] bg-white dark:bg-gray-900 shadow-sm border border-gray-100 dark:border-gray-800 p-8 space-y-4">
+    <Skeleton className="h-5 w-1/3 rounded-xl" />
+    <Skeleton className="h-10 w-1/2 rounded-xl" />
+    <Skeleton className="h-4 w-2/3 rounded-xl" />
   </div>
 );

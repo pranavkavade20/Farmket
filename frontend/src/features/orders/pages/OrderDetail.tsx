@@ -68,24 +68,24 @@ const OrderDetail = () => {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-      <div className="flex items-center gap-4 mb-8">
+    <div className="mx-auto max-w-[1000px] pb-10">
+      <div className="flex items-center gap-6 mb-12">
         <Link to="/dashboard/orders">
-          <Button variant="ghost" size="sm" className="gap-2">
-            <ArrowLeft className="h-4 w-4" /> Orders
-          </Button>
+          <button className="h-12 w-12 rounded-full bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 flex items-center justify-center hover:shadow-md hover:scale-105 transition-all">
+            <ArrowLeft className="h-5 w-5 text-gray-900 dark:text-white" />
+          </button>
         </Link>
         <div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
             {(order as any).order_number ?? `Order #${order.id}`}
           </h1>
-          <p className="text-xs text-gray-400">{fmtDate(order.created_at)}</p>
+          <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mt-1">{fmtDate(order.created_at)}</p>
         </div>
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-4">
           <OrderStatusBadge status={order.status} />
           {['pending', 'processing'].includes(order.status) && (
-            <Button variant="outline" size="sm" isLoading={cancelling} onClick={handleCancel}
-              className="text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-700">
+            <Button variant="outline" isLoading={cancelling} onClick={handleCancel}
+              className="h-10 rounded-full px-5 text-xs font-black tracking-widest uppercase border-2 text-red-600 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-900 dark:hover:bg-red-950/30">
               Cancel Order
             </Button>
           )}
@@ -97,88 +97,102 @@ const OrderDetail = () => {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800 p-6 mb-5"
+          className="rounded-[2.5rem] bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 p-8 mb-6 shadow-sm"
         >
-          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-5">Order Progress</h2>
-          <div className="flex items-center">
+          <h2 className="text-xs font-black uppercase tracking-widest text-gray-400 mb-8">Order Progress</h2>
+          <div className="flex items-center px-4">
             {STEPS.map((step, idx) => (
               <React.Fragment key={step}>
-                <div className="flex flex-col items-center gap-1.5">
-                  <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+                <div className="flex flex-col items-center gap-3 relative z-10">
+                  <div className={`h-12 w-12 rounded-full flex items-center justify-center text-sm font-black transition-all shadow-sm ${
                     idx <= currentStepIndex
-                      ? 'bg-green-600 text-white'
-                      : 'bg-gray-200 dark:bg-gray-700 text-gray-400'
+                      ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900 scale-110'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
                   }`}>
                     {idx < currentStepIndex ? '✓' : idx + 1}
                   </div>
-                  <span className={`text-[10px] font-medium capitalize whitespace-nowrap ${
-                    idx <= currentStepIndex ? 'text-green-600 dark:text-green-500' : 'text-gray-400'
+                  <span className={`absolute -bottom-8 text-[11px] font-black uppercase tracking-widest whitespace-nowrap ${
+                    idx <= currentStepIndex ? 'text-gray-900 dark:text-white' : 'text-gray-400'
                   }`}>
                     {step}
                   </span>
                 </div>
                 {idx < STEPS.length - 1 && (
-                  <div className={`flex-1 h-0.5 mx-1 ${idx < currentStepIndex ? 'bg-green-600' : 'bg-gray-200 dark:bg-gray-700'}`} />
+                  <div className="flex-1 h-1.5 mx-2 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800">
+                    <motion.div 
+                       className="h-full bg-gray-900 dark:bg-white"
+                       initial={{ width: '0%' }}
+                       animate={{ width: idx < currentStepIndex ? '100%' : '0%' }}
+                       transition={{ duration: 0.5 }}
+                    />
+                  </div>
                 )}
               </React.Fragment>
             ))}
           </div>
+          <div className="h-10" /> {/* Spacer for absolute labels */}
         </motion.div>
       )}
 
       {/* Order items */}
       <motion.div
         initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-        className="rounded-2xl bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800 p-6 mb-5"
+        className="rounded-[2.5rem] bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 p-8 mb-6 shadow-sm"
       >
-        <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Items</h2>
+        <h2 className="text-xs font-black uppercase tracking-widest text-gray-400 mb-6">Items</h2>
         <div className="divide-y divide-gray-100 dark:divide-gray-800">
           {order.items.map((item) => (
-            <div key={item.id} className="flex justify-between py-3 text-sm">
+            <div key={item.id} className="flex justify-between py-5">
               <div>
-                <p className="font-medium text-gray-900 dark:text-white">{item.product_name ?? `Product #${item.product}`}</p>
-                <p className="text-xs text-gray-400">Qty: {item.quantity} × {fmt(item.price_at_purchase ?? '0')}</p>
+                <p className="text-base font-black text-gray-900 dark:text-white">{item.product_name ?? `Product #${item.product}`}</p>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Qty: {item.quantity} × {fmt(item.price_at_purchase ?? '0')}</p>
               </div>
-              <p className="font-semibold text-gray-900 dark:text-white">
+              <p className="text-lg font-black text-gray-900 dark:text-white">
                 {fmt(String(item.quantity * parseFloat(item.price_at_purchase ?? '0')))}
               </p>
             </div>
           ))}
         </div>
-        <div className="border-t border-gray-200 dark:border-gray-800 pt-3 mt-3 flex justify-between font-bold text-gray-900 dark:text-white">
-          <span>Total</span>
-          <span>{fmt(order.total_amount)}</span>
+        <div className="border-t-2 border-dashed border-gray-200 dark:border-gray-800 pt-6 mt-2 flex justify-between items-center">
+          <span className="text-sm font-black uppercase tracking-widest text-gray-500">Total</span>
+          <span className="text-3xl font-black text-gray-900 dark:text-white">{fmt(order.total_amount)}</span>
         </div>
       </motion.div>
 
       {/* Delivery & Payment info */}
       <motion.div
         initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-        className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+        className="grid grid-cols-1 md:grid-cols-2 gap-6"
       >
-        <div className="rounded-2xl bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800 p-5">
-          <div className="flex items-center gap-2 mb-2">
-            <MapPin className="h-4 w-4 text-green-600" />
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Delivery Address</h3>
+        <div className="rounded-[2.5rem] bg-[#F8F9FA] dark:bg-gray-900/50 p-8">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="h-10 w-10 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center shadow-sm">
+              <MapPin className="h-5 w-5 text-gray-900 dark:text-white" />
+            </div>
+            <h3 className="text-xs font-black uppercase tracking-widest text-gray-400">Delivery Address</h3>
           </div>
-          <p className="text-sm text-gray-600 dark:text-gray-400">{order.delivery_address || 'N/A'}</p>
+          <p className="text-sm font-bold text-gray-900 dark:text-white leading-relaxed">{order.delivery_address || 'N/A'}</p>
         </div>
-        <div className="rounded-2xl bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800 p-5">
-          <div className="flex items-center gap-2 mb-2">
-            <CreditCard className="h-4 w-4 text-green-600" />
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Payment</h3>
+        <div className="rounded-[2.5rem] bg-[#F8F9FA] dark:bg-gray-900/50 p-8">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="h-10 w-10 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center shadow-sm">
+              <CreditCard className="h-5 w-5 text-gray-900 dark:text-white" />
+            </div>
+            <h3 className="text-xs font-black uppercase tracking-widest text-gray-400">Payment Method</h3>
           </div>
-          <p className="text-sm font-medium text-gray-900 dark:text-white uppercase">
+          <p className="text-xl font-black text-gray-900 dark:text-white uppercase">
             {(order as any).payment_method ?? 'COD'}
           </p>
         </div>
         {(order as any).notes && (
-          <div className="sm:col-span-2 rounded-2xl bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800 p-5">
-            <div className="flex items-center gap-2 mb-2">
-              <FileText className="h-4 w-4 text-green-600" />
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Notes</h3>
+          <div className="md:col-span-2 rounded-[2.5rem] bg-[#F8F9FA] dark:bg-gray-900/50 p-8">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-10 w-10 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center shadow-sm">
+                <FileText className="h-5 w-5 text-gray-900 dark:text-white" />
+              </div>
+              <h3 className="text-xs font-black uppercase tracking-widest text-gray-400">Notes</h3>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{(order as any).notes}</p>
+            <p className="text-sm font-bold text-gray-900 dark:text-white leading-relaxed">{(order as any).notes}</p>
           </div>
         )}
       </motion.div>

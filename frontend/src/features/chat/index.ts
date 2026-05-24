@@ -6,3 +6,4 @@ export { MessageBubble } from './components/MessageBubble';
 export { MessageBubbleContent } from './components/MessageBubbleContent';
 export { NewChatModal } from './components/NewChatModal';
 export { chatService } from './services/chatService';
+export type { ChatUser, Conversation, MessageReaction, ChatMessage } from './services/chatService';

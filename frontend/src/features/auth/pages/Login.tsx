@@ -46,44 +46,48 @@ const Login = () => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      className="text-center"
     >
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back</h1>
-      <p className="text-sm text-gray-500 dark:text-gray-400">
+      <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-3 tracking-tight">Welcome Back</h1>
+      <p className="text-base font-bold text-gray-500 dark:text-gray-400">
         Not a member?{' '}
         <Link
           to="/register"
-          className="font-semibold text-green-600 hover:text-green-500 dark:text-green-500 dark:hover:text-green-400"
+          className="text-gray-900 dark:text-white hover:underline transition-colors"
         >
           Create a free account
         </Link>
       </p>
 
-      <form onSubmit={handleSubmit} className="mt-10 space-y-5" noValidate>
-        <Input
-          label="Email address"
-          id="login-email"
-          type="email"
-          autoComplete="email"
-          placeholder="you@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          icon={<Mail className="h-4 w-4" />}
-        />
+      <form onSubmit={handleSubmit} className="mt-10 space-y-6 text-left" noValidate>
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Email Address</label>
+          <Input
+            id="login-email"
+            type="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            icon={<Mail className="h-5 w-5" />}
+            className="h-16 text-base shadow-inner bg-white/50 dark:bg-gray-900/50"
+          />
+        </div>
 
         <div>
-          <div className="flex items-center justify-between mb-1.5">
+          <div className="flex items-center justify-between mb-3">
             <label
               htmlFor="login-password"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              className="block text-xs font-black text-gray-400 uppercase tracking-widest"
             >
               Password
             </label>
             <Link
               to="/forgot-password"
-              className="text-xs font-semibold text-green-600 hover:text-green-500 dark:text-green-500"
+              className="text-xs font-bold text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors"
             >
               Forgot password?
             </Link>
@@ -95,13 +99,16 @@ const Login = () => {
             placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            icon={<Lock className="h-4 w-4" />}
+            icon={<Lock className="h-5 w-5" />}
+            className="h-16 text-base shadow-inner bg-white/50 dark:bg-gray-900/50"
           />
         </div>
 
-        <Button type="submit" className="w-full" size="lg" isLoading={isLoading}>
-          Sign in
-        </Button>
+        <div className="pt-4">
+          <Button type="submit" className="w-full h-16 rounded-full font-black text-lg tracking-wide shadow-xl" isLoading={isLoading}>
+            Sign In
+          </Button>
+        </div>
       </form>
     </motion.div>
   );
