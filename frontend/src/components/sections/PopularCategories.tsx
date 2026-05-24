@@ -30,9 +30,13 @@ export const PopularCategories = ({ categories }: PopularCategoriesProps) => {
         {categories.slice(0, 6).map((c, i) => {
           const style = categoryStyles[i % categoryStyles.length];
           return (
-            <Link key={c.id} to={`/marketplace?category=${c.slug}`} className={`group flex flex-col items-center justify-center p-6 rounded-[2rem] bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1 shadow-[0_4px_20px_rgb(0,0,0,0.02)]`}>
-              <div className={`h-[88px] w-[88px] flex items-center justify-center mb-4 rounded-3xl ${style.color} transition-transform group-hover:scale-105`}>
-                <Apple className="h-10 w-10 text-gray-700 dark:text-gray-200 opacity-60 mix-blend-multiply" />
+            <Link key={c.id} to={`/marketplace?category=${c.slug}`} className={`group flex flex-col items-center justify-center p-6 rounded-[2rem] ${style.color} transition-all duration-300 hover:shadow-lg hover:-translate-y-1 shadow-[0_4px_20px_rgb(0,0,0,0.02)]`}>
+              <div className={`h-[88px] w-[88px] overflow-hidden flex items-center justify-center mb-4 rounded-3xl bg-white/60 dark:bg-black/20 backdrop-blur-sm transition-transform group-hover:scale-105`}>
+                {c.image ? (
+                  <img src={c.image} alt={c.name} className="h-12 w-12 object-contain drop-shadow-md" />
+                ) : (
+                  <Apple className="h-10 w-10 text-gray-700 dark:text-gray-200 opacity-60 mix-blend-multiply" />
+                )}
               </div>
               <h3 className="font-bold text-[15px] text-gray-900 dark:text-white text-center leading-tight">{c.name}</h3>
               <p className="text-[11px] text-gray-400 mt-1.5 font-bold uppercase tracking-wide">{Math.floor(Math.random() * 40) + 10} Product</p>
