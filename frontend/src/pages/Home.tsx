@@ -44,7 +44,6 @@ const Home = () => {
       return;
     }
     await addToCart(product);
-    toast.success(`${product.name} added to cart`);
   };
 
   return (

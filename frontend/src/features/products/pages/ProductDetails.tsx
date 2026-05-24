@@ -49,9 +49,7 @@ const ProductDetails = () => {
       toast.error('Please log in to add items to cart', { icon: '🔒' });
       return;
     }
-    // Note: the cart context addToCart might not support quantity yet, but we pass the product
-    await addToCart(product);
-    toast.success(`${quantity} x ${product.name} added to cart`);
+    await addToCart(product, quantity);
   };
 
   const handleSubmitReview = async (e: React.FormEvent) => {

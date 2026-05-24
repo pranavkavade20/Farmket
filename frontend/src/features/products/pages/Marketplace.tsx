@@ -83,7 +83,6 @@ const Marketplace = () => {
       return;
     }
     await addToCart(product);
-    toast.success(`${product.name} added to cart`);
   };
 
   const clearFilters = () => {

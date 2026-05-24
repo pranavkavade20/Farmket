@@ -57,7 +57,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await orderService.addToCart(product.id, quantity);
       await refreshCart();
-      toast.success(`${product.name} added to cart!`, { icon: '🛒' });
+      toast.success(`${quantity > 1 ? `${quantity} x ` : ''}${product.name} added to cart!`);
     } catch {
       toast.error('Could not add to cart. Please try again.');
     }

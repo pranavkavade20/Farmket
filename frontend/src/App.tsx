@@ -1,6 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 import { AuthProvider } from '@/features/auth';
 import { AppProvider } from '@/context/AppContext';
 import { ThemeProvider } from '@/context/ThemeContext';
@@ -11,6 +11,17 @@ import AuthLayout from '@/app/layouts/AuthLayout';
 import DashboardLayout from '@/app/layouts/DashboardLayout';
 import { PrivateRoute } from '@/routes';
 import { Sprout } from 'lucide-react';
+
+// ── Patch toast to deduplicate identical messages ───────────────────────────
+const originalError = toast.error;
+toast.error = (message, options) => {
+  return originalError(message, { id: typeof message === 'string' ? message : undefined, ...options });
+};
+
+const originalSuccess = toast.success;
+toast.success = (message, options) => {
+  return originalSuccess(message, { id: typeof message === 'string' ? message : undefined, ...options });
+};
 
 // ── Lazy pages ────────────────────────────────────────────────────────────────
 const Home        = lazy(() => import('@/pages/Home'));
@@ -38,23 +49,25 @@ const PageLoader = () => (
 function App() {
   return (
     <BrowserRouter>
-      {/* ThemeProvider outermost so .dark class is on <html> before any paint */}
       <ThemeProvider>
         <AuthProvider>
-          {/* CartProvider needs AuthProvider (reads user to load cart) */}
           <CartProvider>
             <AppProvider>
               <Toaster
                 position="top-right"
                 toastOptions={{
-                  duration: 3500,
+                  duration: 4000,
+                  className: '!bg-white !text-gray-900 dark:!bg-[#111] dark:!text-white border border-gray-100 dark:border-gray-800',
                   style: {
-                    borderRadius: '12px',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    boxShadow: '0 10px 15px -3px rgba(0,0,0,.1)',
+                    borderRadius: '9999px',
+                    padding: '16px 24px',
+                    fontSize: '15px',
+                    fontWeight: '800',
+                    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+                    background: 'inherit',
+                    color: 'inherit',
                   },
-                  success: { iconTheme: { primary: '#16a34a', secondary: '#fff' } },
+                  success: { iconTheme: { primary: '#22c55e', secondary: '#fff' } },
                   error:   { iconTheme: { primary: '#ef4444', secondary: '#fff' } },
                 }}
               />
