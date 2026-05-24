@@ -1,32 +1,32 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { AuthProvider } from '@/store/AuthContext';
-import { AppProvider } from '@/store/AppContext';
-import { ThemeProvider } from '@/store/ThemeContext';
-import { CartProvider } from '@/store/CartContext';
-import ErrorBoundary from '@/components/ErrorBoundary';
-import MainLayout from '@/layouts/MainLayout';
-import AuthLayout from '@/layouts/AuthLayout';
-import DashboardLayout from '@/layouts/DashboardLayout';
-import PrivateRoute from '@/components/PrivateRoute';
+import { AuthProvider } from '@/features/auth';
+import { AppProvider } from '@/context/AppContext';
+import { ThemeProvider } from '@/context/ThemeContext';
+import { CartProvider } from '@/features/buyer';
+import { ErrorBoundary } from '@/components/feedback';
+import MainLayout from '@/app/layouts/MainLayout';
+import AuthLayout from '@/app/layouts/AuthLayout';
+import DashboardLayout from '@/app/layouts/DashboardLayout';
+import { PrivateRoute } from '@/routes';
 import { Sprout } from 'lucide-react';
 
 // ── Lazy pages ────────────────────────────────────────────────────────────────
 const Home        = lazy(() => import('@/pages/Home'));
-const Marketplace = lazy(() => import('@/pages/Marketplace'));
-const ProductDetails = lazy(() => import('@/pages/ProductDetails'));
-const Login       = lazy(() => import('@/pages/Login'));
-const Register    = lazy(() => import('@/pages/Register'));
-const Dashboard   = lazy(() => import('@/pages/Dashboard'));
-const Cart        = lazy(() => import('@/pages/Cart'));
-const Orders      = lazy(() => import('@/pages/Orders'));
-const OrderDetail = lazy(() => import('@/pages/OrderDetail'));
-const Chat        = lazy(() => import('@/pages/Chat'));
-const Profile     = lazy(() => import('@/pages/Profile'));
-const Analytics   = lazy(() => import('@/pages/Analytics'));
-const MyProducts  = lazy(() => import('@/pages/MyProducts'));
-const AddProduct  = lazy(() => import('@/pages/AddProduct'));
+const Marketplace = lazy(() => import('@/features/products/pages/Marketplace'));
+const ProductDetails = lazy(() => import('@/features/products/pages/ProductDetails'));
+const Login       = lazy(() => import('@/features/auth/pages/Login'));
+const Register    = lazy(() => import('@/features/auth/pages/Register'));
+const Dashboard   = lazy(() => import('@/features/dashboard/pages/Dashboard'));
+const Cart        = lazy(() => import('@/features/buyer/pages/Cart'));
+const Orders      = lazy(() => import('@/features/orders/pages/Orders'));
+const OrderDetail = lazy(() => import('@/features/orders/pages/OrderDetail'));
+const Chat        = lazy(() => import('@/features/chat/pages/Chat'));
+const Profile     = lazy(() => import('@/features/dashboard/pages/Profile'));
+const Analytics   = lazy(() => import('@/features/farmer/pages/Analytics'));
+const MyProducts  = lazy(() => import('@/features/products/pages/MyProducts'));
+const AddProduct  = lazy(() => import('@/features/products/pages/AddProduct'));
 const NotFound    = lazy(() => import('@/pages/NotFound'));
 
 const PageLoader = () => (

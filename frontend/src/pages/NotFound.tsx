@@ -1,11 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useSEO } from '@/hooks/useSEO';
-import { Button } from '@/components/ui/Button';
+import { useSEO } from '@/hooks';
+import { Button } from '@/components/ui';
 import { motion } from 'framer-motion';
 import { Home, ArrowLeft } from 'lucide-react';
 
-import logo from '../assets/logo.png';
+import logo from '@/assets/images/logo.png';
 
 const NotFound = () => {
   useSEO({ title: '404 — Page Not Found' });

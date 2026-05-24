@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useSEO } from '@/hooks/useSEO';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import ProductCard from '@/components/ProductCard';
-import { productService } from '@/services/productService';
+import { useSEO } from '@/hooks';
+import { Button, Input } from '@/components/ui';
+import { ProductCard, productService } from '@/features/products';
 import type { Product, Category } from '@/types';
-import { useCart } from '@/store/CartContext';
-import { useAuth } from '@/store/AuthContext';
+import { useCart } from '@/features/buyer';
+import { useAuth } from '@/features/auth';
 import toast from 'react-hot-toast';
 import {
   ArrowRight, Search, Leaf, ShieldCheck, TrendingUp,
   MapPin, Star, ChevronRight, Truck, CheckCircle2,
   Apple, Wheat, Tractor
 } from 'lucide-react';
-import hero_section from '../assets/hero.jpg';
+import hero_section from '@/assets/images/hero.jpg';
 
 // ── Mock Data ───────────────────────────────────────────────────────────────
 const categoryStyles = [
