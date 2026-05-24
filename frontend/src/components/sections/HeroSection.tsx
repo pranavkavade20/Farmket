@@ -8,8 +8,10 @@ import {
   ArrowRight, 
   ShieldCheck,
   Star,
-  Truck 
+  Truck, 
 } from 'lucide-react';
+import tomatoImg from '@/assets/images/hero-images/tomato.png';
+import broccoliImg from '@/assets/images/hero-images/broccoli.png';
 
 export const HeroSection = () => {
   // Animation variants for staggered entrance
@@ -153,7 +155,7 @@ export const HeroSection = () => {
             <div className="flex items-center gap-4 mb-5">
               <div className="w-12 h-12 rounded-full bg-[#E2F5D6] dark:bg-green-900/30 flex items-center justify-center text-xl">👨🏽‍🌾</div>
               <div>
-                <h3 className="font-bold text-gray-900 dark:text-white">David's Organic</h3>
+                <h3 className="font-bold text-gray-900 dark:text-white">Farmer's Organic</h3>
                 <p className="text-xs font-semibold text-[#168748] flex items-center gap-1">
                   <Star className="w-3 h-3 fill-current" /> 4.9 Local Farm
                 </p>
@@ -165,7 +167,7 @@ export const HeroSection = () => {
                 <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">Daily Revenue</span>
                 <TrendingUp className="w-4 h-4 text-[#168748]" />
               </div>
-              <p className="text-2xl font-extrabold text-gray-900 dark:text-white">+$240.50</p>
+              <p className="text-2xl font-extrabold text-gray-900 dark:text-white">+₹240.50</p>
               <p className="text-xs text-green-600 font-bold mt-1">+18% vs yesterday</p>
             </div>
 
@@ -197,7 +199,7 @@ export const HeroSection = () => {
             <div className="flex items-center gap-4 mb-5">
               <div className="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-xl">👩🏻‍🦰</div>
               <div>
-                <h3 className="font-bold text-gray-900 dark:text-white">Sarah M.</h3>
+                <h3 className="font-bold text-gray-900 dark:text-white">Buyer's.</h3>
                 <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-1">
                   <ShoppingBag className="w-3 h-3" /> 12 Items in Cart
                 </p>
@@ -206,12 +208,12 @@ export const HeroSection = () => {
             
             <div className="space-y-3">
               {[
-                { icon: "🍅", name: "Heirloom Tomatoes", price: "$4.50", farm: "David's Organic" },
-                { icon: "🥬", name: "Fresh Kale", price: "$3.00", farm: "Valley Greens" }
+                { icon: tomatoImg, name: "Heirloom Tomatoes", price: "₹4.50", farm: "Farmer's Organic" },
+                { icon: broccoliImg, name: "Fresh Kale", price: "₹3.00", farm: "Valley Greens" }
               ].map((item, i) => (
                 <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-gray-50/80 dark:bg-gray-800/80 backdrop-blur-sm border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-colors">
                   <div className="flex items-center gap-3">
-                    <span className="text-lg">{item.icon}</span>
+                    <img src={item.icon} alt={item.name} className="w-8 h-8 object-contain drop-shadow-sm" />
                     <div>
                       <p className="text-sm font-bold text-gray-900 dark:text-white">{item.name}</p>
                       <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">From {item.farm}</p>
