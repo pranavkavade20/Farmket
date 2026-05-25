@@ -54,12 +54,6 @@ const Home = () => {
 
         <PopularCategories categories={categoriesList} />
 
-        <ProductGridSection 
-          title="Today's Fresh Picks" 
-          products={products.slice(0, 5)} 
-          onAddToCart={handleAddToCart} 
-        />
-
         <PromoBanners />
 
         <WeeklyBestSelling 
