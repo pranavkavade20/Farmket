@@ -10,8 +10,8 @@ import {
   Star,
   Truck, 
 } from 'lucide-react';
-import tomatoImg from '@/assets/images/hero-images/tomato.png';
-import broccoliImg from '@/assets/images/hero-images/broccoli.png';
+import tomatoImg from '@/assets/images/hero/tomato.png';
+import broccoliImg from '@/assets/images/hero/broccoli.png';
 import herosectionvideo from '@/assets/videos/hero.mp4'
 
 export const HeroSection = () => {
