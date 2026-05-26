@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import tomatoImg from '@/assets/images/hero-images/tomato.png';
 import broccoliImg from '@/assets/images/hero-images/broccoli.png';
-import herosectionvideo from '@/assets/videos/heroSection.mp4'
+import herosectionvideo from '@/assets/videos/hero.mp4'
 
 export const HeroSection = () => {
   // Animation variants for staggered entrance
