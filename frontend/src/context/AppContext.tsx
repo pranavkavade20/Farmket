@@ -1,10 +1,10 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useMemo,
-} from 'react';
+import React, { useCallback, useMemo } from 'react';
+import { useAppSelector, useAppDispatch } from '@/app/hooks';
+import { 
+  setPageLoading as setPageLoadingAction, 
+  setSidebarOpen as setSidebarOpenAction, 
+  toggleSidebar as toggleSidebarAction 
+} from '@/features/app/appSlice';
 
 interface AppContextType {
   /** Full-page loading overlay (e.g. during initial data fetch) */
@@ -17,15 +17,20 @@ interface AppContextType {
   setSidebarOpen: (v: boolean) => void;
 }
 
-const AppContext = createContext<AppContextType | undefined>(undefined);
-
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isPageLoading, setPageLoading] = useState(false);
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
+  return <>{children}</>;
+};
 
-  const toggleSidebar = useCallback(() => setSidebarOpen((prev) => !prev), []);
+export const useApp = (): AppContextType => {
+  const isPageLoading = useAppSelector((state) => state.app.isPageLoading);
+  const isSidebarOpen = useAppSelector((state) => state.app.isSidebarOpen);
+  const dispatch = useAppDispatch();
 
-  const value = useMemo(
+  const setPageLoading = useCallback((v: boolean) => dispatch(setPageLoadingAction(v)), [dispatch]);
+  const setSidebarOpen = useCallback((v: boolean) => dispatch(setSidebarOpenAction(v)), [dispatch]);
+  const toggleSidebar = useCallback(() => dispatch(toggleSidebarAction()), [dispatch]);
+
+  return useMemo(
     () => ({
       isPageLoading,
       setPageLoading,
@@ -33,14 +38,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       toggleSidebar,
       setSidebarOpen,
     }),
-    [isPageLoading, isSidebarOpen, toggleSidebar]
+    [isPageLoading, setPageLoading, isSidebarOpen, toggleSidebar, setSidebarOpen]
   );
-
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
-};
-
-export const useApp = (): AppContextType => {
-  const ctx = useContext(AppContext);
-  if (!ctx) throw new Error('useApp must be used inside <AppProvider>');
-  return ctx;
 };
