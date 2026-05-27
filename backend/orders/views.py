@@ -24,7 +24,7 @@ class CartViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(cart)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post'], url_path='add-item')
     def add_item(self, request):
         cart = self.get_object()
         product_id = request.data.get('product_id')

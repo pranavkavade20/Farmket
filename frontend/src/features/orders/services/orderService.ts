@@ -45,7 +45,7 @@ export const orderService = {
   },
 
   addToCart: async (productId: number, quantity = 1): Promise<CartItemDetail> => {
-    const res = await api.post<CartItemDetail>('/orders/carts/add_item/', {
+    const res = await api.post<CartItemDetail>('/orders/carts/add-item/', {
       product_id: productId,
       quantity,
     });
