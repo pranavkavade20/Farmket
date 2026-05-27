@@ -1,10 +1,10 @@
-import React from 'react';
 import { motion, type Variants } from 'framer-motion';
-import { ArrowRight, ShoppingBag, Truck, Package } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui';
 
 import promoImg from '@/assets/images/promo/promo1.png';
-import logoImg from '@/assets/images/logo.png';
+import promoImg2 from '@/assets/images/promo/promo2.png';
+import promoImg3 from '@/assets/images/promo/promo3.png';
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -80,20 +80,8 @@ export const PromoBanners = () => {
 
           {/* CARD 2: FREE DELIVERY */}
           <motion.div variants={itemVariants} className="bg-white dark:bg-[#111] rounded-[2.5rem] p-8 md:p-10 border border-gray-100 dark:border-gray-800 shadow-[0_8px_40px_rgba(0,0,0,0.04)] dark:shadow-none flex flex-col group relative overflow-hidden transition-all hover:-translate-y-2 hover:shadow-2xl dark:hover:shadow-[0_8px_40px_rgba(22,135,72,0.1)]">
-             <div className="h-48 md:h-56 w-full rounded-3xl bg-blue-50/50 dark:bg-gray-900/50 mb-10 relative flex items-center justify-center border border-gray-100 dark:border-gray-800">
-                {/* Outer animated ring */}
-                <div className="absolute w-40 h-40 border-[1px] border-dashed border-gray-300 dark:border-gray-700 rounded-full animate-[spin_20s_linear_infinite]" />
-                <div className="absolute w-24 h-24 border-[1px] border-gray-200 dark:border-gray-700 rounded-full animate-ping opacity-20" style={{ animationDuration: '3s' }} />
-                
-                {/* Center Logo */}
-                <div className="w-16 h-16 rounded-full bg-white dark:bg-gray-800 shadow-xl z-10 flex items-center justify-center p-3 ring-4 ring-[#E2F5D6] dark:ring-green-900/30">
-                   <img src={logoImg} alt="Farmket Logo" className="w-full h-full object-contain brightness-0 dark:invert" />
-                </div>
-
-                {/* Orbiting Icons */}
-                <div className="absolute w-8 h-8 rounded-full bg-white dark:bg-gray-800 shadow-md flex items-center justify-center -top-2 right-12 z-20"><Truck className="w-4 h-4 text-[#168748]" /></div>
-                <div className="absolute w-8 h-8 rounded-full bg-white dark:bg-gray-800 shadow-md flex items-center justify-center bottom-4 left-6 z-20"><Package className="w-4 h-4 text-[#B9F046]" /></div>
-                <div className="absolute w-8 h-8 rounded-full bg-white dark:bg-gray-800 shadow-md flex items-center justify-center top-14 -left-4 z-20"><ShoppingBag className="w-4 h-4 text-[#168748]" /></div>
+             <div className="h-48 md:h-56 w-full rounded-3xl bg-gray-100 dark:bg-gray-800 mb-10 relative overflow-hidden flex items-center justify-center">
+                <img src={promoImg2} alt="Promo" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
              </div>
              
              <div className="flex-1 flex flex-col">
@@ -105,27 +93,8 @@ export const PromoBanners = () => {
 
           {/* CARD 3: FRESH GROCERIES */}
           <motion.div variants={itemVariants} className="bg-white dark:bg-[#111] rounded-[2.5rem] p-8 md:p-10 border border-gray-100 dark:border-gray-800 shadow-[0_8px_40px_rgba(0,0,0,0.04)] dark:shadow-none flex flex-col group relative overflow-hidden transition-all hover:-translate-y-2 hover:shadow-2xl dark:hover:shadow-[0_8px_40px_rgba(22,135,72,0.1)]">
-             <div className="h-48 md:h-56 w-full rounded-3xl bg-gray-50 dark:bg-gray-900 mb-10 relative overflow-hidden flex items-end justify-center pt-8 px-4 border border-gray-100 dark:border-gray-800">
-                {/* Analytics CSS Visual */}
-                <div className="w-full h-full relative">
-                  {/* Grid lines */}
-                  <div className="absolute inset-0 flex flex-col justify-between py-4 opacity-10">
-                     <div className="w-full h-[1px] bg-gray-500" />
-                     <div className="w-full h-[1px] bg-gray-500" />
-                     <div className="w-full h-[1px] bg-gray-500" />
-                  </div>
-                  
-                  {/* Bar Chart Mockup */}
-                  <div className="absolute bottom-0 w-full h-[80%] flex items-end justify-between px-2 gap-2">
-                     <motion.div initial={{ height: 0 }} whileInView={{ height: "40%" }} transition={{ duration: 0.8 }} className="w-full bg-[#168748]/30 dark:bg-[#168748]/50 rounded-t-sm" />
-                     <motion.div initial={{ height: 0 }} whileInView={{ height: "65%" }} transition={{ duration: 0.8, delay: 0.1 }} className="w-full bg-[#168748]/50 dark:bg-[#168748]/70 rounded-t-sm" />
-                     <motion.div initial={{ height: 0 }} whileInView={{ height: "45%" }} transition={{ duration: 0.8, delay: 0.2 }} className="w-full bg-[#168748]/30 dark:bg-[#168748]/50 rounded-t-sm" />
-                     <motion.div initial={{ height: 0 }} whileInView={{ height: "90%" }} transition={{ duration: 0.8, delay: 0.3 }} className="w-full bg-[#B9F046] rounded-t-sm relative">
-                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-[10px] font-bold py-1 px-2 rounded-lg">100%</div>
-                     </motion.div>
-                     <motion.div initial={{ height: 0 }} whileInView={{ height: "70%" }} transition={{ duration: 0.8, delay: 0.4 }} className="w-full bg-[#168748]/50 dark:bg-[#168748]/70 rounded-t-sm" />
-                  </div>
-                </div>
+             <div className="h-48 md:h-56 w-full rounded-3xl bg-gray-100 dark:bg-gray-800 mb-10 relative overflow-hidden flex items-center justify-center">
+                <img src={promoImg3} alt="Promo" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
              </div>
              
              <div className="flex-1 flex flex-col">
