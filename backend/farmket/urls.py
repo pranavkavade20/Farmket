@@ -34,11 +34,11 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     
     # API endpoints for apps
-    path('api/v1/accounts/', include('accounts.urls')),
-    path('api/v1/products/', include('products.urls')),
-    path('api/v1/orders/', include('orders.urls')),
-    path('api/v1/chat/', include('chat.urls')),
-    path('api/v1/analytics/', include('analytics.urls')),
+    path('api/accounts/', include('accounts.urls')),
+    path('api/products/', include('products.urls')),
+    path('api/orders/', include('orders.urls')),
+    path('api/chat/', include('chat.urls')),
+    path('api/analytics/', include('analytics.urls')),
 ]
 
 if settings.DEBUG:

@@ -16,7 +16,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
   const primaryImage = product.images.find((img) => img.is_primary)?.image ?? product.images[0]?.image;
 
   // Check if item is already in cart to show the counter instead of 'Add to Cart'
-  const cartItem = cart?.items.find((item) => item.product.id === product.id);
+  const cartItem = cart?.items.find((item) => item.product === product.id);
 
   const handleDecrease = () => {
     if (cartItem && cartItem.quantity > 1) {
