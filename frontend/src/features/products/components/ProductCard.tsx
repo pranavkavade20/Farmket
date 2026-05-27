@@ -92,22 +92,22 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
             </div>
           ) : (
             <Button
-              disabled={!product.in_stock}
+              disabled={!product.in_stock || !product.is_available}
               onClick={() => onAddToCart?.(product)}
               className={cn(
                 "h-10 w-full rounded-full font-bold shadow-none transition-all flex items-center justify-center gap-1.5 text-sm",
-                product.in_stock
+                (product.in_stock && product.is_available)
                   ? "bg-gray-50 text-gray-900 hover:bg-green-700 hover:text-white dark:bg-gray-800 dark:text-white dark:hover:bg-green-600"
                   : "bg-gray-50 text-gray-400 cursor-not-allowed dark:bg-gray-800/50"
               )}
             >
-              {product.in_stock ? (
+              {(product.in_stock && product.is_available) ? (
                 <>
                   <Plus className="h-4 w-4" />
                   Add To Cart
                 </>
               ) : (
-                'Sold out'
+                !product.is_available ? 'Unavailable' : 'Sold out'
               )}
             </Button>
           )}

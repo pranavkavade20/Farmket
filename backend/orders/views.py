@@ -16,6 +16,13 @@ class CartViewSet(viewsets.ModelViewSet):
 
     def get_object(self):
         cart, _ = Cart.objects.get_or_create(buyer=self.request.user)
+        # Fix N+1 queries when serializing the cart
+        cart = Cart.objects.prefetch_related(
+            'items__product__images',
+            'items__product__reviews',
+            'items__product__category',
+            'items__product__farmer'
+        ).get(id=cart.id)
         return cart
 
     def list(self, request, *args, **kwargs):
@@ -24,6 +31,7 @@ class CartViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(cart)
         return Response(serializer.data)
 
+    @transaction.atomic
     @action(detail=False, methods=['post'], url_path='add-item')
     def add_item(self, request):
         cart = self.get_object()
@@ -35,12 +43,17 @@ class CartViewSet(viewsets.ModelViewSet):
         except Product.DoesNotExist:
             return Response({'error': 'Product not found or unavailable'}, status=status.HTTP_404_NOT_FOUND)
 
+        if product.stock_quantity < quantity:
+            return Response({'error': 'Not enough stock available'}, status=status.HTTP_400_BAD_REQUEST)
+
         cart_item, created = CartItem.objects.get_or_create(
             cart=cart,
             product=product,
             defaults={'quantity': quantity},
         )
         if not created:
+            if product.stock_quantity < (cart_item.quantity + quantity):
+                return Response({'error': 'Not enough stock available'}, status=status.HTTP_400_BAD_REQUEST)
             cart_item.quantity += quantity
             cart_item.save()
 
@@ -56,6 +69,18 @@ class CartItemViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return CartItem.objects.filter(cart__buyer=self.request.user)
+
+    def update(self, request, *args, **kwargs):
+        quantity = request.data.get('quantity')
+        if quantity is not None:
+            instance = self.get_object()
+            try:
+                quantity = int(quantity)
+                if instance.product.stock_quantity < quantity:
+                    return Response({'error': 'Not enough stock available'}, status=status.HTTP_400_BAD_REQUEST)
+            except ValueError:
+                pass
+        return super().update(request, *args, **kwargs)
 
 
 class OrderViewSet(viewsets.ModelViewSet):
@@ -94,12 +119,22 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         # Create OrderItems from cart items
         for ci in cart_items:
+            product = ci.product
+            
+            # Deduct stock
+            if product.stock_quantity < ci.quantity:
+                from rest_framework.exceptions import ValidationError
+                raise ValidationError(f"Not enough stock for {product.name}")
+            
+            product.stock_quantity -= ci.quantity
+            product.save()
+
             OrderItem.objects.create(
                 order=order,
-                product=ci.product,
-                farmer=ci.product.farmer,
+                product=product,
+                farmer=product.farmer,
                 quantity=ci.quantity,
-                price=ci.product.price,
+                price=product.price,
                 status='pending',
             )
 

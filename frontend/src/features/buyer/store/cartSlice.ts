@@ -30,8 +30,9 @@ export const addToCartThunk = createAsyncThunk('cart/add', async ({ product, qua
     await dispatch(refreshCartThunk()).unwrap();
     toast.success(`${quantity > 1 ? `${quantity} x ` : ''}${product.name} added to cart!`);
   } catch (err: any) {
-    toast.error('Could not add to cart. Please try again.');
-    return rejectWithValue(err.message || 'Failed to add to cart');
+    const message = err.response?.data?.error || err.message || 'Failed to add to cart';
+    toast.error(message);
+    return rejectWithValue(message);
   }
 });
 
@@ -54,8 +55,9 @@ export const updateQuantityThunk = createAsyncThunk('cart/updateQuantity', async
     const updated = await orderService.updateCartItem(itemId, quantity);
     return { itemId, updated: updated as CartItemDetail };
   } catch (err: any) {
-    toast.error('Failed to update quantity');
-    return rejectWithValue(err.message || 'Failed to update quantity');
+    const message = err.response?.data?.error || err.message || 'Failed to update quantity';
+    toast.error(message);
+    return rejectWithValue(message);
   }
 });
 
