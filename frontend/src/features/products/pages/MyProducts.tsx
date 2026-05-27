@@ -71,7 +71,7 @@ const MyProducts = () => {
       setProducts((prev) =>
         prev.map((p) => (p.slug === product.slug ? { ...p, is_available: updated.is_available } : p))
       );
-      toast.success(updated.is_available ? 'Product is now active' : 'Product hidden from marketplace');
+      toast.success(updated.is_available ? 'Product is now Available' : 'Product marked as Unavailable');
     } catch {
       toast.error('Failed to update product');
     } finally {
@@ -184,7 +184,7 @@ const MyProducts = () => {
                         ? 'bg-green-100 text-green-700'
                         : 'bg-gray-200 text-gray-600'
                     }`}>
-                      {product.is_available ? 'Active' : 'Hidden'}
+                      {product.is_available ? 'Available' : 'Unavailable'}
                     </span>
                   </div>
 
@@ -224,9 +224,9 @@ const MyProducts = () => {
                         {togglingId === product.slug ? (
                           <span className="animate-spin">↻</span>
                         ) : product.is_available ? (
-                          <><ToggleRight className="h-3.5 w-3.5" /> Active</>
+                          <><ToggleRight className="h-3.5 w-3.5" /> Available</>
                         ) : (
-                          <><ToggleLeft className="h-3.5 w-3.5" /> Hidden</>
+                          <><ToggleLeft className="h-3.5 w-3.5" /> Unavailable</>
                         )}
                       </button>
                       <button

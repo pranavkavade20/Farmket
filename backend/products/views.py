@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Category, Product, ProductImage, Review
 from .serializers import CategorySerializer, ProductSerializer, ProductImageSerializer, ReviewSerializer
+from .permissions import IsFarmerOwnerOrReadOnly, IsBuyerOwnerOrReadOnly
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -16,7 +17,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.select_related('farmer', 'category').prefetch_related('images', 'reviews')
     serializer_class = ProductSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsFarmerOwnerOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['category__slug', 'is_organic', 'is_available']
     search_fields = ['name', 'description', 'farmer__username']
@@ -25,11 +26,16 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        # Anonymous users and non-staff only see available products
         user = self.request.user
-        if not user or not user.is_authenticated or not user.is_staff:
-            qs = qs.filter(is_available=True)
-        return qs
+        
+        if not user or not user.is_authenticated:
+            return qs.filter(is_available=True)
+            
+        if user.is_staff:
+            return qs
+            
+        from django.db.models import Q
+        return qs.filter(Q(is_available=True) | Q(farmer=user))
 
     def perform_create(self, serializer):
         serializer.save(farmer=self.request.user)
@@ -44,7 +50,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 
 class ProductImageViewSet(viewsets.ModelViewSet):
     serializer_class = ProductImageSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsFarmerOwnerOrReadOnly]
 
     def get_queryset(self):
         return ProductImage.objects.filter(product__slug=self.kwargs.get('product_slug'))
@@ -56,7 +62,7 @@ class ProductImageViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsBuyerOwnerOrReadOnly]
 
     def get_queryset(self):
         return Review.objects.filter(product__slug=self.kwargs.get('product_slug'))
