@@ -66,123 +66,103 @@ const Navbar = () => {
       "sticky top-0 z-50 w-full transition-all duration-300",
       isScrolled ? "bg-white/95 backdrop-blur-xl shadow-sm dark:bg-[#0A0A0A]/95" : "bg-white dark:bg-[#0A0A0A]"
     )}>
+        {/* SINGLE TIER NAVBAR */}
       <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
-        
-        {/* TOP TIER */}
         <div className="flex h-[88px] items-center justify-between border-b border-gray-100 dark:border-gray-800">
           
-          {/* Left: Language & Search */}
-          <div className="hidden lg:flex flex-1 items-center gap-6">
-            <button className="flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-gray-300 hover:text-gray-900">
-              🇺🇸 EN <ChevronDown className="h-4 w-4 text-gray-400" />
-            </button>
-            <div className="flex w-full max-w-[280px] items-center rounded-full bg-gray-50 px-5 py-3 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 focus-within:border-green-500/30 focus-within:ring-2 focus-within:ring-green-500/10 transition-all">
-              <Search className="h-4 w-4 text-gray-400" />
-              <input 
-                type="text" 
-                placeholder="Search Grocery Items..." 
-                className="ml-3 w-full bg-transparent text-sm font-medium text-gray-900 outline-none placeholder:text-gray-400 dark:text-white"
-              />
-            </div>
-          </div>
-
-          {/* Center: Logo */}
-          <div className="flex flex-1 justify-start lg:justify-center">
+          {/* Left: Logo */}
+          <div className="flex items-center shrink-0 mr-6">
             <Link to="/" className="flex items-center gap-2">
-              <img src={logo} alt="Farmket Logo" className="h-10 w-10 object-contain" />
-              <span className="text-3xl font-black tracking-tighter text-gray-900 dark:text-white">
+              <img src={logo} alt="Farmket Logo" className="h-9 w-9 object-contain" />
+              <span className="text-2xl font-black tracking-tighter text-gray-900 dark:text-white">
                 Farmket
               </span>
             </Link>
           </div>
 
-          {/* Right: Actions */}
-          <div className="flex flex-1 items-center justify-end gap-2 lg:gap-4">
-            <button
-              onClick={toggleDark}
-              aria-label="Toggle dark mode"
-              className="hidden lg:flex h-11 w-11 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-900"
-            >
-              {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </button>
-
-            <button className="hidden lg:flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900">
-              <Heart className="h-5 w-5" /> Loved
-            </button>
-
-            {user ? (
-              <>
-                <Link
-                  to="/cart"
-                  className="group flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900"
-                >
-                  <div className="relative">
-                    <ShoppingCart className="h-5 w-5" />
-                    {itemCount > 0 && (
-                      <span className="absolute -top-1.5 -right-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-green-600 px-1 text-[10px] font-black text-white shadow-sm ring-2 ring-white dark:ring-[#0A0A0A]">
-                        {itemCount > 9 ? "9+" : itemCount}
-                      </span>
-                    )}
-                  </div>
-                  Cart <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-gray-100 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400">{itemCount}</span>
-                </Link>
-
-                <div className="hidden lg:flex items-center gap-3 pl-4">
-                  <Link to="/dashboard">
-                    <Button variant="outline" className="rounded-full h-11 px-5 border-gray-200 dark:border-gray-800 font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900">
-                      <UserIcon className="h-4 w-4 mr-2" />
-                      {user.first_name || user.username}
-                    </Button>
-                  </Link>
-                  <Button
-                    variant="ghost"
-                    onClick={() => void handleLogout()}
-                    className="rounded-full h-11 w-11 p-0 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
-                  >
-                    <LogOut className="h-4 w-4" />
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <div className="hidden lg:flex items-center gap-3 pl-4">
-                <Link to="/login">
-                  <Button variant="outline" className="rounded-full h-11 px-6 border-gray-200 dark:border-gray-800 font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900">
-                    <UserIcon className="h-4 w-4 mr-2" /> Login/Signup
-                  </Button>
-                </Link>
-              </div>
-            )}
-
-            {/* Mobile menu button */}
-            <div className="flex items-center gap-3 lg:hidden">
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-gray-50 text-gray-700 dark:bg-gray-900 dark:text-gray-300"
-              >
-                {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* BOTTOM TIER */}
-        <div className="hidden lg:flex h-16 items-center justify-between">
-          <div className="flex items-center gap-8">
+          {/* Center: Navigation Links */}
+          <div className="hidden lg:flex flex-1 items-center justify-center gap-6 xl:gap-8">
             {navLink("/", "Shop")}
             {navLink("/marketplace", "Categories", true)}
             {navLink("/deals", "Deals")}
             {navLink("/marketplace?category=fresh-produce", "Fresh Produce")}
             {navLink("/about", "About")}
           </div>
-          <div className="flex items-center gap-8">
-            {navLink("/policy", "Policy")}
-            {navLink("/faq", "FAQ's")}
-            <Link to="/support" className="flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
-               Help & Support
-            </Link>
+
+          {/* Right: Actions */}
+          <div className="flex items-center justify-end gap-2 lg:gap-3 shrink-0">
+            {/* Desktop Search (Compact) */}
+            <div className="hidden xl:flex w-[200px] items-center rounded-full bg-gray-50 px-4 py-2 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 focus-within:border-green-500/30 focus-within:ring-2 focus-within:ring-green-500/10 transition-all">
+              <Search className="h-4 w-4 text-gray-400 shrink-0" />
+              <input 
+                type="text" 
+                placeholder="Search..." 
+                className="ml-2 w-full bg-transparent text-xs font-medium text-gray-900 outline-none placeholder:text-gray-400 dark:text-white"
+              />
+            </div>
+
+            <button
+              onClick={toggleDark}
+              aria-label="Toggle dark mode"
+              className="hidden lg:flex h-10 w-10 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-900"
+            >
+              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+
+            {user ? (
+              <>
+                <Link
+                  to="/cart"
+                  className="group flex items-center gap-2 rounded-full px-3 py-2 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900"
+                >
+                  <div className="relative">
+                    <ShoppingCart className="h-4 w-4" />
+                    {itemCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-green-600 px-1 text-[9px] font-black text-white shadow-sm ring-2 ring-white dark:ring-[#0A0A0A]">
+                        {itemCount > 9 ? "9+" : itemCount}
+                      </span>
+                    )}
+                  </div>
+                  <span className="hidden xl:block">Cart</span>
+                </Link>
+
+                <div className="hidden lg:flex items-center gap-2 pl-2">
+                  <Link to="/dashboard">
+                    <Button variant="outline" className="rounded-full h-9 px-4 border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900">
+                      <UserIcon className="h-3 w-3 mr-1.5" />
+                      {user.first_name || user.username}
+                    </Button>
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    onClick={() => void handleLogout()}
+                    className="rounded-full h-9 w-9 p-0 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="hidden lg:flex items-center gap-2 pl-2">
+                <Link to="/login">
+                  <Button variant="outline" className="rounded-full h-9 px-5 border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900">
+                    <UserIcon className="h-3 w-3 mr-1.5" /> Login
+                  </Button>
+                </Link>
+              </div>
+            )}
+
+            {/* Mobile menu button */}
+            <div className="flex items-center gap-2 lg:hidden">
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 text-gray-700 dark:bg-gray-900 dark:text-gray-300"
+              >
+                {isMobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+              </button>
+            </div>
           </div>
         </div>
-
       </div>
 
       {/* Mobile Dropdown */}
