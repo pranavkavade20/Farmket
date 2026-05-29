@@ -20,13 +20,13 @@ export const HeroSection = () => {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      transition: { staggerChildren: 0.2, delayChildren: 0.1 }
+      transition: { staggerChildren: 0.15, delayChildren: 0.1 }
     }
   };
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 30 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", bounce: 0.4, duration: 0.8 } }
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", bounce: 0.3, duration: 0.7 } }
   };
 
   const floatingVariants: Variants = {
@@ -37,7 +37,7 @@ export const HeroSection = () => {
   };
 
   return (
-    <section className="relative w-full min-h-[90vh] bg-[#FAFAF8] dark:bg-gray-900 overflow-hidden flex flex-col items-center justify-start pt-20 pb-16 px-6 lg:px-12 font-sans rounded-[3rem]">
+    <section className="relative w-full min-h-[85vh] lg:min-h-[80vh] bg-[#FAFAF8] dark:bg-gray-900 overflow-hidden flex flex-col items-center justify-start pt-16 lg:pt-12 pb-12 px-6 lg:px-12 font-sans rounded-[3rem]">
       
       {/* Background Video Ecosystem */}
       <div className="absolute inset-0 z-0">
@@ -65,15 +65,15 @@ export const HeroSection = () => {
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="relative z-20 max-w-4xl mx-auto text-center mt-12 mb-20"
+        className="relative z-20 max-w-5xl mx-auto text-center mt-8 mb-12 lg:mb-16 px-4"
       >
         <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md shadow-sm border border-white/20 mb-6 text-sm font-semibold text-white">
           <ShieldCheck className="w-4 h-4 text-[#B9F046]" /> 100% Direct, Zero Middlemen
         </motion.div>
         
-        <motion.h1 variants={itemVariants} className="text-5xl md:text-6xl lg:text-[5.5rem] font-extrabold tracking-tight text-white leading-[1.1] mb-6">
-          Empowering Farmers. <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#B9F046] to-[#84D836]">
+        <motion.h1 variants={itemVariants} className="text-4xl sm:text-5xl lg:text-[3.5rem] xl:text-[4rem] font-extrabold tracking-tight text-white leading-[1.1] mb-6 whitespace-normal">
+          Empowering Farmers.{' '}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#B9F046] to-[#84D836] block lg:inline mt-1 lg:mt-0">
             Nourishing Families.
           </span>
         </motion.h1>
@@ -97,8 +97,8 @@ export const HeroSection = () => {
         variants={containerVariants}
         initial="hidden"
         whileInView="show"
-        viewport={{ once: true, margin: "-100px" }}
-        className="relative z-20 w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-0 items-center mt-10"
+        viewport={{ once: true, margin: "-50px" }}
+        className="relative z-20 w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-0 items-center mt-6 lg:mt-4"
       >
         {/* Connection Line (Desktop only) */}
         <div className="absolute top-1/2 left-[20%] right-[20%] h-0.5 hidden lg:block z-0">

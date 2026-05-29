@@ -128,9 +128,19 @@ const Navbar = () => {
 
                 <div className="hidden lg:flex items-center gap-2 pl-2">
                   <Link to="/dashboard">
-                    <Button variant="outline" className="rounded-full h-9 px-4 border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900">
-                      <UserIcon className="h-3 w-3 mr-1.5" />
-                      {user.first_name || user.username}
+                    <Button variant="outline" className="rounded-full h-9 pl-1 pr-4 border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center gap-2">
+                      {user.profile_picture ? (
+                        <img 
+                          src={user.profile_picture} 
+                          alt="Profile" 
+                          className="h-7 w-7 rounded-full object-cover border border-gray-200 dark:border-gray-700" 
+                        />
+                      ) : (
+                        <div className="h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                          <UserIcon className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400" />
+                        </div>
+                      )}
+                      <span>{user.first_name || user.username}</span>
                     </Button>
                   </Link>
                   <Button
