@@ -53,9 +53,9 @@ const Home = () => {
         
         <HeroSection />
 
-        <ServicesSection />
-
         <PopularCategories categories={categoriesList} />
+
+        <ServicesSection />
 
         <PromoBanners />
 
