@@ -19,7 +19,7 @@ export default function NotificationCenter() {
       try {
         const res = await api.get('/notifications/');
         if (res.data) {
-          setNotifications(res.data);
+          setNotifications(res.data.results || res.data);
         }
       } catch (e) {
         console.error('Failed to fetch notifications', e);
@@ -46,7 +46,19 @@ export default function NotificationCenter() {
         <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden">
           <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
             <h3 className="font-semibold text-gray-800">Notifications</h3>
-            <button className="text-xs text-green-600 font-medium hover:underline">Mark all as read</button>
+            <button 
+              onClick={async () => {
+                try {
+                  await api.post('/notifications/mark_all_read/');
+                  setNotifications(notifications.map(n => ({ ...n, is_read: true })));
+                } catch (e) {
+                  console.error('Failed to mark all as read', e);
+                }
+              }}
+              className="text-xs text-green-600 font-medium hover:underline"
+            >
+              Mark all as read
+            </button>
           </div>
           <div className="max-h-96 overflow-y-auto">
             {notifications.length === 0 ? (

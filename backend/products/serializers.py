@@ -50,7 +50,7 @@ class CropTrackingSerializer(serializers.ModelSerializer):
     class Meta:
         model = CropTracking
         fields = '__all__'
-        read_only_fields = ['current_stage', 'created_at', 'updated_at']
+        read_only_fields = ['product', 'current_stage', 'created_at', 'updated_at']
 
     def validate(self, data):
         # Ensure harvest date is after sow date
@@ -66,4 +66,4 @@ class BuyerCropInterestSerializer(serializers.ModelSerializer):
     class Meta:
         model = BuyerCropInterest
         fields = '__all__'
-        read_only_fields = ['buyer', 'subscribed_at', 'notified']
+        read_only_fields = ['product', 'buyer', 'subscribed_at', 'notified']
