@@ -4,6 +4,10 @@ import { useSEO } from '@/hooks';
 import { Button, Input } from '@/components/ui';
 import { productService } from '@/features/products';
 import type { Product, Review } from '@/types';
+import { cropService, type CropTracking } from '@/features/products/services/cropService';
+import CropTimeline from '@/features/products/components/CropTimeline';
+import HarvestCountdownCard from '@/features/products/components/HarvestCountdownCard';
+import BuyerSubscriptionButton from '@/features/products/components/BuyerSubscriptionButton';
 import { useCart } from '@/features/buyer';
 import { useAuth } from '@/features/auth';
 import toast from 'react-hot-toast';
@@ -17,6 +21,7 @@ const ProductDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
+  const [tracking, setTracking] = useState<CropTracking | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
@@ -36,8 +41,16 @@ const ProductDetails = () => {
   useEffect(() => {
     if (id) {
       setIsLoading(true);
-      productService.getProduct(id)
-        .then(setProduct)
+      Promise.all([
+        productService.getProduct(id),
+        cropService.getTracking(id).catch(() => [])
+      ])
+        .then(([prod, trackData]) => {
+          setProduct(prod);
+          if (trackData && trackData.length > 0) {
+            setTracking(trackData[0]);
+          }
+        })
         .catch(() => toast.error('Failed to load product details'))
         .finally(() => setIsLoading(false));
     }
@@ -165,6 +178,16 @@ const ProductDetails = () => {
             </p>
           </div>
 
+          {tracking && (
+            <div className="mb-10 bg-white dark:bg-[#111] rounded-[2.5rem] p-8 shadow-sm border border-gray-100 dark:border-gray-800">
+               <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-4">Live Crop Status</h3>
+               <CropTimeline tracking={tracking} />
+               <div className="mt-6">
+                 <HarvestCountdownCard expectedDate={tracking.expected_harvest_date} />
+               </div>
+            </div>
+          )}
+
           {/* Actions */}
           <div className="flex flex-col gap-4 mt-auto">
             <div className="flex items-center gap-4">
@@ -198,6 +221,11 @@ const ProductDetails = () => {
               <Button variant="outline" className="flex-1 h-14 w-full gap-2 rounded-full font-bold text-gray-600 hover:text-gray-900 dark:text-gray-400 border-gray-200">
                 <Heart className="h-5 w-5" /> Save to Wishlist
               </Button>
+              {user && user.user_type === 'buyer' && tracking && tracking.current_stage !== 'harvested' && (
+                <div className="flex-1 w-full">
+                  <BuyerSubscriptionButton productSlug={product.slug} />
+                </div>
+              )}
               <Button 
                 variant="secondary" 
                 className="flex-1 h-14 w-full gap-2 rounded-full font-bold bg-[#F2FCE4] text-green-900 hover:bg-[#E6F8CE] dark:bg-green-900/30 dark:text-green-400"

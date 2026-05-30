@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import logo from "@/assets/images/logo.png";
+import NotificationCenter from "./NotificationCenter";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -110,7 +111,8 @@ const Navbar = () => {
             </button>
 
             {user ? (
-              <>
+              <div className="flex items-center gap-2">
+                <NotificationCenter />
                 <Link
                   to="/cart"
                   className="group flex items-center gap-2 rounded-full px-3 py-2 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900"
@@ -151,7 +153,7 @@ const Navbar = () => {
                     <LogOut className="h-4 w-4" />
                   </Button>
                 </div>
-              </>
+              </div>
             ) : (
               <div className="hidden lg:flex items-center gap-2 pl-2">
                 <Link to="/login">

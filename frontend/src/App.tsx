@@ -38,6 +38,7 @@ const Profile     = lazy(() => import('@/features/dashboard/pages/Profile'));
 const Analytics   = lazy(() => import('@/features/farmer/pages/Analytics'));
 const MyProducts  = lazy(() => import('@/features/products/pages/MyProducts'));
 const AddProduct  = lazy(() => import('@/features/products/pages/AddProduct'));
+const CropTrackingForm = lazy(() => import('@/features/products/pages/CropTrackingForm'));
 const NotFound    = lazy(() => import('@/pages/NotFound'));
 
 const PageLoader = () => (
@@ -106,6 +107,7 @@ function App() {
                         {/* Farmer Products */}
                         <Route path="dashboard/products"     element={<MyProducts />} />
                         <Route path="dashboard/products/new" element={<AddProduct />} />
+                        <Route path="dashboard/products/:slug/tracking" element={<CropTrackingForm />} />
 
                         {/* Messages / Chat */}
                         <Route path="messages" element={<Chat />} />

@@ -210,7 +210,14 @@ const MyProducts = () => {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex gap-2">
+                    <div className="flex flex-col gap-2">
+                      <Link 
+                        to={`/dashboard/products/${product.slug}/tracking`}
+                        className="flex w-full items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 transition-colors"
+                      >
+                        <Leaf className="h-3.5 w-3.5" /> Track Crop Lifecycle
+                      </Link>
+                      <div className="flex gap-2">
                       <button
                         onClick={() => handleToggleAvailability(product)}
                         disabled={togglingId === product.slug}
@@ -241,6 +248,7 @@ const MyProducts = () => {
                           <Trash2 className="h-3.5 w-3.5" />
                         )}
                       </button>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
