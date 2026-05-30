@@ -25,6 +25,7 @@ toast.success = (message, options) => {
 
 // ── Lazy pages ────────────────────────────────────────────────────────────────
 const Home        = lazy(() => import('@/pages/Home'));
+const About       = lazy(() => import('@/pages/About'));
 const Marketplace = lazy(() => import('@/features/products/pages/Marketplace'));
 const ProductDetails = lazy(() => import('@/features/products/pages/ProductDetails'));
 const Login       = lazy(() => import('@/features/auth/pages/Login'));
@@ -86,6 +87,7 @@ function App() {
                     {/* ── Public routes ── */}
                     <Route element={<MainLayout />}>
                       <Route index element={<Home />} />
+                      <Route path="about" element={<About />} />
                       <Route path="marketplace" element={<Marketplace />} />
                       <Route path="marketplace/:id" element={<ProductDetails />} />
                     </Route>

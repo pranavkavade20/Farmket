@@ -62,12 +62,18 @@ const Footer = () => {
 
           {/* Nav Links */}
           <div className="col-span-1 md:col-span-2">
-            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-6">Platform</h3>
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-6">Product</h3>
             <ul className="space-y-4">
-              {['Marketplace', 'Categories', 'Deals', 'Pricing', 'About Us'].map((link) => (
-                <li key={link}>
-                  <Link to={`/${link.toLowerCase().replace(' ', '')}`} className="text-[15px] font-bold text-gray-500 hover:text-[#168748] dark:text-gray-400 transition-colors">
-                    {link}
+              {[
+                { name: 'Features', to: '/about#features' },
+                { name: 'How It Works', to: '/about#how-it-works' },
+                { name: 'Pricing', to: '/pricing' },
+                { name: 'Marketplace', to: '/marketplace' },
+                { name: 'Success Stories', to: '/#success-stories' },
+              ].map((link) => (
+                <li key={link.name}>
+                  <Link to={link.to} className="text-[15px] font-bold text-gray-500 hover:text-[#168748] dark:text-gray-400 transition-colors">
+                    {link.name}
                   </Link>
                 </li>
               ))}
@@ -75,12 +81,17 @@ const Footer = () => {
           </div>
 
           <div className="col-span-1 md:col-span-2">
-            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-6">Support</h3>
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-6">Company</h3>
             <ul className="space-y-4">
-              {['Help Center', 'Track Order', 'Terms of Service', 'Privacy Policy'].map((link) => (
-                <li key={link}>
-                  <Link to={`/${link.toLowerCase().replace(' ', '')}`} className="text-[15px] font-bold text-gray-500 hover:text-[#168748] dark:text-gray-400 transition-colors">
-                    {link}
+              {[
+                { name: 'About Us', to: '/about' },
+                { name: 'Careers', to: '/careers' },
+                { name: 'Blog', to: '/blog' },
+                { name: 'Contact', to: '/contact' },
+              ].map((link) => (
+                <li key={link.name}>
+                  <Link to={link.to} className="text-[15px] font-bold text-gray-500 hover:text-[#168748] dark:text-gray-400 transition-colors">
+                    {link.name}
                   </Link>
                 </li>
               ))}

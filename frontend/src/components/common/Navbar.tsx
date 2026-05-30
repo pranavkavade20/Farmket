@@ -83,11 +83,10 @@ const Navbar = () => {
 
           {/* Center: Navigation Links */}
           <div className="hidden lg:flex flex-1 items-center justify-center gap-6 xl:gap-8">
-            {navLink("/", "Shop")}
-            {navLink("/marketplace", "Categories", true)}
-            {navLink("/deals", "Deals")}
-            {navLink("/marketplace?category=fresh-produce", "Fresh Produce")}
-            {navLink("/about", "About")}
+            {navLink("/", "Home")}
+            {navLink("/marketplace", "Marketplace")}
+            {navLink("/about", "About Platform")}
+            {navLink("/#success-stories", "Success Stories")}
           </div>
 
           {/* Right: Actions */}
@@ -192,9 +191,10 @@ const Navbar = () => {
             </div>
 
              {[
-              { to: "/", label: "Shop" },
-              { to: "/marketplace", label: "Categories" },
-              { to: "/deals", label: "Deals" },
+              { to: "/", label: "Home" },
+              { to: "/marketplace", label: "Marketplace" },
+              { to: "/about", label: "About Platform" },
+              { to: "/#success-stories", label: "Success Stories" },
               ...(user
                 ? [
                     { to: "/dashboard", label: "Dashboard" },

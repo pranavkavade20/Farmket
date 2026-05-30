@@ -8,18 +8,22 @@ import toast from 'react-hot-toast';
 
 import {
   HeroSection,
+  SocialProofSection,
   PopularCategories,
-  ProductGridSection,
+  ServicesSection,
   PromoBanners,
   WeeklyBestSelling,
-  CTASection,
-  ServicesSection
+  ProductGridSection,
+  ProductShowcaseSection,
+  SuccessStoriesSection,
+  MarketplaceActivitySection,
+  CTASection
 } from '@/components/sections';
 
 const Home = () => {
   useSEO({
     title: 'Farmket | Farm to Table Delivery',
-    description: 'Shop from thousands of farm-fresh fruits, vegetables, dairy, and daily essentials at unbeatable prices.',
+    description: 'A revolutionary platform connecting farmers directly with buyers. No middlemen. Absolute transparency.',
   });
   
   const { addToCart } = useCart();
@@ -48,11 +52,17 @@ const Home = () => {
   };
 
   return (
-    <div className="flex flex-col bg-[#F5F5F5] dark:bg-[#0A0A0A] w-full min-h-screen">
-      <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-16">
-        
-        <HeroSection />
+    <div className="flex flex-col bg-white dark:bg-[#0A0A0A] w-full min-h-screen">
+      
+      {/* 1. Hero */}
+      <HeroSection />
 
+      {/* 2. Social Proof / Metrics */}
+      <SocialProofSection />
+
+      {/* E-Commerce Sections integrated into the premium flow */}
+      <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-16 flex flex-col gap-24">
+        
         <PopularCategories categories={categoriesList} />
 
         <ServicesSection />
@@ -71,10 +81,21 @@ const Home = () => {
           products={products.slice(0, 5)} 
           onAddToCart={handleAddToCart} 
         />
-
-        <CTASection />
-
+        
       </div>
+
+      {/* Product Mockups / Showcases */}
+      <ProductShowcaseSection />
+
+      {/* Activity and Testimonials */}
+      <MarketplaceActivitySection />
+      
+      <div className="mt-16">
+        <SuccessStoriesSection />
+      </div>
+      
+      <CTASection />
+
     </div>
   );
 };
