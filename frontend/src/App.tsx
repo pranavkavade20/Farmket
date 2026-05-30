@@ -39,6 +39,14 @@ const Analytics   = lazy(() => import('@/features/farmer/pages/Analytics'));
 const MyProducts  = lazy(() => import('@/features/products/pages/MyProducts'));
 const AddProduct  = lazy(() => import('@/features/products/pages/AddProduct'));
 const CropTrackingForm = lazy(() => import('@/features/products/pages/CropTrackingForm'));
+
+// Admin Pages
+const AdminDashboard = lazy(() => import('@/features/admin/pages/AdminDashboard'));
+const AdminUserAnalytics = lazy(() => import('@/features/admin/pages/UserAnalytics'));
+const AdminMarketplaceAnalytics = lazy(() => import('@/features/admin/pages/MarketplaceAnalytics'));
+const AdminCropAnalytics = lazy(() => import('@/features/admin/pages/CropAnalytics'));
+const AdminRevenueAnalytics = lazy(() => import('@/features/admin/pages/RevenueAnalytics'));
+
 const NotFound    = lazy(() => import('@/pages/NotFound'));
 
 const PageLoader = () => (
@@ -111,6 +119,13 @@ function App() {
 
                         {/* Messages / Chat */}
                         <Route path="messages" element={<Chat />} />
+
+                        {/* Admin Analytics (admin) */}
+                        <Route path="dashboard/admin/executive" element={<AdminDashboard />} />
+                        <Route path="dashboard/admin/users" element={<AdminUserAnalytics />} />
+                        <Route path="dashboard/admin/marketplace" element={<AdminMarketplaceAnalytics />} />
+                        <Route path="dashboard/admin/crops" element={<AdminCropAnalytics />} />
+                        <Route path="dashboard/admin/revenue" element={<AdminRevenueAnalytics />} />
                       </Route>
                       <Route element={<MainLayout />}>
                         {/* Cart (needs auth to fetch/modify) */}

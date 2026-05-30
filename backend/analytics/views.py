@@ -6,6 +6,8 @@ from django.db.models.functions import TruncMonth
 from django.utils import timezone
 from datetime import timedelta
 import json
+from django.http import HttpResponse
+from .services import DashboardAnalyticsService
 
 
 class FarmerAnalyticsView(APIView):
@@ -197,3 +199,47 @@ class BuyerAnalyticsView(APIView):
             },
             'spend_trend': spend_trend,
         })
+
+class IsAdminUserType(IsAuthenticated):
+    def has_permission(self, request, view):
+        is_authenticated = super().has_permission(request, view)
+        return is_authenticated and request.user.user_type == 'admin'
+
+class AdminExecutiveOverviewAPIView(APIView):
+    permission_classes = [IsAdminUserType]
+
+    def get(self, request):
+        data = DashboardAnalyticsService.get_executive_overview()
+        return Response(data)
+
+class AdminUserAnalyticsAPIView(APIView):
+    permission_classes = [IsAdminUserType]
+
+    def get(self, request):
+        data = DashboardAnalyticsService.get_user_analytics()
+        return Response(data)
+
+class AdminMarketplaceAnalyticsAPIView(APIView):
+    permission_classes = [IsAdminUserType]
+
+    def get(self, request):
+        data = DashboardAnalyticsService.get_marketplace_analytics()
+        return Response(data)
+
+class AdminCropAnalyticsAPIView(APIView):
+    permission_classes = [IsAdminUserType]
+
+    def get(self, request):
+        data = DashboardAnalyticsService.get_crop_analytics()
+        return Response(data)
+
+class AdminExportReportAPIView(APIView):
+    permission_classes = [IsAdminUserType]
+
+    def get(self, request):
+        model_name = request.query_params.get('type', 'users')
+        csv_data = DashboardAnalyticsService.export_csv_report(model_name)
+        
+        response = HttpResponse(csv_data, content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="{model_name}_report.csv"'
+        return response
