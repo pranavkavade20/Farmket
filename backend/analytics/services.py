@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.db.models import Count, Sum, Avg, Q, F
 from django.db.models.functions import TruncMonth, TruncDay
 from accounts.models import User
-from products.models import Product, Category, CropTracking
+from products.models import Product, Category
 from orders.models import Order, OrderItem
 from analytics.models import AnalyticsSnapshot, BusinessInsight
 
@@ -107,23 +107,23 @@ class DashboardAnalyticsService:
         # Top crops listed
         top_crops = list(Product.objects.values('name').annotate(count=Count('id')).order_by('-count')[:10])
         
-        # Harvest Intelligence
-        upcoming_harvests = CropTracking.objects.filter(
-            current_stage='growing', 
-            expected_harvest_date__gte=timezone.now().date()
-        ).order_by('expected_harvest_date')[:10]
+        # Harvest Intelligence (TODO: Update with new CropGrowth model)
+        # upcoming_harvests = CropTracking.objects.filter(
+        #     current_stage='growing', 
+        #     expected_harvest_date__gte=timezone.now().date()
+        # ).order_by('expected_harvest_date')[:10]
         
-        harvests_list = []
-        for h in upcoming_harvests:
-            harvests_list.append({
-                'product': h.product.name,
-                'farmer': h.product.farmer.username,
-                'expected_date': h.expected_harvest_date.strftime('%Y-%m-%d')
-            })
+        # harvests_list = []
+        # for h in upcoming_harvests:
+        #     harvests_list.append({
+        #         'product': h.product.name,
+        #         'farmer': h.product.farmer.username,
+        #         'expected_date': h.expected_harvest_date.strftime('%Y-%m-%d')
+        #     })
             
         return {
             'top_crops': [{'name': c['name'], 'count': c['count']} for c in top_crops],
-            'upcoming_harvests': harvests_list
+            'upcoming_harvests': [] # harvests_list
         }
 
     @staticmethod

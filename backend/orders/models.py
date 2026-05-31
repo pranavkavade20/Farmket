@@ -20,6 +20,8 @@ class CartItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.IntegerField(validators=[MinValueValidator(1)])
     added_at = models.DateTimeField(auto_now_add=True)
+    is_prebooking = models.BooleanField(default=False)
+    crop_growth = models.ForeignKey('crops.CropGrowth', on_delete=models.SET_NULL, null=True, blank=True)
     
     class Meta:
         unique_together = ('cart', 'product')
@@ -104,6 +106,8 @@ class OrderItem(models.Model):
     quantity = models.IntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=ITEM_STATUS_CHOICES, default='pending')
+    is_prebooking = models.BooleanField(default=False)
+    crop_growth = models.ForeignKey('crops.CropGrowth', on_delete=models.SET_NULL, null=True, blank=True)
     
     def __str__(self):
         return f"{self.quantity} x {self.product.name}"

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useSEO } from '@/hooks';
 import { useAuth } from '@/features/auth';
@@ -7,6 +7,7 @@ import { Button, Input } from '@/components/ui';
 import { ArrowLeft, Package, Leaf, Image as ImageIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
+import type { Category } from '@/types';
 
 type UnitType = 'kg' | 'g' | 'l' | 'unit' | 'dozen';
 
@@ -51,6 +52,13 @@ const AddProduct = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    productService.getCategories()
+      .then((data) => setCategories(data))
+      .catch((err) => console.error('Failed to fetch categories:', err));
+  }, []);
 
   if (user?.user_type !== 'farmer') {
     return (
@@ -216,14 +224,18 @@ const AddProduct = () => {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                 Category
               </label>
-              <Input
+              <select
                 name="category"
                 value={form.category}
                 onChange={handleChange}
-                placeholder="Category ID (from backend)"
-                type="number"
-              />
-              <p className="text-xs text-gray-400 mt-1">Enter the numeric ID of the category from the admin panel.</p>
+                required
+                className="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                <option value="">Select a category...</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
             </div>
           </div>
 

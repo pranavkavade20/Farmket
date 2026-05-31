@@ -21,6 +21,7 @@ const Sidebar = () => {
     { to: '/dashboard/orders', label: 'Orders', icon: <ShoppingBag className="h-5 w-5" /> },
     ...(isFarmer ? [
       { to: '/dashboard/products', label: 'My Products', icon: <Package className="h-5 w-5" /> },
+      { to: '/farmer/crops', label: 'Crop Tracking', icon: <Package className="h-5 w-5" /> },
       { to: '/dashboard/analytics', label: 'Analytics', icon: <TrendingUp className="h-5 w-5" /> },
     ] : []),
     ...(isAdmin ? [

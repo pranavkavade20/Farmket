@@ -85,6 +85,7 @@ const Navbar = () => {
           <div className="hidden lg:flex flex-1 items-center justify-center gap-6 xl:gap-8">
             {navLink("/", "Home")}
             {navLink("/marketplace", "Marketplace")}
+            {navLink("/market/upcoming-harvests", "Upcoming Harvests")}
             {navLink("/about", "About Platform")}
             {navLink("/#success-stories", "Success Stories")}
           </div>
@@ -193,6 +194,7 @@ const Navbar = () => {
              {[
               { to: "/", label: "Home" },
               { to: "/marketplace", label: "Marketplace" },
+              { to: "/market/upcoming-harvests", label: "Upcoming Harvests" },
               { to: "/about", label: "About Platform" },
               { to: "/#success-stories", label: "Success Stories" },
               ...(user

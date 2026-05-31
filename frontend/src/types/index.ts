@@ -92,6 +92,17 @@ export interface Product {
   updated_at: string;
   images: ProductImage[];
   reviews: Review[];
+  // Market State & Prebooking fields
+  market_state: 'UPCOMING' | 'GROWING' | 'READY_FOR_PREBOOKING' | 'READY_TO_HARVEST' | 'AVAILABLE_NOW' | 'LOW_STOCK' | 'SOLD_OUT';
+  crop_stage: string | null;
+  progress_percentage: number;
+  harvest_countdown: number;
+  reservation_count: number;
+  reserved_quantity: number;
+  available_quantity: number;
+  is_prebookable: boolean;
+  is_following: boolean;
+  active_crop_growth_id: number | null;
 }
 
 export interface ProductFilters {
@@ -122,6 +133,8 @@ export interface OrderItem {
   price_at_purchase: string; // alias for price, returned by backend serializer
   status: string;
   subtotal: number;
+  is_prebooking?: boolean;
+  crop_growth?: number | null;
 }
 
 export interface Order {

@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import SimpleRouter
-from .views import CategoryViewSet, ProductViewSet, ProductImageViewSet, ReviewViewSet, CropTrackingViewSet, BuyerCropInterestViewSet
+from .views import CategoryViewSet, ProductViewSet, ProductImageViewSet, ReviewViewSet
 
 app_name = 'products'
 
@@ -14,9 +14,4 @@ urlpatterns = [
     path('products/<slug:product_slug>/images/<int:pk>/', ProductImageViewSet.as_view({'get': 'retrieve', 'delete': 'destroy'})),
     path('products/<slug:product_slug>/reviews/', ReviewViewSet.as_view({'get': 'list', 'post': 'create'})),
     path('products/<slug:product_slug>/reviews/<int:pk>/', ReviewViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'})),
-    path('products/<slug:product_slug>/tracking/', CropTrackingViewSet.as_view({'get': 'list', 'post': 'create'})),
-    path('products/<slug:product_slug>/tracking/<int:pk>/', CropTrackingViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'})),
-    path('products/<slug:product_slug>/tracking/<int:pk>/update_stage/', CropTrackingViewSet.as_view({'post': 'update_stage'})),
-    path('products/<slug:product_slug>/interests/', BuyerCropInterestViewSet.as_view({'get': 'list', 'post': 'create'})),
-    path('products/<slug:product_slug>/interests/<int:pk>/', BuyerCropInterestViewSet.as_view({'get': 'retrieve', 'delete': 'destroy'})),
 ]

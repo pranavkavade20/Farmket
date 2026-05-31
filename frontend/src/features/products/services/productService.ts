@@ -52,4 +52,32 @@ export const productService = {
     const response = await api.post<Review>(`/products/products/${slug}/reviews/`, data);
     return response.data;
   },
+
+  getUpcomingHarvests: async (): Promise<Product[]> => {
+    const response = await api.get<Product[]>('/products/products/upcoming-harvests/');
+    return response.data;
+  },
+
+  followProduct: async (slug: string): Promise<void> => {
+    await api.post(`/products/products/${slug}/follow/`);
+  },
+
+  unfollowProduct: async (slug: string): Promise<void> => {
+    await api.post(`/products/products/${slug}/unfollow/`);
+  },
+
+  reserveProduct: async (slug: string, quantity: number, expected_delivery_date?: string): Promise<any> => {
+    const response = await api.post(`/products/products/${slug}/reserve/`, {
+      quantity,
+      expected_delivery_date,
+    });
+    return response.data;
+  },
+
+  waitlistProduct: async (slug: string, quantity: number): Promise<any> => {
+    const response = await api.post(`/products/products/${slug}/waitlist/`, {
+      quantity,
+    });
+    return response.data;
+  },
 };

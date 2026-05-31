@@ -20,6 +20,8 @@ export interface CartItemDetail {
   quantity: number;
   added_at: string;
   subtotal: number;
+  is_prebooking: boolean;
+  crop_growth: number | null;
 }
 
 export interface Cart {
@@ -44,10 +46,11 @@ export const orderService = {
     return res.data;
   },
 
-  addToCart: async (productId: number, quantity = 1): Promise<CartItemDetail> => {
+  addToCart: async (productId: number, quantity = 1, is_prebooking = false): Promise<CartItemDetail> => {
     const res = await api.post<CartItemDetail>('/orders/carts/add-item/', {
       product_id: productId,
       quantity,
+      is_prebooking,
     });
     return res.data;
   },

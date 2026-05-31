@@ -43,19 +43,42 @@ class CartViewSet(viewsets.ModelViewSet):
         except Product.DoesNotExist:
             return Response({'error': 'Product not found or unavailable'}, status=status.HTTP_404_NOT_FOUND)
 
-        if product.stock_quantity < quantity:
-            return Response({'error': 'Not enough stock available'}, status=status.HTTP_400_BAD_REQUEST)
-
-        cart_item, created = CartItem.objects.get_or_create(
-            cart=cart,
-            product=product,
-            defaults={'quantity': quantity},
-        )
-        if not created:
-            if product.stock_quantity < (cart_item.quantity + quantity):
+        is_prebooking = request.data.get('is_prebooking', False)
+        
+        if is_prebooking:
+            growth = product.active_crop_growth
+            if not growth:
+                return Response({'error': 'Product is not available for prebooking'}, status=status.HTTP_400_BAD_REQUEST)
+            if float(growth.available_quantity) < quantity:
+                return Response({'error': 'Not enough reservable quantity available'}, status=status.HTTP_400_BAD_REQUEST)
+                
+            cart_item, created = CartItem.objects.get_or_create(
+                cart=cart,
+                product=product,
+                defaults={'quantity': quantity, 'is_prebooking': True, 'crop_growth': growth},
+            )
+            if not created:
+                if float(growth.available_quantity) < (cart_item.quantity + quantity):
+                    return Response({'error': 'Not enough reservable quantity available'}, status=status.HTTP_400_BAD_REQUEST)
+                cart_item.quantity += quantity
+                cart_item.is_prebooking = True
+                cart_item.crop_growth = growth
+                cart_item.save()
+        else:
+            if product.stock_quantity < quantity:
                 return Response({'error': 'Not enough stock available'}, status=status.HTTP_400_BAD_REQUEST)
-            cart_item.quantity += quantity
-            cart_item.save()
+
+            cart_item, created = CartItem.objects.get_or_create(
+                cart=cart,
+                product=product,
+                defaults={'quantity': quantity, 'is_prebooking': False},
+            )
+            if not created:
+                if product.stock_quantity < (cart_item.quantity + quantity):
+                    return Response({'error': 'Not enough stock available'}, status=status.HTTP_400_BAD_REQUEST)
+                cart_item.quantity += quantity
+                cart_item.is_prebooking = False
+                cart_item.save()
 
         serializer = CartItemSerializer(cart_item)
         return_status = status.HTTP_201_CREATED if created else status.HTTP_200_OK
@@ -76,8 +99,12 @@ class CartItemViewSet(viewsets.ModelViewSet):
             instance = self.get_object()
             try:
                 quantity = int(quantity)
-                if instance.product.stock_quantity < quantity:
-                    return Response({'error': 'Not enough stock available'}, status=status.HTTP_400_BAD_REQUEST)
+                if instance.is_prebooking and instance.crop_growth:
+                    if float(instance.crop_growth.available_quantity) < quantity:
+                        return Response({'error': 'Not enough reservable quantity available'}, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    if instance.product.stock_quantity < quantity:
+                        return Response({'error': 'Not enough stock available'}, status=status.HTTP_400_BAD_REQUEST)
             except ValueError:
                 pass
         return super().update(request, *args, **kwargs)
@@ -121,22 +148,52 @@ class OrderViewSet(viewsets.ModelViewSet):
         for ci in cart_items:
             product = ci.product
             
-            # Deduct stock
-            if product.stock_quantity < ci.quantity:
-                from rest_framework.exceptions import ValidationError
-                raise ValidationError(f"Not enough stock for {product.name}")
-            
-            product.stock_quantity -= ci.quantity
-            product.save()
+            if ci.is_prebooking:
+                growth = ci.crop_growth
+                if not growth or float(growth.available_quantity) < ci.quantity:
+                    from rest_framework.exceptions import ValidationError
+                    raise ValidationError(f"Not enough reservable quantity for {product.name}")
+                
+                growth.available_quantity = float(growth.available_quantity) - ci.quantity
+                growth.save()
 
-            OrderItem.objects.create(
-                order=order,
-                product=product,
-                farmer=product.farmer,
-                quantity=ci.quantity,
-                price=product.price,
-                status='pending',
-            )
+                from crops.models import CropReservation
+                CropReservation.objects.create(
+                    buyer=user,
+                    crop_growth=growth,
+                    quantity_reserved=ci.quantity,
+                    expected_delivery_date=growth.expected_harvest_date,
+                    order=order
+                )
+
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    farmer=product.farmer,
+                    quantity=ci.quantity,
+                    price=product.price,
+                    status='pending',
+                    is_prebooking=True,
+                    crop_growth=growth
+                )
+            else:
+                # Deduct stock
+                if product.stock_quantity < ci.quantity:
+                    from rest_framework.exceptions import ValidationError
+                    raise ValidationError(f"Not enough stock for {product.name}")
+                
+                product.stock_quantity -= ci.quantity
+                product.save()
+
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    farmer=product.farmer,
+                    quantity=ci.quantity,
+                    price=product.price,
+                    status='pending',
+                    is_prebooking=False
+                )
 
         # Clear the cart after order is placed
         cart_items.delete()

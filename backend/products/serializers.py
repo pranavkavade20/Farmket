@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Product, ProductImage, Review, CropTracking, CropStatusHistory, BuyerCropInterest
-from accounts.serializers import UserSerializer
+from .models import Category, Product, ProductImage, Review
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -26,6 +25,16 @@ class ProductSerializer(serializers.ModelSerializer):
     farmer_name = serializers.ReadOnlyField(source='farmer.username')
     images = ProductImageSerializer(many=True, read_only=True)
     reviews = ReviewSerializer(many=True, read_only=True)
+    market_state = serializers.ReadOnlyField()
+    crop_stage = serializers.SerializerMethodField()
+    progress_percentage = serializers.SerializerMethodField()
+    harvest_countdown = serializers.SerializerMethodField()
+    reservation_count = serializers.SerializerMethodField()
+    reserved_quantity = serializers.SerializerMethodField()
+    available_quantity = serializers.SerializerMethodField()
+    is_prebookable = serializers.SerializerMethodField()
+    is_following = serializers.SerializerMethodField()
+    active_crop_growth_id = serializers.SerializerMethodField()
     
     class Meta:
         model = Product
@@ -33,37 +42,58 @@ class ProductSerializer(serializers.ModelSerializer):
             'id', 'farmer', 'farmer_name', 'category', 'category_name', 
             'name', 'slug', 'description', 'price', 'unit', 'stock_quantity', 
             'minimum_order', 'is_organic', 'harvest_date', 'is_available', 
-            'views', 'created_at', 'updated_at', 'images', 'reviews', 'in_stock'
+            'views', 'created_at', 'updated_at', 'images', 'reviews', 'in_stock',
+            'market_state', 'crop_stage', 'progress_percentage', 'harvest_countdown',
+            'reservation_count', 'reserved_quantity', 'available_quantity', 'is_prebookable',
+            'is_following', 'active_crop_growth_id'
         ]
         read_only_fields = ['slug', 'views', 'created_at', 'updated_at', 'farmer']
 
-class CropStatusHistorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CropStatusHistory
-        fields = '__all__'
-        read_only_fields = ['changed_at']
+    def get_crop_stage(self, obj):
+        growth = obj.active_crop_growth
+        return growth.crop_stage if growth else None
 
-class CropTrackingSerializer(serializers.ModelSerializer):
-    status_history = CropStatusHistorySerializer(many=True, read_only=True)
-    product_name = serializers.ReadOnlyField(source='product.name')
+    def get_progress_percentage(self, obj):
+        growth = obj.active_crop_growth
+        return growth.progress_percentage if growth else 0.0
 
-    class Meta:
-        model = CropTracking
-        fields = '__all__'
-        read_only_fields = ['product', 'current_stage', 'created_at', 'updated_at']
+    def get_harvest_countdown(self, obj):
+        growth = obj.active_crop_growth
+        if growth and growth.expected_harvest_date:
+            from django.utils import timezone
+            days = (growth.expected_harvest_date - timezone.now().date()).days
+            return days if days > 0 else 0
+        return 0
 
-    def validate(self, data):
-        # Ensure harvest date is after sow date
-        if data.get('sow_date') and data.get('expected_harvest_date'):
-            if data['expected_harvest_date'] <= data['sow_date']:
-                raise serializers.ValidationError("Harvest date must be after sow date.")
-        return data
+    def get_reservation_count(self, obj):
+        growth = obj.active_crop_growth
+        if growth:
+            return growth.reservations.filter(reservation_status__in=['PENDING', 'CONFIRMED']).count()
+        return 0
 
-class BuyerCropInterestSerializer(serializers.ModelSerializer):
-    product_name = serializers.ReadOnlyField(source='product.name')
-    buyer_name = serializers.ReadOnlyField(source='buyer.username')
+    def get_reserved_quantity(self, obj):
+        growth = obj.active_crop_growth
+        if growth:
+            from django.db.models import Sum
+            res = growth.reservations.filter(reservation_status__in=['PENDING', 'CONFIRMED']).aggregate(Sum('quantity_reserved'))
+            return float(res['quantity_reserved__sum']) if res['quantity_reserved__sum'] else 0.0
+        return 0.0
 
-    class Meta:
-        model = BuyerCropInterest
-        fields = '__all__'
-        read_only_fields = ['product', 'buyer', 'subscribed_at', 'notified']
+    def get_available_quantity(self, obj):
+        growth = obj.active_crop_growth
+        return float(growth.available_quantity) if growth else 0.0
+
+    def get_is_prebookable(self, obj):
+        return obj.market_state == 'READY_FOR_PREBOOKING'
+
+    def get_is_following(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            growth = obj.active_crop_growth
+            if growth:
+                return growth.followers.filter(buyer=request.user).exists()
+        return False
+
+    def get_active_crop_growth_id(self, obj):
+        growth = obj.active_crop_growth
+        return growth.id if growth else None

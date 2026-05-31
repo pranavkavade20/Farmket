@@ -4,16 +4,20 @@ import { useSEO } from '@/hooks';
 import { Button, Input } from '@/components/ui';
 import { productService } from '@/features/products';
 import type { Product, Review } from '@/types';
-import { cropService, type CropTracking } from '@/features/products/services/cropService';
 import CropTimeline from '@/features/products/components/CropTimeline';
-import HarvestCountdownCard from '@/features/products/components/HarvestCountdownCard';
-import BuyerSubscriptionButton from '@/features/products/components/BuyerSubscriptionButton';
+import { HarvestCountdown } from '@/features/products/components/HarvestCountdown';
+import { CropProgressBar } from '@/features/products/components/CropProgressBar';
+import { DemandMeter } from '@/features/products/components/DemandMeter';
+import { ProductStatusBadge } from '@/features/products/components/ProductStatusBadge';
+import { ReservationModal } from '@/features/products/components/ReservationModal';
+import { WaitlistModal } from '@/features/products/components/WaitlistModal';
 import { useCart } from '@/features/buyer';
 import { useAuth } from '@/features/auth';
 import toast from 'react-hot-toast';
+import api from '@/lib/api';
 import { 
   Star, MapPin, Truck, ShieldCheck, Leaf, 
-  Minus, Plus, ShoppingCart, ArrowLeft, Heart, Share2, AlertCircle, MessageSquare
+  Minus, Plus, ShoppingCart, Heart, MessageSquare, AlertCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 
@@ -21,7 +25,7 @@ const ProductDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
-  const [tracking, setTracking] = useState<CropTracking | null>(null);
+  const [growthDetails, setGrowthDetails] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
@@ -29,6 +33,11 @@ const ProductDetails = () => {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
+
+  // Modals
+  const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
+  const [isWaitlistModalOpen, setIsWaitlistModalOpen] = useState(false);
   
   const { addToCart } = useCart();
   const { user } = useAuth();
@@ -41,14 +50,18 @@ const ProductDetails = () => {
   useEffect(() => {
     if (id) {
       setIsLoading(true);
-      Promise.all([
-        productService.getProduct(id),
-        cropService.getTracking(id).catch(() => [])
-      ])
-        .then(([prod, trackData]) => {
+      productService.getProduct(id)
+        .then(async (prod) => {
           setProduct(prod);
-          if (trackData && trackData.length > 0) {
-            setTracking(trackData[0]);
+          setIsFollowing(prod.is_following);
+          setQuantity(prod.minimum_order || 1);
+          if (prod.active_crop_growth_id) {
+            try {
+              const res = await api.get(`/crops/crop-growths/${prod.active_crop_growth_id}/`);
+              setGrowthDetails(res.data);
+            } catch (err) {
+              console.error('Failed to load growth details', err);
+            }
           }
         })
         .catch(() => toast.error('Failed to load product details'))
@@ -63,6 +76,26 @@ const ProductDetails = () => {
       return;
     }
     await addToCart(product, quantity);
+  };
+
+  const handleFollowToggle = async () => {
+    if (!product || !user) {
+      toast.error('Please log in to follow');
+      return;
+    }
+    try {
+      if (isFollowing) {
+        await productService.unfollowProduct(product.slug);
+        setIsFollowing(false);
+        toast.success('Unfollowed crop');
+      } else {
+        await productService.followProduct(product.slug);
+        setIsFollowing(true);
+        toast.success('Following crop for updates');
+      }
+    } catch (err) {
+      toast.error('Failed to update follow status');
+    }
   };
 
   const handleSubmitReview = async (e: React.FormEvent) => {
@@ -105,6 +138,55 @@ const ProductDetails = () => {
   const avgRating = product.reviews.length > 0 ? (product.reviews.reduce((sum, r) => sum + r.rating, 0) / product.reviews.length).toFixed(1) : '4.8';
   const reviewsCount = product.reviews.length > 0 ? product.reviews.length : 124;
 
+  const renderCTA = () => {
+    if (!user) {
+      return (
+        <Button className="flex-1 h-16 text-lg rounded-full font-black tracking-wide" onClick={() => navigate('/login')}>
+          LOG IN TO CONTINUE
+        </Button>
+      );
+    }
+
+    switch (product.market_state) {
+      case 'AVAILABLE_NOW':
+        return (
+          <Button className="flex-1 h-16 text-lg gap-3 rounded-full font-black tracking-wide" onClick={handleAddToCart}>
+            <ShoppingCart className="h-6 w-6" /> BUY NOW
+          </Button>
+        );
+      case 'LOW_STOCK':
+        return (
+          <Button className="flex-1 h-16 text-lg gap-3 rounded-full font-black tracking-wide bg-orange-600 hover:bg-orange-700 text-white" onClick={handleAddToCart}>
+            <ShoppingCart className="h-6 w-6" /> BUY NOW - LIMITED STOCK
+          </Button>
+        );
+      case 'READY_FOR_PREBOOKING':
+        return (
+          <Button className="flex-1 h-16 text-lg gap-3 rounded-full font-black tracking-wide bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setIsReservationModalOpen(true)}>
+            RESERVE HARVEST
+          </Button>
+        );
+      case 'READY_TO_HARVEST':
+        return (
+          <Button className="flex-1 h-16 text-lg gap-3 rounded-full font-black tracking-wide bg-purple-600 hover:bg-purple-700 text-white" onClick={() => setIsReservationModalOpen(true)}>
+            RESERVE PRIORITY HARVEST
+          </Button>
+        );
+      case 'SOLD_OUT':
+        return (
+          <Button className="flex-1 h-16 text-lg gap-3 rounded-full font-black tracking-wide bg-gray-800 hover:bg-gray-900 text-white" onClick={() => setIsWaitlistModalOpen(true)}>
+            JOIN WAITING LIST
+          </Button>
+        );
+      default:
+        return (
+          <Button className="flex-1 h-16 text-lg gap-3 rounded-full font-black tracking-wide" disabled>
+            UNAVAILABLE
+          </Button>
+        );
+    }
+  };
+
   return (
     <div className="mx-auto max-w-[1600px] px-4 py-12 sm:px-6 lg:px-8 min-h-screen">
       {/* Breadcrumb */}
@@ -121,11 +203,14 @@ const ProductDetails = () => {
         <div className="space-y-6">
           <div className="aspect-square rounded-[3rem] overflow-hidden bg-[#F8F9FA] dark:bg-gray-900 relative flex items-center justify-center p-12">
             <img src={images[activeImage]} alt={product.name} className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal transition-transform duration-500 hover:scale-110" />
-            {product.is_organic && (
-              <div className="absolute top-8 left-8 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-5 py-2.5 rounded-full text-xs font-black flex items-center gap-2 shadow-xl tracking-widest uppercase">
-                <Leaf className="h-4 w-4" /> ORGANIC
-              </div>
-            )}
+            <div className="absolute top-8 left-8 flex flex-col gap-2">
+              <ProductStatusBadge product={product} className="px-4 py-2 text-sm shadow-xl" />
+              {product.is_organic && (
+                <div className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-4 py-2 rounded-full text-xs font-black flex items-center gap-2 shadow-xl tracking-widest uppercase">
+                  <Leaf className="h-4 w-4" /> ORGANIC
+                </div>
+              )}
+            </div>
           </div>
           {images.length > 1 && (
             <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
@@ -164,68 +249,87 @@ const ProductDetails = () => {
               <span className="text-5xl lg:text-6xl font-black text-gray-900 dark:text-white">₹{product.price}</span>
               <span className="text-xl text-gray-400 font-bold mb-1.5">/ {product.unit}</span>
             </div>
-            {!product.in_stock && (
-              <div className="mt-4 inline-flex items-center gap-2 text-red-600 bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded-full text-sm font-bold">
-                <AlertCircle className="h-5 w-5" /> Out of Stock
-              </div>
-            )}
           </div>
 
-          <div className="mb-10">
+          <div className="mb-8">
             <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-4">Description</h3>
             <p className="text-gray-500 dark:text-gray-400 leading-relaxed text-base md:text-lg font-medium max-w-2xl">
               {product.description || 'Freshly harvested produce delivered directly to your doorstep. Grown with care and sustainable farming practices to ensure the best quality and taste.'}
             </p>
           </div>
 
-          {tracking && (
+          {/* Harvest Information Card */}
+          {(product.market_state !== 'AVAILABLE_NOW' && product.active_crop_growth_id) && (
+            <div className="mb-8 bg-blue-50/50 dark:bg-blue-900/10 rounded-[2rem] p-6 border border-blue-100 dark:border-blue-900/30">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">Harvest Information</h3>
+                  <p className="text-sm text-gray-500">Live details on crop progress</p>
+                </div>
+                {product.harvest_countdown > 0 && <HarvestCountdown days={product.harvest_countdown} />}
+              </div>
+              
+              <CropProgressBar progress={product.progress_percentage} stage={product.crop_stage} className="mb-6" />
+
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-50 dark:border-gray-700">
+                  <p className="text-xs text-gray-500 font-bold uppercase mb-1">Reserved</p>
+                  <p className="text-lg font-black text-gray-900 dark:text-white">{product.reserved_quantity} {product.unit}</p>
+                </div>
+                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-50 dark:border-gray-700">
+                  <p className="text-xs text-gray-500 font-bold uppercase mb-1">Available</p>
+                  <p className="text-lg font-black text-gray-900 dark:text-white">{product.available_quantity} {product.unit}</p>
+                </div>
+              </div>
+
+              {product.reservation_count > 0 && (
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-blue-100 dark:border-blue-800/30">
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">{product.reservation_count} buyers already reserved this crop</span>
+                  <DemandMeter reservationCount={product.reservation_count} />
+                </div>
+              )}
+            </div>
+          )}
+
+          {growthDetails && growthDetails.stage_history && (
             <div className="mb-10 bg-white dark:bg-[#111] rounded-[2.5rem] p-8 shadow-sm border border-gray-100 dark:border-gray-800">
-               <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-4">Live Crop Status</h3>
-               <CropTimeline tracking={tracking} />
-               <div className="mt-6">
-                 <HarvestCountdownCard expectedDate={tracking.expected_harvest_date} />
-               </div>
+               <CropTimeline currentStage={product.crop_stage} history={growthDetails.stage_history} />
             </div>
           )}
 
           {/* Actions */}
           <div className="flex flex-col gap-4 mt-auto">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-full h-16 p-2">
-                <button 
-                  onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                  className="h-12 w-12 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center text-gray-900 dark:text-white shadow-sm hover:scale-105 transition-transform disabled:opacity-50"
-                  disabled={!product.in_stock || quantity <= 1}
-                >
-                  <Minus className="h-5 w-5" />
-                </button>
-                <span className="w-16 text-center font-black text-xl text-gray-900 dark:text-white">{quantity}</span>
-                <button 
-                  onClick={() => setQuantity(q => q + 1)}
-                  className="h-12 w-12 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center text-gray-900 dark:text-white shadow-sm hover:scale-105 transition-transform disabled:opacity-50"
-                  disabled={!product.in_stock}
-                >
-                  <Plus className="h-5 w-5" />
-                </button>
-              </div>
-              <Button 
-                className="flex-1 h-16 text-lg gap-3 rounded-full font-black tracking-wide" 
-                onClick={handleAddToCart}
-                disabled={!product.in_stock}
-              >
-                <ShoppingCart className="h-6 w-6" /> ADD TO CART
-              </Button>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row items-center gap-4 mt-4">
-              <Button variant="outline" className="flex-1 h-14 w-full gap-2 rounded-full font-bold text-gray-600 hover:text-gray-900 dark:text-gray-400 border-gray-200">
-                <Heart className="h-5 w-5" /> Save to Wishlist
-              </Button>
-              {user && user.user_type === 'buyer' && tracking && tracking.current_stage !== 'harvested' && (
-                <div className="flex-1 w-full">
-                  <BuyerSubscriptionButton productSlug={product.slug} />
+            {['AVAILABLE_NOW', 'LOW_STOCK'].includes(product.market_state) && (
+              <div className="flex items-center gap-4 mb-2">
+                <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-full h-16 p-2">
+                  <button 
+                    onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                    className="h-12 w-12 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center text-gray-900 dark:text-white shadow-sm hover:scale-105 transition-transform disabled:opacity-50"
+                  >
+                    <Minus className="h-5 w-5" />
+                  </button>
+                  <span className="w-16 text-center font-black text-xl text-gray-900 dark:text-white">{quantity}</span>
+                  <button 
+                    onClick={() => setQuantity(q => q + 1)}
+                    className="h-12 w-12 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center text-gray-900 dark:text-white shadow-sm hover:scale-105 transition-transform disabled:opacity-50"
+                  >
+                    <Plus className="h-5 w-5" />
+                  </button>
                 </div>
-              )}
+                {renderCTA()}
+              </div>
+            )}
+
+            {!['AVAILABLE_NOW', 'LOW_STOCK'].includes(product.market_state) && (
+              <div className="w-full">
+                {renderCTA()}
+              </div>
+            )}
+            
+            <div className="flex flex-col sm:flex-row items-center gap-4 mt-2">
+              <Button variant="outline" className={`flex-1 h-14 w-full gap-2 rounded-full font-bold border-gray-200 ${isFollowing ? 'text-red-600 border-red-200 bg-red-50' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400'}`} onClick={handleFollowToggle}>
+                <Heart className={`h-5 w-5 ${isFollowing ? 'fill-current' : ''}`} /> {isFollowing ? 'Following' : 'Follow Crop'}
+              </Button>
               <Button 
                 variant="secondary" 
                 className="flex-1 h-14 w-full gap-2 rounded-full font-bold bg-[#F2FCE4] text-green-900 hover:bg-[#E6F8CE] dark:bg-green-900/30 dark:text-green-400"
@@ -334,6 +438,19 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
+      
+      {/* Modals */}
+      <ReservationModal 
+        product={product} 
+        isOpen={isReservationModalOpen} 
+        onClose={() => setIsReservationModalOpen(false)} 
+      />
+      
+      <WaitlistModal 
+        product={product} 
+        isOpen={isWaitlistModalOpen} 
+        onClose={() => setIsWaitlistModalOpen(false)} 
+      />
     </div>
   );
 };

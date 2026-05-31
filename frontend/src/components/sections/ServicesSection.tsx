@@ -94,36 +94,36 @@ export const ServicesSection = () => {
           
           {/* SVG Connector Lines Overlay (Desktop Only) */}
           <div className="absolute inset-0 hidden lg:block pointer-events-none z-0 overflow-visible">
-             <svg className="w-full h-full" style={{ position: 'absolute' }}>
+             <svg className="w-full h-full" style={{ position: 'absolute' }} viewBox="0 0 100 100" preserveAspectRatio="none">
                 {/* We use percentage-based coordinates that roughly align with the grid centers */}
                 {/* Left Top to Center */}
-                <path d="M 25% 25% C 40% 25%, 45% 50%, 50% 50%" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="6 6" className="text-gray-300 dark:text-gray-700 opacity-60" />
-                <circle cx="25%" cy="25%" r="4" fill="currentColor" className="text-[#168748]" />
+                <path d="M 25 25 C 40 25, 45 50, 50 50" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="6 6" className="text-gray-300 dark:text-gray-700 opacity-60" />
+                <circle cx="25" cy="25" r="4" fill="currentColor" className="text-[#168748]" />
                 
                 {/* Left Bottom to Center */}
-                <path d="M 25% 75% C 40% 75%, 45% 50%, 50% 50%" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="6 6" className="text-gray-300 dark:text-gray-700 opacity-60" />
-                <circle cx="25%" cy="75%" r="4" fill="currentColor" className="text-[#168748]" />
+                <path d="M 25 75 C 40 75, 45 50, 50 50" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="6 6" className="text-gray-300 dark:text-gray-700 opacity-60" />
+                <circle cx="25" cy="75" r="4" fill="currentColor" className="text-[#168748]" />
 
                 {/* Right Top to Center */}
-                <path d="M 75% 25% C 60% 25%, 55% 50%, 50% 50%" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="6 6" className="text-gray-300 dark:text-gray-700 opacity-60" />
-                <circle cx="75%" cy="25%" r="4" fill="currentColor" className="text-[#168748]" />
+                <path d="M 75 25 C 60 25, 55 50, 50 50" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="6 6" className="text-gray-300 dark:text-gray-700 opacity-60" />
+                <circle cx="75" cy="25" r="4" fill="currentColor" className="text-[#168748]" />
 
                 {/* Right Bottom to Center */}
-                <path d="M 75% 75% C 60% 75%, 55% 50%, 50% 50%" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="6 6" className="text-gray-300 dark:text-gray-700 opacity-60" />
-                <circle cx="75%" cy="75%" r="4" fill="currentColor" className="text-[#168748]" />
+                <path d="M 75 75 C 60 75, 55 50, 50 50" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="6 6" className="text-gray-300 dark:text-gray-700 opacity-60" />
+                <circle cx="75" cy="75" r="4" fill="currentColor" className="text-[#168748]" />
                 
                 {/* Animated Dots flowing towards center */}
                 <circle r="4" fill="#168748" className="shadow-lg">
-                  <animateMotion dur="3s" repeatCount="indefinite" path="M 25% 25% C 40% 25%, 45% 50%, 50% 50%" />
+                  <animateMotion dur="3s" repeatCount="indefinite" path="M 25 25 C 40 25, 45 50, 50 50" />
                 </circle>
                 <circle r="4" fill="#168748">
-                  <animateMotion dur="3.5s" repeatCount="indefinite" path="M 25% 75% C 40% 75%, 45% 50%, 50% 50%" />
+                  <animateMotion dur="3.5s" repeatCount="indefinite" path="M 25 75 C 40 75, 45 50, 50 50" />
                 </circle>
                 <circle r="4" fill="#168748">
-                  <animateMotion dur="3.2s" repeatCount="indefinite" path="M 75% 25% C 60% 25%, 55% 50%, 50% 50%" />
+                  <animateMotion dur="3.2s" repeatCount="indefinite" path="M 75 25 C 60 25, 55 50, 50 50" />
                 </circle>
                 <circle r="4" fill="#168748">
-                  <animateMotion dur="3.8s" repeatCount="indefinite" path="M 75% 75% C 60% 75%, 55% 50%, 50% 50%" />
+                  <animateMotion dur="3.8s" repeatCount="indefinite" path="M 75 75 C 60 75, 55 50, 50 50" />
                 </circle>
              </svg>
           </div>

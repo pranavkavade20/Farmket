@@ -11,12 +11,16 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Product } from '@/types';
 import toast from 'react-hot-toast';
+import { useAppDispatch } from '@/app/hooks';
+import { openStageUpdateModal } from '@/features/crops/cropsSlice';
+import { StageUpdateModal } from '@/features/crops/components/StageUpdateModal';
 import api from '@/lib/api';
 
 const MyProducts = () => {
   useSEO({ title: 'My Products', description: 'Manage your farm product listings.' });
   const { user } = useAuth();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -212,11 +216,19 @@ const MyProducts = () => {
                     {/* Actions */}
                     <div className="flex flex-col gap-2">
                       <Link 
-                        to={`/dashboard/products/${product.slug}/tracking`}
+                        to="/farmer/crops"
                         className="flex w-full items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 transition-colors"
                       >
-                        <Leaf className="h-3.5 w-3.5" /> Track Crop Lifecycle
+                        <Leaf className="h-3.5 w-3.5" /> Manage Crop Lifecycle
                       </Link>
+                      {product.active_crop_growth_id && (
+                        <button
+                          onClick={() => dispatch(openStageUpdateModal(product.active_crop_growth_id!))}
+                          className="flex w-full items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 transition-colors"
+                        >
+                          <TrendingUp className="h-3.5 w-3.5" /> Update Stage
+                        </button>
+                      )}
                       <div className="flex gap-2">
                       <button
                         onClick={() => handleToggleAvailability(product)}
@@ -257,6 +269,9 @@ const MyProducts = () => {
           </AnimatePresence>
         </motion.div>
       )}
+
+      {/* Render the modal so it opens when dispatched */}
+      <StageUpdateModal />
     </div>
   );
 };

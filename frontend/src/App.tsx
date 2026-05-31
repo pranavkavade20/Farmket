@@ -39,7 +39,10 @@ const Profile     = lazy(() => import('@/features/dashboard/pages/Profile'));
 const Analytics   = lazy(() => import('@/features/farmer/pages/Analytics'));
 const MyProducts  = lazy(() => import('@/features/products/pages/MyProducts'));
 const AddProduct  = lazy(() => import('@/features/products/pages/AddProduct'));
-const CropTrackingForm = lazy(() => import('@/features/products/pages/CropTrackingForm'));
+
+// New Crop Tracking
+const FarmerCropDashboard = lazy(() => import('@/features/crops/pages/FarmerCropDashboard'));
+const UpcomingHarvests    = lazy(() => import('@/features/products/pages/UpcomingHarvests'));
 
 // Admin Pages
 const AdminDashboard = lazy(() => import('@/features/admin/pages/AdminDashboard'));
@@ -90,6 +93,7 @@ function App() {
                       <Route path="about" element={<About />} />
                       <Route path="marketplace" element={<Marketplace />} />
                       <Route path="marketplace/:id" element={<ProductDetails />} />
+                      <Route path="market/upcoming-harvests" element={<UpcomingHarvests />} />
                     </Route>
 
                     {/* ── Auth routes ── */}
@@ -114,10 +118,9 @@ function App() {
                         {/* Analytics (farmer) */}
                         <Route path="dashboard/analytics" element={<Analytics />} />
 
-                        {/* Farmer Products */}
                         <Route path="dashboard/products"     element={<MyProducts />} />
                         <Route path="dashboard/products/new" element={<AddProduct />} />
-                        <Route path="dashboard/products/:slug/tracking" element={<CropTrackingForm />} />
+                        <Route path="farmer/crops" element={<FarmerCropDashboard />} />
 
                         {/* Messages / Chat */}
                         <Route path="messages" element={<Chat />} />

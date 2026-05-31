@@ -66,6 +66,30 @@ class Product(models.Model):
     @property
     def in_stock(self):
         return self.stock_quantity > 0
+        
+    @property
+    def active_crop_growth(self):
+        return self.crop_growths.exclude(crop_stage='SOLD_OUT').order_by('-expected_harvest_date').first()
+        
+    @property
+    def market_state(self):
+        if self.stock_quantity > 0:
+            threshold = max(self.minimum_order * 5, 10) # Dynamic threshold or fixed
+            if self.stock_quantity <= threshold:
+                return 'LOW_STOCK'
+            return 'AVAILABLE_NOW'
+            
+        growth = self.active_crop_growth
+        if not growth:
+            return 'SOLD_OUT'
+            
+        stage = growth.crop_stage
+        if stage == 'READY_FOR_HARVEST':
+            return 'READY_TO_HARVEST'
+        elif stage in ['PLANNED', 'SOWN', 'GERMINATION', 'VEGETATIVE', 'FLOWERING', 'FRUITING']:
+            return 'READY_FOR_PREBOOKING'
+            
+        return 'SOLD_OUT'
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
@@ -94,55 +118,4 @@ class Review(models.Model):
     def __str__(self):
         return f"Review by {self.buyer.username} for {self.product.name}"
 
-class CropTracking(models.Model):
-    STATUS_CHOICES = (
-        ('sown', 'Sown'),
-        ('growing', 'Growing'),
-        ('ready_for_harvest', 'Ready for Harvest'),
-        ('harvested', 'Harvested'),
-    )
-    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='crop_tracking')
-    sow_date = models.DateField()
-    expected_harvest_date = models.DateField()
-    current_stage = models.CharField(max_length=20, choices=STATUS_CHOICES, default='sown')
-    notes = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        ordering = ['-expected_harvest_date']
-        
-    def __str__(self):
-        return f"{self.product.name} Tracking"
-
-class CropStatusHistory(models.Model):
-    crop_tracking = models.ForeignKey(CropTracking, on_delete=models.CASCADE, related_name='status_history')
-    status = models.CharField(max_length=20, choices=CropTracking.STATUS_CHOICES)
-    changed_at = models.DateTimeField(auto_now_add=True)
-    notes = models.TextField(blank=True)
-    
-    class Meta:
-        ordering = ['-changed_at']
-        verbose_name_plural = 'Crop Status Histories'
-
-class BuyerCropInterest(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='buyer_interests')
-    buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='crop_interests')
-    subscribed_at = models.DateTimeField(auto_now_add=True)
-    notified = models.BooleanField(default=False)
-    
-    class Meta:
-        unique_together = ('product', 'buyer')
-        
-class HarvestReminderLog(models.Model):
-    REMINDER_TYPES = (
-        ('7_days', '7 Days Before'),
-        ('3_days', '3 Days Before'),
-        ('0_days', 'Harvest Day'),
-    )
-    crop_tracking = models.ForeignKey(CropTracking, on_delete=models.CASCADE, related_name='reminders_sent')
-    reminder_type = models.CharField(max_length=10, choices=REMINDER_TYPES)
-    sent_at = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        unique_together = ('crop_tracking', 'reminder_type')
+

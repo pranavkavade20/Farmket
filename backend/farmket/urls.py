@@ -36,6 +36,7 @@ urlpatterns = [
     # API endpoints for apps
     path('api/accounts/', include('accounts.urls')),
     path('api/products/', include('products.urls')),
+    path('api/crops/', include('crops.urls')),
     path('api/orders/', include('orders.urls')),
     path('api/chat/', include('chat.urls')),
     path('api/analytics/', include('analytics.urls')),

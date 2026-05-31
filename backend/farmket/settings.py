@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     # Local apps
     'accounts',
     'products',
+    'crops',
     'chat',
     'orders',
     'analytics',
