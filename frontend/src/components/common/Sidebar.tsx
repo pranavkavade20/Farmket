@@ -15,13 +15,17 @@ const Sidebar = () => {
   const { user } = useAuth();
   const isFarmer = user?.user_type === 'farmer';
   const isAdmin = user?.user_type === 'admin';
+  const isBuyer = user?.user_type === 'buyer';
 
   const links = [
     { to: '/dashboard', label: 'Overview', icon: <LayoutDashboard className="h-5 w-5" />, exact: true },
-    { to: '/dashboard/orders', label: 'Orders', icon: <ShoppingBag className="h-5 w-5" /> },
+    ...(isBuyer ? [
+      { to: '/dashboard/orders', label: 'Orders', icon: <ShoppingBag className="h-5 w-5" /> },
+    ] : []),
     ...(isFarmer ? [
       { to: '/dashboard/products', label: 'My Products', icon: <Package className="h-5 w-5" /> },
       { to: '/farmer/crops', label: 'Crop Tracking', icon: <Package className="h-5 w-5" /> },
+      { to: '/farmer/orders', label: 'Received Orders', icon: <ShoppingBag className="h-5 w-5" /> },
       { to: '/dashboard/analytics', label: 'Analytics', icon: <TrendingUp className="h-5 w-5" /> },
     ] : []),
     ...(isAdmin ? [

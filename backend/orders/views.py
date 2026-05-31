@@ -9,7 +9,9 @@ from products.models import Product
 
 class CartViewSet(viewsets.ModelViewSet):
     serializer_class = CartSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    def get_permissions(self):
+        from accounts.permissions import IsBuyer
+        return [permissions.IsAuthenticated(), IsBuyer()]
 
     def get_queryset(self):
         return Cart.objects.filter(buyer=self.request.user)
@@ -88,7 +90,9 @@ class CartViewSet(viewsets.ModelViewSet):
 class CartItemViewSet(viewsets.ModelViewSet):
     """Allows PATCH quantity update and DELETE removal of individual cart items."""
     serializer_class = CartItemSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    def get_permissions(self):
+        from accounts.permissions import IsBuyer
+        return [permissions.IsAuthenticated(), IsBuyer()]
 
     def get_queryset(self):
         return CartItem.objects.filter(cart__buyer=self.request.user)
@@ -112,7 +116,11 @@ class CartItemViewSet(viewsets.ModelViewSet):
 
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    def get_permissions(self):
+        from accounts.permissions import IsBuyer
+        if self.action in ['create', 'cancel', 'update', 'partial_update', 'destroy']:
+            return [permissions.IsAuthenticated(), IsBuyer()]
+        return [permissions.IsAuthenticated()]
 
     def get_queryset(self):
         user = self.request.user

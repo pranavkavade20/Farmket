@@ -9,7 +9,7 @@ import { ErrorBoundary } from '@/components/feedback';
 import MainLayout from '@/app/layouts/MainLayout';
 import AuthLayout from '@/app/layouts/AuthLayout';
 import DashboardLayout from '@/app/layouts/DashboardLayout';
-import { PrivateRoute } from '@/routes';
+import { PrivateRoute, RoleRoute } from '@/routes';
 import { Sprout } from 'lucide-react';
 
 // ── Patch toast to deduplicate identical messages ───────────────────────────
@@ -108,33 +108,41 @@ function App() {
                         {/* Dashboard home */}
                         <Route path="dashboard" element={<Dashboard />} />
 
-                        {/* Orders */}
-                        <Route path="dashboard/orders"     element={<Orders />} />
-                        <Route path="dashboard/orders/:id" element={<OrderDetail />} />
-
-                        {/* Profile */}
+                        {/* ── Shared Routes ── */}
                         <Route path="dashboard/profile" element={<Profile />} />
-
-                        {/* Analytics (farmer) */}
-                        <Route path="dashboard/analytics" element={<Analytics />} />
-
-                        <Route path="dashboard/products"     element={<MyProducts />} />
-                        <Route path="dashboard/products/new" element={<AddProduct />} />
-                        <Route path="farmer/crops" element={<FarmerCropDashboard />} />
-
-                        {/* Messages / Chat */}
                         <Route path="messages" element={<Chat />} />
 
-                        {/* Admin Analytics (admin) */}
-                        <Route path="dashboard/admin/executive" element={<AdminDashboard />} />
-                        <Route path="dashboard/admin/users" element={<AdminUserAnalytics />} />
-                        <Route path="dashboard/admin/marketplace" element={<AdminMarketplaceAnalytics />} />
-                        <Route path="dashboard/admin/crops" element={<AdminCropAnalytics />} />
-                        <Route path="dashboard/admin/revenue" element={<AdminRevenueAnalytics />} />
+                        {/* ── Buyer Routes ── */}
+                        <Route element={<RoleRoute allowedRoles={['buyer']} />}>
+                          <Route path="dashboard/orders"     element={<Orders />} />
+                          <Route path="dashboard/orders/:id" element={<OrderDetail />} />
+                        </Route>
+
+                        {/* ── Farmer Routes ── */}
+                        <Route element={<RoleRoute allowedRoles={['farmer']} />}>
+                          <Route path="dashboard/analytics" element={<Analytics />} />
+                          <Route path="dashboard/products"     element={<MyProducts />} />
+                          <Route path="dashboard/products/new" element={<AddProduct />} />
+                          <Route path="farmer/crops" element={<FarmerCropDashboard />} />
+                          {/* Farmers also have orders (received) */}
+                          <Route path="farmer/orders"     element={<Orders />} />
+                          <Route path="farmer/orders/:id" element={<OrderDetail />} />
+                        </Route>
+
+                        {/* ── Admin Routes ── */}
+                        <Route element={<RoleRoute allowedRoles={['admin']} />}>
+                          <Route path="dashboard/admin/executive" element={<AdminDashboard />} />
+                          <Route path="dashboard/admin/users" element={<AdminUserAnalytics />} />
+                          <Route path="dashboard/admin/marketplace" element={<AdminMarketplaceAnalytics />} />
+                          <Route path="dashboard/admin/crops" element={<AdminCropAnalytics />} />
+                          <Route path="dashboard/admin/revenue" element={<AdminRevenueAnalytics />} />
+                        </Route>
                       </Route>
                       <Route element={<MainLayout />}>
                         {/* Cart (needs auth to fetch/modify) */}
-                        <Route path="cart" element={<Cart />} />
+                        <Route element={<RoleRoute allowedRoles={['buyer']} />}>
+                          <Route path="cart" element={<Cart />} />
+                        </Route>
                       </Route>
                     </Route>
 

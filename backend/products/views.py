@@ -17,12 +17,19 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.select_related('farmer', 'category').prefetch_related('images', 'reviews')
     serializer_class = ProductSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsFarmerOwnerOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['category__slug', 'is_organic', 'is_available']
     search_fields = ['name', 'description', 'farmer__username']
     ordering_fields = ['price', 'created_at', 'views']
     lookup_field = 'slug'
+
+    def get_permissions(self):
+        from accounts.permissions import IsFarmer, IsBuyer
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [permissions.IsAuthenticated(), IsFarmer(), IsFarmerOwnerOrReadOnly()]
+        elif self.action in ['follow', 'unfollow', 'reserve', 'waitlist', 'reservations', 'followed']:
+            return [permissions.IsAuthenticated(), IsBuyer()]
+        return [permissions.IsAuthenticatedOrReadOnly()]
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -47,7 +54,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(products, many=True)
         return Response(serializer.data)
 
-    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    @action(detail=True, methods=['post'])
     def follow(self, request, slug=None):
         product = self.get_object()
         growth = product.active_crop_growth
@@ -59,7 +66,7 @@ class ProductViewSet(viewsets.ModelViewSet):
             return Response({'message': 'Already following'}, status=status.HTTP_200_OK)
         return Response({'status': 'followed'}, status=status.HTTP_201_CREATED)
 
-    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    @action(detail=True, methods=['post'])
     def unfollow(self, request, slug=None):
         product = self.get_object()
         growth = product.active_crop_growth
@@ -69,7 +76,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         CropFollower.objects.filter(buyer=request.user, crop_growth=growth).delete()
         return Response({'status': 'unfollowed'}, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    @action(detail=True, methods=['post'])
     def reserve(self, request, slug=None):
         product = self.get_object()
         growth = product.active_crop_growth
@@ -102,7 +109,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         serializer = CropReservationSerializer(reservation)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    @action(detail=True, methods=['post'])
     def waitlist(self, request, slug=None):
         product = self.get_object()
         growth = product.active_crop_growth
@@ -134,7 +141,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(products, many=True)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    @action(detail=False, methods=['get'])
     def reservations(self, request):
         from crops.models import CropReservation
         from crops.serializers import CropReservationSerializer
@@ -142,7 +149,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         serializer = CropReservationSerializer(qs, many=True)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    @action(detail=False, methods=['get'])
     def followed(self, request):
         from crops.models import CropFollower
         growth_ids = CropFollower.objects.filter(buyer=request.user).values_list('crop_growth_id', flat=True)
@@ -153,7 +160,12 @@ class ProductViewSet(viewsets.ModelViewSet):
 
 class ProductImageViewSet(viewsets.ModelViewSet):
     serializer_class = ProductImageSerializer
-    permission_classes = [permissions.IsAuthenticated, IsFarmerOwnerOrReadOnly]
+
+    def get_permissions(self):
+        from accounts.permissions import IsFarmer
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [permissions.IsAuthenticated(), IsFarmer(), IsFarmerOwnerOrReadOnly()]
+        return [permissions.IsAuthenticatedOrReadOnly()]
 
     def get_queryset(self):
         return ProductImage.objects.filter(product__slug=self.kwargs.get('product_slug'))
@@ -165,7 +177,12 @@ class ProductImageViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsBuyerOwnerOrReadOnly]
+
+    def get_permissions(self):
+        from accounts.permissions import IsBuyer
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [permissions.IsAuthenticated(), IsBuyer(), IsBuyerOwnerOrReadOnly()]
+        return [permissions.IsAuthenticatedOrReadOnly()]
 
     def get_queryset(self):
         return Review.objects.filter(product__slug=self.kwargs.get('product_slug'))
