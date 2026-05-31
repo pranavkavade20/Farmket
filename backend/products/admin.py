@@ -15,9 +15,11 @@ class ProductImageInline(admin.TabularInline):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ['name', 'farmer', 'category', 'price', 'stock_quantity', 'is_available', 'created_at']
+    list_editable = ['is_available', 'stock_quantity', 'price']
     list_filter = ['is_available', 'is_organic', 'category', 'created_at']
     search_fields = ['name', 'description', 'farmer__username']
     prepopulated_fields = {'slug': ('name',)}
+    autocomplete_fields = ['farmer', 'category']
     inlines = [ProductImageInline]
     date_hierarchy = 'created_at'
     list_per_page = 50
@@ -27,4 +29,6 @@ class ReviewAdmin(admin.ModelAdmin):
     list_display = ['product', 'buyer', 'rating', 'created_at']
     list_filter = ['rating', 'created_at']
     search_fields = ['product__name', 'buyer__username', 'comment']
+    autocomplete_fields = ['product', 'buyer']
+    readonly_fields = ['created_at']
     date_hierarchy = 'created_at'

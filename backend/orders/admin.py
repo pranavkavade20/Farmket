@@ -4,6 +4,11 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import Order, OrderItem, Cart, CartItem
 
+class CartItemInline(admin.TabularInline):
+    model = CartItem
+    extra = 0
+    autocomplete_fields = ['product', 'crop_growth']
+
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
@@ -25,6 +30,7 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInline]
     date_hierarchy = 'created_at'
     readonly_fields = ['order_number', 'created_at', 'updated_at']
+    autocomplete_fields = ['buyer']
     
     def colored_status(self, obj):
         colors = {
@@ -74,8 +80,16 @@ class OrderItemAdmin(admin.ModelAdmin):
 class CartAdmin(admin.ModelAdmin):
     list_display = ['id', 'buyer', 'item_count', 'total_price', 'created_at']
     search_fields = ['buyer__username']
-    # Removing Inline if it causes issues, or keep CartItemInline if defined
+    autocomplete_fields = ['buyer']
+    inlines = [CartItemInline]
     
     def item_count(self, obj):
         return obj.items.count()
     item_count.short_description = 'Items'
+
+@admin.register(CartItem)
+class CartItemAdmin(admin.ModelAdmin):
+    list_display = ['cart', 'product', 'quantity', 'is_prebooking', 'added_at']
+    list_filter = ['is_prebooking', 'added_at']
+    search_fields = ['cart__buyer__username', 'product__name']
+    autocomplete_fields = ['cart', 'product', 'crop_growth']

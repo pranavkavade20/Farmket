@@ -16,20 +16,24 @@ class MessageAdmin(admin.ModelAdmin):
     search_fields = ['content', 'sender__username']
     date_hierarchy = 'created_at'
     readonly_fields = ['created_at', 'updated_at', 'delivered_at', 'read_at']
+    autocomplete_fields = ['conversation', 'sender', 'reply_to']
 
 @admin.register(MessageReceipt)
 class MessageReceiptAdmin(admin.ModelAdmin):
     list_display = ['message', 'user', 'delivered_at', 'read_at']
     list_filter = ['delivered_at', 'read_at']
     search_fields = ['user__username']
+    autocomplete_fields = ['message', 'user']
 
 @admin.register(MessageReaction)
 class MessageReactionAdmin(admin.ModelAdmin):
     list_display = ['message', 'user', 'reaction', 'created_at']
     list_filter = ['reaction', 'created_at']
     search_fields = ['user__username']
+    autocomplete_fields = ['message', 'user']
 
 @admin.register(TypingStatus)
 class TypingStatusAdmin(admin.ModelAdmin):
     list_display = ['conversation', 'user', 'is_typing', 'updated_at']
     list_filter = ['is_typing', 'updated_at']
+    autocomplete_fields = ['conversation', 'user']
