@@ -147,6 +147,14 @@ const ProductDetails = () => {
       );
     }
 
+    if (user.id === product.farmer) {
+      return (
+        <Button className="flex-1 h-16 text-lg rounded-full font-black tracking-wide bg-gray-100 text-gray-500 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400" disabled>
+          YOUR PRODUCT
+        </Button>
+      );
+    }
+
     switch (product.market_state) {
       case 'AVAILABLE_NOW':
         return (
@@ -299,7 +307,7 @@ const ProductDetails = () => {
 
           {/* Actions */}
           <div className="flex flex-col gap-4 mt-auto">
-            {['AVAILABLE_NOW', 'LOW_STOCK'].includes(product.market_state) && (
+            {['AVAILABLE_NOW', 'LOW_STOCK'].includes(product.market_state) && user?.id !== product.farmer ? (
               <div className="flex items-center gap-4 mb-2">
                 <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-full h-16 p-2">
                   <button 
@@ -318,26 +326,26 @@ const ProductDetails = () => {
                 </div>
                 {renderCTA()}
               </div>
-            )}
-
-            {!['AVAILABLE_NOW', 'LOW_STOCK'].includes(product.market_state) && (
+            ) : (
               <div className="w-full">
                 {renderCTA()}
               </div>
             )}
             
-            <div className="flex flex-col sm:flex-row items-center gap-4 mt-2">
-              <Button variant="outline" className={`flex-1 h-14 w-full gap-2 rounded-full font-bold border-gray-200 ${isFollowing ? 'text-red-600 border-red-200 bg-red-50' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400'}`} onClick={handleFollowToggle}>
-                <Heart className={`h-5 w-5 ${isFollowing ? 'fill-current' : ''}`} /> {isFollowing ? 'Following' : 'Follow Crop'}
-              </Button>
-              <Button 
-                variant="secondary" 
-                className="flex-1 h-14 w-full gap-2 rounded-full font-bold bg-[#F2FCE4] text-green-900 hover:bg-[#E6F8CE] dark:bg-green-900/30 dark:text-green-400"
-                onClick={() => navigate('/messages')}
-              >
-                <MessageSquare className="h-5 w-5" /> Chat with Farmer
-              </Button>
-            </div>
+            {user?.id !== product.farmer && (
+              <div className="flex flex-col sm:flex-row items-center gap-4 mt-2">
+                <Button variant="outline" className={`flex-1 h-14 w-full gap-2 rounded-full font-bold border-gray-200 ${isFollowing ? 'text-red-600 border-red-200 bg-red-50' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400'}`} onClick={handleFollowToggle}>
+                  <Heart className={`h-5 w-5 ${isFollowing ? 'fill-current' : ''}`} /> {isFollowing ? 'Following' : 'Follow Crop'}
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  className="flex-1 h-14 w-full gap-2 rounded-full font-bold bg-[#F2FCE4] text-green-900 hover:bg-[#E6F8CE] dark:bg-green-900/30 dark:text-green-400"
+                  onClick={() => navigate('/messages')}
+                >
+                  <MessageSquare className="h-5 w-5" /> Chat with Farmer
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Guarantees */}
@@ -399,34 +407,40 @@ const ProductDetails = () => {
           <div className="h-fit sticky top-32 bg-[#F8F9FA] dark:bg-[#111] p-10 rounded-[3rem] shadow-sm">
             <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-8 tracking-tight">Write a Review</h3>
             {user ? (
-              <form onSubmit={handleSubmitReview} className="space-y-6">
-                <div>
-                  <label className="block text-xs font-black text-gray-400 dark:text-gray-500 mb-3 uppercase tracking-widest">Your Rating</label>
-                  <div className="flex gap-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onClick={() => setRating(star)}
-                        className="focus:outline-none hover:scale-110 transition-transform"
-                      >
-                        <Star className={`h-8 w-8 transition-colors ${star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300 dark:text-gray-700'}`} />
-                      </button>
-                    ))}
+              user.id === product.farmer ? (
+                <div className="text-center py-10">
+                  <p className="text-gray-500 dark:text-gray-400 font-bold">You cannot review your own product.</p>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmitReview} className="space-y-6">
+                  <div>
+                    <label className="block text-xs font-black text-gray-400 dark:text-gray-500 mb-3 uppercase tracking-widest">Your Rating</label>
+                    <div className="flex gap-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setRating(star)}
+                          className="focus:outline-none hover:scale-110 transition-transform"
+                        >
+                          <Star className={`h-8 w-8 transition-colors ${star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300 dark:text-gray-700'}`} />
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-                <div>
-                  <label className="block text-xs font-black text-gray-400 dark:text-gray-500 mb-3 uppercase tracking-widest">Your Review</label>
-                  <textarea
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    rows={5}
-                    placeholder="Share your experience..."
-                    className="w-full rounded-[2rem] border border-transparent bg-white dark:bg-gray-900 px-6 py-5 text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 transition-all shadow-sm resize-none"
-                  />
-                </div>
-                <Button type="submit" className="w-full h-14 rounded-full font-black text-base" isLoading={isSubmittingReview}>Submit Review</Button>
-              </form>
+                  <div>
+                    <label className="block text-xs font-black text-gray-400 dark:text-gray-500 mb-3 uppercase tracking-widest">Your Review</label>
+                    <textarea
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                      rows={5}
+                      placeholder="Share your experience..."
+                      className="w-full rounded-[2rem] border border-transparent bg-white dark:bg-gray-900 px-6 py-5 text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 transition-all shadow-sm resize-none"
+                    />
+                  </div>
+                  <Button type="submit" className="w-full h-14 rounded-full font-black text-base" isLoading={isSubmittingReview}>Submit Review</Button>
+                </form>
+              )
             ) : (
               <div className="text-center py-10">
                 <p className="text-gray-500 dark:text-gray-400 mb-6 font-bold">You must be logged in to write a review.</p>

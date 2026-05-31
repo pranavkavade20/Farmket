@@ -22,7 +22,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     category_name = serializers.ReadOnlyField(source='category.name')
-    farmer_name = serializers.ReadOnlyField(source='farmer.username')
+    farmer_name = serializers.SerializerMethodField()
     images = ProductImageSerializer(many=True, read_only=True)
     reviews = ReviewSerializer(many=True, read_only=True)
     market_state = serializers.ReadOnlyField()
@@ -48,6 +48,10 @@ class ProductSerializer(serializers.ModelSerializer):
             'is_following', 'active_crop_growth_id'
         ]
         read_only_fields = ['slug', 'views', 'created_at', 'updated_at', 'farmer']
+
+    def get_farmer_name(self, obj):
+        name = obj.farmer.get_full_name()
+        return name if name else obj.farmer.username
 
     def get_crop_stage(self, obj):
         growth = obj.active_crop_growth

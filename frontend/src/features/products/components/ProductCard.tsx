@@ -3,6 +3,7 @@ import type { Product } from '@/types';
 import { Link } from 'react-router-dom';
 import { Plus, Minus, Heart } from 'lucide-react';
 import { useCart } from '@/features/buyer';
+import { useAuth } from '@/features/auth';
 import { Button } from '@/components/ui';
 import { cn } from '@/lib/utils/cn';
 
@@ -13,6 +14,7 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
   const { cart, updateQuantity } = useCart();
+  const { user } = useAuth();
   const primaryImage = product.images.find((img) => img.is_primary)?.image ?? product.images[0]?.image;
 
   // Check if item is already in cart to show the counter instead of 'Add to Cart'
@@ -60,7 +62,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
         
         {/* Farmer Info */}
         <p className="mt-1 text-xs font-semibold text-gray-400 dark:text-gray-500">
-          Local Farmers
+          {product.farmer_name || 'Local Farmers'}
         </p>
 
         {/* Price & Action */}
@@ -74,7 +76,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
             </span>
           </div>
 
-          {cartItem ? (
+          {user?.id === product.farmer ? (
+            <Button
+              disabled
+              className="h-10 w-full rounded-full font-bold shadow-none transition-all flex items-center justify-center gap-1.5 text-sm bg-gray-100 text-gray-500 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400"
+            >
+              Your Product
+            </Button>
+          ) : cartItem ? (
             <div className="flex h-10 items-center justify-between rounded-full bg-green-700 px-1 text-white shadow-md dark:bg-green-600">
               <button 
                 onClick={handleDecrease}

@@ -35,8 +35,6 @@ const About = () => {
       <HowItWorksSection />
       <TrustSecuritySection />
       <FAQSection />
-      <CTASection />
-
     </div>
   );
 };

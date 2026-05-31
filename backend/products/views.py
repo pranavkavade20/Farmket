@@ -172,4 +172,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         product = Product.objects.get(slug=self.kwargs.get('product_slug'))
+        if product.farmer == self.request.user:
+            from rest_framework.exceptions import ValidationError
+            raise ValidationError("You cannot review your own product.")
         serializer.save(buyer=self.request.user, product=product)
