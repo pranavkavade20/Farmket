@@ -3,10 +3,14 @@ import { useGetCropsQuery } from '../cropsApi';
 import { CropCard } from '../components/CropCard';
 import { StageUpdateModal } from '../components/StageUpdateModal';
 import { ReservationManagement } from '../components/ReservationManagement';
-import { Sprout, Plus } from 'lucide-react';
+import { AddTrackingModal } from '../components/AddTrackingModal';
+import { useAppDispatch } from '@/app/hooks';
+import { openAddTrackingModal } from '../cropsSlice';
+import { Sprout, Plus, ActivitySquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function FarmerCropDashboard() {
+  const dispatch = useAppDispatch();
   const { data: crops, isLoading, error } = useGetCropsQuery();
 
   if (isLoading) {
@@ -28,13 +32,22 @@ export default function FarmerCropDashboard() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Crop Tracking</h1>
           <p className="text-gray-500 dark:text-gray-400">Monitor your crop growth and manage buyer reservations.</p>
         </div>
-        <Link 
-          to="/dashboard/products/new" 
-          className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-xl shadow-sm transition-colors"
-        >
-          <Plus className="w-5 h-5" />
-          Add Crop
-        </Link>
+        <div className="flex gap-3">
+          <button 
+            onClick={() => dispatch(openAddTrackingModal())}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium rounded-xl transition-colors dark:bg-blue-900/30 dark:hover:bg-blue-900/50 dark:text-blue-400"
+          >
+            <ActivitySquare className="w-5 h-5" />
+            Track Existing Product
+          </button>
+          <Link 
+            to="/dashboard/products/new" 
+            className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-xl shadow-sm transition-colors"
+          >
+            <Plus className="w-5 h-5" />
+            Add New Product
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -53,6 +66,7 @@ export default function FarmerCropDashboard() {
       <ReservationManagement />
 
       <StageUpdateModal />
+      <AddTrackingModal />
     </div>
   );
 }

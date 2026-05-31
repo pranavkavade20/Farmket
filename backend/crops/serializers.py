@@ -54,6 +54,19 @@ class CropGrowthSerializer(serializers.ModelSerializer):
         return False
 
     def validate(self, data):
+        request = self.context.get('request')
+        product = data.get('product')
+        
+        if product and request and product.farmer != request.user:
+            raise serializers.ValidationError({"product": "You can only track your own products."})
+            
+        if product and not self.instance: # on create
+            active_growths = CropGrowth.objects.filter(
+                product=product
+            ).exclude(crop_stage__in=['HARVESTED', 'SOLD_OUT'])
+            if active_growths.exists():
+                raise serializers.ValidationError({"product": "This product already has an active tracking cycle."})
+
         if data.get('sowing_date') and data.get('expected_harvest_date'):
             if data['expected_harvest_date'] <= data['sowing_date']:
                 raise serializers.ValidationError("Expected harvest date must be after sowing date.")

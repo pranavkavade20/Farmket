@@ -4,12 +4,14 @@ interface CropsState {
   isReservationModalOpen: boolean;
   selectedCropId: number | null;
   isStageUpdateModalOpen: boolean;
+  isAddTrackingModalOpen: boolean;
 }
 
 const initialState: CropsState = {
   isReservationModalOpen: false,
   selectedCropId: null,
   isStageUpdateModalOpen: false,
+  isAddTrackingModalOpen: false,
 };
 
 const cropsSlice = createSlice({
@@ -32,6 +34,12 @@ const cropsSlice = createSlice({
       state.isStageUpdateModalOpen = false;
       state.selectedCropId = null;
     },
+    openAddTrackingModal: (state) => {
+      state.isAddTrackingModalOpen = true;
+    },
+    closeAddTrackingModal: (state) => {
+      state.isAddTrackingModalOpen = false;
+    },
   },
 });
 
@@ -40,6 +48,8 @@ export const {
   closeReservationModal,
   openStageUpdateModal,
   closeStageUpdateModal,
+  openAddTrackingModal,
+  closeAddTrackingModal,
 } = cropsSlice.actions;
 
 export default cropsSlice.reducer;
