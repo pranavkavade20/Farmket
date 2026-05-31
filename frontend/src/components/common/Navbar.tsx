@@ -69,7 +69,7 @@ const Navbar = () => {
     )}>
         {/* SINGLE TIER NAVBAR */}
       <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
-        <div className="flex h-[88px] items-center justify-between border-b border-gray-100 dark:border-gray-800">
+        <div className="flex h-[88px] items-center justify-between">
           
           {/* Left: Logo */}
           <div className="flex items-center shrink-0 mr-6">
@@ -178,7 +178,7 @@ const Navbar = () => {
 
       {/* Mobile Dropdown */}
       {isMobileMenuOpen && (
-        <div className="absolute left-0 top-full w-full border-b border-gray-100 bg-white px-4 py-6 shadow-xl dark:border-gray-800 dark:bg-[#0A0A0A] lg:hidden">
+        <div className="absolute left-0 top-full w-full bg-white px-4 py-6 shadow-xl dark:bg-[#0A0A0A] lg:hidden">
           <div className="flex flex-col gap-2">
              {/* Mobile Search */}
              <div className="mb-4 flex w-full items-center rounded-xl bg-gray-50 px-4 py-3 dark:bg-gray-900 border border-gray-100 dark:border-gray-800">

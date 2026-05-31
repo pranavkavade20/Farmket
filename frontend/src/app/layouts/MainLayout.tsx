@@ -4,9 +4,9 @@ import { Navbar, Footer } from '@/components/common';
 
 const MainLayout = () => {
   return (
-    <div className="flex min-h-screen flex-col bg-[#F5F5F5] dark:bg-gray-950 font-sans selection:bg-green-200 dark:selection:bg-green-900">
+    <div className="flex flex-col min-h-screen w-full bg-green-50 dark:bg-[#0A0A0A]">
       <Navbar />
-      <main className="flex-1 w-full mx-auto max-w-[1600px] overflow-hidden">
+      <main >
         <Outlet />
       </main>
       <Footer />

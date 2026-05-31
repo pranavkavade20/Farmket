@@ -45,7 +45,7 @@ export const HeroSection = () => {
   };
 
   return (
-    <section className="relative w-full min-h-[90vh] bg-[#FAFAF8] dark:bg-[#050505] overflow-hidden flex items-center lg:rounded-[3rem] mt-4 lg:mx-4 font-sans border border-gray-100 dark:border-gray-900 shadow-sm">
+    <section className="relative w-full min-h-[90vh] dark:bg-[#050505] overflow-hidden flex items-center lg:rounded-[3rem] mt-4 lg:mx-4 font-sans border border-gray-100 dark:border-gray-900 shadow-sm">
       
       {/* Background / Video */}
       <div className="absolute inset-0 z-0">

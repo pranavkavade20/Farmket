@@ -31,7 +31,7 @@ const ServiceCard = ({ image, icon, title, desc, delay = 0 }: ServiceCardProps) 
       viewport={{ once: true, margin: "-50px" }}
       whileHover={{ y: -8, scale: 1.02 }}
       transition={{ type: "spring", stiffness: 300 }}
-      className="bg-gray-50 dark:bg-[#111] rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl dark:hover:shadow-[0_0_30px_rgba(22,135,72,0.15)] transition-all relative group h-full flex flex-col"
+      className="bg-white dark:bg-[#111] rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-md hover:shadow-2xl dark:hover:shadow-[0_0_30px_rgba(22,135,72,0.15)] transition-all relative group h-full flex flex-col"
     >
       {/* Top Image Section */}
       <div className="h-48 w-full overflow-hidden relative">
@@ -55,14 +55,7 @@ const ServiceCard = ({ image, icon, title, desc, delay = 0 }: ServiceCardProps) 
 
 export const ServicesSection = () => {
   return (
-    <section className="relative w-full bg-white dark:bg-[#0A0A0A] py-24 rounded-[3rem] px-6 lg:px-12 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-none overflow-hidden">
-      
-      {/* Background Soft Blobs */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#B9F046] opacity-10 dark:opacity-[0.03] blur-[120px] rounded-full" />
-         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#168748] opacity-10 dark:opacity-[0.03] blur-[120px] rounded-full" />
-      </div>
-
+    <section className="relative w-full py-24 rounded-[3rem] px-6 lg:px-12 overflow-hidden">
       <div className="max-w-7xl mx-auto relative z-10">
         
         {/* Header */}
@@ -144,12 +137,13 @@ export const ServicesSection = () => {
                 desc="Farmers can sell fresh produce directly to customers without middlemen."
                 delay={0.1}
              /></div>
-             <div className="relative h-full mt-0 lg:mt-8"><ServiceCard 
-                image={featureTwo} 
-                icon={<Leaf className="w-6 h-6"/>} 
-                title="Organic Product Discovery" 
-                desc="Buyers can easily explore healthy, organic, and locally sourced products."
-                delay={0.3}
+             <div className="relative h-full mt-0 lg:mt-8">
+              <ServiceCard 
+                        image={featureTwo} 
+                        icon={<Leaf className="w-6 h-6"/>} 
+                        title="Organic Product Discovery" 
+                        desc="Buyers can easily explore healthy, organic, and locally sourced products."
+                        delay={0.3}
              /></div>
           </div>
 

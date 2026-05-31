@@ -57,7 +57,7 @@ export const WeeklyBestSelling = ({ products, onAddToCart, activeTab, setActiveT
             className={`whitespace-nowrap px-6 py-2.5 rounded-full text-xs font-bold transition-all ${
               activeTab === tab 
               ? 'bg-[#168748] text-white shadow-md' 
-              : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 shadow-sm'
+              : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 shadow-sm border border-gray-200 dark:bg-[#111] dark:border-gray-800'
             }`}
           >
             {tab}

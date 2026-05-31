@@ -10,7 +10,7 @@ const stats = [
 
 export const SocialProofSection = () => {
   return (
-    <section className="w-full bg-white dark:bg-[#0A0A0A] py-16 lg:py-24 border-b border-gray-100 dark:border-gray-900">
+    <section className="w-full bg-green-50 dark:bg-[#0A0A0A] py-16 lg:py-24 border-b border-gray-100 dark:border-gray-900">
       <div className="mx-auto max-w-[1600px] px-6 sm:px-8 lg:px-12">
         <div className="flex flex-col items-center justify-center mb-12">
           <p className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest text-center">

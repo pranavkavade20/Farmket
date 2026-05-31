@@ -21,8 +21,8 @@ const itemVariants: Variants = {
 
 export const PromoBanners = () => {
   return (
-    <section className="w-full py-16 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="max-w-[1400px] mx-auto flex flex-col items-center">
+    <section className="w-full font-sans">
+      <div className="w-full flex flex-col items-center">
         
         {/* Header */}
         <motion.div 

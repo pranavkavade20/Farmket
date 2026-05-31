@@ -52,7 +52,7 @@ const Home = () => {
   };
 
   return (
-    <div className="flex flex-col bg-white dark:bg-[#0A0A0A] w-full min-h-screen">
+    <div className="flex flex-col bg-green-50 dark:bg-[#0A0A0A] w-full min-h-screen">
       
       {/* 1. Hero */}
       <HeroSection />
@@ -61,28 +61,45 @@ const Home = () => {
       <SocialProofSection />
 
       {/* E-Commerce Sections integrated into the premium flow */}
-      <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-16 flex flex-col gap-24">
-        
-        <PopularCategories categories={categoriesList} />
+      
+      {/* Popular Categories Band */}
+      <section className="w-full dark:bg-[#0A0A0A] py-12 md:py-16">
+        <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8">
+           <PopularCategories categories={categoriesList} />
+        </div>
+      </section>
 
-        <ServicesSection />
+      {/* Services Band */}
+      <section className="w-full dark:bg-[#0A0A0A] pb-16 pt-4">
+        <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8">
+           <ServicesSection />
+        </div>
+      </section>
 
-        <PromoBanners />
+      {/* Promo Banners Band */}
+      <section className="w-full dark:bg-[#0A0A0A] py-8">
+        <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8">
+           <PromoBanners />
+        </div>
+      </section>
 
-        <WeeklyBestSelling 
-          products={products.slice(0, 5).reverse()} 
-          onAddToCart={handleAddToCart}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-        />
+      {/* Products Band */}
+      <section className="w-full dark:bg-[#050505] py-24 border-y border-gray-100 dark:border-gray-900 mt-8">
+        <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 flex flex-col gap-24">
+          <WeeklyBestSelling 
+            products={products.slice(0, 5).reverse()} 
+            onAddToCart={handleAddToCart}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+          />
 
-        <ProductGridSection 
-          title="Most Selling Products" 
-          products={products.slice(0, 5)} 
-          onAddToCart={handleAddToCart} 
-        />
-        
-      </div>
+          <ProductGridSection 
+            title="Most Selling Products" 
+            products={products.slice(0, 5)} 
+            onAddToCart={handleAddToCart} 
+          />
+        </div>
+      </section>
 
       {/* Product Mockups / Showcases */}
       <ProductShowcaseSection />

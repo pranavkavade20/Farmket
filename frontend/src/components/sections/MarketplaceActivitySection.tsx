@@ -13,7 +13,7 @@ const activities = [
 
 export const MarketplaceActivitySection = () => {
   return (
-    <section className="w-full bg-white dark:bg-[#0A0A0A] py-24 border-b border-gray-100 dark:border-gray-900 overflow-hidden">
+    <section className="w-full bg-green-50 dark:bg-[#0A0A0A] py-24 border-b border-gray-100 dark:border-gray-900 overflow-hidden">
       <div className="mx-auto max-w-[1600px] px-6 sm:px-8 lg:px-12">
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 items-center">
           

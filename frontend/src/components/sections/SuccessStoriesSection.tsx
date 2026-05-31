@@ -31,7 +31,7 @@ const testimonials = [
 
 export const SuccessStoriesSection = () => {
   return (
-    <section id="success-stories" className="w-full bg-[#FAFAF8] dark:bg-[#050505] py-24 lg:py-32 border-b border-gray-100 dark:border-gray-900">
+    <section id="success-stories" className="w-full bg-green-50 dark:bg-[#050505] py-24 lg:py-32 border-b border-gray-100 dark:border-gray-900">
       <div className="mx-auto max-w-[1600px] px-6 sm:px-8 lg:px-12">
         <div className="text-center max-w-3xl mx-auto mb-20">
            <motion.div 

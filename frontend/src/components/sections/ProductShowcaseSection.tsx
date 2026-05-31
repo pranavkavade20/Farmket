@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 
 export const ProductShowcaseSection = () => {
   return (
-    <section className="w-full bg-[#FAFAF8] dark:bg-[#050505] py-24 lg:py-32 border-b border-gray-100 dark:border-gray-900 overflow-hidden relative">
+    <section className="w-full bg-green-50 dark:bg-[#050505] py-24 lg:py-32 border-b border-gray-100 dark:border-gray-900 overflow-hidden relative">
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent"></div>
       
       <div className="mx-auto max-w-[1600px] px-6 sm:px-8 lg:px-12">

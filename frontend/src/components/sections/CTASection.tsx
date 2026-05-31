@@ -41,9 +41,15 @@ export const CTASection = () => {
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }} // Smoother Apple-like easing
       className="py-12"
-    >
+    > 
+      {/* Background Soft Blobs */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#B9F046] opacity-10 dark:opacity-[0.03] blur-[120px] rounded-full" />
+         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#168748] opacity-10 dark:opacity-[0.03] blur-[120px] rounded-full" />
+      </div>
+
       {/* Container with modern subtle gradient and glass border */}
-      <div className="rounded-[2.5rem] bg-gradient-to-br from-[#E2F5D6]/70 to-[#F2FBF0] dark:from-[#0d2a19]/30 dark:to-[#0a0a0a]/40 border border-green-100/60 dark:border-green-950/30 px-8 py-14 lg:px-16 lg:py-20 relative overflow-hidden flex flex-col md:flex-row items-center justify-between shadow-2xl shadow-green-900/5 dark:shadow-black/40">
+      <div className="rounded-[2.5rem] border border-green-100/60 dark:border-green-950/30 px-8 py-14 lg:px-16 lg:py-20 relative overflow-hidden flex flex-col md:flex-row items-center justify-between shadow-2xl shadow-green-900/5 dark:shadow-black/40">
         
         {/* Background Decorative Mesh/Glow */}
         <div className="absolute top-0 right-0 -mr-32 -mt-32 w-[500px] h-[500px] bg-[#B9F046]/20 dark:bg-[#B9F046]/5 blur-[100px] rounded-full pointer-events-none" />
