@@ -84,4 +84,8 @@ export const orderService = {
     const res = await api.patch<Order>(`/orders/orders/${id}/cancel/`);
     return res.data;
   },
+
+  updateItemStatus: async (itemId: number, status: string): Promise<void> => {
+    await api.post(`/orders/order-items/${itemId}/transition_status/`, { status });
+  },
 };

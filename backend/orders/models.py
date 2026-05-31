@@ -84,7 +84,7 @@ class Order(models.Model):
             self.status = 'cancelled'
         elif any(s in ['shipped', 'out_for_delivery'] for s in statuses):
             self.status = 'shipped'
-        elif any(s == 'confirmed' for s in statuses):
+        elif any(s == 'processing' for s in statuses):
             self.status = 'processing'
         else:
             self.status = 'pending'
@@ -94,7 +94,7 @@ class OrderItem(models.Model):
     # Statuses specific to the item journey (Food Delivery style)
     ITEM_STATUS_CHOICES = (
         ('pending', 'Pending'),           # Waiting for Farmer to accept
-        ('confirmed', 'Preparing'),       # Farmer Accepted / Packing
+        ('processing', 'Processing'),     # Farmer Accepted / Packing
         ('shipped', 'Out for Delivery'),  # Farmer Handed over / Shipped
         ('delivered', 'Delivered'),       # Buyer Received
         ('cancelled', 'Cancelled'),       # Farmer or Buyer Cancelled
@@ -117,3 +117,16 @@ class OrderItem(models.Model):
         if self.quantity is not None and self.price is not None:
             return self.quantity * self.price
         return 0
+
+class OrderStatusHistory(models.Model):
+    order_item = models.ForeignKey(OrderItem, on_delete=models.CASCADE, related_name='status_history')
+    previous_status = models.CharField(max_length=20, choices=OrderItem.ITEM_STATUS_CHOICES)
+    new_status = models.CharField(max_length=20, choices=OrderItem.ITEM_STATUS_CHOICES)
+    updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-timestamp']
+        
+    def __str__(self):
+        return f"{self.order_item} changed from {self.previous_status} to {self.new_status}"

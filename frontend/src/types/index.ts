@@ -118,7 +118,6 @@ export interface ProductFilters {
 
 export type OrderStatus =
   | 'pending'
-  | 'confirmed'
   | 'processing'
   | 'shipped'
   | 'delivered'

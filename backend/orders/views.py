@@ -2,7 +2,7 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.db import transaction
-from .models import Cart, CartItem, Order, OrderItem
+from .models import Cart, CartItem, Order, OrderItem, OrderStatusHistory
 from .serializers import CartSerializer, CartItemSerializer, OrderSerializer, OrderItemSerializer
 from products.models import Product
 
@@ -214,8 +214,21 @@ class OrderViewSet(viewsets.ModelViewSet):
                 {'error': 'Only pending or processing orders can be cancelled.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        order.status = 'cancelled'
-        order.save()
+        
+        with transaction.atomic():
+            for item in order.items.all():
+                if item.status not in ('shipped', 'delivered', 'cancelled'):
+                    OrderStatusHistory.objects.create(
+                        order_item=item,
+                        previous_status=item.status,
+                        new_status='cancelled',
+                        updated_by=request.user
+                    )
+                    item.status = 'cancelled'
+                    item.save()
+            
+            order.update_status_based_on_items()
+            
         return Response(OrderSerializer(order).data)
 
 
@@ -228,3 +241,46 @@ class OrderItemViewSet(viewsets.ModelViewSet):
         if user.is_staff:
             return OrderItem.objects.all()
         return OrderItem.objects.filter(farmer=user) | OrderItem.objects.filter(order__buyer=user)
+        
+    @action(detail=True, methods=['post'])
+    def transition_status(self, request, pk=None):
+        item = self.get_object()
+        new_status = request.data.get('status')
+        user = request.user
+        
+        if not new_status:
+            return Response({'error': 'Status is required.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # Role validation
+        if new_status in ['processing', 'shipped']:
+            if item.farmer != user:
+                return Response({'error': 'Only the farmer who owns this product can update this status.'}, status=status.HTTP_403_FORBIDDEN)
+        elif new_status == 'delivered':
+            if item.order.buyer != user:
+                return Response({'error': 'Only the buyer who placed the order can confirm delivery.'}, status=status.HTTP_403_FORBIDDEN)
+        else:
+            return Response({'error': 'Invalid status transition.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # Transition validation
+        valid_transitions = {
+            'pending': ['processing'],
+            'processing': ['shipped'],
+            'shipped': ['delivered']
+        }
+        
+        allowed_next = valid_transitions.get(item.status, [])
+        if new_status not in allowed_next:
+            return Response({'error': f"Cannot transition from {item.status} to {new_status}."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        with transaction.atomic():
+            OrderStatusHistory.objects.create(
+                order_item=item,
+                previous_status=item.status,
+                new_status=new_status,
+                updated_by=user
+            )
+            item.status = new_status
+            item.save()
+            item.order.update_status_based_on_items()
+            
+        return Response(OrderItemSerializer(item).data)

@@ -7,15 +7,18 @@ import { ArrowLeft, MapPin, CreditCard, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Order } from '@/types';
 import toast from 'react-hot-toast';
+import { useAuth } from '@/features/auth';
 
 const STEPS = ['pending', 'processing', 'shipped', 'delivered'] as const;
 
 const OrderDetail = () => {
   useSEO({ title: 'Order Details' });
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
+  const [updatingItem, setUpdatingItem] = useState<number | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -37,6 +40,20 @@ const OrderDetail = () => {
       toast.error('Cannot cancel this order');
     } finally {
       setCancelling(false);
+    }
+  };
+
+  const handleItemTransition = async (itemId: number, newStatus: string) => {
+    setUpdatingItem(itemId);
+    try {
+      await orderService.updateItemStatus(itemId, newStatus);
+      const updated = await orderService.getOrder(Number(id!));
+      setOrder(updated);
+      toast.success('Status updated');
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Failed to update status');
+    } finally {
+      setUpdatingItem(null);
     }
   };
 
@@ -145,7 +162,21 @@ const OrderDetail = () => {
             <div key={item.id} className="flex justify-between py-5">
               <div>
                 <p className="text-base font-black text-gray-900 dark:text-white">{item.product_name ?? `Product #${item.product}`}</p>
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Qty: {item.quantity} × {fmt(item.price_at_purchase ?? '0')}</p>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1 mb-3">Qty: {item.quantity} × {fmt(item.price_at_purchase ?? '0')}</p>
+                
+                <div className="flex items-center gap-3">
+                  <OrderStatusBadge status={item.status as any} />
+                  
+                  {user?.user_type === 'farmer' && item.status === 'pending' && (
+                    <Button size="sm" onClick={() => handleItemTransition(item.id, 'processing')} isLoading={updatingItem === item.id} className="h-8 text-[10px]">Accept & Process</Button>
+                  )}
+                  {user?.user_type === 'farmer' && item.status === 'processing' && (
+                    <Button size="sm" onClick={() => handleItemTransition(item.id, 'shipped')} isLoading={updatingItem === item.id} className="h-8 text-[10px]">Mark Shipped</Button>
+                  )}
+                  {user?.user_type === 'buyer' && item.status === 'shipped' && (
+                    <Button size="sm" onClick={() => handleItemTransition(item.id, 'delivered')} isLoading={updatingItem === item.id} className="h-8 text-[10px] bg-green-600 hover:bg-green-700 text-white">Confirm Delivery</Button>
+                  )}
+                </div>
               </div>
               <p className="text-lg font-black text-gray-900 dark:text-white">
                 {fmt(String(item.quantity * parseFloat(item.price_at_purchase ?? '0')))}
