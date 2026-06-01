@@ -84,8 +84,19 @@ const Navbar = () => {
           {/* Center: Navigation Links */}
           <div className="hidden lg:flex flex-1 items-center justify-center gap-6 xl:gap-8">
             {navLink("/", "Home")}
-            {navLink("/marketplace", "Marketplace")}
-            {navLink("/market/upcoming-harvests", "Upcoming Harvests")}
+            {(!user || user.user_type === 'buyer') && (
+              <>
+                {navLink("/marketplace", "Marketplace")}
+                {navLink("/market/upcoming-harvests", "Upcoming Harvests")}
+              </>
+            )}
+            {user?.user_type === 'farmer' && (
+              <>
+                {navLink("/dashboard/products", "My Products")}
+                {navLink("/farmer/crops", "Crop Tracking")}
+                {navLink("/farmer/orders", "Received Orders")}
+              </>
+            )}
             {navLink("/about", "About Platform")}
             {navLink("/#success-stories", "Success Stories")}
           </div>
@@ -113,20 +124,22 @@ const Navbar = () => {
             {user ? (
               <div className="flex items-center gap-2">
                 <NotificationCenter />
-                <Link
-                  to="/cart"
-                  className="group flex items-center gap-2 rounded-full px-3 py-2 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900"
-                >
-                  <div className="relative">
-                    <ShoppingCart className="h-4 w-4" />
-                    {itemCount > 0 && (
-                      <span className="absolute -top-1.5 -right-1.5 flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-green-600 px-1 text-[9px] font-black text-white shadow-sm ring-2 ring-white dark:ring-[#0A0A0A]">
-                        {itemCount > 9 ? "9+" : itemCount}
-                      </span>
-                    )}
-                  </div>
-                  <span className="hidden xl:block">Cart</span>
-                </Link>
+                {user.user_type === 'buyer' && (
+                  <Link
+                    to="/cart"
+                    className="group flex items-center gap-2 rounded-full px-3 py-2 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900"
+                  >
+                    <div className="relative">
+                      <ShoppingCart className="h-4 w-4" />
+                      {itemCount > 0 && (
+                        <span className="absolute -top-1.5 -right-1.5 flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-green-600 px-1 text-[9px] font-black text-white shadow-sm ring-2 ring-white dark:ring-[#0A0A0A]">
+                          {itemCount > 9 ? "9+" : itemCount}
+                        </span>
+                      )}
+                    </div>
+                    <span className="hidden xl:block">Cart</span>
+                  </Link>
+                )}
 
                 <div className="hidden lg:flex items-center gap-2 pl-2">
                   <Link to="/dashboard">
@@ -193,14 +206,21 @@ const Navbar = () => {
 
              {[
               { to: "/", label: "Home" },
-              { to: "/marketplace", label: "Marketplace" },
-              { to: "/market/upcoming-harvests", label: "Upcoming Harvests" },
+              ...(!user || user.user_type === 'buyer' ? [
+                { to: "/marketplace", label: "Marketplace" },
+                { to: "/market/upcoming-harvests", label: "Upcoming Harvests" },
+              ] : []),
+              ...(user?.user_type === 'farmer' ? [
+                { to: "/dashboard/products", label: "My Products" },
+                { to: "/farmer/crops", label: "Crop Tracking" },
+                { to: "/farmer/orders", label: "Received Orders" },
+              ] : []),
               { to: "/about", label: "About Platform" },
               { to: "/#success-stories", label: "Success Stories" },
               ...(user
                 ? [
                     { to: "/dashboard", label: "Dashboard" },
-                    { to: "/dashboard/orders", label: "My Orders" },
+                    ...(user.user_type === 'buyer' ? [{ to: "/dashboard/orders", label: "My Orders" }] : []),
                   ]
                 : []),
             ].map(({ to, label }) => (
