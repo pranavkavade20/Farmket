@@ -1,4 +1,3 @@
-import React from 'react';
 import { useSEO } from '@/hooks';
 
 import {
@@ -7,7 +6,6 @@ import {
   HowItWorksSection,
   TrustSecuritySection,
   FAQSection,
-  CTASection
 } from '@/components/sections';
 
 const About = () => {
