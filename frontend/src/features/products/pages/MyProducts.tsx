@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { ProductTable } from '../components/ProductTable';
 import { useSEO } from '@/hooks';
 import { useAuth } from '@/features/auth';
 import { productService } from '@/features/products';
@@ -7,6 +8,7 @@ import { Button, Input } from '@/components/ui';
 import {
   PlusCircle, Package, Edit2, Trash2, Eye, Search,
   Leaf, TrendingUp, ToggleLeft, ToggleRight,
+  LayoutGrid, List
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Product } from '@/types';
@@ -27,6 +29,7 @@ const MyProducts = () => {
   const [search, setSearch] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [view, setView] = useState<'grid' | 'table'>('table'); // Default to table as requested
 
   // Only farmers can access this page
   useEffect(() => {
@@ -110,14 +113,32 @@ const MyProducts = () => {
         </div>
       </div>
 
-      {/* Search */}
-      <div className="mb-6">
-        <Input
-          placeholder="Search your products…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          icon={<Search className="h-4 w-4" />}
-        />
+      {/* Search and View Toggle */}
+      <div className="mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
+        <div className="w-full sm:max-w-md">
+          <Input
+            placeholder="Search your products…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            icon={<Search className="h-4 w-4" />}
+          />
+        </div>
+        <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-900 p-1 rounded-lg shrink-0">
+          <button 
+            onClick={() => setView('grid')}
+            className={`p-2 rounded-md transition-colors ${view === 'grid' ? 'bg-white dark:bg-gray-800 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+            title="Grid View"
+          >
+            <LayoutGrid className="w-4 h-4" />
+          </button>
+          <button 
+            onClick={() => setView('table')}
+            className={`p-2 rounded-md transition-colors ${view === 'table' ? 'bg-white dark:bg-gray-800 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+            title="Table View"
+          >
+            <List className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Product List */}
@@ -150,6 +171,14 @@ const MyProducts = () => {
             </Link>
           )}
         </motion.div>
+      ) : view === 'table' ? (
+        <ProductTable 
+          products={filteredProducts} 
+          onDelete={handleDelete} 
+          onToggleAvailability={handleToggleAvailability}
+          deletingId={deletingId}
+          togglingId={togglingId}
+        />
       ) : (
         <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           <AnimatePresence>
