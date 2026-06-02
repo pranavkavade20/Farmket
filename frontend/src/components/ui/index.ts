@@ -5,3 +5,6 @@ export { Input } from './Input';
 export { Select } from './Select';
 export { Skeleton, ProductCardSkeleton, StatCardSkeleton } from './Skeleton';
 export { Textarea } from './Textarea';
+export { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from './Table';
+export { Calendar, type CalendarEvent } from './Calendar';
+export { Tooltip } from './Tooltip';

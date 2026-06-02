@@ -1,17 +1,34 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useGetCropsQuery } from '../cropsApi';
 import { CropCard } from '../components/CropCard';
+import { CropTable } from '../components/CropTable';
+import { CropCalendar } from '../components/CropCalendar';
 import { StageUpdateModal } from '../components/StageUpdateModal';
 import { ReservationManagement } from '../components/ReservationManagement';
 import { AddTrackingModal } from '../components/AddTrackingModal';
 import { useAppDispatch } from '@/app/hooks';
 import { openAddTrackingModal } from '../cropsSlice';
-import { Sprout, Plus, ActivitySquare } from 'lucide-react';
+import { Sprout, Plus, ActivitySquare, LayoutGrid, List, Calendar as CalendarIcon, Search, Filter } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 
 export default function FarmerCropDashboard() {
   const dispatch = useAppDispatch();
   const { data: crops, isLoading, error } = useGetCropsQuery();
+
+  const [view, setView] = useState<'grid' | 'table' | 'calendar'>('grid');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStage, setFilterStage] = useState('ALL');
+
+  const filteredCrops = useMemo(() => {
+    if (!crops) return [];
+    return crops.filter(crop => {
+      const matchesSearch = crop.product_details?.name?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStage = filterStage === 'ALL' || crop.crop_stage === filterStage;
+      return matchesSearch && matchesStage;
+    });
+  }, [crops, searchQuery, filterStage]);
 
   if (isLoading) {
     return (
@@ -50,18 +67,83 @@ export default function FarmerCropDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {crops?.map((crop) => (
-          <CropCard key={crop.id} crop={crop} />
-        ))}
-        {(!crops || crops.length === 0) && (
-          <div className="col-span-full py-12 text-center border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl">
-            <Sprout className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">No crops tracking</h3>
-            <p className="text-gray-500 dark:text-gray-400">Start tracking your crops to get buyer reservations.</p>
+      <div className="mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="flex w-full sm:w-auto flex-1 gap-4 items-center">
+          <div className="relative max-w-md w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input 
+              placeholder="Search crops..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
           </div>
-        )}
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-gray-400" />
+            <Select 
+              value={filterStage} 
+              onChange={(e) => setFilterStage(e.target.value)}
+              className="w-[150px]"
+              options={[
+                { label: 'All Stages', value: 'ALL' },
+                { label: 'Sown', value: 'SOWN' },
+                { label: 'Growing', value: 'GROWING' },
+                { label: 'Harvesting', value: 'HARVESTING' },
+                { label: 'Harvested', value: 'HARVESTED' },
+              ]}
+            />
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-900 p-1 rounded-lg">
+          <button 
+            onClick={() => setView('grid')}
+            className={`p-2 rounded-md transition-colors ${view === 'grid' ? 'bg-white dark:bg-gray-800 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+            title="Grid View"
+          >
+            <LayoutGrid className="w-4 h-4" />
+          </button>
+          <button 
+            onClick={() => setView('table')}
+            className={`p-2 rounded-md transition-colors ${view === 'table' ? 'bg-white dark:bg-gray-800 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+            title="Table View"
+          >
+            <List className="w-4 h-4" />
+          </button>
+          <button 
+            onClick={() => setView('calendar')}
+            className={`p-2 rounded-md transition-colors ${view === 'calendar' ? 'bg-white dark:bg-gray-800 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+            title="Calendar View"
+          >
+            <CalendarIcon className="w-4 h-4" />
+          </button>
+        </div>
       </div>
+
+      {view === 'grid' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredCrops.map((crop) => (
+            <CropCard key={crop.id} crop={crop} />
+          ))}
+          {(!filteredCrops || filteredCrops.length === 0) && (
+            <div className="col-span-full py-12 text-center border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl">
+              <Sprout className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">No crops tracking</h3>
+              <p className="text-gray-500 dark:text-gray-400">Start tracking your crops to get buyer reservations.</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {view === 'table' && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+          <CropTable crops={filteredCrops} />
+        </div>
+      )}
+
+      {view === 'calendar' && (
+        <CropCalendar crops={filteredCrops} />
+      )}
 
       <ReservationManagement />
 
