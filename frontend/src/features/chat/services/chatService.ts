@@ -1,7 +1,8 @@
 import api from '@/lib/api';
+import { MEDIA_BASE_URL } from '@/config/env';
 
 // ── Base URL for media ─────────────────────────────────────────────────────────
-const MEDIA_BASE = import.meta.env.VITE_MEDIA_URL ?? 'http://localhost:8000';
+const MEDIA_BASE = MEDIA_BASE_URL;
 
 export function resolveMedia(url: string | null | undefined): string | null {
   if (!url) return null;

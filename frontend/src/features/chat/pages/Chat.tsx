@@ -7,6 +7,7 @@ import { MessageSquare, MoreVertical, Phone, Video, Info, ArrowLeft, Loader2 } f
 
 import { cn } from '@/lib/utils/cn';
 import toast from 'react-hot-toast';
+import { WS_BASE_URL } from '@/config/env';
 
 import { ChatSidebar } from '../components/ChatSidebar';
 import { MessageBubble } from '../components/MessageBubble';
@@ -159,7 +160,7 @@ const Chat = () => {
     const token = localStorage.getItem('access_token');
     if (!token) return;
 
-    const wsUrl = `ws://localhost:8000/ws/chat/global/?token=${token}`;
+    const wsUrl = `${WS_BASE_URL}/ws/chat/global/?token=${token}`;
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 

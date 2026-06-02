@@ -103,16 +103,6 @@ const Navbar = () => {
 
           {/* Right: Actions */}
           <div className="flex items-center justify-end gap-2 lg:gap-3 shrink-0">
-            {/* Desktop Search (Compact) */}
-            <div className="hidden xl:flex w-[200px] items-center rounded-full bg-gray-50 px-4 py-2 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 focus-within:border-green-500/30 focus-within:ring-2 focus-within:ring-green-500/10 transition-all">
-              <Search className="h-4 w-4 text-gray-400 shrink-0" />
-              <input 
-                type="text" 
-                placeholder="Search..." 
-                className="ml-2 w-full bg-transparent text-xs font-medium text-gray-900 outline-none placeholder:text-gray-400 dark:text-white"
-              />
-            </div>
-
             <button
               onClick={toggleDark}
               aria-label="Toggle dark mode"
@@ -194,17 +184,7 @@ const Navbar = () => {
       {isMobileMenuOpen && (
         <div className="absolute left-0 top-full w-full bg-white px-4 py-6 shadow-xl dark:bg-[#0A0A0A] lg:hidden">
           <div className="flex flex-col gap-2">
-             {/* Mobile Search */}
-             <div className="mb-4 flex w-full items-center rounded-xl bg-gray-50 px-4 py-3 dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
-              <Search className="h-4 w-4 text-gray-400" />
-              <input 
-                type="text" 
-                placeholder="Search..." 
-                className="ml-3 w-full bg-transparent text-sm font-medium text-gray-900 outline-none placeholder:text-gray-400 dark:text-white"
-              />
-            </div>
-
-             {[
+              {[
               { to: "/", label: "Home" },
               ...(!user || user.user_type === 'buyer' ? [
                 { to: "/marketplace", label: "Marketplace" },

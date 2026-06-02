@@ -2,8 +2,9 @@ from rest_framework import serializers
 from .models import Conversation, Message, MessageReceipt, TypingStatus, MessageReaction
 from accounts.serializers import UserSerializer
 
-MEDIA_BASE = 'http://localhost:8000'
+from django.conf import settings
 
+MEDIA_BASE = settings.BACKEND_BASE_URL
 
 class MessageReactionSerializer(serializers.ModelSerializer):
     class Meta:
