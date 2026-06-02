@@ -14,6 +14,7 @@ interface Props {
   onSearchChange: (val: string) => void;
   onStartNewChat: () => void;
   currentUserId?: number;
+  onlineUsers?: Set<number>;
 }
 
 const fmtDate = (s: string) => {
@@ -26,7 +27,7 @@ const fmtDate = (s: string) => {
 };
 
 export const ChatSidebar: React.FC<Props> = ({
-  conversations, selectedId, onSelect, loading, search, onSearchChange, onStartNewChat, currentUserId
+  conversations, selectedId, onSelect, loading, search, onSearchChange, onStartNewChat, currentUserId, onlineUsers
 }) => {
   return (
     <div className="border-r border-gray-200 dark:border-gray-800 flex flex-col h-full bg-white dark:bg-gray-900">
@@ -72,6 +73,7 @@ export const ChatSidebar: React.FC<Props> = ({
             const isActive = selectedId === conv.id;
             const name = conv.is_group ? conv.group_name : (other?.full_name || other?.username || 'Unknown');
             const icon = conv.is_group ? conv.group_icon_url : other?.profile_picture;
+            const isOnline = other && onlineUsers ? onlineUsers.has(other.id) : false;
 
             return (
               <button
@@ -82,7 +84,7 @@ export const ChatSidebar: React.FC<Props> = ({
                   isActive ? 'bg-green-50 dark:bg-green-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-800'
                 )}
               >
-                <ChatAvatar name={name} src={icon} size={48} />
+                <ChatAvatar name={name} src={icon} size={48} online={isOnline} />
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-baseline mb-0.5">
                     <p className={cn("text-sm font-semibold truncate", isActive ? "text-green-700 dark:text-green-400" : "text-gray-900 dark:text-white")}>

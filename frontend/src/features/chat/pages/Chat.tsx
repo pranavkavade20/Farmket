@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useSEO } from '@/hooks';
 import { chatService, type Conversation, type ChatMessage, type ChatUser } from '@/features/chat';
 import { useAuth } from '@/features/auth';
@@ -17,6 +18,8 @@ const Chat = () => {
   useSEO({ title: 'Messages | Farmket', description: 'Chat with farmers and buyers on Farmket.' });
 
   const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selected, setSelected] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -32,12 +35,24 @@ const Chat = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const selectedRef = useRef<number | null>(null);
+
+  useEffect(() => { selectedRef.current = selected?.id ?? null; }, [selected]);
 
   // ── Fetch Conversations ───────────────────────────────────────────────────
   const fetchConversations = useCallback(async () => {
     try {
       const data = await chatService.getConversations();
       setConversations(data);
+      setOnlineUsers(prev => {
+        const next = new Set(prev);
+        data.forEach(c => {
+          c.participants_details.forEach(p => {
+            if (p.is_online) next.add(p.id);
+          });
+        });
+        return next;
+      });
     } catch (err) {
       toast.error('Failed to load conversations');
     } finally {
@@ -47,42 +62,47 @@ const Chat = () => {
 
   useEffect(() => { fetchConversations(); }, [fetchConversations]);
 
+  const initRef = useRef<number | null>(null);
+
+  // ── Handle incoming chat request from other pages ──────────────────────────
+  useEffect(() => {
+    const targetUserId = location.state?.userId;
+    if (targetUserId && initRef.current !== targetUserId) {
+      initRef.current = targetUserId;
+      chatService.getOrCreateConversation(targetUserId)
+        .then(conv => {
+          setConversations(prev => {
+            if (prev.some(c => c.id === conv.id)) return prev;
+            return [conv, ...prev];
+          });
+          setSelected(conv);
+          // clear state
+          navigate(location.pathname, { replace: true, state: {} });
+        })
+        .catch(() => {
+          initRef.current = null;
+          toast.error('Failed to open chat');
+        });
+    }
+  }, [location.state, location.pathname, navigate]);
+
   // ── WebSocket Logic ────────────────────────────────────────────────────────
-  const setupWebSocket = useCallback((convId: number) => {
-    if (wsRef.current) wsRef.current.close();
-
-    const token = localStorage.getItem('access_token');
-    if (!token) return;
-
-    const wsUrl = `ws://localhost:8000/ws/chat/${convId}/?token=${token}`;
-    const ws = new WebSocket(wsUrl);
-    wsRef.current = ws;
-
-    ws.onmessage = (e) => {
-      const data = JSON.parse(e.data);
-      handleWsEvent(data);
-    };
-
-    ws.onclose = () => {
-      console.log('WS Disconnected');
-    };
-  }, []);
-
-  const handleWsEvent = (data: any) => {
+  const handleWsEvent = useCallback((data: any) => {
     switch (data.type) {
       case 'chat_message':
-        setMessages(prev => {
-          if (prev.some(m => m.id === data.message.id)) return prev;
-          return [...prev, data.message];
-        });
-        // Update sidebar last message
+        if (selectedRef.current === data.conversation_id) {
+          setMessages(prev => {
+            if (prev.some(m => m.id === data.message.id)) return prev;
+            return [...prev, data.message];
+          });
+        }
         setConversations(prev => prev.map(c => 
-          c.id === data.message.conversation ? { ...c, last_message: data.message } : c
+          c.id === data.conversation_id ? { ...c, last_message: data.message, unread_count: selectedRef.current === c.id ? c.unread_count : c.unread_count + 1 } : c
         ));
         break;
       
       case 'typing_status':
-        if (data.user_id !== user?.id) {
+        if (data.user_id !== user?.id && data.conversation_id === selectedRef.current) {
           setTypingUser(data.is_typing ? { id: data.user_id, name: data.username } : null);
         }
         break;
@@ -97,33 +117,66 @@ const Chat = () => {
         break;
 
       case 'message_read':
-        setMessages(prev => prev.map(m => m.id === data.message_id ? { ...m, is_read: true } : m));
+        if (data.conversation_id === selectedRef.current) {
+          setMessages(prev => prev.map(m => m.id === data.message_id ? { ...m, is_read: true } : m));
+        }
         break;
 
       case 'message_reaction':
-        setMessages(prev => prev.map(m => {
-          if (m.id !== data.message_id) return m;
-          const filtered = m.reactions.filter(r => r.user !== data.user_id);
-          return {
-            ...m,
-            reactions: [...filtered, { id: Date.now(), message: m.id, user: data.user_id, reaction: data.reaction }]
-          };
-        }));
+        if (data.conversation_id === selectedRef.current) {
+          setMessages(prev => prev.map(m => {
+            if (m.id !== data.message_id) return m;
+            const filtered = m.reactions.filter(r => r.user !== data.user_id);
+            return {
+              ...m,
+              reactions: [...filtered, { id: Date.now(), message: m.id, user: data.user_id, reaction: data.reaction }]
+            };
+          }));
+        }
         break;
 
       case 'message_deleted':
-        setMessages(prev => prev.map(m => 
-          m.id === data.message_id ? { ...m, is_deleted: true, deleted_for_everyone: data.delete_for_everyone } : m
-        ));
+        if (data.conversation_id === selectedRef.current) {
+          setMessages(prev => prev.map(m => 
+            m.id === data.message_id ? { ...m, is_deleted: true, deleted_for_everyone: data.delete_for_everyone } : m
+          ));
+        }
         break;
 
       case 'message_edited':
-        setMessages(prev => prev.map(m => 
-          m.id === data.message_id ? { ...m, content: data.content, is_edited: true } : m
-        ));
+        if (data.conversation_id === selectedRef.current) {
+          setMessages(prev => prev.map(m => 
+            m.id === data.message_id ? { ...m, content: data.content, is_edited: true } : m
+          ));
+        }
         break;
     }
-  };
+  }, [user?.id]);
+
+  const setupWebSocket = useCallback(() => {
+    if (wsRef.current) wsRef.current.close();
+
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    const wsUrl = `ws://localhost:8000/ws/chat/global/?token=${token}`;
+    const ws = new WebSocket(wsUrl);
+    wsRef.current = ws;
+
+    ws.onmessage = (e) => {
+      const data = JSON.parse(e.data);
+      handleWsEvent(data);
+    };
+
+    ws.onclose = () => {
+      console.log('WS Disconnected');
+    };
+  }, [handleWsEvent]);
+
+  useEffect(() => {
+    setupWebSocket();
+    return () => wsRef.current?.close();
+  }, [setupWebSocket]);
 
   // ── Load Messages on Select ────────────────────────────────────────────────
   useEffect(() => {
@@ -138,13 +191,10 @@ const Chat = () => {
       .catch(() => toast.error('Error loading messages'))
       .finally(() => setLoadingMsgs(false));
 
-    setupWebSocket(selected.id);
     chatService.markAsRead(selected.id).then(() => {
       setConversations(prev => prev.map(c => c.id === selected.id ? { ...c, unread_count: 0 } : c));
     });
-
-    return () => wsRef.current?.close();
-  }, [selected, setupWebSocket]);
+  }, [selected]);
 
   // ── Scroll to Bottom ───────────────────────────────────────────────────────
   useEffect(() => {
@@ -161,6 +211,7 @@ const Chat = () => {
       if (wsRef.current?.readyState === WebSocket.OPEN) {
         wsRef.current.send(JSON.stringify({
           type: 'chat_message',
+          conversation_id: selected.id,
           message: content,
           reply_to: replyingTo?.id
         }));
@@ -191,7 +242,7 @@ const Chat = () => {
 
   const handleReact = (msgId: number, emoji: string) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({ type: 'message_reaction', message_id: msgId, reaction: emoji }));
+      wsRef.current.send(JSON.stringify({ type: 'message_reaction', conversation_id: selected?.id, message_id: msgId, reaction: emoji }));
     } else {
       chatService.reactToMessage(msgId, emoji);
     }
@@ -199,7 +250,7 @@ const Chat = () => {
 
   const handleDelete = (msgId: number) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({ type: 'delete_message', message_id: msgId, delete_for_everyone: true }));
+      wsRef.current.send(JSON.stringify({ type: 'delete_message', conversation_id: selected?.id, message_id: msgId, delete_for_everyone: true }));
     } else {
       chatService.deleteMessage(msgId);
     }
@@ -250,6 +301,7 @@ const Chat = () => {
             onSearchChange={setSidebarSearch}
             onStartNewChat={() => setIsNewChatOpen(true)}
             currentUserId={user?.id}
+            onlineUsers={onlineUsers}
           />
         </div>
 

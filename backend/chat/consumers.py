@@ -5,33 +5,42 @@ from channels.db import database_sync_to_async
 from django.core.files.base import ContentFile
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.core.cache import cache
 from .models import Conversation, Message, MessageReceipt, TypingStatus, MessageReaction
 
 User = get_user_model()
 
-class EnhancedChatConsumer(AsyncWebsocketConsumer):
+class GlobalChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.conversation_id = self.scope['url_route']['kwargs']['conversation_id']
-        self.room_group_name = f'chat_{self.conversation_id}'
         self.user = self.scope['user']
-        print(f"WS Connect: conv={self.conversation_id} user={self.user} auth={self.user.is_authenticated}")
+        print(f"WS Connect: global user={self.user} auth={self.user.is_authenticated}")
         
         if not self.user.is_authenticated:
-            print(f"WS Auth Failed: closing connection for conv {self.conversation_id}")
+            print(f"WS Auth Failed: closing connection")
             await self.close()
             return
         
-        # Join conversation group
+        self.user_group_name = f'user_{self.user.id}'
+        
+        # Join personal user group
         await self.channel_layer.group_add(
-            self.room_group_name,
+            self.user_group_name,
+            self.channel_name
+        )
+        # Join global presence group
+        await self.channel_layer.group_add(
+            'global_presence',
             self.channel_name
         )
         
         await self.accept()
         
-        # Send online status
+        # Track online status in cache for API
+        await cache.aset(f"user_online_{self.user.id}", True, timeout=86400)
+        
+        # Send online status to everyone
         await self.channel_layer.group_send(
-            self.room_group_name,
+            'global_presence',
             {
                 'type': 'user_status',
                 'user_id': self.user.id,
@@ -41,22 +50,30 @@ class EnhancedChatConsumer(AsyncWebsocketConsumer):
         )
     
     async def disconnect(self, close_code):
-        # Send offline status
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'user_status',
-                'user_id': self.user.id,
-                'username': self.user.username,
-                'status': 'offline'
-            }
-        )
-        
-        # Leave conversation group
-        await self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name
-        )
+        if hasattr(self, 'user') and self.user.is_authenticated:
+            # Remove from cache
+            await cache.adelete(f"user_online_{self.user.id}")
+            
+            # Send offline status
+            await self.channel_layer.group_send(
+                'global_presence',
+                {
+                    'type': 'user_status',
+                    'user_id': self.user.id,
+                    'username': self.user.username,
+                    'status': 'offline'
+                }
+            )
+            
+            # Leave groups
+            await self.channel_layer.group_discard(
+                self.user_group_name,
+                self.channel_name
+            )
+            await self.channel_layer.group_discard(
+                'global_presence',
+                self.channel_name
+            )
     
     async def receive(self, text_data):
         data = json.loads(text_data)
@@ -76,14 +93,19 @@ class EnhancedChatConsumer(AsyncWebsocketConsumer):
             await self.handle_edit_message(data)
     
     async def handle_chat_message(self, data):
+        conversation_id = data.get('conversation_id')
         content = data.get('message', '')
         reply_to_id = data.get('reply_to')
         media_type = data.get('media_type', 'text')
         media_data = data.get('media_data')
         location_data = data.get('location')
         
+        if not conversation_id:
+            return
+
         # Save message to database
         message = await self.save_message(
+            conversation_id=conversation_id,
             content=content,
             media_type=media_type,
             media_data=media_data,
@@ -91,103 +113,132 @@ class EnhancedChatConsumer(AsyncWebsocketConsumer):
             location_data=location_data
         )
         
-        # Send message to room group
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'chat_message',
-                'message': message
-            }
-        )
+        # Send message to all participants
+        participant_ids = await self.get_conversation_participants(conversation_id)
+        for p_id in participant_ids:
+            await self.channel_layer.group_send(
+                f'user_{p_id}',
+                {
+                    'type': 'chat_message',
+                    'message': message,
+                    'conversation_id': conversation_id
+                }
+            )
     
     async def handle_typing_status(self, data):
+        conversation_id = data.get('conversation_id')
         is_typing = data.get('is_typing', False)
+        if not conversation_id:
+            return
+            
+        await self.update_typing_status(conversation_id, is_typing)
         
-        await self.update_typing_status(is_typing)
-        
-        # Broadcast typing status
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'typing_status',
-                'user_id': self.user.id,
-                'username': self.user.username,
-                'is_typing': is_typing
-            }
-        )
+        participant_ids = await self.get_conversation_participants(conversation_id)
+        for p_id in participant_ids:
+            await self.channel_layer.group_send(
+                f'user_{p_id}',
+                {
+                    'type': 'typing_status',
+                    'conversation_id': conversation_id,
+                    'user_id': self.user.id,
+                    'username': self.user.username,
+                    'is_typing': is_typing
+                }
+            )
     
     async def handle_message_read(self, data):
+        conversation_id = data.get('conversation_id')
         message_id = data.get('message_id')
-        
+        if not conversation_id:
+            return
+            
         await self.mark_message_read(message_id)
         
-        # Broadcast read receipt
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'message_read',
-                'message_id': message_id,
-                'user_id': self.user.id,
-                'read_at': timezone.now().isoformat()
-            }
-        )
+        participant_ids = await self.get_conversation_participants(conversation_id)
+        for p_id in participant_ids:
+            await self.channel_layer.group_send(
+                f'user_{p_id}',
+                {
+                    'type': 'message_read',
+                    'conversation_id': conversation_id,
+                    'message_id': message_id,
+                    'user_id': self.user.id,
+                    'read_at': timezone.now().isoformat()
+                }
+            )
     
     async def handle_message_reaction(self, data):
+        conversation_id = data.get('conversation_id')
         message_id = data.get('message_id')
         reaction = data.get('reaction')
+        if not conversation_id:
+            return
+            
+        await self.add_reaction(message_id, reaction)
         
-        reaction_data = await self.add_reaction(message_id, reaction)
-        
-        # Broadcast reaction
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'message_reaction',
-                'message_id': message_id,
-                'user_id': self.user.id,
-                'username': self.user.username,
-                'reaction': reaction
-            }
-        )
+        participant_ids = await self.get_conversation_participants(conversation_id)
+        for p_id in participant_ids:
+            await self.channel_layer.group_send(
+                f'user_{p_id}',
+                {
+                    'type': 'message_reaction',
+                    'conversation_id': conversation_id,
+                    'message_id': message_id,
+                    'user_id': self.user.id,
+                    'username': self.user.username,
+                    'reaction': reaction
+                }
+            )
     
     async def handle_delete_message(self, data):
+        conversation_id = data.get('conversation_id')
         message_id = data.get('message_id')
         delete_for_everyone = data.get('delete_for_everyone', False)
-        
+        if not conversation_id:
+            return
+            
         await self.delete_message(message_id, delete_for_everyone)
         
-        # Broadcast deletion
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'message_deleted',
-                'message_id': message_id,
-                'delete_for_everyone': delete_for_everyone,
-                'user_id': self.user.id
-            }
-        )
+        participant_ids = await self.get_conversation_participants(conversation_id)
+        for p_id in participant_ids:
+            await self.channel_layer.group_send(
+                f'user_{p_id}',
+                {
+                    'type': 'message_deleted',
+                    'conversation_id': conversation_id,
+                    'message_id': message_id,
+                    'delete_for_everyone': delete_for_everyone,
+                    'user_id': self.user.id
+                }
+            )
     
     async def handle_edit_message(self, data):
+        conversation_id = data.get('conversation_id')
         message_id = data.get('message_id')
         new_content = data.get('content')
+        if not conversation_id:
+            return
+            
+        await self.edit_message(message_id, new_content)
         
-        updated_message = await self.edit_message(message_id, new_content)
-        
-        # Broadcast edit
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'message_edited',
-                'message_id': message_id,
-                'content': new_content,
-                'user_id': self.user.id
-            }
-        )
+        participant_ids = await self.get_conversation_participants(conversation_id)
+        for p_id in participant_ids:
+            await self.channel_layer.group_send(
+                f'user_{p_id}',
+                {
+                    'type': 'message_edited',
+                    'conversation_id': conversation_id,
+                    'message_id': message_id,
+                    'content': new_content,
+                    'user_id': self.user.id
+                }
+            )
     
     # WebSocket event handlers
     async def chat_message(self, event):
         await self.send(text_data=json.dumps({
             'type': 'chat_message',
+            'conversation_id': event.get('conversation_id'),
             'message': event['message']
         }))
     
@@ -195,6 +246,7 @@ class EnhancedChatConsumer(AsyncWebsocketConsumer):
         if event['user_id'] != self.user.id:
             await self.send(text_data=json.dumps({
                 'type': 'typing_status',
+                'conversation_id': event['conversation_id'],
                 'user_id': event['user_id'],
                 'username': event['username'],
                 'is_typing': event['is_typing']
@@ -203,6 +255,7 @@ class EnhancedChatConsumer(AsyncWebsocketConsumer):
     async def message_read(self, event):
         await self.send(text_data=json.dumps({
             'type': 'message_read',
+            'conversation_id': event['conversation_id'],
             'message_id': event['message_id'],
             'user_id': event['user_id'],
             'read_at': event['read_at']
@@ -211,6 +264,7 @@ class EnhancedChatConsumer(AsyncWebsocketConsumer):
     async def message_reaction(self, event):
         await self.send(text_data=json.dumps({
             'type': 'message_reaction',
+            'conversation_id': event['conversation_id'],
             'message_id': event['message_id'],
             'user_id': event['user_id'],
             'username': event['username'],
@@ -220,6 +274,7 @@ class EnhancedChatConsumer(AsyncWebsocketConsumer):
     async def message_deleted(self, event):
         await self.send(text_data=json.dumps({
             'type': 'message_deleted',
+            'conversation_id': event['conversation_id'],
             'message_id': event['message_id'],
             'delete_for_everyone': event['delete_for_everyone'],
             'user_id': event['user_id']
@@ -228,6 +283,7 @@ class EnhancedChatConsumer(AsyncWebsocketConsumer):
     async def message_edited(self, event):
         await self.send(text_data=json.dumps({
             'type': 'message_edited',
+            'conversation_id': event['conversation_id'],
             'message_id': event['message_id'],
             'content': event['content'],
             'user_id': event['user_id']
@@ -243,8 +299,16 @@ class EnhancedChatConsumer(AsyncWebsocketConsumer):
     
     # Database operations
     @database_sync_to_async
-    def save_message(self, content, media_type, media_data, reply_to_id, location_data):
-        conversation = Conversation.objects.get(id=self.conversation_id)
+    def get_conversation_participants(self, conversation_id):
+        try:
+            conv = Conversation.objects.get(id=conversation_id)
+            return list(conv.participants.values_list('id', flat=True))
+        except Conversation.DoesNotExist:
+            return []
+
+    @database_sync_to_async
+    def save_message(self, conversation_id, content, media_type, media_data, reply_to_id, location_data):
+        conversation = Conversation.objects.get(id=conversation_id)
         
         message = Message.objects.create(
             conversation=conversation,
@@ -255,31 +319,22 @@ class EnhancedChatConsumer(AsyncWebsocketConsumer):
         
         # Handle media files
         if media_data and media_type in ['image', 'video', 'audio', 'document']:
-            # Decode base64 data
             format, imgstr = media_data.split(';base64,')
             ext = format.split('/')[-1]
-            
             file_data = ContentFile(base64.b64decode(imgstr), name=f'{message.id}.{ext}')
             
-            if media_type == 'image':
-                message.image = file_data
-            elif media_type == 'video':
-                message.video = file_data
-            elif media_type == 'audio':
-                message.audio = file_data
-            elif media_type == 'document':
-                message.document = file_data
-            
+            if media_type == 'image': message.image = file_data
+            elif media_type == 'video': message.video = file_data
+            elif media_type == 'audio': message.audio = file_data
+            elif media_type == 'document': message.document = file_data
             message.save()
         
-        # Handle location
         if location_data:
             message.latitude = location_data.get('latitude')
             message.longitude = location_data.get('longitude')
             message.location_name = location_data.get('name', '')
             message.save()
         
-        # Handle reply
         if reply_to_id:
             try:
                 reply_to_message = Message.objects.get(id=reply_to_id)
@@ -288,17 +343,12 @@ class EnhancedChatConsumer(AsyncWebsocketConsumer):
             except Message.DoesNotExist:
                 pass
         
-        # Update conversation timestamp
         conversation.updated_at = timezone.now()
         conversation.save()
         
-        # Create receipts for other participants
         participants = conversation.participants.exclude(id=self.user.id)
         for participant in participants:
-            MessageReceipt.objects.create(
-                message=message,
-                user=participant
-            )
+            MessageReceipt.objects.create(message=message, user=participant)
         
         return {
             'id': message.id,
@@ -322,9 +372,9 @@ class EnhancedChatConsumer(AsyncWebsocketConsumer):
         }
     
     @database_sync_to_async
-    def update_typing_status(self, is_typing):
+    def update_typing_status(self, conversation_id, is_typing):
         TypingStatus.objects.update_or_create(
-            conversation_id=self.conversation_id,
+            conversation_id=conversation_id,
             user_id=self.user.id,
             defaults={'is_typing': is_typing}
         )
@@ -336,12 +386,7 @@ class EnhancedChatConsumer(AsyncWebsocketConsumer):
             message.is_read = True
             message.read_at = timezone.now()
             message.save()
-            
-            # Update receipt
-            MessageReceipt.objects.filter(
-                message=message,
-                user_id=self.user.id
-            ).update(read_at=timezone.now())
+            MessageReceipt.objects.filter(message=message, user_id=self.user.id).update(read_at=timezone.now())
         except Message.DoesNotExist:
             pass
     

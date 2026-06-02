@@ -16,6 +16,7 @@ export interface ChatUser {
   full_name: string;
   profile_picture: string | null;
   user_type?: string;
+  is_online?: boolean;
 }
 
 export interface MessageReaction {

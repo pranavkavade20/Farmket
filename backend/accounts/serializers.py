@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from django.core.cache import cache
 from .models import FarmerProfile, BuyerProfile
 
 User = get_user_model()
@@ -11,12 +12,14 @@ class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
     profile_picture = serializers.SerializerMethodField()
 
+    is_online = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name',
             'full_name', 'gender', 'user_type', 'phone_number', 'address',
-            'profile_picture', 'is_verified', 'created_at',
+            'profile_picture', 'is_verified', 'created_at', 'is_online'
         ]
         read_only_fields = ['id', 'created_at', 'is_verified']
 
@@ -32,6 +35,9 @@ class UserSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(obj.profile_picture.url)
         # Fallback: return relative URL if no request in context
         return obj.profile_picture.url
+
+    def get_is_online(self, obj):
+        return cache.get(f"user_online_{obj.id}", False)
 
 
 class RegisterSerializer(serializers.ModelSerializer):

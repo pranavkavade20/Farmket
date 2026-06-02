@@ -340,7 +340,7 @@ const ProductDetails = () => {
                 <Button 
                   variant="secondary" 
                   className="flex-1 h-14 w-full gap-2 rounded-full font-bold bg-[#F2FCE4] text-green-900 hover:bg-[#E6F8CE] dark:bg-green-900/30 dark:text-green-400"
-                  onClick={() => navigate('/messages')}
+                  onClick={() => navigate('/messages', { state: { userId: product.farmer } })}
                 >
                   <MessageSquare className="h-5 w-5" /> Chat with Farmer
                 </Button>

@@ -127,6 +127,12 @@ const Marketplace = () => {
       <div>
         <h3 className="text-[11px] font-black text-gray-400 dark:text-gray-500 mb-5 uppercase tracking-widest">Quality</h3>
         <label className="flex items-center gap-4 cursor-pointer group px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-2xl transition-all">
+          <input
+            type="checkbox"
+            className="hidden"
+            checked={organicOnly}
+            onChange={(e) => setOrganicOnly(e.target.checked)}
+          />
           <div className={cn(
             "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all",
             organicOnly ? "bg-gray-900 border-gray-900 text-white dark:bg-white dark:border-white dark:text-gray-900" : "border-gray-300 dark:border-gray-600 group-hover:border-gray-400"
