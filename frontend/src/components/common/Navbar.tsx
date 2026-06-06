@@ -87,6 +87,7 @@ const Navbar = () => {
             {(!user || user.user_type === 'buyer' || user.user_type === 'farmer') && (
               <>
                 {navLink("/marketplace", "Marketplace")}
+                {navLink("/feed", "Community")}
                 {navLink("/market/upcoming-harvests", "Upcoming Harvests")}
               </>
             )}
@@ -188,6 +189,7 @@ const Navbar = () => {
               { to: "/", label: "Home" },
               ...(!user || user.user_type === 'buyer' || user.user_type === 'farmer' ? [
                 { to: "/marketplace", label: "Marketplace" },
+                { to: "/feed", label: "Community" },
                 { to: "/market/upcoming-harvests", label: "Upcoming Harvests" },
               ] : []),
               ...(user?.user_type === 'farmer' ? [

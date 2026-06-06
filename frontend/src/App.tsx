@@ -51,6 +51,8 @@ const AdminMarketplaceAnalytics = lazy(() => import('@/features/admin/pages/Mark
 const AdminCropAnalytics = lazy(() => import('@/features/admin/pages/CropAnalytics'));
 const AdminRevenueAnalytics = lazy(() => import('@/features/admin/pages/RevenueAnalytics'));
 
+const SocialFeedPage = lazy(() => import('@/features/social/pages/SocialFeedPage'));
+
 const NotFound    = lazy(() => import('@/pages/NotFound'));
 
 const PageLoader = () => (
@@ -94,6 +96,7 @@ function App() {
                       <Route path="marketplace" element={<Marketplace />} />
                       <Route path="marketplace/:id" element={<ProductDetails />} />
                       <Route path="market/upcoming-harvests" element={<UpcomingHarvests />} />
+                      <Route path="feed" element={<SocialFeedPage />} />
                     </Route>
 
                     {/* ── Auth routes ── */}

@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'orders',
     'analytics',
     'notifications',
-    
+    'posts',
+
     # Third party & utils
     'django_celery_beat',
     
