@@ -42,7 +42,18 @@ class ProductViewSet(viewsets.ModelViewSet):
             return qs
             
         from django.db.models import Q
-        return qs.filter(Q(is_available=True) | Q(farmer=user))
+        qs = qs.filter(Q(is_available=True) | Q(farmer=user))
+        
+        # Farmer specific location filtering
+        if user.user_type == 'farmer':
+            try:
+                user_location = user.farmer_profile.location
+                if user_location:
+                    qs = qs.exclude(~Q(farmer=user) & Q(farmer__farmer_profile__location__iexact=user_location))
+            except Exception:
+                pass
+                
+        return qs
 
     def perform_create(self, serializer):
         serializer.save(farmer=self.request.user)
@@ -136,7 +147,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     def upcoming_harvests(self, request):
         qs = self.get_queryset()
         from crops.models import CropGrowth
-        prebooking_growths = CropGrowth.objects.exclude(crop_stage__in=['HARVESTED', 'SOLD_OUT', 'READY_FOR_HARVEST']).values_list('product_id', flat=True)
+        prebooking_growths = CropGrowth.objects.exclude(stage__in=['HARVESTED', 'NEAR_HARVEST']).values_list('product_id', flat=True)
         products = qs.filter(id__in=prebooking_growths)[:20]
         serializer = self.get_serializer(products, many=True)
         return Response(serializer.data)

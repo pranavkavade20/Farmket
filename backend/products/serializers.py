@@ -55,7 +55,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def get_crop_stage(self, obj):
         growth = obj.active_crop_growth
-        return growth.crop_stage if growth else None
+        return growth.stage if growth else None
 
     def get_progress_percentage(self, obj):
         growth = obj.active_crop_growth

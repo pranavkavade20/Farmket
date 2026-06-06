@@ -27,22 +27,24 @@ class CropFollowerSerializer(serializers.ModelSerializer):
 
 class CropGrowthSerializer(serializers.ModelSerializer):
     farmer_name = serializers.ReadOnlyField(source='farmer.username')
+    crop_name = serializers.ReadOnlyField(source='product.name')
     product_details = ProductSerializer(source='product', read_only=True)
     stage_history = CropStageHistorySerializer(many=True, read_only=True)
     reservations = CropReservationSerializer(many=True, read_only=True)
     followers_count = serializers.SerializerMethodField()
     is_followed = serializers.SerializerMethodField()
+    progress = serializers.ReadOnlyField(source='progress_percentage')
 
     class Meta:
         model = CropGrowth
         fields = [
-            'id', 'farmer', 'farmer_name', 'product', 'product_details',
+            'id', 'farmer', 'farmer_name', 'crop_name', 'product', 'product_details',
             'sowing_date', 'expected_harvest_date', 'actual_harvest_date',
-            'expected_quantity', 'available_quantity', 'crop_stage',
-            'progress_percentage', 'organic', 'notes', 'created_at', 'updated_at',
+            'expected_quantity', 'available_quantity', 'stage',
+            'progress', 'organic', 'notes', 'created_at', 'last_updated',
             'stage_history', 'reservations', 'followers_count', 'is_followed'
         ]
-        read_only_fields = ['farmer', 'available_quantity', 'created_at', 'updated_at']
+        read_only_fields = ['farmer', 'available_quantity', 'created_at', 'last_updated']
 
     def get_followers_count(self, obj):
         return obj.followers.count()
@@ -63,7 +65,7 @@ class CropGrowthSerializer(serializers.ModelSerializer):
         if product and not self.instance: # on create
             active_growths = CropGrowth.objects.filter(
                 product=product
-            ).exclude(crop_stage__in=['HARVESTED', 'SOLD_OUT'])
+            ).exclude(stage='HARVESTED')
             if active_growths.exists():
                 raise serializers.ValidationError({"product": "This product already has an active tracking cycle."})
 

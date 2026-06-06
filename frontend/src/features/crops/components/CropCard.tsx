@@ -25,7 +25,7 @@ export const CropCard: React.FC<CropCardProps> = ({ crop }) => {
               {crop.product_details?.name || 'Unknown Crop'}
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Stage: <span className="font-medium text-green-600 dark:text-green-400">{crop.crop_stage.replace(/_/g, ' ')}</span>
+              Stage: <span className="font-medium text-green-600 dark:text-green-400">{crop.stage?.replace(/_/g, ' ')}</span>
             </p>
           </div>
           {crop.organic && (
@@ -39,9 +39,9 @@ export const CropCard: React.FC<CropCardProps> = ({ crop }) => {
           <div>
             <div className="flex justify-between text-sm mb-1">
               <span className="text-gray-500 dark:text-gray-400">Growth Progress</span>
-              <span className="font-medium text-gray-900 dark:text-white">{Math.round(crop.progress_percentage)}%</span>
+              <span className="font-medium text-gray-900 dark:text-white">{Math.round(crop.progress)}%</span>
             </div>
-            <ProgressBar progress={crop.progress_percentage} />
+            <ProgressBar progress={crop.progress} />
           </div>
 
           <div className="grid grid-cols-2 gap-4 text-sm">
@@ -69,7 +69,7 @@ export const CropCard: React.FC<CropCardProps> = ({ crop }) => {
         </div>
         <button
           onClick={handleUpdateStage}
-          disabled={crop.crop_stage === 'HARVESTED' || crop.crop_stage === 'SOLD_OUT'}
+          disabled={crop.stage === 'HARVESTED'}
           className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
         >
           <CheckCircle className="w-4 h-4" />

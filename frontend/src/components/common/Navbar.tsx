@@ -84,7 +84,7 @@ const Navbar = () => {
           {/* Center: Navigation Links */}
           <div className="hidden lg:flex flex-1 items-center justify-center gap-6 xl:gap-8">
             {navLink("/", "Home")}
-            {(!user || user.user_type === 'buyer') && (
+            {(!user || user.user_type === 'buyer' || user.user_type === 'farmer') && (
               <>
                 {navLink("/marketplace", "Marketplace")}
                 {navLink("/market/upcoming-harvests", "Upcoming Harvests")}
@@ -186,7 +186,7 @@ const Navbar = () => {
           <div className="flex flex-col gap-2">
               {[
               { to: "/", label: "Home" },
-              ...(!user || user.user_type === 'buyer' ? [
+              ...(!user || user.user_type === 'buyer' || user.user_type === 'farmer' ? [
                 { to: "/marketplace", label: "Marketplace" },
                 { to: "/market/upcoming-harvests", label: "Upcoming Harvests" },
               ] : []),

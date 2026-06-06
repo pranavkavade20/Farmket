@@ -10,8 +10,7 @@ import toast from 'react-hot-toast';
 
 const stageSchema = z.object({
   stage: z.enum([
-    'PLANNED', 'SOWN', 'GERMINATION', 'VEGETATIVE', 
-    'FLOWERING', 'FRUITING', 'READY_FOR_HARVEST', 'HARVESTED', 'SOLD_OUT'
+    'PLANTED', 'GROWING', 'NEAR_HARVEST', 'HARVESTED'
   ]),
   remarks: z.string().optional(),
 });
@@ -63,15 +62,10 @@ export const StageUpdateModal: React.FC = () => {
               {...register('stage')}
               className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-shadow"
             >
-              <option value="PLANNED">Planned</option>
-              <option value="SOWN">Sown</option>
-              <option value="GERMINATION">Germination</option>
-              <option value="VEGETATIVE">Vegetative</option>
-              <option value="FLOWERING">Flowering</option>
-              <option value="FRUITING">Fruiting</option>
-              <option value="READY_FOR_HARVEST">Ready for Harvest</option>
+              <option value="PLANTED">Planted</option>
+              <option value="GROWING">Growing</option>
+              <option value="NEAR_HARVEST">Near Harvest</option>
               <option value="HARVESTED">Harvested</option>
-              <option value="SOLD_OUT">Sold Out</option>
             </select>
             {errors.stage && <p className="mt-1 text-sm text-red-500">{errors.stage.message}</p>}
           </div>

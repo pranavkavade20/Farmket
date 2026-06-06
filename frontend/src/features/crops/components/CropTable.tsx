@@ -51,7 +51,7 @@ export const CropTable: React.FC<CropTableProps> = ({ crops }) => {
             </TableCell>
             <TableCell>
               <span className="capitalize text-green-700 dark:text-green-400 font-medium text-sm">
-                {crop.crop_stage.replace(/_/g, ' ')}
+                {crop.stage.replace(/_/g, ' ')}
               </span>
             </TableCell>
             <TableCell className="text-sm">
@@ -67,14 +67,14 @@ export const CropTable: React.FC<CropTableProps> = ({ crops }) => {
             </TableCell>
             <TableCell>
               <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 max-w-[100px]">
-                <div className="bg-green-600 h-2.5 rounded-full" style={{ width: `${Math.round(crop.progress_percentage)}%` }}></div>
+                <div className="bg-green-600 h-2.5 rounded-full" style={{ width: `${Math.round(crop.progress)}%` }}></div>
               </div>
-              <span className="text-xs text-gray-500 mt-1 block">{Math.round(crop.progress_percentage)}%</span>
+              <span className="text-xs text-gray-500 mt-1 block">{Math.round(crop.progress)}%</span>
             </TableCell>
             <TableCell className="text-right">
               <button
                 onClick={() => handleUpdateStage(crop.id)}
-                disabled={crop.crop_stage === 'HARVESTED' || crop.crop_stage === 'SOLD_OUT'}
+                disabled={crop.stage === 'HARVESTED'}
                 className="inline-flex items-center justify-center p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Update Stage"
               >

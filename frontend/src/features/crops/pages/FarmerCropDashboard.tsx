@@ -25,7 +25,7 @@ export default function FarmerCropDashboard() {
     if (!crops) return [];
     return crops.filter(crop => {
       const matchesSearch = crop.product_details?.name?.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStage = filterStage === 'ALL' || crop.crop_stage === filterStage;
+      const matchesStage = filterStage === 'ALL' || crop.stage === filterStage;
       return matchesSearch && matchesStage;
     });
   }, [crops, searchQuery, filterStage]);
@@ -86,9 +86,9 @@ export default function FarmerCropDashboard() {
               className="w-[150px]"
               options={[
                 { label: 'All Stages', value: 'ALL' },
-                { label: 'Sown', value: 'SOWN' },
+                { label: 'Planted', value: 'PLANTED' },
                 { label: 'Growing', value: 'GROWING' },
-                { label: 'Harvesting', value: 'HARVESTING' },
+                { label: 'Near Harvest', value: 'NEAR_HARVEST' },
                 { label: 'Harvested', value: 'HARVESTED' },
               ]}
             />

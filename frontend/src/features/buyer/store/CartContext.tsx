@@ -27,9 +27,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { user } = useAuth();
   const dispatch = useAppDispatch();
 
-  // Load cart when user signs in
+  // Load cart when user signs in and is a buyer
   useEffect(() => {
-    if (user) {
+    if (user && user.user_type === 'buyer') {
       void dispatch(refreshCartThunk());
     } else {
       dispatch(clearCartLocalAction());

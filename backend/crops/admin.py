@@ -12,8 +12,8 @@ class CropStageHistoryInline(admin.TabularInline):
 
 @admin.register(CropGrowth)
 class CropGrowthAdmin(admin.ModelAdmin):
-    list_display = ['farmer', 'product', 'crop_stage', 'expected_harvest_date', 'expected_quantity', 'available_quantity', 'organic']
-    list_filter = ['crop_stage', 'organic', 'expected_harvest_date']
+    list_display = ['farmer', 'product', 'stage', 'expected_harvest_date', 'expected_quantity', 'available_quantity', 'organic']
+    list_filter = ['stage', 'organic', 'expected_harvest_date']
     search_fields = ['farmer__username', 'product__name']
     autocomplete_fields = ['farmer', 'product']
     date_hierarchy = 'expected_harvest_date'

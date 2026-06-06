@@ -2,13 +2,9 @@ import { CheckCircle2, Circle, Clock } from 'lucide-react';
 import type { CropStageHistory } from '@/types/crops';
 
 const STAGES = [
-  'PLANNED',
-  'SOWN',
-  'GERMINATION',
-  'VEGETATIVE',
-  'FLOWERING',
-  'FRUITING',
-  'READY_FOR_HARVEST',
+  'PLANTED',
+  'GROWING',
+  'NEAR_HARVEST',
   'HARVESTED',
 ];
 

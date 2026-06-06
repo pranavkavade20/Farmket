@@ -8,8 +8,8 @@ def track_stage_change(sender, instance, **kwargs):
     if instance.pk:
         try:
             old_instance = CropGrowth.objects.get(pk=instance.pk)
-            if old_instance.crop_stage != instance.crop_stage:
-                instance._previous_stage = old_instance.crop_stage
+            if old_instance.stage != instance.stage:
+                instance._previous_stage = old_instance.stage
                 instance._stage_changed = True
         except CropGrowth.DoesNotExist:
             pass
@@ -23,7 +23,7 @@ def process_stage_change(sender, instance, created, **kwargs):
         CropStageHistory.objects.create(
             crop_growth=instance,
             previous_stage=previous_stage,
-            current_stage=instance.crop_stage,
+            current_stage=instance.stage,
             updated_by=getattr(instance, '_updated_by', instance.farmer),
             remarks=getattr(instance, '_stage_remarks', '')
         )
@@ -36,17 +36,17 @@ def process_stage_change(sender, instance, created, **kwargs):
                     user=follower.buyer,
                     notification_type='buyer_alert',
                     title=f"Crop Stage Updated: {instance.product.name if instance.product else 'Crop'}",
-                    message=f"The stage changed from {previous_stage} to {instance.crop_stage}."
+                    message=f"The stage changed from {previous_stage} to {instance.stage}."
                 )
                 
             # If ready for harvest or harvested, send specific alerts
-            if instance.crop_stage in ['READY_FOR_HARVEST', 'HARVESTED']:
+            if instance.stage in ['NEAR_HARVEST', 'HARVESTED']:
                 for follower in followers:
                     Notification.objects.create(
                         user=follower.buyer,
                         notification_type='buyer_alert',
                         title=f"Harvest Alert: {instance.product.name if instance.product else 'Crop'}",
-                        message=f"The crop is now {instance.get_crop_stage_display()}!"
+                        message=f"The crop is now {instance.get_stage_display()}!"
                     )
 
 @receiver(pre_save, sender=CropReservation)

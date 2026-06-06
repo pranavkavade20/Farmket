@@ -4,18 +4,13 @@ from products.models import Product
 from django.utils import timezone
 from datetime import timedelta
 
+class CropStage(models.TextChoices):
+    PLANTED = "PLANTED", "Planted"
+    GROWING = "GROWING", "Growing"
+    NEAR_HARVEST = "NEAR_HARVEST", "Near Harvest"
+    HARVESTED = "HARVESTED", "Harvested"
+
 class CropGrowth(models.Model):
-    STAGE_CHOICES = (
-        ('PLANNED', 'Planned'),
-        ('SOWN', 'Sown'),
-        ('GERMINATION', 'Germination'),
-        ('VEGETATIVE', 'Vegetative'),
-        ('FLOWERING', 'Flowering'),
-        ('FRUITING', 'Fruiting'),
-        ('READY_FOR_HARVEST', 'Ready for Harvest'),
-        ('HARVESTED', 'Harvested'),
-        ('SOLD_OUT', 'Sold Out'),
-    )
 
     farmer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='crop_growths')
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True, related_name='crop_growths')
@@ -24,11 +19,11 @@ class CropGrowth(models.Model):
     actual_harvest_date = models.DateField(null=True, blank=True)
     expected_quantity = models.DecimalField(max_digits=10, decimal_places=2)
     available_quantity = models.DecimalField(max_digits=10, decimal_places=2)
-    crop_stage = models.CharField(max_length=20, choices=STAGE_CHOICES, default='PLANNED')
+    stage = models.CharField(max_length=20, choices=CropStage.choices, default=CropStage.PLANTED)
     organic = models.BooleanField(default=False)
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    last_updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['-expected_harvest_date']
@@ -38,23 +33,18 @@ class CropGrowth(models.Model):
 
     @property
     def progress_percentage(self):
-        if self.crop_stage in ['HARVESTED', 'SOLD_OUT']:
-            return 100.0
-        
-        today = timezone.now().date()
-        days_elapsed = (today - self.sowing_date).days
-        total_days = (self.expected_harvest_date - self.sowing_date).days
-        
-        if total_days <= 0:
-            return 100.0 if days_elapsed >= 0 else 0.0
-            
-        progress = (days_elapsed / total_days) * 100
-        return max(0.0, min(100.0, progress))
+        mapping = {
+            'PLANTED': 25,
+            'GROWING': 50,
+            'NEAR_HARVEST': 75,
+            'HARVESTED': 100,
+        }
+        return mapping.get(self.stage, 0)
 
 class CropStageHistory(models.Model):
     crop_growth = models.ForeignKey(CropGrowth, on_delete=models.CASCADE, related_name='stage_history')
-    previous_stage = models.CharField(max_length=20, choices=CropGrowth.STAGE_CHOICES, null=True, blank=True)
-    current_stage = models.CharField(max_length=20, choices=CropGrowth.STAGE_CHOICES)
+    previous_stage = models.CharField(max_length=20, choices=CropStage.choices, null=True, blank=True)
+    current_stage = models.CharField(max_length=20, choices=CropStage.choices)
     updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     remarks = models.TextField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)

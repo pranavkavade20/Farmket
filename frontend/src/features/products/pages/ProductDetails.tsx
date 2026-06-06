@@ -147,10 +147,10 @@ const ProductDetails = () => {
       );
     }
 
-    if (user.id === product.farmer) {
+    if (user.user_type === 'farmer') {
       return (
         <Button className="flex-1 h-16 text-lg rounded-full font-black tracking-wide bg-gray-100 text-gray-500 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400" disabled>
-          YOUR PRODUCT
+          FARMERS CANNOT BUY
         </Button>
       );
     }
@@ -277,7 +277,7 @@ const ProductDetails = () => {
                 {product.harvest_countdown > 0 && <HarvestCountdown days={product.harvest_countdown} />}
               </div>
               
-              <CropProgressBar progress={product.progress_percentage} stage={product.crop_stage} className="mb-6" />
+              <CropProgressBar progress={product.progress} stage={product.stage} className="mb-6" />
 
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-50 dark:border-gray-700">
@@ -301,13 +301,13 @@ const ProductDetails = () => {
 
           {growthDetails && growthDetails.stage_history && (
             <div className="mb-10 bg-white dark:bg-[#111] rounded-[2.5rem] p-8 shadow-sm border border-gray-100 dark:border-gray-800">
-               <CropTimeline currentStage={product.crop_stage} history={growthDetails.stage_history} />
+               <CropTimeline currentStage={product.stage} history={growthDetails.stage_history} />
             </div>
           )}
 
           {/* Actions */}
           <div className="flex flex-col gap-4 mt-auto">
-            {['AVAILABLE_NOW', 'LOW_STOCK'].includes(product.market_state) && user?.id !== product.farmer ? (
+            {['AVAILABLE_NOW', 'LOW_STOCK'].includes(product.market_state) && user?.user_type !== 'farmer' ? (
               <div className="flex items-center gap-4 mb-2">
                 <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-full h-16 p-2">
                   <button 
@@ -332,7 +332,7 @@ const ProductDetails = () => {
               </div>
             )}
             
-            {user?.id !== product.farmer && (
+            {user?.user_type !== 'farmer' && (
               <div className="flex flex-col sm:flex-row items-center gap-4 mt-2">
                 <Button variant="outline" className={`flex-1 h-14 w-full gap-2 rounded-full font-bold border-gray-200 ${isFollowing ? 'text-red-600 border-red-200 bg-red-50' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400'}`} onClick={handleFollowToggle}>
                   <Heart className={`h-5 w-5 ${isFollowing ? 'fill-current' : ''}`} /> {isFollowing ? 'Following' : 'Follow Crop'}

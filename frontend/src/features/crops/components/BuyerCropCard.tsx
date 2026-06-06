@@ -5,6 +5,7 @@ import { Leaf, Clock, ShoppingCart, Bell } from 'lucide-react';
 import { useAppDispatch } from '@/app/hooks';
 import { openReservationModal } from '../cropsSlice';
 import { useFollowCropMutation, useUnfollowCropMutation } from '../cropsApi';
+import { useAuth } from '@/features/auth';
 import toast from 'react-hot-toast';
 
 interface BuyerCropCardProps {
@@ -13,6 +14,7 @@ interface BuyerCropCardProps {
 
 export const BuyerCropCard: React.FC<BuyerCropCardProps> = ({ crop }) => {
   const dispatch = useAppDispatch();
+  const { user } = useAuth();
   const [followCrop, { isLoading: isFollowing }] = useFollowCropMutation();
   const [unfollowCrop, { isLoading: isUnfollowing }] = useUnfollowCropMutation();
   
@@ -86,9 +88,9 @@ export const BuyerCropCard: React.FC<BuyerCropCardProps> = ({ crop }) => {
           <div>
             <div className="flex justify-between text-xs mb-1 font-medium">
               <span className="text-gray-500 dark:text-gray-400">Growth Progress</span>
-              <span className="text-gray-900 dark:text-white">{Math.round(crop.progress_percentage)}%</span>
+              <span className="text-gray-900 dark:text-white">{Math.round(crop.progress)}%</span>
             </div>
-            <ProgressBar progress={crop.progress_percentage} className="h-1.5" />
+            <ProgressBar progress={crop.progress} className="h-1.5" />
           </div>
 
           <div className="flex justify-between items-end">
@@ -121,14 +123,16 @@ export const BuyerCropCard: React.FC<BuyerCropCardProps> = ({ crop }) => {
             <Bell className={`w-5 h-5 ${crop.is_followed ? 'fill-current' : ''}`} />
           </button>
           
-          <button
-            onClick={handleReserve}
-            disabled={Number(crop.available_quantity) <= 0}
-            className="flex-1 py-2.5 px-4 bg-gray-900 hover:bg-black text-white dark:bg-green-600 dark:hover:bg-green-700 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ShoppingCart className="w-4 h-4" />
-            Reserve Now
-          </button>
+          {user?.user_type === 'farmer' ? null : (
+            <button
+              onClick={handleReserve}
+              disabled={Number(crop.available_quantity) <= 0}
+              className="flex-1 py-2.5 px-4 bg-gray-900 hover:bg-black text-white dark:bg-green-600 dark:hover:bg-green-700 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <ShoppingCart className="w-4 h-4" />
+              Reserve Now
+            </button>
+          )}
         </div>
       </div>
     </div>

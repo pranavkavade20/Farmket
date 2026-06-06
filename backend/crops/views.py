@@ -16,7 +16,7 @@ class CropGrowthViewSet(viewsets.ModelViewSet):
         user = self.request.user
         
         if not user or not user.is_authenticated:
-            return qs.exclude(crop_stage__in=['HARVESTED', 'SOLD_OUT'])
+            return qs.exclude(stage='HARVESTED')
             
         if user.is_staff:
             return qs
@@ -26,7 +26,7 @@ class CropGrowthViewSet(viewsets.ModelViewSet):
             return qs.filter(farmer=user)
             
         # Buyers see available upcoming harvests
-        return qs.exclude(crop_stage__in=['HARVESTED', 'SOLD_OUT'])
+        return qs.exclude(stage='HARVESTED')
 
     def perform_create(self, serializer):
         # Automatically set available_quantity equal to expected_quantity on creation
@@ -35,7 +35,7 @@ class CropGrowthViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
     def upcoming(self, request):
-        qs = CropGrowth.objects.exclude(crop_stage__in=['HARVESTED', 'SOLD_OUT']).order_by('expected_harvest_date')[:20]
+        qs = CropGrowth.objects.exclude(stage='HARVESTED').order_by('expected_harvest_date')[:20]
         serializer = self.get_serializer(qs, many=True)
         return Response(serializer.data)
 
@@ -45,11 +45,11 @@ class CropGrowthViewSet(viewsets.ModelViewSet):
         new_stage = request.data.get('stage')
         remarks = request.data.get('remarks', '')
         
-        if not new_stage or new_stage not in dict(CropGrowth.STAGE_CHOICES):
+        if not new_stage or new_stage not in ['PLANTED', 'GROWING', 'NEAR_HARVEST', 'HARVESTED']:
             return Response({'error': 'Invalid stage'}, status=status.HTTP_400_BAD_REQUEST)
             
         # The history creation and notification will be handled by signals
-        crop.crop_stage = new_stage
+        crop.stage = new_stage
         
         if new_stage == 'HARVESTED' and not crop.actual_harvest_date:
             crop.actual_harvest_date = timezone.now().date()
@@ -79,7 +79,7 @@ class CropGrowthViewSet(viewsets.ModelViewSet):
         crop._updated_by = request.user
         crop.save()
         
-        return Response({'status': 'Stage updated', 'current_stage': crop.crop_stage})
+        return Response({'status': 'Stage updated', 'current_stage': crop.stage})
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def reserve(self, request, pk=None):

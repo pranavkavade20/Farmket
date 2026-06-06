@@ -16,7 +16,7 @@ export const CropCalendar: React.FC<CropCalendarProps> = ({ crops }) => {
       calendarEvents.push({
         id: `${crop.id}-sowing`,
         title: `🌱 Sown: ${name}`,
-        description: `Stage: ${crop.crop_stage.replace(/_/g, ' ')}\nExpected Harvest: ${new Date(crop.expected_harvest_date).toLocaleDateString()}`,
+        description: `Stage: ${crop.stage?.replace(/_/g, ' ')}\nExpected Harvest: ${new Date(crop.expected_harvest_date).toLocaleDateString()}`,
         startDate: new Date(crop.sowing_date),
         endDate: new Date(crop.sowing_date),
         color: 'bg-blue-500 hover:bg-blue-600'

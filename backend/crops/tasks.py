@@ -8,7 +8,7 @@ from notifications.models import Notification
 def check_upcoming_harvests():
     today = timezone.now().date()
     # Find active crops
-    active_crops = CropGrowth.objects.exclude(crop_stage__in=['HARVESTED', 'SOLD_OUT'])
+    active_crops = CropGrowth.objects.exclude(stage='HARVESTED')
     
     for crop in active_crops:
         days_remaining = (crop.expected_harvest_date - today).days

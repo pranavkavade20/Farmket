@@ -94,8 +94,8 @@ export interface Product {
   reviews: Review[];
   // Market State & Prebooking fields
   market_state: 'UPCOMING' | 'GROWING' | 'READY_FOR_PREBOOKING' | 'READY_TO_HARVEST' | 'AVAILABLE_NOW' | 'LOW_STOCK' | 'SOLD_OUT';
-  crop_stage: string | null;
-  progress_percentage: number;
+  stage: string | null;
+  progress: number;
   harvest_countdown: number;
   reservation_count: number;
   reserved_quantity: number;

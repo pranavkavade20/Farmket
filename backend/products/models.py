@@ -2,6 +2,7 @@ from django.db import models
 from accounts.models import User
 from django.core.validators import MinValueValidator
 from django.utils.text import slugify
+from decimal import Decimal
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -36,7 +37,7 @@ class Product(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True, blank=True)
     description = models.TextField()
-    price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.00'))])
     unit = models.CharField(max_length=10, choices=UNIT_CHOICES, default='kg')
     stock_quantity = models.IntegerField(validators=[MinValueValidator(0)])
     minimum_order = models.IntegerField(default=1, validators=[MinValueValidator(1)])
@@ -69,7 +70,7 @@ class Product(models.Model):
         
     @property
     def active_crop_growth(self):
-        return self.crop_growths.exclude(crop_stage='SOLD_OUT').order_by('-expected_harvest_date').first()
+        return self.crop_growths.exclude(stage='HARVESTED', available_quantity__lte=0).order_by('-expected_harvest_date').first()
         
     @property
     def market_state(self):
@@ -83,10 +84,10 @@ class Product(models.Model):
         if not growth:
             return 'SOLD_OUT'
             
-        stage = growth.crop_stage
-        if stage == 'READY_FOR_HARVEST':
+        stage = growth.stage
+        if stage == 'NEAR_HARVEST':
             return 'READY_TO_HARVEST'
-        elif stage in ['PLANNED', 'SOWN', 'GERMINATION', 'VEGETATIVE', 'FLOWERING', 'FRUITING']:
+        elif stage in ['PLANTED', 'GROWING']:
             return 'READY_FOR_PREBOOKING'
             
         return 'SOLD_OUT'
