@@ -102,10 +102,10 @@ const Home = () => {
       </section>
 
       {/* Product Mockups / Showcases */}
-      <ProductShowcaseSection />
+      {/* <ProductShowcaseSection /> */}
 
       {/* Activity and Testimonials */}
-      <MarketplaceActivitySection />
+      {/* <MarketplaceActivitySection /> */}
       
       <div className="mt-16">
         <SuccessStoriesSection />

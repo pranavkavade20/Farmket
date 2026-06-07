@@ -90,7 +90,6 @@ const Navbar = () => {
               </>
             )}
             {navLink("/about", "About Platform")}
-            {navLink("/#success-stories", "Success Stories")}
           </div>
 
           {/* Right: Actions */}
@@ -189,7 +188,6 @@ const Navbar = () => {
                 { to: "/farmer/orders", label: "Received Orders" },
               ] : []),
               { to: "/about", label: "About Platform" },
-              { to: "/#success-stories", label: "Success Stories" },
               ...(user
                 ? [
                   { to: "/dashboard", label: "Dashboard" },

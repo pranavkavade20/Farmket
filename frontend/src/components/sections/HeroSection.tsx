@@ -3,7 +3,6 @@ import { motion, type Variants } from 'framer-motion';
 import { 
   Sprout, 
   TrendingUp, 
-  ShoppingBag, 
   MessageCircle, 
   ArrowRight, 
   ShieldCheck,
@@ -14,7 +13,6 @@ import {
 } from 'lucide-react';
 import tomatoImg from '@/assets/images/hero/tomato.png';
 import broccoliImg from '@/assets/images/hero/broccoli.png';
-import herosectionvideo from '@/assets/videos/hero.mp4';
 
 export const HeroSection = () => {
   const containerVariants: Variants = {
@@ -45,22 +43,8 @@ export const HeroSection = () => {
   };
 
   return (
-    <section className="relative w-full min-h-[90vh] dark:bg-[#050505] overflow-hidden flex items-center lg:rounded-[3rem] mt-4 lg:mx-4 font-sans border border-gray-100 dark:border-gray-900 shadow-sm">
+    <section className="relative w-full min-h-[90vh] dark:bg-[#050505] overflow-hidden flex items-center mt-4 lg:mx-4">
       
-      {/* Background / Video */}
-      <div className="absolute inset-0 z-0">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-full object-cover opacity-80 dark:opacity-50 scale-105"
-        >
-          <source src={herosectionvideo} type="video/mp4" />
-        </video>
-        
-      </div>
-
       <div className="relative z-20 w-full max-w-[1600px] mx-auto px-6 sm:px-8 lg:px-12 py-20 lg:py-0">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center h-full">
           
@@ -159,7 +143,7 @@ export const HeroSection = () => {
             <motion.div 
               variants={floatReverseVariants}
               animate="animate"
-              className="absolute top-[180px] left-[30px] z-30 w-[240px] bg-white/90 dark:bg-[#0A0A0A]/90 backdrop-blur-xl p-4 rounded-3xl shadow-xl border border-white dark:border-gray-800"
+              className="absolute top-[160px] left-[30px] z-30 w-[240px] bg-white/90 dark:bg-[#0A0A0A]/90 backdrop-blur-xl p-4 rounded-3xl shadow-xl border border-white dark:border-gray-800"
             >
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center text-lg border border-green-200 dark:border-green-800">👨🏽‍🌾</div>
@@ -177,22 +161,6 @@ export const HeroSection = () => {
                   <p className="text-xl font-black text-gray-900 dark:text-white leading-none">₹12,450</p>
                   <span className="text-[10px] font-bold text-green-600">+₹840 today</span>
                 </div>
-              </div>
-            </motion.div>
-
-            {/* Buyer Notification Card */}
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 1, duration: 0.5 }}
-              className="absolute top-[5%] right-[5%] z-10 w-[220px] bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 flex items-center gap-3"
-            >
-              <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                <MessageCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <p className="text-xs font-bold text-gray-900 dark:text-white">New Order!</p>
-                <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400">Restaurant XYZ just bought 50kg Tomatoes</p>
               </div>
             </motion.div>
 
