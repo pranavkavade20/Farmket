@@ -1,10 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import logo from '@/assets/images/logo.png';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Leaf } from 'lucide-react';
 
 const XIcon = () => (
-  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true">
+  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.912-5.622Zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
   </svg>
 );
@@ -29,40 +29,47 @@ const LinkedinIcon = () => (
 
 const Footer = () => {
   return (
-    <footer className="bg-white dark:bg-[#0A0A0A] overflow-hidden w-full border-t border-gray-100 dark:border-gray-900 mt-20">
-      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8 py-20">
+    <footer className="bg-white dark:bg-[#050505] overflow-hidden w-full border-t border-gray-100 dark:border-white/5 relative">
+      {/* Background Subtle Gradient */}
+      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-brand-500/20 to-transparent" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[50%] h-[200px] bg-brand-500/5 blur-[120px] rounded-full pointer-events-none" />
+
+      <div className="mx-auto max-w-[1600px] px-6 sm:px-8 lg:px-12 pt-20 pb-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-8">
 
           {/* Brand & Socials */}
-          <div className="col-span-1 md:col-span-4 pr-8">
-            <Link to="/" className="flex items-center gap-2 mb-6">
-              <img src={logo} alt="Farmket Logo" className="h-10 w-10 object-contain" />
-              <span className="text-3xl font-black tracking-tighter text-gray-900 dark:text-white">
+          <div className="col-span-1 md:col-span-4 lg:pr-12">
+            <Link to="/" className="flex items-center gap-3 mb-6 group">
+              <div className="relative">
+                <div className="absolute inset-0 bg-brand-500 rounded-full blur-md opacity-0 group-hover:opacity-40 transition-opacity duration-300" />
+                <img src={logo} alt="Farmket Logo" className="h-10 w-10 object-contain relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform duration-300" />
+              </div>
+              <span className="text-3xl font-black tracking-tighter text-gray-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors duration-300">
                 Farmket
               </span>
             </Link>
-            <p className="text-[15px] text-gray-500 dark:text-gray-400 mb-8 font-medium leading-relaxed max-w-sm">
-              Connecting farmers directly with buyers for a sustainable, fresh, and organic agricultural future.
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-8 font-medium leading-relaxed max-w-sm">
+              Connecting farmers directly with buyers for a sustainable, fresh, and organic agricultural future. No middlemen, absolute transparency.
             </p>
-            <div className="flex space-x-4">
-              <a href="#" className="h-12 w-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-[#168748] hover:text-white dark:bg-gray-900 dark:hover:bg-[#168748] transition-all">
+            <div className="flex gap-3">
+              <a href="#" className="h-10 w-10 rounded-full glass border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-brand-600 hover:text-white dark:hover:bg-brand-500 dark:hover:border-brand-400 hover:scale-110 transition-all duration-300 shadow-sm">
                 <XIcon />
               </a>
-              <a href="#" className="h-12 w-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-[#168748] hover:text-white dark:bg-gray-900 dark:hover:bg-[#168748] transition-all">
+              <a href="#" className="h-10 w-10 rounded-full glass border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-brand-600 hover:text-white dark:hover:bg-brand-500 dark:hover:border-brand-400 hover:scale-110 transition-all duration-300 shadow-sm">
                 <WhatsappIcon />
               </a>
-              <a href="#" className="h-12 w-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-[#168748] hover:text-white dark:bg-gray-900 dark:hover:bg-[#168748] transition-all">
+              <a href="#" className="h-10 w-10 rounded-full glass border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-brand-600 hover:text-white dark:hover:bg-brand-500 dark:hover:border-brand-400 hover:scale-110 transition-all duration-300 shadow-sm">
                 <InstagramIcon />
               </a>
-              <a href="#" className="h-12 w-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-[#168748] hover:text-white dark:bg-gray-900 dark:hover:bg-[#168748] transition-all">
+              <a href="#" className="h-10 w-10 rounded-full glass border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-brand-600 hover:text-white dark:hover:bg-brand-500 dark:hover:border-brand-400 hover:scale-110 transition-all duration-300 shadow-sm">
                 <LinkedinIcon />
               </a>
             </div>
           </div>
 
           {/* Nav Links */}
-          <div className="col-span-1 md:col-span-2">
-            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-6">Product</h3>
+          <div className="col-span-1 md:col-span-2 md:pl-8">
+            <h3 className="text-sm font-black uppercase tracking-wider text-gray-900 dark:text-white mb-6">Product</h3>
             <ul className="space-y-4">
               {[
                 { name: 'Features', to: '/about#features' },
@@ -72,7 +79,7 @@ const Footer = () => {
                 { name: 'Success Stories', to: '/#success-stories' },
               ].map((link) => (
                 <li key={link.name}>
-                  <Link to={link.to} className="text-[15px] font-bold text-gray-500 hover:text-[#168748] dark:text-gray-400 transition-colors">
+                  <Link to={link.to} className="text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors inline-block hover:translate-x-1 transform duration-200">
                     {link.name}
                   </Link>
                 </li>
@@ -81,7 +88,7 @@ const Footer = () => {
           </div>
 
           <div className="col-span-1 md:col-span-2">
-            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-6">Company</h3>
+            <h3 className="text-sm font-black uppercase tracking-wider text-gray-900 dark:text-white mb-6">Company</h3>
             <ul className="space-y-4">
               {[
                 { name: 'About Us', to: '/about' },
@@ -90,7 +97,7 @@ const Footer = () => {
                 { name: 'Contact', to: '/contact' },
               ].map((link) => (
                 <li key={link.name}>
-                  <Link to={link.to} className="text-[15px] font-bold text-gray-500 hover:text-[#168748] dark:text-gray-400 transition-colors">
+                  <Link to={link.to} className="text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors inline-block hover:translate-x-1 transform duration-200">
                     {link.name}
                   </Link>
                 </li>
@@ -100,20 +107,29 @@ const Footer = () => {
 
           {/* Newsletter Box */}
           <div className="col-span-1 md:col-span-4">
-            <div className="rounded-[2rem] bg-[#F5F5F5] dark:bg-gray-900 p-8">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Join our Newsletter</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 font-medium">Get exclusive discounts and seasonal offers directly to your inbox.</p>
-              <form className="relative flex items-center" onSubmit={(e) => e.preventDefault()}>
+            <div className="glass-card rounded-[2rem] border border-gray-200 dark:border-white/5 p-8 relative overflow-hidden group">
+              {/* Card Background Glow */}
+              <div className="absolute -top-20 -right-20 w-40 h-40 bg-brand-400/20 dark:bg-brand-500/10 blur-3xl rounded-full group-hover:scale-150 transition-transform duration-700 pointer-events-none" />
+              
+              <div className="flex items-center gap-3 mb-3 relative z-10">
+                <div className="w-8 h-8 rounded-full bg-brand-50 dark:bg-brand-900/30 flex items-center justify-center border border-brand-100 dark:border-brand-800/50">
+                  <Leaf className="w-4 h-4 text-brand-600 dark:text-brand-400" />
+                </div>
+                <h3 className="text-xl font-black text-gray-900 dark:text-white">Join our Newsletter</h3>
+              </div>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 font-medium relative z-10">Get exclusive discounts and seasonal offers directly to your inbox.</p>
+              
+              <form className="relative flex items-center z-10" onSubmit={(e) => e.preventDefault()}>
                 <input
                   type="email"
                   placeholder="Email address..."
-                  className="w-full rounded-full border-none bg-white py-4 pl-6 pr-14 text-sm font-medium text-gray-900 shadow-sm outline-none focus:ring-2 focus:ring-[#168748] dark:bg-gray-950 dark:text-white"
+                  className="w-full rounded-2xl border border-gray-200 dark:border-white/10 bg-white/80 dark:bg-black/50 backdrop-blur-sm py-3.5 pl-5 pr-14 text-sm font-medium text-gray-900 shadow-sm outline-none focus:ring-2 focus:ring-brand-500 dark:text-white focus:border-brand-500 transition-all"
                 />
                 <button
                   type="submit"
-                  className="absolute right-2 h-10 w-10 rounded-full bg-[#111] flex items-center justify-center text-white hover:bg-black hover:scale-105 transition-all shadow-md"
+                  className="absolute right-1.5 h-[36px] w-[36px] rounded-xl bg-brand-600 flex items-center justify-center text-white hover:bg-brand-700 hover:scale-105 active:scale-95 transition-all shadow-md shadow-brand-500/20"
                 >
-                  <ArrowRight className="h-5 w-5" />
+                  <ArrowRight className="h-4 w-4" />
                 </button>
               </form>
             </div>
@@ -122,13 +138,13 @@ const Footer = () => {
         </div>
 
         {/* Bottom */}
-        <div className="mt-16 pt-8 border-t border-gray-100 dark:border-gray-900 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm font-bold text-gray-400">
+        <div className="mt-16 pt-8 border-t border-gray-100 dark:border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 relative z-10">
+          <p className="text-sm font-bold text-gray-400 dark:text-gray-600">
             &copy; {new Date().getFullYear()} Farmket Inc. All rights reserved.
           </p>
-          <div className="flex items-center gap-6 text-sm font-bold text-gray-400">
-             <button className="hover:text-gray-900 dark:hover:text-white transition-colors">English (EN)</button>
-             <button className="hover:text-gray-900 dark:hover:text-white transition-colors">INR (₹)</button>
+          <div className="flex items-center gap-6 text-sm font-bold text-gray-400 dark:text-gray-600">
+             <button className="hover:text-gray-900 dark:hover:text-gray-300 transition-colors">English (EN)</button>
+             <button className="hover:text-gray-900 dark:hover:text-gray-300 transition-colors">INR (₹)</button>
           </div>
         </div>
       </div>

@@ -31,26 +31,32 @@ const testimonials = [
 
 export const SuccessStoriesSection = () => {
   return (
-    <section id="success-stories" className="w-full bg-green-50 dark:bg-[#050505] py-24 lg:py-32 border-b border-gray-100 dark:border-gray-900">
-      <div className="mx-auto max-w-[1600px] px-6 sm:px-8 lg:px-12">
+    <section id="success-stories" className="relative w-full bg-[#FAFAF8] dark:bg-[#050505] py-24 lg:py-32 border-b border-gray-100 dark:border-white/5 overflow-hidden">
+      {/* Premium Background Effects */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[10%] right-[10%] w-[30%] h-[30%] rounded-full bg-brand-400/10 dark:bg-brand-500/10 blur-[100px] mix-blend-multiply dark:mix-blend-lighten" />
+        <div className="absolute bottom-[10%] left-[10%] w-[30%] h-[30%] rounded-full bg-yellow-400/10 dark:bg-yellow-500/10 blur-[100px] mix-blend-multiply dark:mix-blend-lighten" />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-[1600px] px-6 sm:px-8 lg:px-12">
         <div className="text-center max-w-3xl mx-auto mb-20">
            <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-900/50 mb-6"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-yellow-200/50 dark:border-yellow-900/30 mb-6 shadow-sm"
           >
             <Star className="w-4 h-4 text-yellow-500 fill-current" />
-            <span className="text-xs font-bold text-yellow-700 dark:text-yellow-400 uppercase tracking-wider">Success Stories</span>
+            <span className="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest">Success Stories</span>
           </motion.div>
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight mb-6"
+            className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white tracking-tight mb-6"
           >
-            Don't just take our word for it.
+            Don't just take our <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-brand-500">word for it.</span>
           </motion.h2>
         </div>
 
@@ -61,27 +67,27 @@ export const SuccessStoriesSection = () => {
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: idx * 0.15 }}
-              className="bg-white dark:bg-[#0A0A0A] rounded-[2rem] p-8 border border-gray-200 dark:border-gray-800 shadow-xl relative group hover:-translate-y-2 transition-transform duration-300"
+              transition={{ delay: idx * 0.15, duration: 0.6, ease: "easeOut" }}
+              className="glass-card rounded-[2rem] p-8 lg:p-10 border border-gray-200 dark:border-white/5 relative group hover:-translate-y-2 hover:shadow-2xl hover:border-brand-500/20 transition-all duration-500"
             >
-              <Quote className="absolute top-8 right-8 w-10 h-10 text-gray-100 dark:text-gray-800 transition-colors group-hover:text-green-50 dark:group-hover:text-green-900/20" />
+              <Quote className="absolute top-8 right-8 w-12 h-12 text-gray-100 dark:text-white/5 transition-colors duration-500 group-hover:text-brand-50 dark:group-hover:text-brand-900/20" />
               
-              <div className="flex items-center gap-4 mb-6 relative z-10">
-                <div className="w-14 h-14 rounded-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-2xl">
+              <div className="flex items-center gap-4 mb-8 relative z-10">
+                <div className="w-16 h-16 rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-white/5 flex items-center justify-center text-3xl shadow-sm group-hover:scale-110 transition-transform duration-500">
                   {t.image}
                 </div>
                 <div>
-                  <h4 className="font-bold text-gray-900 dark:text-white">{t.name}</h4>
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400">{t.location} • {t.type}</p>
+                  <h4 className="font-bold text-xl text-gray-900 dark:text-white">{t.name}</h4>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{t.location} • {t.type}</p>
                 </div>
               </div>
               
-              <p className="text-gray-600 dark:text-gray-400 font-medium leading-relaxed mb-8 relative z-10">
+              <p className="text-gray-600 dark:text-gray-400 font-medium text-lg leading-relaxed mb-10 relative z-10 italic">
                 "{t.quote}"
               </p>
               
-              <div className="pt-6 border-t border-gray-100 dark:border-gray-800 mt-auto">
-                <span className="inline-block bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-sm font-bold px-4 py-2 rounded-full">
+              <div className="pt-6 border-t border-gray-100 dark:border-white/5 mt-auto relative z-10">
+                <span className="inline-block bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-400 text-sm font-bold px-4 py-2 rounded-xl shadow-sm">
                   {t.stats}
                 </span>
               </div>

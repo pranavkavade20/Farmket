@@ -1,218 +1,226 @@
 import React from 'react';
-import { motion, type Variants } from 'framer-motion';
+import heroBg from '@/assets/images/hero/hero_section.png';
+import logoImg from '@/assets/images/logo.png';
 import { 
-  Sprout, 
-  TrendingUp, 
-  MessageCircle, 
-  ArrowRight, 
+  Leaf, 
+  User, 
+  ShoppingCart, 
+  CheckCircle2, 
+  Handshake,
+  Users,
+  IndianRupee,
+  TrendingUp,
+  Package,
   ShieldCheck,
-  Star,
-  Activity,
-  ArrowUpRight,
-  Truck
+  ShoppingBag,
+  BarChart3
 } from 'lucide-react';
-import tomatoImg from '@/assets/images/hero/tomato.png';
-import broccoliImg from '@/assets/images/hero/broccoli.png';
 
 export const HeroSection = () => {
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-    }
-  };
-
-  const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 30 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", bounce: 0.4, duration: 0.8 } }
-  };
-
-  const floatVariants: Variants = {
-    animate: {
-      y: [0, -15, 0],
-      transition: { duration: 5, repeat: Infinity, ease: "easeInOut" }
-    }
-  };
-
-  const floatReverseVariants: Variants = {
-    animate: {
-      y: [0, 15, 0],
-      transition: { duration: 6, repeat: Infinity, ease: "easeInOut" }
-    }
-  };
-
   return (
-    <section className="relative w-full min-h-[90vh] dark:bg-[#050505] overflow-hidden flex items-center mt-4 lg:mx-4">
+    <section className="relative w-full flex flex-col items-center pt-10 pb-10 px-4 sm:px-6 lg:px-8 bg-[#f8f9fa] overflow-hidden min-h-[90vh]">
       
-      <div className="relative z-20 w-full max-w-[1600px] mx-auto px-6 sm:px-8 lg:px-12 py-20 lg:py-0">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center h-full">
+      {/* Background Image Container */}
+      {/* 
+        Using absolute on desktop to cover the whole section, 
+        and an absolute layer with a gradient fade for mobile to ensure readability and showcase the image.
+      */}
+      <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
+        <img 
+          src={heroBg}
+          alt="Farmket Hero Background" 
+          className="w-full h-full object-cover object-top md:object-center"
+        />
+        {/* Subtle gradient to ensure text readability on all devices */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-transparent to-[#f8f9fa]/90 lg:from-white/30 lg:to-transparent"></div>
+      </div>
+
+      <div className="relative z-10 w-full max-w-[1600px] mx-auto flex flex-col justify-between flex-grow">
+        
+        {/* Top Section: Farmer Text | Center Heading | Buyer Text */}
+        <div className="w-full flex flex-col lg:flex-row justify-between items-center lg:items-start mt-4 lg:mt-8 gap-8 lg:gap-4 px-2 lg:px-8">
           
-          {/* Left: Typography & CTA (Asymmetrical) */}
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            animate="show"
-            className="col-span-1 lg:col-span-6 xl:col-span-5 pt-12 lg:pt-0"
-          >
-            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900/50 mb-8">
-              <span className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
-              <span className="text-xs font-bold text-green-700 dark:text-green-400 uppercase tracking-wider">Live Marketplace</span>
-            </motion.div>
-            
-            <motion.h1 variants={itemVariants} className="text-5xl sm:text-6xl lg:text-[4.5rem] font-black tracking-tight text-gray-900 dark:text-white leading-[1.05] mb-6 drop-shadow-lg">
-              Empowering Farmers. <br className="hidden sm:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#168748] to-[#84D836] drop-shadow-sm">
-                Nourishing Families.
-              </span>
-            </motion.h1>
-
-            <motion.p variants={itemVariants} className="text-lg text-gray-800 dark:text-gray-200 mb-10 leading-relaxed font-semibold max-w-lg drop-shadow-md">
-              A revolutionary platform where farmers earn what they deserve, and buyers get farm-fresh produce delivered directly. No middlemen. Absolute transparency.
-            </motion.p>
-
-            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center gap-4">
-              <button className="w-full sm:w-auto px-8 py-4 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2 group">
-                Join as Buyer 
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
-              <button className="w-full sm:w-auto px-8 py-4 rounded-full bg-white dark:bg-[#111] text-gray-900 dark:text-white font-bold shadow-md border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 transition-all hover:scale-105 flex items-center justify-center gap-2">
-                <Sprout className="w-5 h-5 text-[#168748]" /> Join as Farmer
-              </button>
-            </motion.div>
-
-            <motion.div variants={itemVariants} className="mt-12 flex items-center gap-6 text-sm font-semibold text-gray-500 dark:text-gray-400">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-[#168748]" /> Secured Payments
-              </div>
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-[#168748]" /> Fair Pricing
-              </div>
-            </motion.div>
-          </motion.div>
-
-          {/* Right: Asymmetrical Visual Ecosystem */}
-          <div className="col-span-1 lg:col-span-6 xl:col-span-7 relative h-[600px] hidden lg:block">
-            
-            {/* Main Centerpiece Card (Market Demand - positioned at end of road) */}
-            <motion.div 
-              variants={floatVariants}
-              animate="animate"
-              className="absolute top-[300px] left-[400px] xl:left-[420px] z-20 w-[280px] bg-white/80 dark:bg-gray-900/80 backdrop-blur-2xl p-4 rounded-3xl shadow-2xl border border-white dark:border-gray-800"
-            >
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Market Demand</h3>
-                  <div className="flex items-end gap-1.5">
-                    <span className="text-2xl font-black text-gray-900 dark:text-white leading-none">High</span>
-                    <Activity className="w-4 h-4 text-orange-500" />
-                  </div>
-                </div>
-                <div className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-1.5 py-0.5 rounded-md text-[10px] font-bold flex items-center gap-1">
-                  <ArrowUpRight className="w-2.5 h-2.5" /> +24%
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                {[
-                  { icon: tomatoImg, name: "Heirloom Tomatoes", demand: "85%", trend: "+12%" },
-                  { icon: broccoliImg, name: "Organic Broccoli", demand: "92%", trend: "+18%" }
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between p-2 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-colors">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-white dark:bg-gray-700 shadow-sm flex items-center justify-center p-1">
-                        <img src={item.icon} alt={item.name} className="w-full h-full object-contain" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold text-gray-900 dark:text-white leading-tight">{item.name}</p>
-                        <div className="flex items-center gap-1.5 mt-1">
-                          <div className="w-12 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                            <div className="h-full bg-orange-500 rounded-full" style={{ width: item.demand }}></div>
-                          </div>
-                          <span className="text-[9px] font-bold text-gray-500">{item.demand}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-bold text-green-600">{item.trend}</span>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Farmer Revenue Card (Positioned at start of road) */}
-            <motion.div 
-              variants={floatReverseVariants}
-              animate="animate"
-              className="absolute top-[160px] left-[30px] z-30 w-[240px] bg-white/90 dark:bg-[#0A0A0A]/90 backdrop-blur-xl p-4 rounded-3xl shadow-xl border border-white dark:border-gray-800"
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center text-lg border border-green-200 dark:border-green-800">👨🏽‍🌾</div>
-                <div>
-                  <h3 className="text-sm font-bold text-gray-900 dark:text-white leading-tight">Ramesh Patel</h3>
-                  <p className="text-[10px] font-semibold text-[#168748] flex items-center gap-1 mt-0.5">
-                    <Star className="w-3 h-3 fill-current" /> 4.9 Verified
-                  </p>
-                </div>
-              </div>
-              
-              <div className="bg-gray-50 dark:bg-gray-900 rounded-2xl p-3 border border-gray-100 dark:border-gray-800">
-                <p className="text-[10px] text-gray-500 dark:text-gray-400 font-bold mb-1">Weekly Earnings</p>
-                <div className="flex items-end gap-2">
-                  <p className="text-xl font-black text-gray-900 dark:text-white leading-none">₹12,450</p>
-                  <span className="text-[10px] font-bold text-green-600">+₹840 today</span>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Connecting Paths (SVG) */}
-            <div className="absolute inset-0 w-full h-full z-0 pointer-events-none" style={{ filter: "drop-shadow(0 0 8px rgba(22, 135, 72, 0.2))" }}>
-              <svg className="w-full h-full overflow-visible">
-                <motion.path
-                  d="M 150 250 Q 250 150 450 350"
-                  fill="none"
-                  stroke="url(#gradientPath)"
-                  strokeWidth="3"
-                  strokeDasharray="6 6"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 2, ease: "easeInOut" }}
-                />
-                <defs>
-                  <linearGradient id="gradientPath" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#168748" stopOpacity="0.5" />
-                    <stop offset="100%" stopColor="#F9A826" stopOpacity="0.5" />
-                  </linearGradient>
-                </defs>
-              </svg>
+          {/* Center Column - Main Heading (Moved first visually on mobile for better UX) */}
+          <div className="w-full lg:w-[44%] flex flex-col items-center text-center order-1 lg:order-2">
+            {/* Top Tag */}
+            <div className="flex items-center gap-2 bg-white/90 backdrop-blur-md rounded-full px-5 py-2 border border-green-200 text-green-700 font-bold text-xs sm:text-sm mb-4 sm:mb-6 shadow-sm">
+              <Leaf className="w-4 h-4" /> Bridging Farms to Markets
             </div>
 
-            {/* Animated Delivery Truck traveling along the path (High z-index to stay above cards) */}
-            <motion.div 
-              className="absolute top-0 left-0 flex flex-col items-center z-40 pointer-events-none"
-              style={{
-                offsetPath: "path('M 150 250 Q 250 150 450 350')",
-                offsetRotate: "auto"
-              }}
-              animate={{ offsetDistance: ["0%", "100%"] }}
-              transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
-            >
-              {/* Inner div with a slight driving "bounce" effect */}
-              <motion.div
-                 animate={{ y: [0, -3, 0] }}
-                 transition={{ duration: 0.3, repeat: Infinity, ease: "easeInOut" }}
-                 className="w-12 h-12 bg-white dark:bg-gray-900 rounded-full shadow-lg border-2 border-[#168748] flex items-center justify-center text-[#168748] relative"
-              >
-                <Truck className="w-6 h-6" />
-                {/* Small speed lines trailing the truck */}
-                <div className="absolute -left-3 top-1/2 -translate-y-1/2 flex flex-col gap-1 opacity-50">
-                  <div className="h-0.5 w-2 bg-[#168748] dark:bg-[#B9F046] rounded-full"></div>
-                  <div className="h-0.5 w-3 bg-[#168748] dark:bg-[#B9F046] rounded-full"></div>
-                </div>
-              </motion.div>
-            </motion.div>
+            {/* Main Heading */}
+            <h1 className="text-4xl sm:text-5xl lg:text-5xl xl:text-[4rem] font-black text-gray-900 mb-4 sm:mb-6 leading-[1.1] tracking-tight drop-shadow-sm">
+              Grow Your Business.<br />
+              Fulfill Your Requirements.<br />
+              That's <span className="text-green-600">Farmket.</span>
+            </h1>
 
+            {/* Subtitle */}
+            <p className="text-gray-800 text-base sm:text-lg lg:text-xl max-w-lg font-bold mb-4 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm">
+              A smart marketplace connecting farmers and buyers for a better tomorrow.
+            </p>
           </div>
+
+          {/* Left Column - Farmer */}
+          <div className="w-full sm:w-[80%] lg:w-[28%] flex flex-col items-center lg:items-start space-y-4 lg:space-y-5 lg:pt-4 order-2 lg:order-1">
+            <div className="flex items-center gap-3 text-green-800 font-bold text-base sm:text-lg bg-white/80 backdrop-blur-md rounded-full pr-4 shadow-sm border border-green-100">
+              <div className="border border-green-600 rounded-full p-1 m-1 flex items-center justify-center bg-white">
+                <User className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+              </div>
+              For Farmer
+            </div>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-[2.5rem] font-black text-gray-900 leading-[1.1] text-center lg:text-left drop-shadow-sm">
+              Sell More.<br className="hidden lg:block"/>Grow Better.
+            </h2>
+            <ul className="space-y-2 lg:space-y-3 pt-2 w-full flex flex-col items-center lg:items-start">
+              {[
+                'Reach more buyers', 
+                'Get fair prices', 
+                'Reduce middlemen', 
+                'Grow your business'
+              ].map(text => (
+                <li key={text} className="flex items-center gap-2 sm:gap-3 text-gray-900 font-bold text-sm sm:text-base bg-white/60 backdrop-blur-md px-3 py-1.5 rounded-lg w-fit shadow-sm">
+                  <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 fill-green-100 shrink-0" /> {text}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Right Column - Buyer */}
+          <div className="w-full sm:w-[80%] lg:w-[28%] flex flex-col items-center lg:items-end space-y-4 lg:space-y-5 lg:pt-4 order-3 lg:order-3">
+            <div className="flex items-center lg:flex-row-reverse gap-3 text-blue-800 font-bold text-base sm:text-lg bg-white/80 backdrop-blur-md rounded-full lg:pl-4 pr-4 lg:pr-0 shadow-sm border border-blue-100">
+              <div className="border border-blue-600 rounded-full p-1 m-1 flex items-center justify-center bg-white">
+                <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+              </div>
+              For Buyer
+            </div>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-[2.5rem] font-black text-gray-900 leading-[1.1] text-center lg:text-right drop-shadow-sm">
+              Find Quality.<br className="hidden lg:block"/>Buy Smart.
+            </h2>
+            <ul className="space-y-2 lg:space-y-3 pt-2 w-full flex flex-col items-center lg:items-end">
+              {[
+                'Wide range of products', 
+                'Quality you can trust', 
+                'Competitive prices', 
+                'On-time delivery'
+              ].map(text => (
+                <li key={text} className="flex items-center lg:flex-row-reverse gap-2 sm:gap-3 text-gray-900 font-bold text-sm sm:text-base bg-white/60 backdrop-blur-md px-3 py-1.5 rounded-lg w-fit shadow-sm">
+                  <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 fill-blue-100 shrink-0" /> {text}
+                </li>
+              ))}
+            </ul>
+          </div>
+
         </div>
+
+        {/* Middle Section: Bow-tie Graphic */}
+        <div className="flex-grow flex flex-col items-center justify-center relative mt-12 mb-16 lg:mt-24 lg:mb-20">
+          
+          <div className="relative flex flex-col md:flex-row items-center justify-center w-full max-w-[700px] px-4 md:px-0">
+            {/* Left Green Wing */}
+            <div className="w-full md:w-[45%] h-auto md:h-[180px] bg-gradient-to-br from-green-400 to-green-600 rounded-2xl md:rounded-[3rem] md:rounded-tr-sm md:rounded-br-[4rem] shadow-xl flex flex-col justify-center p-6 md:pl-8 md:pr-4 text-white z-0 border border-white/20 relative">
+              <div className="space-y-3 md:space-y-4 relative z-10 w-full md:w-2/3 flex flex-row md:flex-col justify-around md:justify-center">
+                <div className="flex flex-col md:flex-row items-center md:items-center gap-2 md:gap-3 text-center md:text-left">
+                  <Users className="w-5 h-5 opacity-90" />
+                  <span className="text-xs sm:text-sm font-semibold leading-tight drop-shadow-md">Wider<br className="hidden md:block"/>Reach</span>
+                </div>
+                <div className="flex flex-col md:flex-row items-center md:items-center gap-2 md:gap-3 text-center md:text-left">
+                  <div className="border border-white/40 rounded-full p-0.5">
+                    <IndianRupee className="w-4 h-4 opacity-90" />
+                  </div>
+                  <span className="text-xs sm:text-sm font-semibold leading-tight drop-shadow-md">Better<br className="hidden md:block"/>Prices</span>
+                </div>
+                <div className="flex flex-col md:flex-row items-center md:items-center gap-2 md:gap-3 text-center md:text-left">
+                  <TrendingUp className="w-5 h-5 opacity-90" />
+                  <span className="text-xs sm:text-sm font-semibold leading-tight drop-shadow-md">Business<br className="hidden md:block"/>Growth</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Center Circle */}
+            <div className="relative z-20 bg-white rounded-full w-[100px] h-[100px] sm:w-[120px] sm:h-[120px] md:w-[150px] md:h-[150px] flex flex-col items-center justify-center shadow-2xl border-4 border-white -my-4 md:-my-0 md:-mx-8 shrink-0">
+              <img src={logoImg} alt="Farmket Logo" className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 object-contain mb-1" />
+              <span className="font-extrabold text-gray-900 text-sm sm:text-base md:text-xl tracking-tight leading-none">Farmket</span>
+            </div>
+
+            {/* Right Blue Wing */}
+            <div className="w-full md:w-[45%] h-auto md:h-[180px] bg-gradient-to-bl from-blue-500 to-blue-700 rounded-2xl md:rounded-[3rem] md:rounded-tl-sm md:rounded-bl-[4rem] shadow-xl flex flex-col justify-center p-6 md:pr-8 md:pl-4 md:items-end text-white z-0 border border-white/20 relative">
+              <div className="space-y-3 md:space-y-4 relative z-10 w-full md:w-2/3 flex flex-row md:flex-col justify-around md:justify-end">
+                <div className="flex flex-col md:flex-row md:flex-row-reverse items-center md:items-center gap-2 md:gap-3 text-center md:text-right">
+                  <Package className="w-5 h-5 opacity-90" />
+                  <span className="text-xs sm:text-sm font-semibold leading-tight drop-shadow-md">Quality<br className="hidden md:block"/>Products</span>
+                </div>
+                <div className="flex flex-col md:flex-row md:flex-row-reverse items-center md:items-center gap-2 md:gap-3 text-center md:text-right">
+                  <ShieldCheck className="w-5 h-5 opacity-90" />
+                  <span className="text-xs sm:text-sm font-semibold leading-tight drop-shadow-md">Trusted<br className="hidden md:block"/>Sellers</span>
+                </div>
+                <div className="flex flex-col md:flex-row md:flex-row-reverse items-center md:items-center gap-2 md:gap-3 text-center md:text-right">
+                  <ShoppingCart className="w-5 h-5 opacity-90" />
+                  <span className="text-xs sm:text-sm font-semibold leading-tight drop-shadow-md">Easy<br className="hidden md:block"/>Sourcing</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Stronger Together Tag */}
+          <div className="mt-8 sm:mt-10 lg:mt-12 z-10">
+            <div className="flex items-center justify-center gap-2 sm:gap-3 bg-white/90 backdrop-blur-sm rounded-xl px-4 sm:px-8 py-3 shadow-lg text-gray-800 font-bold border border-gray-100 text-sm sm:text-base lg:text-lg">
+              <Handshake className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" /> Stronger Together, Growing Together.
+            </div>
+          </div>
+
+        </div>
+
+        {/* Bottom Bar Section */}
+        <div className="w-full bg-white/95 backdrop-blur-xl rounded-[1.5rem] lg:rounded-[2rem] shadow-2xl p-4 sm:p-6 lg:p-8 flex flex-col md:flex-row flex-wrap lg:flex-nowrap justify-between items-center gap-4 sm:gap-6 border border-white mt-auto z-10 max-w-7xl mx-auto">
+          
+          <div className="flex items-center gap-3 sm:gap-4 w-full md:w-[45%] lg:w-auto justify-start sm:justify-center lg:justify-start">
+            <div className="bg-green-50 p-2 sm:p-3 rounded-2xl shrink-0">
+              <Users className="w-5 h-5 sm:w-7 sm:h-7 text-green-600" />
+            </div>
+            <div>
+              <p className="text-xs sm:text-sm text-gray-500 font-semibold leading-tight">Thousands of</p>
+              <p className="text-sm sm:text-base text-gray-900 font-extrabold leading-tight">Farmers Empowered</p>
+            </div>
+          </div>
+
+          <div className="hidden lg:block w-px h-12 bg-gray-200"></div>
+
+          <div className="flex items-center gap-3 sm:gap-4 w-full md:w-[45%] lg:w-auto justify-start sm:justify-center lg:justify-start">
+            <div className="bg-green-50 p-2 sm:p-3 rounded-full border border-green-200 shrink-0">
+              <IndianRupee className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
+            </div>
+            <div>
+              <p className="text-xs sm:text-sm text-gray-500 font-semibold leading-tight">Better Incomes</p>
+              <p className="text-sm sm:text-base text-gray-900 font-extrabold leading-tight">for Farmers</p>
+            </div>
+          </div>
+
+          <div className="hidden lg:block w-px h-12 bg-gray-200"></div>
+
+          <div className="flex items-center gap-3 sm:gap-4 w-full md:w-[45%] lg:w-auto justify-start sm:justify-center lg:justify-start">
+            <div className="bg-blue-50 p-2 sm:p-3 rounded-2xl shrink-0">
+              <ShoppingBag className="w-5 h-5 sm:w-7 sm:h-7 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-xs sm:text-sm text-gray-500 font-semibold leading-tight">Trusted by</p>
+              <p className="text-sm sm:text-base text-gray-900 font-extrabold leading-tight">Buyers Nationwide</p>
+            </div>
+          </div>
+
+          <div className="hidden lg:block w-px h-12 bg-gray-200"></div>
+
+          <div className="flex items-center gap-3 sm:gap-4 w-full md:w-[45%] lg:w-auto justify-start sm:justify-center lg:justify-start">
+            <div className="bg-blue-50 p-2 sm:p-3 rounded-2xl shrink-0">
+              <BarChart3 className="w-5 h-5 sm:w-7 sm:h-7 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-xs sm:text-sm text-gray-500 font-semibold leading-tight">Building a Stronger</p>
+              <p className="text-sm sm:text-base text-gray-900 font-extrabold leading-tight">Agri-Ecosystem</p>
+            </div>
+          </div>
+
+        </div>
+
       </div>
     </section>
   );

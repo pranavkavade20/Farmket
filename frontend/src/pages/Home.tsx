@@ -9,6 +9,9 @@ import toast from 'react-hot-toast';
 import {
   HeroSection,
   SocialProofSection,
+  ProblemSolutionSection,
+  HowItWorksSection,
+  FeaturesBentoSection,
   PopularCategories,
   ServicesSection,
   PromoBanners,
@@ -17,12 +20,13 @@ import {
   ProductShowcaseSection,
   SuccessStoriesSection,
   MarketplaceActivitySection,
+  FAQSection,
   CTASection
 } from '@/components/sections';
 
 const Home = () => {
   useSEO({
-    title: 'Farmket | Farm to Table Delivery',
+    title: 'Farmket | Modern Agricultural Commerce',
     description: 'A revolutionary platform connecting farmers directly with buyers. No middlemen. Absolute transparency.',
   });
   
@@ -52,19 +56,18 @@ const Home = () => {
   };
 
   return (
-    <div className="flex flex-col bg-green-50 dark:bg-[#0A0A0A] w-full min-h-screen">
+    <div className="flex flex-col bg-white dark:bg-[#050505] w-full min-h-screen">
       
       {/* 1. Hero */}
       <HeroSection />
 
-      {/* 2. Social Proof / Metrics */}
+      {/* 2. Social Proof */}
       <SocialProofSection />
 
+
       {/* E-Commerce Sections integrated into the premium flow */}
-      
-      {/* Popular Categories Band */}
-      <section className="w-full dark:bg-[#0A0A0A] py-12 md:py-16">
-        <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8">
+      <section className="w-full bg-[#FAFAF8] dark:bg-[#0A0A0A] py-20 border-b border-gray-100 dark:border-white/5">
+        <div className="mx-auto w-full max-w-[1600px] px-6 sm:px-8 lg:px-12">
            <PopularCategories categories={categoriesList} />
         </div>
       </section>
@@ -84,8 +87,8 @@ const Home = () => {
       </section>
 
       {/* Products Band */}
-      <section className="w-full dark:bg-[#050505] py-24 border-y border-gray-100 dark:border-gray-900 mt-8">
-        <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 flex flex-col gap-24">
+      <section className="w-full bg-white dark:bg-[#050505]">
+        <div className="mx-auto w-full max-w-[1600px] px-6 sm:px-8 lg:px-12 flex flex-col">
           <WeeklyBestSelling 
             products={products.slice(0, 5).reverse()} 
             onAddToCart={handleAddToCart}
@@ -94,20 +97,16 @@ const Home = () => {
           />
 
           <ProductGridSection 
-            title="Most Selling Products" 
+            title="Trending Products" 
             products={products.slice(0, 5)} 
             onAddToCart={handleAddToCart} 
+            badge="Trending"
           />
         </div>
       </section>
 
-      {/* Product Mockups / Showcases */}
-      {/* <ProductShowcaseSection /> */}
-
       {/* Activity and Testimonials */}
-      {/* <MarketplaceActivitySection /> */}
-      
-      <div className="mt-16">
+      <div className="mt-16 border-t border-gray-100 dark:border-white/5">
         <SuccessStoriesSection />
       </div>
       
