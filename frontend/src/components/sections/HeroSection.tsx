@@ -59,10 +59,6 @@ export const HeroSection = () => {
           <source src={herosectionvideo} type="video/mp4" />
         </video>
         
-        {/* Soft radial gradients for a premium glow effect */}
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[#168748]/10 dark:bg-[#168748]/20 blur-[120px] rounded-full translate-x-1/3 -translate-y-1/3" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-orange-500/10 dark:bg-orange-500/10 blur-[100px] rounded-full -translate-x-1/3 translate-y-1/3" />
-        <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/70 to-transparent dark:from-[#050505]/95 dark:via-[#050505]/70 dark:to-transparent z-10" />
       </div>
 
       <div className="relative z-20 w-full max-w-[1600px] mx-auto px-6 sm:px-8 lg:px-12 py-20 lg:py-0">

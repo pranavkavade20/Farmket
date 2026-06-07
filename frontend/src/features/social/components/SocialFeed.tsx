@@ -45,42 +45,56 @@ export const SocialFeed: React.FC = () => {
   const navigate = useNavigate();
 
   const handleBuyNowClick = (product: any) => {
-    // Navigate to the marketplace product details page
-    navigate(`/marketplace/${product.id}`);
+    // Navigate to the marketplace product details page using slug
+    navigate(`/marketplace/${product.slug}`);
   };
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-4 sm:px-0">
-      {/* Top action bar for Farmers */}
-      {user?.role === 'farmer' && (
-        <div className="mb-8">
-          <AnimatePresence mode="wait">
-            {!showComposer ? (
+      {/* Floating Action Button & Modal for Farmers */}
+      {user?.user_type === 'farmer' && (
+        <>
+          <AnimatePresence>
+            {!showComposer && (
               <motion.button
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setShowComposer(true)}
-                className="w-full bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center space-x-4 text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
+                className="fixed bottom-6 right-6 md:bottom-10 md:right-10 h-16 w-16 bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-full shadow-2xl flex items-center justify-center z-40 transition-all border-4 border-white dark:border-gray-900"
               >
-                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white font-bold text-lg">
-                  {user.first_name?.[0] || 'F'}
-                </div>
-                <div className="bg-gray-100 dark:bg-gray-900 rounded-full py-2.5 px-4 flex-1 text-left">
-                  What are you harvesting today?
-                </div>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
               </motion.button>
-            ) : (
-              <PostComposer 
-                onClose={() => setShowComposer(false)} 
-                onSuccess={() => {
-                  setShowComposer(false);
-                  setCursor(undefined); // Reset feed
-                }} 
-              />
             )}
           </AnimatePresence>
-        </div>
+
+          <AnimatePresence>
+            {showComposer && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                onClick={(e) => {
+                  if (e.target === e.currentTarget) setShowComposer(false);
+                }}
+              >
+                <PostComposer 
+                  onClose={() => setShowComposer(false)} 
+                  onSuccess={() => {
+                    setShowComposer(false);
+                    setCursor(undefined); // Reset feed
+                  }} 
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </>
       )}
 
       {/* Feed */}

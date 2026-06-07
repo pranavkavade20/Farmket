@@ -1,28 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Image as ImageIcon, Video, FileText, MapPin, Tag, Package, X, Check } from 'lucide-react';
-import { useCreatePostMutation } from '../api/socialApi';
-import { useGetProductsQuery } from '@/features/products/api/productsApi';
+import { useCreatePostMutation, useUpdatePostMutation } from '../api/socialApi';
+import { productService } from '@/features/products/services/productService';
 import { useAppSelector } from '@/app/hooks';
 
 interface PostComposerProps {
   onSuccess?: () => void;
   onClose?: () => void;
+  existingPost?: any; // For edit mode
 }
 
-export const PostComposer: React.FC<PostComposerProps> = ({ onSuccess, onClose }) => {
+export const PostComposer: React.FC<PostComposerProps> = ({ onSuccess, onClose, existingPost }) => {
   const { user } = useAppSelector(state => state.auth);
-  const [createPost, { isLoading }] = useCreatePostMutation();
-  // Fetch products for the current farmer
-  const { data: productsData } = useGetProductsQuery({ farmer: user?.id });
-  const products = productsData?.results || [];
+  const [createPost, { isLoading: isCreating }] = useCreatePostMutation();
+  const [updatePost, { isLoading: isUpdating }] = useUpdatePostMutation();
+  const isLoading = isCreating || isUpdating;
 
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [location, setLocation] = useState('');
-  const [productId, setProductId] = useState('');
+  const [products, setProducts] = useState<any[]>([]);
+
+  // Pre-fill state if editing
+  const [title, setTitle] = useState(existingPost?.title || '');
+  const [description, setDescription] = useState(existingPost?.description || '');
+  const [location, setLocation] = useState(existingPost?.location || '');
+  const [productId, setProductId] = useState(existingPost?.product?.id || '');
+  
+  // New media files added by user
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
+  
+  // Existing media tracking
+  const [existingMedia, setExistingMedia] = useState<any[]>(existingPost?.media || []);
+  const [mediaToDelete, setMediaToDelete] = useState<number[]>([]);
+
+  useEffect(() => {
+    if (user?.id) {
+      productService.getProducts({ farmer: user.id })
+        .then(res => setProducts(res.results || []))
+        .catch(err => console.error('Failed to load products', err));
+    }
+  }, [user?.id]);
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -34,9 +51,14 @@ export const PostComposer: React.FC<PostComposerProps> = ({ onSuccess, onClose }
     }
   };
 
-  const removeFile = (index: number) => {
+  const removeNewFile = (index: number) => {
     setMediaFiles(prev => prev.filter((_, i) => i !== index));
     setPreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const removeExistingFile = (mediaId: number) => {
+    setExistingMedia(prev => prev.filter(m => m.id !== mediaId));
+    setMediaToDelete(prev => [...prev, mediaId]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,16 +69,29 @@ export const PostComposer: React.FC<PostComposerProps> = ({ onSuccess, onClose }
     formData.append('location', location);
     if (productId) formData.append('product_id', productId);
     
+    // For updates, passing empty product_id removes it.
+    if (existingPost && !productId) {
+      formData.append('product_id', '');
+    }
+
     mediaFiles.forEach((file, index) => {
       formData.append(`media_${index}`, file);
     });
 
+    if (existingPost && mediaToDelete.length > 0) {
+      formData.append('media_to_delete', mediaToDelete.join(','));
+    }
+
     try {
-      await createPost(formData).unwrap();
+      if (existingPost) {
+        await updatePost({ id: existingPost.id, data: formData }).unwrap();
+      } else {
+        await createPost(formData).unwrap();
+      }
       onSuccess?.();
       onClose?.();
     } catch (err) {
-      console.error('Failed to create post:', err);
+      console.error('Failed to save post:', err);
     }
   };
 
@@ -65,10 +100,10 @@ export const PostComposer: React.FC<PostComposerProps> = ({ onSuccess, onClose }
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden max-w-2xl w-full mx-auto"
+      className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden max-w-2xl w-full mx-auto max-h-[90vh] flex flex-col"
     >
-      <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-900/50">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Create New Post</h2>
+      <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-900/50 shrink-0">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white">{existingPost ? 'Edit Post' : 'Create New Post'}</h2>
         {onClose && (
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
             <X size={24} />
@@ -76,7 +111,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({ onSuccess, onClose }
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="p-6 space-y-6">
+      <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto custom-scrollbar flex-1">
         {/* Main Content Area */}
         <div className="flex gap-4 items-start">
           <div className="h-10 w-10 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex-shrink-0 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold">
@@ -100,14 +135,30 @@ export const PostComposer: React.FC<PostComposerProps> = ({ onSuccess, onClose }
         </div>
 
         {/* Media Previews */}
-        {previews.length > 0 && (
+        {(existingMedia.length > 0 || previews.length > 0) && (
           <div className="flex gap-3 overflow-x-auto pb-2">
+            {existingMedia.map((media: any) => (
+              <div key={`existing-${media.id}`} className="relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden group">
+                {media.type === 'video' ? (
+                  <video src={media.file} className="w-full h-full object-cover" />
+                ) : (
+                  <img src={media.file} alt="preview" className="w-full h-full object-cover" />
+                )}
+                <button 
+                  type="button"
+                  onClick={() => removeExistingFile(media.id)}
+                  className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ))}
             {previews.map((preview, i) => (
-              <div key={i} className="relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden group">
+              <div key={`new-${i}`} className="relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden group">
                 <img src={preview} alt="preview" className="w-full h-full object-cover" />
                 <button 
                   type="button"
-                  onClick={() => removeFile(i)}
+                  onClick={() => removeNewFile(i)}
                   className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   <X size={14} />
@@ -133,7 +184,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({ onSuccess, onClose }
               <option value="">Select a product to pin...</option>
               {products.map((prod: any) => (
                 <option key={prod.id} value={prod.id}>
-                  {prod.name} - ₹{prod.price}
+                  {prod.name} ({prod.market_state?.replace(/_/g, ' ') || 'Ready'}) - ₹{prod.price}
                 </option>
               ))}
             </select>

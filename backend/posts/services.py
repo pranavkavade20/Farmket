@@ -24,7 +24,8 @@ class PostService:
             try:
                 product_instance = Product.objects.get(id=product_id, farmer=farmer)
             except Product.DoesNotExist:
-                pass
+                from rest_framework.exceptions import ValidationError
+                raise ValidationError({"product_id": "You can only pin your own products."})
 
         # Create Post
         post = Post.objects.create(
@@ -71,7 +72,8 @@ class PostService:
                     product_instance = Product.objects.get(id=product_id, farmer=post_instance.farmer)
                     post_instance.product = product_instance
                 except Product.DoesNotExist:
-                    pass
+                    from rest_framework.exceptions import ValidationError
+                    raise ValidationError({"product_id": "You can only pin your own products."})
             else:
                 post_instance.product = None
 

@@ -42,7 +42,7 @@ const AddProduct  = lazy(() => import('@/features/products/pages/AddProduct'));
 
 // New Crop Tracking
 const FarmerCropDashboard = lazy(() => import('@/features/crops/pages/FarmerCropDashboard'));
-const UpcomingHarvests    = lazy(() => import('@/features/products/pages/UpcomingHarvests'));
+
 
 // Admin Pages
 const AdminDashboard = lazy(() => import('@/features/admin/pages/AdminDashboard'));
@@ -52,6 +52,7 @@ const AdminCropAnalytics = lazy(() => import('@/features/admin/pages/CropAnalyti
 const AdminRevenueAnalytics = lazy(() => import('@/features/admin/pages/RevenueAnalytics'));
 
 const SocialFeedPage = lazy(() => import('@/features/social/pages/SocialFeedPage'));
+const FarmerMyPosts  = lazy(() => import('@/features/social/pages/MyPosts'));
 
 const NotFound    = lazy(() => import('@/pages/NotFound'));
 
@@ -95,7 +96,7 @@ function App() {
                       <Route path="about" element={<About />} />
                       <Route path="marketplace" element={<Marketplace />} />
                       <Route path="marketplace/:id" element={<ProductDetails />} />
-                      <Route path="market/upcoming-harvests" element={<UpcomingHarvests />} />
+
                       <Route path="feed" element={<SocialFeedPage />} />
                     </Route>
 
@@ -127,6 +128,7 @@ function App() {
                           <Route path="dashboard/products"     element={<MyProducts />} />
                           <Route path="dashboard/products/new" element={<AddProduct />} />
                           <Route path="farmer/crops" element={<FarmerCropDashboard />} />
+                          <Route path="farmer/posts" element={<FarmerMyPosts />} />
                           {/* Farmers also have orders (received) */}
                           <Route path="farmer/orders"     element={<Orders />} />
                           <Route path="farmer/orders/:id" element={<OrderDetail />} />

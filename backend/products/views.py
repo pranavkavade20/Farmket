@@ -18,7 +18,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.select_related('farmer', 'category').prefetch_related('images', 'reviews')
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['category__slug', 'is_organic', 'is_available']
+    filterset_fields = ['category__slug', 'is_organic', 'is_available', 'farmer']
     search_fields = ['name', 'description', 'farmer__username']
     ordering_fields = ['price', 'created_at', 'views']
     lookup_field = 'slug'

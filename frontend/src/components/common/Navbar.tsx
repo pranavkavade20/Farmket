@@ -12,8 +12,6 @@ import {
   Sun,
   Moon,
   ShoppingCart,
-  Heart,
-  Search,
   ChevronDown
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -67,10 +65,10 @@ const Navbar = () => {
       "sticky top-0 z-50 w-full transition-all duration-300",
       isScrolled ? "bg-white/95 backdrop-blur-xl shadow-sm dark:bg-[#0A0A0A]/95" : "bg-white dark:bg-[#0A0A0A]"
     )}>
-        {/* SINGLE TIER NAVBAR */}
+      {/* SINGLE TIER NAVBAR */}
       <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
         <div className="flex h-[88px] items-center justify-between">
-          
+
           {/* Left: Logo */}
           <div className="flex items-center shrink-0 mr-6">
             <Link to="/" className="flex items-center gap-2">
@@ -88,14 +86,7 @@ const Navbar = () => {
               <>
                 {navLink("/marketplace", "Marketplace")}
                 {navLink("/feed", "Community")}
-                {navLink("/market/upcoming-harvests", "Upcoming Harvests")}
-              </>
-            )}
-            {user?.user_type === 'farmer' && (
-              <>
-                {navLink("/dashboard/products", "My Products")}
-                {navLink("/farmer/crops", "Crop Tracking")}
-                {navLink("/farmer/orders", "Received Orders")}
+
               </>
             )}
             {navLink("/about", "About Platform")}
@@ -136,10 +127,10 @@ const Navbar = () => {
                   <Link to="/dashboard">
                     <Button variant="outline" className="rounded-full h-9 pl-1 pr-4 border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center gap-2">
                       {user.profile_picture ? (
-                        <img 
-                          src={user.profile_picture} 
-                          alt="Profile" 
-                          className="h-7 w-7 rounded-full object-cover border border-gray-200 dark:border-gray-700" 
+                        <img
+                          src={user.profile_picture}
+                          alt="Profile"
+                          className="h-7 w-7 rounded-full object-cover border border-gray-200 dark:border-gray-700"
                         />
                       ) : (
                         <div className="h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
@@ -185,12 +176,12 @@ const Navbar = () => {
       {isMobileMenuOpen && (
         <div className="absolute left-0 top-full w-full bg-white px-4 py-6 shadow-xl dark:bg-[#0A0A0A] lg:hidden">
           <div className="flex flex-col gap-2">
-              {[
+            {[
               { to: "/", label: "Home" },
               ...(!user || user.user_type === 'buyer' || user.user_type === 'farmer' ? [
                 { to: "/marketplace", label: "Marketplace" },
                 { to: "/feed", label: "Community" },
-                { to: "/market/upcoming-harvests", label: "Upcoming Harvests" },
+
               ] : []),
               ...(user?.user_type === 'farmer' ? [
                 { to: "/dashboard/products", label: "My Products" },
@@ -201,9 +192,9 @@ const Navbar = () => {
               { to: "/#success-stories", label: "Success Stories" },
               ...(user
                 ? [
-                    { to: "/dashboard", label: "Dashboard" },
-                    ...(user.user_type === 'buyer' ? [{ to: "/dashboard/orders", label: "My Orders" }] : []),
-                  ]
+                  { to: "/dashboard", label: "Dashboard" },
+                  ...(user.user_type === 'buyer' ? [{ to: "/dashboard/orders", label: "My Orders" }] : []),
+                ]
                 : []),
             ].map(({ to, label }) => (
               <Link
@@ -215,9 +206,9 @@ const Navbar = () => {
                 {label}
               </Link>
             ))}
-            
+
             <div className="my-4 h-px bg-gray-100 dark:bg-gray-800" />
-            
+
             <button
               onClick={() => { toggleDark(); closeMobile(); }}
               className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900"

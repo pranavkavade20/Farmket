@@ -14,6 +14,18 @@ export const socialApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Post'] as any,
     }),
+    updatePost: builder.mutation<any, { id: number; data: FormData }>({
+      query: ({ id, data }) => ({
+        url: `posts/feed/${id}/`,
+        method: 'PATCH',
+        body: data,
+      }),
+      invalidatesTags: ['Post'] as any,
+    }),
+    getMyPosts: builder.query<any, void>({
+      query: () => 'posts/feed/my_posts/',
+      providesTags: ['Post'] as any,
+    }),
     likePost: builder.mutation<any, number>({
       query: (postId) => ({
         url: `posts/feed/${postId}/like/`,
@@ -66,4 +78,6 @@ export const {
   useUnsavePostMutation,
   useGetCommentsQuery,
   useAddCommentMutation,
+  useGetMyPostsQuery,
+  useUpdatePostMutation,
 } = socialApi;
