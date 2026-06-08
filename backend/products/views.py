@@ -7,8 +7,10 @@ from .serializers import CategorySerializer, ProductSerializer, ProductImageSeri
 from .permissions import IsFarmerOwnerOrReadOnly, IsBuyerOwnerOrReadOnly
 
 
+from django.db.models import Count
+
 class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.filter(is_active=True)
+    queryset = Category.objects.filter(is_active=True).annotate(product_count=Count('products'))
     serializer_class = CategorySerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     lookup_field = 'slug'

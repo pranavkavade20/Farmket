@@ -12,7 +12,8 @@ import {
   Sun,
   Moon,
   ShoppingCart,
-  ChevronDown
+  ChevronDown,
+  MessageSquare
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import logo from "@/assets/images/logo.png";
@@ -89,7 +90,7 @@ const Navbar = () => {
           {/* Center: Navigation Links */}
           <div className="hidden lg:flex flex-1 items-center justify-center gap-8 xl:gap-10">
             {navLink("/", "Home")}
-            {(!user || user.user_type === 'buyer' || user.user_type === 'farmer') && (
+            {(!user || user.user_type === 'buyer' || user.user_type === 'farmer' || user.user_type === 'admin') && (
               <>
                 {navLink("/marketplace", "Marketplace")}
                 {navLink("/feed", "Community")}
@@ -110,6 +111,13 @@ const Navbar = () => {
 
             {user ? (
               <div className="flex items-center gap-3">
+                <Link
+                  to="/messages"
+                  title="Messages"
+                  className="flex items-center justify-center h-10 w-10 rounded-full transition-all hover:bg-gray-100 dark:hover:bg-white/10 hover:scale-105 active:scale-95 text-gray-500 dark:text-gray-400"
+                >
+                  <MessageSquare className="h-5 w-5" />
+                </Link>
                 <NotificationCenter />
                 {user.user_type === 'buyer' && (
                   <Link
@@ -194,7 +202,7 @@ const Navbar = () => {
             <div className="flex flex-col gap-2 px-4 py-6">
               {[
                 { to: "/", label: "Home" },
-                ...(!user || user.user_type === 'buyer' || user.user_type === 'farmer' ? [
+                ...(!user || user.user_type === 'buyer' || user.user_type === 'farmer' || user.user_type === 'admin' ? [
                   { to: "/marketplace", label: "Marketplace" },
                   { to: "/feed", label: "Community" },
                 ] : []),

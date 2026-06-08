@@ -123,7 +123,7 @@ export const BuyerCropCard: React.FC<BuyerCropCardProps> = ({ crop }) => {
             <Bell className={`w-5 h-5 ${crop.is_followed ? 'fill-current' : ''}`} />
           </button>
           
-          {user?.user_type === 'farmer' ? null : (
+          {user?.user_type === 'farmer' || user?.user_type === 'admin' ? null : (
             <button
               onClick={handleReserve}
               disabled={Number(crop.available_quantity) <= 0}

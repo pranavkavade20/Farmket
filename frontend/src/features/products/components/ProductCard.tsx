@@ -76,7 +76,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
             </span>
           </div>
 
-          {user?.user_type === 'farmer' ? null : cartItem ? (
+          {user?.user_type === 'farmer' || user?.user_type === 'admin' ? null : cartItem ? (
             <div className="flex h-10 items-center justify-between rounded-full bg-green-700 px-1 text-white shadow-md dark:bg-green-600">
               <button 
                 onClick={handleDecrease}

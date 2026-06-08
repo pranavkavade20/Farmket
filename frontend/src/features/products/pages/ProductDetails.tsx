@@ -147,10 +147,10 @@ const ProductDetails = () => {
       );
     }
 
-    if (user.user_type === 'farmer') {
+    if (user.user_type === 'farmer' || user.user_type === 'admin') {
       return (
         <Button className="flex-1 h-16 text-lg rounded-full font-black tracking-wide bg-gray-100 text-gray-500 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400" disabled>
-          FARMERS CANNOT BUY
+          {user.user_type === 'farmer' ? 'FARMERS CANNOT BUY' : 'ADMINS CANNOT BUY'}
         </Button>
       );
     }
@@ -307,7 +307,7 @@ const ProductDetails = () => {
 
           {/* Actions */}
           <div className="flex flex-col gap-4 mt-auto">
-            {['AVAILABLE_NOW', 'LOW_STOCK'].includes(product.market_state) && user?.user_type !== 'farmer' ? (
+            {['AVAILABLE_NOW', 'LOW_STOCK'].includes(product.market_state) && user?.user_type !== 'farmer' && user?.user_type !== 'admin' ? (
               <div className="flex items-center gap-4 mb-2">
                 <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-full h-16 p-2">
                   <button 

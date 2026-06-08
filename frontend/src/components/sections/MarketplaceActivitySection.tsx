@@ -1,8 +1,7 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { Activity, Clock } from 'lucide-react';
-import tomatoImg from '@/assets/images/hero/tomato.png';
-import broccoliImg from '@/assets/images/hero/broccoli.png';
+import tomatoImg from '@/assets/images/hero/hero_icon_tomato.png';
+import broccoliImg from '@/assets/images/hero/hero_icon_broccoli.png';
 
 const activities = [
   { time: 'Just now', type: 'LISTING', crop: 'Organic Tomatoes', qty: '500 kg', price: '₹12/kg', loc: 'Nashik, MH', img: tomatoImg },

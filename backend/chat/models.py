@@ -2,6 +2,8 @@ from django.db import models
 from accounts.models import User
 from django.db.models import Q
 from django.utils import timezone
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class Conversation(models.Model):
     participants = models.ManyToManyField(User, related_name='conversations')
@@ -145,4 +147,21 @@ class MessageReaction(models.Model):
         unique_together = ('message', 'user')
     
     def __str__(self):
-        return f"{self.user.username} reacted {self.reaction}"
+        return f"{self.user.username} reacted {self.reaction} "
+
+@receiver(post_save, sender=Message)
+def create_chat_notification(sender, instance, created, **kwargs):
+    if created:
+        from notifications.models import Notification
+        participants = instance.conversation.participants.exclude(id=instance.sender.id)
+        message_preview = instance.content[:50] + "..." if instance.content and len(instance.content) > 50 else instance.content
+        if not message_preview:
+            message_preview = f"Sent a {instance.message_type}"
+            
+        for participant in participants:
+            Notification.objects.create(
+                user=participant,
+                notification_type='chat_message',
+                title=f"New message from {instance.sender.username}",
+                message=message_preview,
+            )

@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import Category, Product, ProductImage, Review
 
 class CategorySerializer(serializers.ModelSerializer):
+    product_count = serializers.IntegerField(read_only=True)
+    
     class Meta:
         model = Category
         fields = '__all__'

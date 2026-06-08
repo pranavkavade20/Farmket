@@ -102,22 +102,32 @@ const Marketplace = () => {
           <button
             onClick={() => setSelectedCategory('')}
             className={cn(
-              "flex items-center justify-between px-4 py-3 rounded-2xl text-sm transition-all font-bold",
+              "flex items-center gap-3 px-4 py-3 rounded-2xl text-sm transition-all font-bold text-left",
               !selectedCategory ? "bg-gray-900 text-white shadow-md dark:bg-white dark:text-gray-900" : "text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
             )}
           >
-            All Products
+            <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0">
+              <span className="text-lg">🌾</span>
+            </div>
+            <span>All Products</span>
           </button>
           {categories.map((cat) => (
             <button
               key={cat.slug}
               onClick={() => setSelectedCategory(cat.slug)}
               className={cn(
-                "flex items-center justify-between px-4 py-3 rounded-2xl text-sm transition-all font-bold",
+                "flex items-center gap-3 px-4 py-3 rounded-2xl text-sm transition-all font-bold text-left",
                 selectedCategory === cat.slug ? "bg-gray-900 text-white shadow-md dark:bg-white dark:text-gray-900" : "text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
               )}
             >
-              {cat.name}
+              <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0 overflow-hidden">
+                {cat.image ? (
+                  <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-gray-400 text-xs">{cat.name.charAt(0)}</span>
+                )}
+              </div>
+              <span className="truncate">{cat.name}</span>
             </button>
           ))}
         </div>

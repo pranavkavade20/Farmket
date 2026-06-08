@@ -52,6 +52,7 @@ export interface Category {
   description: string;
   image: string | null;
   is_active: boolean;
+  product_count?: number;
 }
 
 export interface ProductImage {

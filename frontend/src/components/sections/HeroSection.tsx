@@ -16,6 +16,10 @@ import type { Variants } from "framer-motion";
 import farmerImg from "@/assets/images/hero/indian_farmer.png";
 import buyerImg from "@/assets/images/hero/young_buyer.png";
 import logoImg from "@/assets/images/logo.png";
+import tomatoImg from "@/assets/images/hero/hero_icon_tomato.png";
+import wheatImg from "@/assets/images/hero/hero_icon_wheat.png";
+import broccoliImg from "@/assets/images/hero/hero_icon_broccoli.png";
+import potatoImg from "@/assets/images/hero/hero_icon_potatoo.png";
 
 export const HeroSection = () => {
   const [activeCategory, setActiveCategory] = useState("Vegetables");
@@ -57,11 +61,11 @@ export const HeroSection = () => {
   };
 
   return (
-    <section className="relative w-full flex flex-col items-center bg-[#FAFAF8] overflow-hidden pb-16 font-sans text-gray-900">
+    <section className="relative w-full flex flex-col items-center bg-[#FAFAF8] dark:bg-gray-900 overflow-hidden pb-16 font-sans text-gray-900 dark:text-gray-50 transition-colors duration-300">
       {/* Abstract Background Shapes */}
       <div className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden">
-        <div className="absolute -top-[10%] -right-[5%] w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.08)_0%,rgba(250,250,248,0)_70%)] blur-[40px]"></div>
-        <div className="absolute bottom-[10%] -left-[10%] w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(22,163,74,0.05)_0%,rgba(250,250,248,0)_70%)] blur-[60px]"></div>
+        <div className="absolute -top-[10%] -right-[5%] w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.08)_0%,rgba(250,250,248,0)_70%)] dark:bg-[radial-gradient(circle,rgba(34,197,94,0.15)_0%,rgba(17,24,39,0)_70%)] blur-[40px]"></div>
+        <div className="absolute bottom-[10%] -left-[10%] w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(22,163,74,0.05)_0%,rgba(250,250,248,0)_70%)] dark:bg-[radial-gradient(circle,rgba(22,163,74,0.1)_0%,rgba(17,24,39,0)_70%)] blur-[60px]"></div>
 
         {/* Floating Leaves */}
         <motion.div
@@ -122,7 +126,7 @@ export const HeroSection = () => {
         >
           <motion.div
             variants={fadeUpVariants}
-            className="inline-flex items-center gap-2 bg-green-500/10 text-green-600 px-4 py-1.5 rounded-full font-semibold text-sm mb-6 border border-green-500/20"
+            className="inline-flex items-center gap-2 bg-green-500/10 text-green-600 dark:text-green-400 px-4 py-1.5 rounded-full font-semibold text-sm mb-6 border border-green-500/20 transition-colors duration-300"
           >
             <Leaf size={16} />
             <span>Connecting Farms to Markets</span>
@@ -130,7 +134,7 @@ export const HeroSection = () => {
 
           <motion.h1
             variants={fadeUpVariants}
-            className="text-4xl sm:text-[44px] lg:text-[64px] font-extrabold leading-[1.1] tracking-tight mb-6 text-gray-900"
+            className="text-[36px] sm:text-[44px] lg:text-[64px] font-extrabold leading-[1.1] tracking-tight mb-6 text-gray-900 dark:text-white px-2 sm:px-0 transition-colors duration-300"
           >
             One Platform.
             <br />
@@ -143,43 +147,25 @@ export const HeroSection = () => {
 
           <motion.p
             variants={fadeUpVariants}
-            className="text-lg text-gray-500 mb-10 max-w-lg leading-relaxed mx-auto lg:mx-0"
+            className="text-lg text-gray-500 dark:text-gray-400 mb-10 max-w-lg leading-relaxed mx-auto lg:mx-0 transition-colors duration-300"
           >
             Buy fresh produce directly from trusted farmers or sell your crops
             to thousands of verified buyers across India.
           </motion.p>
 
           <motion.div
-            variants={slideInVariants}
-            className="relative w-full max-w-[500px] mb-8 group"
-          >
-            <Search
-              className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors"
-              size={20}
-            />
-            <input
-              type="text"
-              className="w-full py-4 pl-14 pr-32 rounded-full border border-gray-200 bg-white text-base text-gray-900 shadow-[0_4px_20px_rgba(0,0,0,0.04)] focus:outline-none focus:border-green-500 focus:shadow-[0_4px_24px_rgba(34,197,94,0.15)] transition-all"
-              placeholder="Search products, crops, categories, locations..."
-            />
-            <button className="absolute right-1.5 top-1.5 bottom-1.5 bg-green-600 hover:bg-green-700 text-white px-6 rounded-full font-semibold transition-all hover:-translate-y-[1px]">
-              Search
-            </button>
-          </motion.div>
-
-          <motion.div
             variants={scaleInVariants}
-            className="flex flex-col sm:flex-row gap-4 mb-10 w-full sm:w-auto"
+            className="flex flex-col sm:flex-row gap-4 mx-0 sm:mx-10 mb-10 w-full sm:w-auto px-4 sm:px-0"
           >
             <a
               href="#farmer"
-              className="bg-gray-900 hover:bg-gray-800 text-white py-3.5 px-7 rounded-full font-semibold flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(17,24,39,0.15)]"
+              className="bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900 py-3.5 px-7 rounded-full font-semibold flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(17,24,39,0.15)] dark:hover:shadow-[0_8px_16px_rgba(255,255,255,0.15)] w-full sm:w-auto"
             >
               I'm a Farmer <ChevronRight size={18} />
             </a>
             <a
               href="#buyer"
-              className="bg-white hover:bg-gray-50 text-gray-900 py-3.5 px-7 rounded-full font-semibold flex items-center justify-center gap-2 transition-all border border-gray-200 hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(0,0,0,0.05)]"
+              className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-white py-3.5 px-7 rounded-full font-semibold flex items-center justify-center gap-2 transition-all border border-gray-200 dark:border-gray-700 hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_8px_16px_rgba(0,0,0,0.2)] w-full sm:w-auto"
             >
               I'm a Buyer <ShoppingBag size={18} />
             </a>
@@ -210,7 +196,7 @@ export const HeroSection = () => {
                   />
                 ))}
               </div>
-              <span className="text-sm font-medium text-gray-500">
+              <span className="text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors duration-300">
                 Trusted by 10,000+ Farmers & Buyers
               </span>
             </div>
@@ -222,14 +208,14 @@ export const HeroSection = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.3 }}
-          className="flex-1 relative flex items-center justify-center h-[500px] lg:h-[600px] transform scale-90 lg:scale-100 mt-10 lg:mt-0"
+          className="flex-1 relative flex items-center justify-center h-[400px] sm:h-[500px] lg:h-[600px] w-full transform scale-[0.85] sm:scale-90 lg:scale-100 mt-10 lg:mt-0"
         >
-          <div className="relative w-full h-full flex items-center justify-center">
+          <div className="relative w-full max-w-[500px] lg:max-w-none h-full flex items-center justify-center">
             {/* Animated Connection Path */}
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="absolute w-[80%] h-[80%] border-2 border-dashed border-green-500/30 rounded-full z-0"
+              className="absolute w-[85%] h-[85%] sm:w-[80%] sm:h-[80%] border-2 border-dashed border-green-500/30 rounded-full z-0"
             ></motion.div>
 
             {/* Floating Crop Nodes along the path */}
@@ -241,9 +227,13 @@ export const HeroSection = () => {
                 repeatType: "reverse",
                 ease: "easeInOut",
               }}
-              className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.08)] text-xl z-10"
+              className="absolute -top-4 sm:-top-6 left-1/2 -translate-x-1/2 w-10 h-10 sm:w-14 sm:h-14 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] z-20 overflow-hidden border border-gray-100 dark:border-gray-700 transition-colors duration-300"
             >
-              🍅
+              <img
+                src={tomatoImg}
+                alt="Tomato"
+                className="w-6 h-6 sm:w-10 sm:h-10 object-contain"
+              />
             </motion.div>
             <motion.div
               animate={{ y: [-10, 10] }}
@@ -254,9 +244,13 @@ export const HeroSection = () => {
                 ease: "easeInOut",
                 delay: 1,
               }}
-              className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.08)] text-xl z-10"
+              className="absolute -bottom-4 sm:-bottom-6 left-1/2 -translate-x-1/2 w-10 h-10 sm:w-14 sm:h-14 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] z-20 overflow-hidden border border-gray-100 dark:border-gray-700 transition-colors duration-300"
             >
-              🌾
+              <img
+                src={wheatImg}
+                alt="Wheat"
+                className="w-6 h-6 sm:w-10 sm:h-10 object-contain"
+              />
             </motion.div>
             <motion.div
               animate={{ y: [-10, 10] }}
@@ -267,9 +261,13 @@ export const HeroSection = () => {
                 ease: "easeInOut",
                 delay: 2,
               }}
-              className="absolute left-[-24px] top-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.08)] text-xl z-10"
+              className="absolute left-[-10px] sm:left-[-28px] top-1/2 -translate-y-1/2 w-10 h-10 sm:w-14 sm:h-14 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] z-20 overflow-hidden border border-gray-100 dark:border-gray-700 transition-colors duration-300"
             >
-              🥦
+              <img
+                src={broccoliImg}
+                alt="Broccoli"
+                className="w-6 h-6 sm:w-10 sm:h-10 object-contain"
+              />
             </motion.div>
             <motion.div
               animate={{ y: [-10, 10] }}
@@ -280,15 +278,19 @@ export const HeroSection = () => {
                 ease: "easeInOut",
                 delay: 3,
               }}
-              className="absolute right-[-24px] top-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.08)] text-xl z-10"
+              className="absolute right-[-10px] sm:right-[-28px] top-1/2 -translate-y-1/2 w-10 h-10 sm:w-14 sm:h-14 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] z-20 overflow-hidden border border-gray-100 dark:border-gray-700 transition-colors duration-300"
             >
-              🥔
+              <img
+                src={potatoImg}
+                alt="Potato"
+                className="w-6 h-6 sm:w-10 sm:h-10 object-contain"
+              />
             </motion.div>
 
             {/* Left Image: Farmer */}
             <motion.div
               whileHover={{ y: -5 }}
-              className="absolute left-0 top-[10%] w-[200px] lg:w-[280px] h-[260px] lg:h-[350px] rounded-[20px] overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-transform z-10"
+              className="absolute left-0 top-[5%] sm:top-[10%] w-[140px] sm:w-[200px] lg:w-[280px] h-[180px] sm:h-[260px] lg:h-[350px] rounded-[16px] sm:rounded-[20px] overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-transform z-10"
             >
               <img
                 src={farmerImg}
@@ -307,19 +309,19 @@ export const HeroSection = () => {
                 ],
               }}
               transition={{ duration: 3, repeat: Infinity }}
-              className="absolute w-[100px] h-[100px] lg:w-[120px] lg:h-[120px] bg-white rounded-full flex items-center justify-center shadow-[0_15px_35px_rgba(22,163,74,0.15)] z-20 border-4 border-[#FAFAF8]"
+              className="absolute w-[80px] h-[80px] sm:w-[100px] sm:h-[100px] lg:w-[120px] lg:h-[120px] bg-white dark:bg-gray-900 rounded-full flex items-center justify-center shadow-[0_15px_35px_rgba(22,163,74,0.15)] z-20 border-[3px] sm:border-4 border-green-600 transition-colors duration-300"
             >
               <img
                 src={logoImg}
                 alt="Farmket Logo"
-                className="w-[50px] h-[50px] lg:w-[60px] lg:h-[60px] object-contain"
+                className="w-[36px] h-[36px] sm:w-[50px] sm:h-[50px] lg:w-[60px] lg:h-[60px] object-contain"
               />
             </motion.div>
 
             {/* Right Image: Buyer */}
             <motion.div
               whileHover={{ y: -5 }}
-              className="absolute right-0 bottom-[10%] w-[200px] lg:w-[280px] h-[260px] lg:h-[350px] rounded-[20px] overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-transform z-10"
+              className="absolute right-0 bottom-[5%] sm:bottom-[10%] w-[140px] sm:w-[200px] lg:w-[280px] h-[180px] sm:h-[260px] lg:h-[350px] rounded-[16px] sm:rounded-[20px] overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-transform z-10"
             >
               <img
                 src={buyerImg}
@@ -337,12 +339,12 @@ export const HeroSection = () => {
                 repeatType: "reverse",
                 ease: "easeInOut",
               }}
-              className="absolute top-[0%] lg:top-[5%] right-[10%] lg:right-[5%] bg-white/90 backdrop-blur-md p-4 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.06)] border border-white/50 z-20 max-w-[180px] lg:max-w-[220px]"
+              className="absolute top-[-5%] sm:top-[0%] lg:top-[5%] right-[2%] sm:right-[10%] lg:right-[5%] bg-white/90 dark:bg-gray-800/90 backdrop-blur-md p-2.5 sm:p-4 rounded-xl sm:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.06)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.4)] border border-white/50 dark:border-gray-700/50 z-20 max-w-[130px] sm:max-w-[180px] lg:max-w-[220px] transition-colors duration-300"
             >
-              <div className="text-xs lg:text-sm font-bold text-gray-900 mb-1 flex items-center gap-1.5">
-                <Leaf size={16} className="text-green-600" /> For Farmers
+              <div className="text-[10px] sm:text-xs lg:text-sm font-bold text-gray-900 dark:text-white mb-0.5 sm:mb-1 flex items-center gap-1 sm:gap-1.5 transition-colors duration-300">
+                <Leaf className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" /> For Farmers
               </div>
-              <p className="text-[10px] lg:text-xs text-gray-500 leading-snug">
+              <p className="text-[9px] sm:text-[10px] lg:text-xs text-gray-500 dark:text-gray-300 leading-snug transition-colors duration-300">
                 Get better prices and reach more buyers instantly.
               </p>
             </motion.div>
@@ -355,63 +357,18 @@ export const HeroSection = () => {
                 repeatType: "reverse",
                 ease: "easeInOut",
               }}
-              className="absolute bottom-[0%] lg:bottom-[5%] left-[5%] lg:left-[0%] bg-white/90 backdrop-blur-md p-4 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.06)] border border-white/50 z-20 max-w-[180px] lg:max-w-[220px]"
+              className="absolute bottom-[-5%] sm:bottom-[0%] lg:bottom-[5%] left-[0%] sm:left-[5%] lg:left-[0%] bg-white/90 dark:bg-gray-800/90 backdrop-blur-md p-2.5 sm:p-4 rounded-xl sm:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.06)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.4)] border border-white/50 dark:border-gray-700/50 z-20 max-w-[130px] sm:max-w-[180px] lg:max-w-[220px] transition-colors duration-300"
             >
-              <div className="text-xs lg:text-sm font-bold text-gray-900 mb-1 flex items-center gap-1.5">
-                <ShoppingBag size={16} className="text-blue-600" /> For Buyers
+              <div className="text-[10px] sm:text-xs lg:text-sm font-bold text-gray-900 dark:text-white mb-0.5 sm:mb-1 flex items-center gap-1 sm:gap-1.5 transition-colors duration-300">
+                <ShoppingBag className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" /> For Buyers
               </div>
-              <p className="text-[10px] lg:text-xs text-gray-500 leading-snug">
+              <p className="text-[9px] sm:text-[10px] lg:text-xs text-gray-500 dark:text-gray-300 leading-snug transition-colors duration-300">
                 Access quality produce directly at fair market prices.
               </p>
             </motion.div>
           </div>
         </motion.div>
       </div>
-
-      {/* Premium Stats Section
-      <div className="w-full max-w-[1280px] mx-auto px-4 lg:px-8 mt-10 lg:-mt-12 relative z-20 grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-        {[
-          { icon: Users, val: "10K+", label: "Active Farmers", delay: 0.6 },
-          {
-            icon: ShoppingBag,
-            val: "25K+",
-            label: "Active Buyers",
-            delay: 0.7,
-          },
-          { icon: Package, val: "15K+", label: "Products Listed", delay: 0.8 },
-          {
-            icon: CheckCircle,
-            val: "98%",
-            label: "Satisfaction Rate",
-            delay: 0.9,
-          },
-        ].map((stat, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: stat.delay, duration: 0.6 }}
-            whileHover={{
-              y: -5,
-              boxShadow: "0 15px 40px rgba(34,197,94,0.08)",
-            }}
-            className="bg-white p-4 lg:p-6 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-black/5 flex flex-col lg:flex-row items-center text-center lg:text-left gap-3 lg:gap-4 transition-all"
-          >
-            <div className="w-12 h-12 shrink-0 rounded-xl bg-green-500/10 text-green-600 flex items-center justify-center">
-              <stat.icon size={24} />
-            </div>
-            <div>
-              <div className="text-xl lg:text-2xl font-extrabold text-gray-900 leading-tight">
-                {stat.val}
-              </div>
-              <div className="text-xs lg:text-sm font-medium text-gray-500">
-                {stat.label}
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div> */}
-
     </section>
   );
 };

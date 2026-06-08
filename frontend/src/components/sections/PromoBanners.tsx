@@ -106,21 +106,6 @@ export const PromoBanners = () => {
 
         </motion.div>
 
-        {/* Bottom CTA */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="flex flex-col sm:flex-row items-center gap-4"
-        >
-           <Button className="rounded-full bg-gradient-to-r from-[#168748] to-[#116a38] text-white px-8 py-7 text-[15px] font-bold shadow-lg shadow-[#168748]/30 transition-all hover:scale-105 flex items-center justify-center border-none">
-              Explore Platform
-           </Button>
-           <Button className="rounded-full bg-white dark:bg-[#111] text-gray-900 dark:text-white px-8 py-7 text-[15px] font-bold shadow-sm hover:shadow-md transition-all hover:scale-105 flex items-center justify-center gap-2 border border-gray-200 dark:border-gray-800">
-              Get Started <ArrowRight className="h-4 w-4" />
-           </Button>
-        </motion.div>
-
       </div>
     </section>
   );
