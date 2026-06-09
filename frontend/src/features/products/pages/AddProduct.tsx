@@ -63,9 +63,9 @@ const AddProduct = () => {
   if (user?.user_type !== 'farmer') {
     return (
       <div className="mx-auto max-w-2xl px-4 py-24 text-center">
-        <Package className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-700 mb-4" />
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Farmers Only</h2>
-        <p className="text-gray-500 dark:text-gray-400">Only farmer accounts can list products.</p>
+        <Package className="mx-auto h-12 w-12 text-foreground-secondary mb-4" />
+        <h2 className="text-xl font-display font-bold text-foreground mb-2">Farmers Only</h2>
+        <p className="text-foreground-secondary">Only farmer accounts can list products.</p>
       </div>
     );
   }
@@ -151,32 +151,34 @@ const AddProduct = () => {
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
       {/* Back link */}
-      <Link to="/dashboard/products" className="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mb-6">
+      <Link to="/dashboard/products" className="inline-flex items-center gap-2 text-sm font-semibold text-foreground-secondary hover:text-foreground transition-colors mb-6">
         <ArrowLeft className="h-4 w-4" /> Back to My Products
       </Link>
 
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Add New Product</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">List a fresh product for buyers to discover.</p>
+        <h1 className="text-2xl font-display font-bold text-foreground mb-1">Add New Product</h1>
+        <p className="text-sm font-medium text-foreground-secondary mb-8">List a fresh product for buyers to discover.</p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Product Image */}
-          <div className="rounded-2xl bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800 p-6">
+          <div className="rounded-3xl bg-surface border border-border-subtle p-6 shadow-sm">
             <div className="flex items-center gap-2 mb-4">
-              <ImageIcon className="h-4 w-4 text-green-600" />
-              <h2 className="text-base font-semibold text-gray-900 dark:text-white">Product Image</h2>
+              <ImageIcon className="h-5 w-5 text-brand" />
+              <h2 className="text-lg font-bold text-foreground">Product Image</h2>
             </div>
             <label
               htmlFor="product-image"
-              className="flex flex-col items-center justify-center h-48 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 cursor-pointer hover:border-green-500 transition-colors overflow-hidden"
+              className="flex flex-col items-center justify-center h-48 rounded-2xl border-2 border-dashed border-border-strong bg-surface-elevated cursor-pointer hover:border-brand hover:bg-brand-muted/10 transition-colors overflow-hidden group"
             >
               {imagePreview ? (
-                <img src={imagePreview} alt="Preview" className="h-full w-full object-cover" />
+                <img src={imagePreview} alt="Preview" className="h-full w-full object-cover group-hover:scale-105 transition-transform" />
               ) : (
                 <div className="text-center">
-                  <ImageIcon className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                  <p className="text-sm text-gray-500">Click to upload product image</p>
-                  <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 5MB</p>
+                  <div className="bg-surface border border-border-subtle h-12 w-12 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                    <ImageIcon className="h-6 w-6 text-foreground-secondary" />
+                  </div>
+                  <p className="text-sm font-bold text-foreground-secondary">Click to upload product image</p>
+                  <p className="text-xs font-medium text-foreground-secondary/70 mt-1 uppercase tracking-widest">PNG, JPG up to 5MB</p>
                 </div>
               )}
               <input
@@ -190,10 +192,10 @@ const AddProduct = () => {
           </div>
 
           {/* Basic Info */}
-          <div className="rounded-2xl bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800 p-6 space-y-4">
+          <div className="rounded-3xl bg-surface border border-border-subtle p-6 space-y-5 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <Package className="h-4 w-4 text-green-600" />
-              <h2 className="text-base font-semibold text-gray-900 dark:text-white">Basic Information</h2>
+              <Package className="h-5 w-5 text-brand" />
+              <h2 className="text-lg font-bold text-foreground">Basic Information</h2>
             </div>
 
             <Input
@@ -206,7 +208,7 @@ const AddProduct = () => {
             />
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+              <label className="block text-xs font-bold text-foreground-secondary mb-2 uppercase tracking-widest">
                 Description *
               </label>
               <textarea
@@ -215,13 +217,13 @@ const AddProduct = () => {
                 value={form.description}
                 onChange={handleChange}
                 placeholder="Describe your product — quality, origin, harvest conditions…"
-                className="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full rounded-2xl border border-border-strong bg-surface px-4 py-3 text-sm font-medium text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-1 focus:ring-brand focus:border-brand transition-all resize-none shadow-sm"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+              <label className="block text-xs font-bold text-foreground-secondary mb-2 uppercase tracking-widest">
                 Category
               </label>
               <select
@@ -229,7 +231,7 @@ const AddProduct = () => {
                 value={form.category}
                 onChange={handleChange}
                 required
-                className="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full rounded-2xl border border-border-strong bg-surface px-4 py-3.5 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-brand focus:border-brand transition-all shadow-sm appearance-none"
               >
                 <option value="">Select a category...</option>
                 {categories.map((cat) => (
@@ -240,8 +242,8 @@ const AddProduct = () => {
           </div>
 
           {/* Pricing & Stock */}
-          <div className="rounded-2xl bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800 p-6 space-y-4">
-            <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-2">Pricing & Stock</h2>
+          <div className="rounded-3xl bg-surface border border-border-subtle p-6 space-y-5 shadow-sm">
+            <h2 className="text-lg font-bold text-foreground mb-2">Pricing & Stock</h2>
 
             <div className="grid grid-cols-2 gap-4">
               <Input
@@ -256,12 +258,12 @@ const AddProduct = () => {
                 required
               />
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Unit *</label>
+                <label className="block text-xs font-bold text-foreground-secondary mb-2 uppercase tracking-widest">Unit *</label>
                 <select
                   name="unit"
                   value={form.unit}
                   onChange={handleChange}
-                  className="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full rounded-2xl border border-border-strong bg-surface px-4 py-3.5 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-brand focus:border-brand transition-all shadow-sm appearance-none"
                 >
                   {UNITS.map((u) => <option key={u.value} value={u.value}>{u.label}</option>)}
                 </select>
@@ -291,7 +293,7 @@ const AddProduct = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+              <label className="block text-xs font-bold text-foreground-secondary mb-2 uppercase tracking-widest">
                 Harvest Date
               </label>
               <input
@@ -299,46 +301,46 @@ const AddProduct = () => {
                 name="harvest_date"
                 value={form.harvest_date}
                 onChange={handleChange}
-                className="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full rounded-2xl border border-border-strong bg-surface px-4 py-3.5 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-brand focus:border-brand transition-all shadow-sm"
               />
             </div>
           </div>
 
           {/* Toggles */}
-          <div className="rounded-2xl bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800 p-6 space-y-4">
-            <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-2">Product Flags</h2>
-            <label className="flex items-center gap-3 cursor-pointer">
+          <div className="rounded-3xl bg-surface border border-border-subtle p-6 space-y-4 shadow-sm">
+            <h2 className="text-lg font-bold text-foreground mb-2">Product Flags</h2>
+            <label className="flex items-center gap-3 cursor-pointer p-3 rounded-2xl hover:bg-surface-elevated transition-colors border border-transparent hover:border-border-subtle">
               <input
                 type="checkbox"
                 name="is_organic"
                 checked={form.is_organic}
                 onChange={handleChange}
-                className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                className="h-5 w-5 rounded-md border-border-strong text-brand focus:ring-brand bg-surface"
               />
-              <span className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                <Leaf className="h-4 w-4 text-green-500" /> Organic certified product
+              <span className="flex items-center gap-2 text-sm font-bold text-foreground">
+                <Leaf className="h-4 w-4 text-success" /> Organic certified product
               </span>
             </label>
-            <label className="flex items-center gap-3 cursor-pointer">
+            <label className="flex items-center gap-3 cursor-pointer p-3 rounded-2xl hover:bg-surface-elevated transition-colors border border-transparent hover:border-border-subtle">
               <input
                 type="checkbox"
                 name="is_available"
                 checked={form.is_available}
                 onChange={handleChange}
-                className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                className="h-5 w-5 rounded-md border-border-strong text-brand focus:ring-brand bg-surface"
               />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <span className="text-sm font-bold text-foreground">
                 List as available in marketplace
               </span>
             </label>
           </div>
 
-          <div className="flex gap-3 justify-end">
+          <div className="flex gap-4 justify-end pt-4">
             <Link to="/dashboard/products">
-              <Button type="button" variant="outline">Cancel</Button>
+              <Button type="button" variant="outline" className="h-12 px-6 rounded-full font-bold">Cancel</Button>
             </Link>
-            <Button type="submit" isLoading={saving} className="gap-2">
-              <Package className="h-4 w-4" /> List Product
+            <Button type="submit" variant="primary" isLoading={saving} className="h-12 px-6 rounded-full font-bold gap-2">
+              <Package className="h-5 w-5" /> List Product
             </Button>
           </div>
         </form>

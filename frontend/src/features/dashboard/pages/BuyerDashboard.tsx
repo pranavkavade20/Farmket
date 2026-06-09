@@ -16,16 +16,16 @@ const StatCard: React.FC<{
 }> = ({ title, value, description, icon, color, delay = 0, loading }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay }}
-    className="rounded-[2.5rem] bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 p-8 shadow-sm hover:shadow-xl transition-shadow"
+    className="rounded-2xl bg-surface border border-border-subtle p-6 shadow-sm hover:shadow-md transition-shadow"
   >
-    <div className="flex items-center justify-between mb-6">
-      <p className="text-xs font-black uppercase tracking-widest text-gray-400">{title}</p>
-      <div className={`inline-flex h-14 w-14 items-center justify-center rounded-[1.25rem] ${color} shadow-sm`}>
+    <div className="flex items-center justify-between mb-4">
+      <p className="text-xs font-bold uppercase tracking-widest text-foreground-secondary">{title}</p>
+      <div className={`inline-flex h-12 w-12 items-center justify-center rounded-xl ${color} shadow-sm text-white`}>
         {icon}
       </div>
     </div>
-    {loading ? <div className="h-10 w-24 animate-pulse rounded-xl bg-gray-200 dark:bg-gray-800" /> : <p className="text-4xl font-black text-gray-900 dark:text-white leading-none">{value}</p>}
-    <p className="mt-4 text-sm font-bold text-gray-500 dark:text-gray-400">{description}</p>
+    {loading ? <div className="h-10 w-24 animate-pulse rounded-lg bg-border-strong" /> : <p className="text-3xl font-display font-bold text-foreground leading-none">{value}</p>}
+    <p className="mt-3 text-sm font-medium text-foreground-secondary">{description}</p>
   </motion.div>
 );
 
@@ -48,48 +48,48 @@ const BuyerDashboard = () => {
 
   return (
     <div className="mx-auto max-w-[1400px] w-full pb-10">
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-12 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-10 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tight">Welcome back, {user?.first_name || user?.username} 👋</h1>
-          <p className="mt-2 text-base font-bold text-gray-500 dark:text-gray-400">Here's what's happening with your orders today.</p>
+          <h1 className="text-3xl font-display font-bold text-foreground tracking-tight">Welcome back, {user?.first_name || user?.username} 👋</h1>
+          <p className="mt-2 text-base text-foreground-secondary">Here's what's happening with your orders today.</p>
         </div>
         <div className="flex gap-4">
           <Link to="/marketplace">
-            <Button variant="outline" size="lg" className="h-14 rounded-full font-black text-sm px-6 shadow-sm gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+            <Button variant="outline" size="lg" className="rounded-full shadow-sm gap-2">
               <ShoppingBag className="h-5 w-5" /> Marketplace
             </Button>
           </Link>
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        <StatCard title="Total Orders" value={String(stats?.total_orders ?? 0)} description="Lifetime orders" icon={<ShoppingBag className="h-6 w-6 text-white" />} color="bg-gradient-to-br from-green-400 to-green-600" delay={0} loading={statsLoading} />
-        <StatCard title="Pending Orders" value={String(stats?.pending_orders ?? 0)} description="Awaiting confirmation" icon={<Clock className="h-6 w-6 text-white" />} color="bg-gradient-to-br from-amber-400 to-amber-600" delay={0.15} loading={statsLoading} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        <StatCard title="Total Orders" value={String(stats?.total_orders ?? 0)} description="Lifetime orders" icon={<ShoppingBag className="h-6 w-6" />} color="bg-gradient-to-br from-brand to-accent" delay={0} loading={statsLoading} />
+        <StatCard title="Pending Orders" value={String(stats?.pending_orders ?? 0)} description="Awaiting confirmation" icon={<Clock className="h-6 w-6" />} color="bg-warning" delay={0.15} loading={statsLoading} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="lg:col-span-2 rounded-[2.5rem] bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col">
-          <div className="flex items-center justify-between px-8 py-8 border-b border-gray-100 dark:border-gray-800">
-            <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Recent Orders</h2>
-            <Link to="/dashboard/orders" className="text-sm font-black text-gray-500 hover:text-gray-900 dark:hover:text-white uppercase tracking-widest flex items-center gap-2 transition-colors">View all <ArrowRight className="h-4 w-4" /></Link>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="lg:col-span-2 rounded-2xl bg-surface border border-border-subtle shadow-sm overflow-hidden flex flex-col">
+          <div className="flex items-center justify-between px-6 py-5 border-b border-border-subtle bg-surface-elevated">
+            <h2 className="text-lg font-bold text-foreground">Recent Orders</h2>
+            <Link to="/dashboard/orders" className="text-sm font-semibold text-brand hover:text-brand-hover flex items-center gap-1.5 transition-colors">View all <ArrowRight className="h-4 w-4" /></Link>
           </div>
-          <div className="divide-y divide-gray-100 dark:divide-gray-800 flex-1">
-            {ordersLoading ? [1, 2, 3, 4].map(i => <div key={i} className="flex items-center justify-between px-8 py-6"><div className="space-y-3"><div className="h-5 w-32 animate-pulse rounded-full bg-gray-200 dark:bg-gray-800" /><div className="h-4 w-20 animate-pulse rounded-full bg-gray-100 dark:bg-gray-700" /></div><div className="h-6 w-24 animate-pulse rounded-full bg-gray-200 dark:bg-gray-800" /></div>) : recentOrders.length === 0 ? <div className="px-8 py-16 text-center"><p className="text-base font-bold text-gray-400 mb-2">No orders yet.</p><Link to="/marketplace" className="text-gray-900 dark:text-white font-black hover:underline uppercase tracking-widest text-sm">Shop now →</Link></div> : recentOrders.map(order => <Link to={`/dashboard/orders/${order.id}`} key={order.id} className="group flex items-center justify-between px-8 py-6 hover:bg-[#F8F9FA] dark:hover:bg-gray-900 transition-colors"><div><p className="text-base font-black text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">{(order as any).order_number ?? `ORD-${String(order.id).padStart(4, '0')}`}</p><p className="text-sm font-bold text-gray-400 mt-1">{fmtDate(order.created_at)}</p></div><div className="flex items-center gap-6"><OrderStatusBadge status={order.status} /><span className="text-xl font-black text-gray-900 dark:text-white">{fmt(order.total_amount)}</span></div></Link>)}
+          <div className="divide-y divide-border-subtle flex-1">
+            {ordersLoading ? [1, 2, 3, 4].map(i => <div key={i} className="flex items-center justify-between px-6 py-5"><div className="space-y-3"><div className="h-5 w-32 animate-pulse rounded-md bg-border-strong" /><div className="h-4 w-20 animate-pulse rounded-md bg-border-subtle" /></div><div className="h-6 w-24 animate-pulse rounded-full bg-border-strong" /></div>) : recentOrders.length === 0 ? <div className="px-6 py-16 text-center"><p className="text-base text-foreground-secondary mb-2">No orders yet.</p><Link to="/marketplace" className="text-brand font-semibold hover:underline">Shop now →</Link></div> : recentOrders.map(order => <Link to={`/dashboard/orders/${order.id}`} key={order.id} className="group flex items-center justify-between px-6 py-5 hover:bg-state-hover transition-colors"><div><p className="text-base font-semibold text-foreground group-hover:text-brand transition-colors">{(order as any).order_number ?? `ORD-${String(order.id).padStart(4, '0')}`}</p><p className="text-sm text-foreground-secondary mt-1">{fmtDate(order.created_at)}</p></div><div className="flex items-center gap-4"><OrderStatusBadge status={order.status} /><span className="text-lg font-bold text-foreground">{fmt(order.total_amount)}</span></div></Link>)}
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="rounded-[2.5rem] bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 shadow-sm p-10 relative overflow-hidden">
-          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 rounded-full bg-green-500/10 dark:bg-white/5 blur-3xl pointer-events-none" />
-          <h2 className="text-xs font-black uppercase tracking-widest text-gray-400 mb-8">Your Profile</h2>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="rounded-2xl bg-surface border border-border-subtle shadow-sm p-8 relative overflow-hidden">
+          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 rounded-full bg-brand/10 blur-3xl pointer-events-none" />
+          <h2 className="text-xs font-bold uppercase tracking-widest text-foreground-secondary mb-8">Your Profile</h2>
           <div className="flex flex-col items-center text-center relative z-10">
-            {user?.profile_picture ? <img src={user.profile_picture} alt={user.full_name} className="h-28 w-28 rounded-[2rem] object-cover shadow-xl mb-6 ring-4 ring-gray-50 dark:ring-white/10" /> : <div className="h-28 w-28 rounded-[2rem] bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-4xl font-black shadow-xl mb-6 ring-4 ring-gray-50 dark:ring-white/10">{(user?.first_name?.[0] ?? user?.username?.[0] ?? '?').toUpperCase()}</div>}
-            <p className="text-2xl font-black text-gray-900 dark:text-white">{user?.full_name || user?.username}</p>
-            <p className="text-sm font-bold text-gray-400 mt-1">{user?.email}</p>
-            <span className="mt-4 inline-flex items-center rounded-full bg-gray-100 dark:bg-white/10 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-gray-600 dark:text-white backdrop-blur-md border border-gray-200 dark:border-white/10">{user?.user_type}</span>
+            {user?.profile_picture ? <img src={user.profile_picture} alt={user.full_name} className="h-24 w-24 rounded-full object-cover shadow-md mb-5 border border-border-subtle" /> : <div className="h-24 w-24 rounded-full bg-brand-muted flex items-center justify-center text-brand text-3xl font-display font-bold shadow-inner mb-5 border border-brand/20">{(user?.first_name?.[0] ?? user?.username?.[0] ?? '?').toUpperCase()}</div>}
+            <p className="text-xl font-display font-bold text-foreground">{user?.full_name || user?.username}</p>
+            <p className="text-sm text-foreground-secondary mt-1">{user?.email}</p>
+            <span className="mt-3 inline-flex items-center rounded-full bg-secondary-muted px-3 py-1 text-xs font-semibold uppercase tracking-wider text-secondary-primary">{user?.user_type}</span>
           </div>
-          <div className="mt-10 space-y-4 relative z-10">
-            <Link to="/dashboard/profile" className="block"><button className="w-full h-14 rounded-full bg-gray-900 text-white dark:bg-white dark:text-gray-900 font-black text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform shadow-xl"><User className="h-4 w-4" /> Edit Profile</button></Link>
-            <Link to="/marketplace" className="block"><button className="w-full h-14 rounded-full bg-gray-100 text-gray-900 dark:bg-white/10 dark:text-white font-black text-sm flex items-center justify-center gap-2 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors backdrop-blur-md"><Star className="h-4 w-4" /> Browse Products</button></Link>
+          <div className="mt-8 space-y-3 relative z-10">
+            <Link to="/dashboard/profile" className="block"><Button variant="primary" className="w-full rounded-full gap-2"><User className="h-4 w-4" /> Edit Profile</Button></Link>
+            <Link to="/marketplace" className="block"><Button variant="outline" className="w-full rounded-full gap-2"><Star className="h-4 w-4" /> Browse Products</Button></Link>
           </div>
         </motion.div>
       </div>

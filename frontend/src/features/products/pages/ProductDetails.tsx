@@ -120,13 +120,13 @@ const ProductDetails = () => {
   };
 
   if (isLoading) {
-    return <div className="mx-auto max-w-7xl px-4 py-20 text-center animate-pulse">Loading product details...</div>;
+    return <div className="mx-auto max-w-7xl px-4 py-20 text-center animate-pulse text-foreground-secondary">Loading product details...</div>;
   }
 
   if (!product) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-32 text-center">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Product Not Found</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-4">Product Not Found</h2>
         <Link to="/marketplace">
           <Button>Back to Marketplace</Button>
         </Link>
@@ -141,7 +141,7 @@ const ProductDetails = () => {
   const renderCTA = () => {
     if (!user) {
       return (
-        <Button className="flex-1 h-16 text-lg rounded-full font-black tracking-wide" onClick={() => navigate('/login')}>
+        <Button className="flex-1 h-16 text-lg rounded-full font-bold tracking-wide" onClick={() => navigate('/login')}>
           LOG IN TO CONTINUE
         </Button>
       );
@@ -149,7 +149,7 @@ const ProductDetails = () => {
 
     if (user.user_type === 'farmer' || user.user_type === 'admin') {
       return (
-        <Button className="flex-1 h-16 text-lg rounded-full font-black tracking-wide bg-gray-100 text-gray-500 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400" disabled>
+        <Button className="flex-1 h-16 text-lg rounded-full font-bold tracking-wide bg-surface-elevated text-foreground-secondary cursor-not-allowed border border-border-subtle hover:bg-surface-elevated" disabled>
           {user.user_type === 'farmer' ? 'FARMERS CANNOT BUY' : 'ADMINS CANNOT BUY'}
         </Button>
       );
@@ -158,37 +158,37 @@ const ProductDetails = () => {
     switch (product.market_state) {
       case 'AVAILABLE_NOW':
         return (
-          <Button className="flex-1 h-16 text-lg gap-3 rounded-full font-black tracking-wide" onClick={handleAddToCart}>
+          <Button variant="primary" className="flex-1 h-16 text-lg gap-3 rounded-full font-bold tracking-wide" onClick={handleAddToCart}>
             <ShoppingCart className="h-6 w-6" /> BUY NOW
           </Button>
         );
       case 'LOW_STOCK':
         return (
-          <Button className="flex-1 h-16 text-lg gap-3 rounded-full font-black tracking-wide bg-orange-600 hover:bg-orange-700 text-white" onClick={handleAddToCart}>
+          <Button className="flex-1 h-16 text-lg gap-3 rounded-full font-bold tracking-wide bg-orange-600 hover:bg-orange-700 text-white" onClick={handleAddToCart}>
             <ShoppingCart className="h-6 w-6" /> BUY NOW - LIMITED STOCK
           </Button>
         );
       case 'READY_FOR_PREBOOKING':
         return (
-          <Button className="flex-1 h-16 text-lg gap-3 rounded-full font-black tracking-wide bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setIsReservationModalOpen(true)}>
+          <Button className="flex-1 h-16 text-lg gap-3 rounded-full font-bold tracking-wide bg-brand hover:bg-brand-hover text-brand-foreground" onClick={() => setIsReservationModalOpen(true)}>
             RESERVE HARVEST
           </Button>
         );
       case 'READY_TO_HARVEST':
         return (
-          <Button className="flex-1 h-16 text-lg gap-3 rounded-full font-black tracking-wide bg-purple-600 hover:bg-purple-700 text-white" onClick={() => setIsReservationModalOpen(true)}>
+          <Button className="flex-1 h-16 text-lg gap-3 rounded-full font-bold tracking-wide bg-purple-600 hover:bg-purple-700 text-white" onClick={() => setIsReservationModalOpen(true)}>
             RESERVE PRIORITY HARVEST
           </Button>
         );
       case 'SOLD_OUT':
         return (
-          <Button className="flex-1 h-16 text-lg gap-3 rounded-full font-black tracking-wide bg-gray-800 hover:bg-gray-900 text-white" onClick={() => setIsWaitlistModalOpen(true)}>
+          <Button className="flex-1 h-16 text-lg gap-3 rounded-full font-bold tracking-wide bg-foreground hover:bg-foreground/90 text-surface" onClick={() => setIsWaitlistModalOpen(true)}>
             JOIN WAITING LIST
           </Button>
         );
       default:
         return (
-          <Button className="flex-1 h-16 text-lg gap-3 rounded-full font-black tracking-wide" disabled>
+          <Button className="flex-1 h-16 text-lg gap-3 rounded-full font-bold tracking-wide bg-surface-elevated text-foreground-secondary border border-border-subtle" disabled>
             UNAVAILABLE
           </Button>
         );
@@ -198,23 +198,23 @@ const ProductDetails = () => {
   return (
     <div className="mx-auto max-w-[1600px] px-4 py-12 sm:px-6 lg:px-8 min-h-screen">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-3 text-sm font-bold text-gray-400 mb-10">
-        <Link to="/" className="hover:text-gray-900 dark:hover:text-white transition-colors">Home</Link>
+      <nav className="flex items-center gap-3 text-sm font-semibold text-foreground-secondary mb-10">
+        <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
         <span>/</span>
-        <Link to="/marketplace" className="hover:text-gray-900 dark:hover:text-white transition-colors">Marketplace</Link>
+        <Link to="/marketplace" className="hover:text-foreground transition-colors">Marketplace</Link>
         <span>/</span>
-        <span className="text-gray-900 dark:text-gray-200">{product.category_name}</span>
+        <span className="text-foreground font-medium">{product.category_name}</span>
       </nav>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 mb-20">
         {/* Image Gallery */}
         <div className="space-y-6">
-          <div className="aspect-square rounded-[3rem] overflow-hidden bg-[#F8F9FA] dark:bg-gray-900 relative flex items-center justify-center p-12">
+          <div className="aspect-square rounded-3xl overflow-hidden bg-surface-elevated relative flex items-center justify-center p-12 border border-border-subtle">
             <img src={images[activeImage]} alt={product.name} className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal transition-transform duration-500 hover:scale-110" />
             <div className="absolute top-8 left-8 flex flex-col gap-2">
               <ProductStatusBadge product={product} className="px-4 py-2 text-sm shadow-xl" />
               {product.is_organic && (
-                <div className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-4 py-2 rounded-full text-xs font-black flex items-center gap-2 shadow-xl tracking-widest uppercase">
+                <div className="bg-foreground text-surface px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 shadow-xl tracking-widest uppercase">
                   <Leaf className="h-4 w-4" /> ORGANIC
                 </div>
               )}
@@ -227,8 +227,8 @@ const ProductDetails = () => {
                   key={idx}
                   onClick={() => setActiveImage(idx)}
                   className={cn(
-                    "relative h-24 w-24 shrink-0 rounded-[1.5rem] overflow-hidden border-2 transition-all p-2 bg-[#F8F9FA] dark:bg-gray-900",
-                    activeImage === idx ? "border-gray-900 dark:border-white shadow-lg" : "border-transparent opacity-60 hover:opacity-100 hover:-translate-y-1"
+                    "relative h-24 w-24 shrink-0 rounded-2xl overflow-hidden border-2 transition-all p-2 bg-surface-elevated",
+                    activeImage === idx ? "border-brand shadow-md" : "border-transparent opacity-60 hover:opacity-100 hover:-translate-y-1"
                   )}
                 >
                   <img src={img} alt={`Thumbnail ${idx}`} className="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal rounded-xl" />
@@ -241,38 +241,38 @@ const ProductDetails = () => {
         {/* Product Info */}
         <div className="flex flex-col justify-center">
           <div className="mb-8">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white mb-6 tracking-tight leading-[1.1]">{product.name}</h1>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-foreground mb-6 tracking-tight leading-[1.1]">{product.name}</h1>
             
             <div className="flex flex-wrap items-center gap-4 mb-8">
               <div className="flex items-center gap-1.5 bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500 px-3 py-1.5 rounded-full font-bold text-sm">
                 <Star className="h-4 w-4 fill-current" />
                 {avgRating} ({reviewsCount} reviews)
               </div>
-              <div className="flex items-center gap-2 text-gray-500 font-bold text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-full">
-                <MapPin className="h-4 w-4 text-gray-900 dark:text-white" /> {product.farmer_name}
+              <div className="flex items-center gap-2 text-foreground-secondary font-semibold text-sm bg-surface-elevated border border-border-subtle px-3 py-1.5 rounded-full">
+                <MapPin className="h-4 w-4 text-foreground" /> {product.farmer_name}
               </div>
             </div>
 
             <div className="flex items-end gap-3 mt-4">
-              <span className="text-5xl lg:text-6xl font-black text-gray-900 dark:text-white">₹{product.price}</span>
-              <span className="text-xl text-gray-400 font-bold mb-1.5">/ {product.unit}</span>
+              <span className="text-5xl lg:text-6xl font-display font-bold text-foreground">₹{product.price}</span>
+              <span className="text-xl text-foreground-secondary font-medium mb-1.5">/ {product.unit}</span>
             </div>
           </div>
 
           <div className="mb-8">
-            <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-4">Description</h3>
-            <p className="text-gray-500 dark:text-gray-400 leading-relaxed text-base md:text-lg font-medium max-w-2xl">
+            <h3 className="text-sm font-bold text-foreground-secondary uppercase tracking-widest mb-4">Description</h3>
+            <p className="text-foreground-secondary leading-relaxed text-base md:text-lg font-medium max-w-2xl">
               {product.description || 'Freshly harvested produce delivered directly to your doorstep. Grown with care and sustainable farming practices to ensure the best quality and taste.'}
             </p>
           </div>
 
           {/* Harvest Information Card */}
           {(product.market_state !== 'AVAILABLE_NOW' && product.active_crop_growth_id) && (
-            <div className="mb-8 bg-blue-50/50 dark:bg-blue-900/10 rounded-[2rem] p-6 border border-blue-100 dark:border-blue-900/30">
+            <div className="mb-8 bg-brand-muted/30 rounded-[2rem] p-6 border border-brand/20">
               <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">Harvest Information</h3>
-                  <p className="text-sm text-gray-500">Live details on crop progress</p>
+                  <h3 className="text-lg font-bold text-foreground mb-1">Harvest Information</h3>
+                  <p className="text-sm text-foreground-secondary">Live details on crop progress</p>
                 </div>
                 {product.harvest_countdown > 0 && <HarvestCountdown days={product.harvest_countdown} />}
               </div>
@@ -280,19 +280,19 @@ const ProductDetails = () => {
               <CropProgressBar progress={product.progress} stage={product.stage} className="mb-6" />
 
               <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-50 dark:border-gray-700">
-                  <p className="text-xs text-gray-500 font-bold uppercase mb-1">Reserved</p>
-                  <p className="text-lg font-black text-gray-900 dark:text-white">{product.reserved_quantity} {product.unit}</p>
+                <div className="bg-surface rounded-xl p-4 shadow-sm border border-border-subtle">
+                  <p className="text-xs text-foreground-secondary font-bold uppercase mb-1">Reserved</p>
+                  <p className="text-lg font-bold text-foreground">{product.reserved_quantity} {product.unit}</p>
                 </div>
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-50 dark:border-gray-700">
-                  <p className="text-xs text-gray-500 font-bold uppercase mb-1">Available</p>
-                  <p className="text-lg font-black text-gray-900 dark:text-white">{product.available_quantity} {product.unit}</p>
+                <div className="bg-surface rounded-xl p-4 shadow-sm border border-border-subtle">
+                  <p className="text-xs text-foreground-secondary font-bold uppercase mb-1">Available</p>
+                  <p className="text-lg font-bold text-foreground">{product.available_quantity} {product.unit}</p>
                 </div>
               </div>
 
               {product.reservation_count > 0 && (
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-blue-100 dark:border-blue-800/30">
-                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">{product.reservation_count} buyers already reserved this crop</span>
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-brand/20">
+                  <span className="text-sm font-medium text-foreground-secondary">{product.reservation_count} buyers already reserved this crop</span>
                   <DemandMeter reservationCount={product.reservation_count} />
                 </div>
               )}
@@ -300,7 +300,7 @@ const ProductDetails = () => {
           )}
 
           {growthDetails && growthDetails.stage_history && (
-            <div className="mb-10 bg-white dark:bg-[#111] rounded-[2.5rem] p-8 shadow-sm border border-gray-100 dark:border-gray-800">
+            <div className="mb-10 bg-surface rounded-3xl p-8 shadow-sm border border-border-subtle">
                <CropTimeline currentStage={product.stage} history={growthDetails.stage_history} />
             </div>
           )}
@@ -309,17 +309,17 @@ const ProductDetails = () => {
           <div className="flex flex-col gap-4 mt-auto">
             {['AVAILABLE_NOW', 'LOW_STOCK'].includes(product.market_state) && user?.user_type !== 'farmer' && user?.user_type !== 'admin' ? (
               <div className="flex items-center gap-4 mb-2">
-                <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-full h-16 p-2">
+                <div className="flex items-center bg-surface-elevated border border-border-subtle rounded-full h-16 p-2">
                   <button 
                     onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                    className="h-12 w-12 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center text-gray-900 dark:text-white shadow-sm hover:scale-105 transition-transform disabled:opacity-50"
+                    className="h-12 w-12 rounded-full bg-surface border border-border-subtle flex items-center justify-center text-foreground shadow-sm hover:scale-105 transition-transform disabled:opacity-50"
                   >
                     <Minus className="h-5 w-5" />
                   </button>
-                  <span className="w-16 text-center font-black text-xl text-gray-900 dark:text-white">{quantity}</span>
+                  <span className="w-16 text-center font-bold text-xl text-foreground">{quantity}</span>
                   <button 
                     onClick={() => setQuantity(q => q + 1)}
-                    className="h-12 w-12 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center text-gray-900 dark:text-white shadow-sm hover:scale-105 transition-transform disabled:opacity-50"
+                    className="h-12 w-12 rounded-full bg-surface border border-border-subtle flex items-center justify-center text-foreground shadow-sm hover:scale-105 transition-transform disabled:opacity-50"
                   >
                     <Plus className="h-5 w-5" />
                   </button>
@@ -334,12 +334,12 @@ const ProductDetails = () => {
             
             {user?.user_type !== 'farmer' && (
               <div className="flex flex-col sm:flex-row items-center gap-4 mt-2">
-                <Button variant="outline" className={`flex-1 h-14 w-full gap-2 rounded-full font-bold border-gray-200 ${isFollowing ? 'text-red-600 border-red-200 bg-red-50' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400'}`} onClick={handleFollowToggle}>
-                  <Heart className={`h-5 w-5 ${isFollowing ? 'fill-current' : ''}`} /> {isFollowing ? 'Following' : 'Follow Crop'}
+                <Button variant="outline" className={cn("flex-1 h-14 w-full gap-2 rounded-full font-bold", isFollowing ? 'text-danger border-danger-subtle bg-danger-subtle' : 'text-foreground-secondary hover:text-foreground')} onClick={handleFollowToggle}>
+                  <Heart className={cn("h-5 w-5", isFollowing ? 'fill-current' : '')} /> {isFollowing ? 'Following' : 'Follow Crop'}
                 </Button>
                 <Button 
                   variant="secondary" 
-                  className="flex-1 h-14 w-full gap-2 rounded-full font-bold bg-[#F2FCE4] text-green-900 hover:bg-[#E6F8CE] dark:bg-green-900/30 dark:text-green-400"
+                  className="flex-1 h-14 w-full gap-2 rounded-full font-bold bg-success-subtle text-success hover:bg-success-subtle/80"
                   onClick={() => navigate('/messages', { state: { userId: product.farmer } })}
                 >
                   <MessageSquare className="h-5 w-5" /> Chat with Farmer
@@ -349,23 +349,23 @@ const ProductDetails = () => {
           </div>
 
           {/* Guarantees */}
-          <div className="grid grid-cols-2 gap-6 mt-12 pt-10 border-t border-gray-100 dark:border-gray-800">
+          <div className="grid grid-cols-2 gap-6 mt-12 pt-10 border-t border-border-strong">
             <div className="flex items-center gap-4">
-              <div className="h-14 w-14 rounded-full bg-[#EBF8FE] dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+              <div className="h-14 w-14 rounded-full bg-info-subtle text-info flex items-center justify-center shrink-0">
                 <Truck className="h-6 w-6" />
               </div>
               <div>
-                <h4 className="text-base font-bold text-gray-900 dark:text-white">Fast Delivery</h4>
-                <p className="text-sm text-gray-500 font-medium">Dispatched in 24h</p>
+                <h4 className="text-base font-bold text-foreground">Fast Delivery</h4>
+                <p className="text-sm text-foreground-secondary font-medium">Dispatched in 24h</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <div className="h-14 w-14 rounded-full bg-[#F2FCE4] dark:bg-green-900/20 text-green-600 dark:text-green-400 flex items-center justify-center shrink-0">
+              <div className="h-14 w-14 rounded-full bg-success-subtle text-success flex items-center justify-center shrink-0">
                 <ShieldCheck className="h-6 w-6" />
               </div>
               <div>
-                <h4 className="text-base font-bold text-gray-900 dark:text-white">Quality Promise</h4>
-                <p className="text-sm text-gray-500 font-medium">100% fresh guarantee</p>
+                <h4 className="text-base font-bold text-foreground">Quality Promise</h4>
+                <p className="text-sm text-foreground-secondary font-medium">100% fresh guarantee</p>
               </div>
             </div>
           </div>
@@ -373,48 +373,48 @@ const ProductDetails = () => {
       </div>
 
       {/* Reviews Section */}
-      <div className="mt-24 border-t border-gray-100 dark:border-gray-800 pt-20">
-        <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-10 tracking-tight">Customer Reviews</h2>
+      <div className="mt-24 border-t border-border-strong pt-20">
+        <h2 className="text-3xl font-display font-bold text-foreground mb-10 tracking-tight">Customer Reviews</h2>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
           {/* Review List */}
           <div className="lg:col-span-2 space-y-6">
             {product.reviews.length === 0 ? (
-              <div className="p-12 text-center bg-[#F8F9FA] dark:bg-[#111] rounded-[3rem]">
-                 <p className="text-gray-500 dark:text-gray-400 font-bold text-lg">No reviews yet. Be the first to review!</p>
+              <div className="p-12 text-center bg-surface-elevated rounded-3xl border border-border-subtle">
+                 <p className="text-foreground-secondary font-bold text-lg">No reviews yet. Be the first to review!</p>
               </div>
             ) : (
               product.reviews.map((rev) => (
-                <div key={rev.id} className="bg-white dark:bg-[#111] p-8 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-gray-800 transition-all hover:shadow-lg hover:-translate-y-1">
+                <div key={rev.id} className="bg-surface p-8 rounded-3xl shadow-sm border border-border-subtle transition-all hover:shadow-md hover:-translate-y-1">
                   <div className="flex items-center justify-between mb-4">
-                    <span className="font-black text-gray-900 dark:text-white text-lg">{rev.buyer_name}</span>
-                    <span className="text-sm font-bold text-gray-400">
+                    <span className="font-bold text-foreground text-lg">{rev.buyer_name}</span>
+                    <span className="text-sm font-semibold text-foreground-secondary">
                       {new Date(rev.created_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}
                     </span>
                   </div>
-                  <div className="flex gap-1.5 mb-4 bg-gray-50 dark:bg-gray-900 w-fit px-3 py-1.5 rounded-full">
+                  <div className="flex gap-1.5 mb-4 bg-surface-elevated w-fit px-3 py-1.5 rounded-full border border-border-subtle">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`h-4 w-4 ${i < rev.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200 dark:text-gray-700'}`} />
+                      <Star key={i} className={`h-4 w-4 ${i < rev.rating ? 'fill-yellow-400 text-yellow-400' : 'text-border-strong'}`} />
                     ))}
                   </div>
-                  <p className="text-gray-600 dark:text-gray-400 text-base font-medium leading-relaxed">{rev.comment}</p>
+                  <p className="text-foreground-secondary text-base font-medium leading-relaxed">{rev.comment}</p>
                 </div>
               ))
             )}
           </div>
 
           {/* Write a Review Form */}
-          <div className="h-fit sticky top-32 bg-[#F8F9FA] dark:bg-[#111] p-10 rounded-[3rem] shadow-sm">
-            <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-8 tracking-tight">Write a Review</h3>
+          <div className="h-fit sticky top-32 bg-surface-elevated p-10 rounded-3xl shadow-sm border border-border-subtle">
+            <h3 className="text-2xl font-display font-bold text-foreground mb-8 tracking-tight">Write a Review</h3>
             {user ? (
               user.id === product.farmer ? (
                 <div className="text-center py-10">
-                  <p className="text-gray-500 dark:text-gray-400 font-bold">You cannot review your own product.</p>
+                  <p className="text-foreground-secondary font-bold">You cannot review your own product.</p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmitReview} className="space-y-6">
                   <div>
-                    <label className="block text-xs font-black text-gray-400 dark:text-gray-500 mb-3 uppercase tracking-widest">Your Rating</label>
+                    <label className="block text-xs font-bold text-foreground-secondary mb-3 uppercase tracking-widest">Your Rating</label>
                     <div className="flex gap-2">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
@@ -423,29 +423,29 @@ const ProductDetails = () => {
                           onClick={() => setRating(star)}
                           className="focus:outline-none hover:scale-110 transition-transform"
                         >
-                          <Star className={`h-8 w-8 transition-colors ${star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300 dark:text-gray-700'}`} />
+                          <Star className={`h-8 w-8 transition-colors ${star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-border-strong'}`} />
                         </button>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-black text-gray-400 dark:text-gray-500 mb-3 uppercase tracking-widest">Your Review</label>
+                    <label className="block text-xs font-bold text-foreground-secondary mb-3 uppercase tracking-widest">Your Review</label>
                     <textarea
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
                       rows={5}
                       placeholder="Share your experience..."
-                      className="w-full rounded-[2rem] border border-transparent bg-white dark:bg-gray-900 px-6 py-5 text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 transition-all shadow-sm resize-none"
+                      className="w-full rounded-2xl border border-border-subtle bg-surface px-6 py-5 text-sm font-medium text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-1 focus:ring-brand transition-all shadow-sm resize-none"
                     />
                   </div>
-                  <Button type="submit" className="w-full h-14 rounded-full font-black text-base" isLoading={isSubmittingReview}>Submit Review</Button>
+                  <Button type="submit" variant="primary" className="w-full h-14 rounded-full font-bold text-base" isLoading={isSubmittingReview}>Submit Review</Button>
                 </form>
               )
             ) : (
               <div className="text-center py-10">
-                <p className="text-gray-500 dark:text-gray-400 mb-6 font-bold">You must be logged in to write a review.</p>
+                <p className="text-foreground-secondary mb-6 font-bold">You must be logged in to write a review.</p>
                 <Link to="/login">
-                  <Button variant="primary" className="h-14 px-8 rounded-full font-black">Log In to Review</Button>
+                  <Button variant="primary" className="h-14 px-8 rounded-full font-bold">Log In to Review</Button>
                 </Link>
               </div>
             )}

@@ -209,6 +209,13 @@ class OrderViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['patch'])
     def cancel(self, request, pk=None):
         order = self.get_object()
+        
+        if order.buyer != request.user:
+            return Response(
+                {'error': 'Only the buyer can cancel the entire order.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+            
         if order.status not in ('pending', 'processing'):
             return Response(
                 {'error': 'Only pending or processing orders can be cancelled.'},

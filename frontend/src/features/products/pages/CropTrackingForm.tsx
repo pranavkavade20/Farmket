@@ -6,6 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import toast from 'react-hot-toast';
 import { cropService, type CropTracking } from '../services/cropService';
 import CropTimeline from '../components/CropTimeline';
+import { Button } from '@/components/ui';
+import { Leaf } from 'lucide-react';
 
 const schema = z.object({
   sow_date: z.string().min(1, 'Sow date is required'),
@@ -62,71 +64,85 @@ export default function CropTrackingForm() {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return (
+    <div className="max-w-4xl mx-auto p-6 bg-surface rounded-3xl shadow-sm border border-border-subtle mt-8">
+      <div className="animate-pulse h-8 w-64 bg-border-strong rounded mb-6"></div>
+      <div className="animate-pulse h-48 bg-border-strong rounded-2xl"></div>
+    </div>
+  );
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-sm border border-gray-100 mt-8">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Track Crop Lifecycle</h2>
+    <div className="max-w-4xl mx-auto p-8 bg-surface rounded-3xl shadow-sm border border-border-subtle mt-8">
+      <div className="flex items-center gap-3 mb-8 border-b border-border-subtle pb-6">
+        <div className="h-12 w-12 rounded-2xl bg-brand-muted/20 flex items-center justify-center">
+          <Leaf className="h-6 w-6 text-brand" />
+        </div>
+        <div>
+          <h2 className="text-2xl font-display font-bold text-foreground">Track Crop Lifecycle</h2>
+          <p className="text-sm font-medium text-foreground-secondary mt-1">Manage growth stages and harvesting timeline</p>
+        </div>
+      </div>
       
       {!tracking ? (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Sow Date</label>
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-foreground-secondary uppercase tracking-widest">Sow Date</label>
               <input 
                 type="date" 
                 {...register('sow_date')}
-                className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full bg-surface border border-border-strong rounded-2xl px-4 py-3.5 text-sm font-medium text-foreground focus:ring-1 focus:ring-brand focus:border-brand transition-all shadow-sm"
               />
-              {errors.sow_date && <p className="text-red-500 text-sm mt-1">{errors.sow_date.message}</p>}
+              {errors.sow_date && <p className="text-danger text-xs font-semibold mt-1">{errors.sow_date.message}</p>}
             </div>
             
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Expected Harvest Date</label>
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-foreground-secondary uppercase tracking-widest">Expected Harvest Date</label>
               <input 
                 type="date" 
                 {...register('expected_harvest_date')}
-                className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full bg-surface border border-border-strong rounded-2xl px-4 py-3.5 text-sm font-medium text-foreground focus:ring-1 focus:ring-brand focus:border-brand transition-all shadow-sm"
               />
-              {errors.expected_harvest_date && <p className="text-red-500 text-sm mt-1">{errors.expected_harvest_date.message}</p>}
+              {errors.expected_harvest_date && <p className="text-danger text-xs font-semibold mt-1">{errors.expected_harvest_date.message}</p>}
             </div>
           </div>
           
-          <button 
+          <Button 
             type="submit" 
-            disabled={isSubmitting}
-            className="w-full bg-green-600 text-white font-medium py-3 rounded-lg hover:bg-green-700 transition-colors"
+            variant="primary"
+            isLoading={isSubmitting}
+            className="w-full h-14 rounded-full font-bold text-base"
           >
-            {isSubmitting ? 'Saving...' : 'Start Tracking'}
-          </button>
+            Start Tracking
+          </Button>
         </form>
       ) : (
-        <div className="space-y-8">
-          <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+        <div className="space-y-10">
+          <div className="grid grid-cols-2 gap-4 bg-surface-elevated p-6 rounded-2xl border border-border-subtle">
             <div>
-              <span className="text-sm text-gray-500">Sown On:</span>
-              <p className="font-medium">{new Date(tracking.sow_date).toLocaleDateString()}</p>
+              <span className="text-xs font-bold text-foreground-secondary uppercase tracking-widest block mb-1">Sown On</span>
+              <p className="text-lg font-bold text-foreground">{new Date(tracking.sow_date).toLocaleDateString()}</p>
             </div>
             <div>
-              <span className="text-sm text-gray-500">Expected Harvest:</span>
-              <p className="font-medium">{new Date(tracking.expected_harvest_date).toLocaleDateString()}</p>
+              <span className="text-xs font-bold text-foreground-secondary uppercase tracking-widest block mb-1">Expected Harvest</span>
+              <p className="text-lg font-bold text-foreground">{new Date(tracking.expected_harvest_date).toLocaleDateString()}</p>
             </div>
           </div>
           
           <CropTimeline tracking={tracking} />
           
-          <div className="pt-6 border-t border-gray-100">
-            <h4 className="text-sm font-medium text-gray-700 mb-3">Update Stage</h4>
+          <div className="pt-8 border-t border-border-strong">
+            <h4 className="text-base font-bold text-foreground mb-4">Update Stage</h4>
             <div className="flex flex-wrap gap-3">
               {['sown', 'growing', 'ready_for_harvest', 'harvested'].map(stage => (
                 <button
                   key={stage}
                   onClick={() => handleStageUpdate(stage)}
                   disabled={tracking.current_stage === stage}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  className={`px-5 py-3 rounded-xl text-sm font-bold transition-all border ${
                     tracking.current_stage === stage 
-                      ? 'bg-green-100 text-green-800 ring-2 ring-green-600' 
-                      : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
+                      ? 'bg-brand-muted/20 text-brand border-brand shadow-sm' 
+                      : 'bg-surface border-border-strong text-foreground-secondary hover:bg-surface-elevated hover:text-foreground'
                   }`}
                 >
                   {stage.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}

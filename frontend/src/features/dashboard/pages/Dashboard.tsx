@@ -11,7 +11,7 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="flex h-64 w-full items-center justify-center">
-        <Sprout className="h-10 w-10 animate-pulse text-green-600 dark:text-green-500" />
+        <Sprout className="h-10 w-10 animate-pulse text-brand" />
       </div>
     );
   }

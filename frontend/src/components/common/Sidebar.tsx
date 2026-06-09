@@ -9,6 +9,10 @@ import {
   TrendingUp,
   User,
   MessageSquare,
+  Sprout,
+  Newspaper,
+  BarChart3,
+  Users
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -24,16 +28,16 @@ const Sidebar = () => {
     ] : []),
     ...(isFarmer ? [
       { to: '/dashboard/products', label: 'My Products', icon: <Package className="h-5 w-5" /> },
-      { to: '/farmer/crops', label: 'Crop Tracking', icon: <Package className="h-5 w-5" /> },
-      { to: '/farmer/posts', label: 'My Posts', icon: <LayoutDashboard className="h-5 w-5" /> },
+      { to: '/farmer/crops', label: 'Crop Tracking', icon: <Sprout className="h-5 w-5" /> },
+      { to: '/farmer/posts', label: 'My Posts', icon: <Newspaper className="h-5 w-5" /> },
       { to: '/farmer/orders', label: 'Received Orders', icon: <ShoppingBag className="h-5 w-5" /> },
-      { to: '/dashboard/analytics', label: 'Analytics', icon: <TrendingUp className="h-5 w-5" /> },
+      { to: '/dashboard/analytics', label: 'Analytics', icon: <BarChart3 className="h-5 w-5" /> },
     ] : []),
     ...(isAdmin ? [
-      { to: '/dashboard/admin/executive', label: 'Executive Dashboard', icon: <TrendingUp className="h-5 w-5" /> },
-      { to: '/dashboard/admin/users', label: 'User Analytics', icon: <User className="h-5 w-5" /> },
+      { to: '/dashboard/admin/executive', label: 'Executive Dashboard', icon: <LayoutDashboard className="h-5 w-5" /> },
+      { to: '/dashboard/admin/users', label: 'User Analytics', icon: <Users className="h-5 w-5" /> },
       { to: '/dashboard/admin/marketplace', label: 'Marketplace Analytics', icon: <ShoppingBag className="h-5 w-5" /> },
-      { to: '/dashboard/admin/crops', label: 'Crop Intelligence', icon: <Package className="h-5 w-5" /> },
+      { to: '/dashboard/admin/crops', label: 'Crop Intelligence', icon: <Sprout className="h-5 w-5" /> },
       { to: '/dashboard/admin/revenue', label: 'Revenue Analytics', icon: <TrendingUp className="h-5 w-5" /> },
     ] : []),
     { to: '/messages', label: 'Messages', icon: <MessageSquare className="h-5 w-5" /> },
@@ -43,7 +47,7 @@ const Sidebar = () => {
   return (
     <aside className="hidden w-[280px] flex-col bg-surface border-r border-border-subtle lg:flex px-4 py-8">
       <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-        <nav className="space-y-2">
+        <nav className="space-y-1.5">
           {links.map((link) => (
             <NavLink
               key={link.to}
@@ -51,10 +55,10 @@ const Sidebar = () => {
               end={link.exact}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ease-out',
+                  'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 ease-out',
                   isActive
-                    ? 'bg-brand/10 text-brand'
-                    : 'text-muted hover:text-foreground hover:bg-gray-50 dark:hover:bg-white/[0.04]'
+                    ? 'bg-brand-muted text-brand'
+                    : 'text-foreground-secondary hover:text-foreground hover:bg-state-hover'
                 )
               }
             >

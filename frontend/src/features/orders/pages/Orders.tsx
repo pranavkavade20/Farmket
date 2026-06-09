@@ -31,7 +31,7 @@ const Orders = () => {
     return (
       <div className="mx-auto max-w-3xl px-4 py-10 space-y-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-28 animate-pulse rounded-2xl bg-gray-200 dark:bg-gray-800" />
+          <div key={i} className="h-28 animate-pulse rounded-2xl bg-border-strong" />
         ))}
       </div>
     );
@@ -39,15 +39,15 @@ const Orders = () => {
 
   return (
     <div className="mx-auto max-w-[1000px] pb-10">
-      <div className="flex items-end justify-between mb-10">
+      <div className="flex items-end justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">My Orders</h1>
-          <p className="text-sm font-bold text-gray-400 mt-2 uppercase tracking-widest">
+          <h1 className="text-3xl font-display font-bold text-foreground tracking-tight">My Orders</h1>
+          <p className="text-sm font-semibold text-foreground-secondary mt-1 uppercase tracking-widest">
             {orders.length} order{orders.length !== 1 ? 's' : ''} total
           </p>
         </div>
         <Link to="/marketplace">
-          <Button variant="outline" className="h-12 rounded-full px-6 font-black gap-2 shadow-sm border-2 hover:bg-gray-50 dark:hover:bg-gray-800">
+          <Button variant="outline" className="rounded-full px-6 gap-2">
             <ShoppingBag className="h-4 w-4" /> Shop More
           </Button>
         </Link>
@@ -57,17 +57,17 @@ const Orders = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="flex flex-col items-center py-32 text-center rounded-[3rem] bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 shadow-sm"
+          className="flex flex-col items-center py-24 text-center rounded-3xl bg-surface border border-border-subtle shadow-sm"
         >
-          <div className="h-24 w-24 rounded-full bg-gray-50 dark:bg-gray-900 flex items-center justify-center mb-6">
-            <Package className="h-10 w-10 text-gray-400 dark:text-gray-600" />
+          <div className="h-24 w-24 rounded-full bg-surface-elevated border border-border-subtle flex items-center justify-center mb-6">
+            <Package className="h-10 w-10 text-foreground-secondary" />
           </div>
-          <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-3">No orders yet</h2>
-          <p className="text-sm font-bold text-gray-400 mb-8 max-w-sm">
+          <h2 className="text-2xl font-display font-bold text-foreground mb-3">No orders yet</h2>
+          <p className="text-sm text-foreground-secondary mb-8 max-w-sm">
             Your orders will appear here once you make a purchase.
           </p>
           <Link to="/marketplace">
-            <Button className="h-14 rounded-full px-8 font-black gap-2 shadow-xl bg-gray-900 hover:bg-black dark:bg-white dark:text-gray-900 hover:scale-105 transition-transform">
+            <Button variant="primary" size="lg" className="rounded-full px-8 gap-2">
               <ShoppingBag className="h-5 w-5" /> Start Shopping
             </Button>
           </Link>
@@ -80,27 +80,27 @@ const Orders = () => {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
-              className="group rounded-[2rem] bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 p-8 hover:shadow-xl transition-all duration-300"
+              className="group rounded-2xl bg-surface border border-border-subtle p-6 hover:shadow-md transition-all duration-300"
             >
-              <div className="flex items-start justify-between mb-6">
+              <div className="flex items-start justify-between mb-5">
                 <div>
-                  <p className="text-lg font-black text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+                  <p className="text-lg font-bold text-foreground group-hover:text-brand transition-colors">
                     {(order as any).order_number ?? `ORD-${String(order.id).padStart(4, '0')}`}
                   </p>
-                  <p className="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest">{fmtDate(order.created_at)}</p>
+                  <p className="text-xs font-semibold text-foreground-secondary mt-1 uppercase tracking-widest">{fmtDate(order.created_at)}</p>
                 </div>
                 <OrderStatusBadge status={order.status} />
               </div>
 
-              <div className="pt-6 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+              <div className="pt-5 border-t border-border-subtle flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-black uppercase tracking-widest text-gray-400">
+                  <p className="text-xs font-bold uppercase tracking-widest text-foreground-secondary">
                     {order.items.length} item{order.items.length !== 1 ? 's' : ''}
                   </p>
-                  <p className="text-2xl font-black text-gray-900 dark:text-white mt-1">{fmt(order.total_amount)}</p>
+                  <p className="text-xl font-display font-bold text-foreground mt-1">{fmt(order.total_amount)}</p>
                 </div>
                 <Link to={`/dashboard/orders/${order.id}`}>
-                  <Button variant="outline" className="h-12 rounded-full px-6 font-black gap-2 shadow-sm border-2 group-hover:bg-gray-900 group-hover:text-white group-hover:border-gray-900 dark:group-hover:bg-white dark:group-hover:text-gray-900 transition-all">
+                  <Button variant="outline" className="rounded-full px-5 gap-2 group-hover:bg-brand group-hover:text-brand-foreground group-hover:border-brand transition-all">
                     View Details <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>

@@ -4,18 +4,20 @@ import { cn } from '@/lib/utils/cn';
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   error?: string;
+  isSuccess?: boolean;
 }
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, label, error, id, ...props }, ref) => {
+  ({ className, label, error, isSuccess, id, ...props }, ref) => {
     const textareaId = id ?? label?.toLowerCase().replace(/\s+/g, '-');
+    const hasError = !!error;
 
     return (
-      <div className="w-full">
+      <div className="w-full flex flex-col gap-1.5">
         {label && (
           <label
             htmlFor={textareaId}
-            className="block text-sm font-semibold text-foreground mb-1.5"
+            className="text-sm font-medium text-foreground-secondary"
           >
             {label}
           </label>
@@ -24,19 +26,19 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           ref={ref}
           id={textareaId}
           className={cn(
-            'flex min-h-[100px] w-full rounded-[14px] border border-border-subtle bg-surface px-5 py-3.5 text-sm font-medium text-foreground placeholder-muted shadow-[0_1px_2px_rgba(0,0,0,0.02)]',
-            'transition-all duration-200 ease-out focus:outline-none focus:ring-4 focus:ring-brand/25 focus:border-brand',
-            'dark:bg-surface dark:shadow-none',
-            error
-              ? 'border-error focus:ring-error/25 focus:border-error'
-              : 'hover:border-gray-300 dark:hover:border-gray-600',
-            'disabled:cursor-not-allowed disabled:opacity-50',
+            'flex min-h-[120px] w-full rounded-xl border bg-surface px-4 py-3 text-sm font-medium text-foreground placeholder:text-muted shadow-sm',
+            'transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:opacity-50 disabled:cursor-not-allowed resize-y custom-scrollbar',
+            hasError
+              ? 'border-danger focus:border-danger focus:ring-danger/20'
+              : isSuccess
+              ? 'border-success focus:border-success focus:ring-success/20'
+              : 'border-border-strong hover:border-brand/50 focus:border-brand focus:ring-brand/20',
             className
           )}
           {...props}
         />
-        {error && (
-          <p className="mt-1.5 text-xs text-red-500 dark:text-red-400" role="alert">
+        {hasError && (
+          <p className="text-xs font-medium text-danger animate-in slide-in-from-top-1" role="alert">
             {error}
           </p>
         )}

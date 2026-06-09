@@ -94,8 +94,8 @@ const MyProducts = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Products</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <h1 className="text-2xl font-display font-bold text-foreground">My Products</h1>
+          <p className="text-sm text-foreground-secondary mt-1">
             {products.length} product{products.length !== 1 ? 's' : ''} listed
           </p>
         </div>
@@ -106,7 +106,7 @@ const MyProducts = () => {
             </Button>
           </Link>
           <Link to="/dashboard/products/new">
-            <Button size="sm" className="gap-2">
+            <Button variant="primary" size="sm" className="gap-2">
               <PlusCircle className="h-4 w-4" /> Add Product
             </Button>
           </Link>
@@ -115,25 +115,27 @@ const MyProducts = () => {
 
       {/* Search and View Toggle */}
       <div className="mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
-        <div className="w-full sm:max-w-md">
-          <Input
+        <div className="w-full sm:max-w-md relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground-secondary" />
+          <input
+            type="text"
             placeholder="Search your products…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            icon={<Search className="h-4 w-4" />}
+            className="w-full pl-9 pr-4 py-2 bg-surface border border-border-strong rounded-xl text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
           />
         </div>
-        <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-900 p-1 rounded-lg shrink-0">
+        <div className="flex items-center gap-1 bg-surface border border-border-subtle p-1 rounded-xl shrink-0">
           <button 
             onClick={() => setView('grid')}
-            className={`p-2 rounded-md transition-colors ${view === 'grid' ? 'bg-white dark:bg-gray-800 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+            className={`p-2 rounded-lg transition-colors ${view === 'grid' ? 'bg-surface-elevated shadow-sm text-foreground' : 'text-foreground-secondary hover:text-foreground'}`}
             title="Grid View"
           >
             <LayoutGrid className="w-4 h-4" />
           </button>
           <button 
             onClick={() => setView('table')}
-            className={`p-2 rounded-md transition-colors ${view === 'table' ? 'bg-white dark:bg-gray-800 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+            className={`p-2 rounded-lg transition-colors ${view === 'table' ? 'bg-surface-elevated shadow-sm text-foreground' : 'text-foreground-secondary hover:text-foreground'}`}
             title="Table View"
           >
             <List className="w-4 h-4" />
@@ -145,27 +147,29 @@ const MyProducts = () => {
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="h-52 animate-pulse rounded-2xl bg-gray-200 dark:bg-gray-800" />
+            <div key={i} className="h-52 animate-pulse rounded-2xl bg-border-strong" />
           ))}
         </div>
       ) : filteredProducts.length === 0 ? (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="flex flex-col items-center py-24 text-center"
+          className="flex flex-col items-center py-24 text-center rounded-3xl border border-dashed border-border-strong bg-surface"
         >
-          <Package className="h-16 w-16 text-gray-300 dark:text-gray-700 mb-4" />
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+          <div className="h-20 w-20 rounded-2xl bg-surface-elevated flex items-center justify-center mb-6">
+            <Package className="h-8 w-8 text-foreground-secondary" />
+          </div>
+          <h2 className="text-xl font-display font-bold text-foreground mb-2">
             {search ? 'No products match your search' : 'No products yet'}
           </h2>
-          <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-sm">
+          <p className="text-sm text-foreground-secondary mb-6 max-w-sm">
             {search
               ? 'Try a different search term.'
               : 'Start listing your farm products to reach buyers across India.'}
           </p>
           {!search && (
             <Link to="/dashboard/products/new">
-              <Button className="gap-2">
+              <Button variant="primary" className="gap-2">
                 <PlusCircle className="h-4 w-4" /> Add Your First Product
               </Button>
             </Link>
@@ -198,24 +202,24 @@ const MyProducts = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ delay: i * 0.03 }}
-                  className="rounded-2xl bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                  className="rounded-2xl bg-surface border border-border-subtle overflow-hidden shadow-sm hover:shadow-md transition-shadow"
                 >
                   {/* Image */}
-                  <div className="relative h-44 bg-gray-100 dark:bg-gray-800 overflow-hidden">
+                  <div className="relative h-44 bg-surface-elevated overflow-hidden border-b border-border-subtle">
                     <img
                       src={primaryImage ?? 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop'}
                       alt={product.name}
                       className="h-full w-full object-cover"
                     />
                     {product.is_organic && (
-                      <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-green-600 px-2.5 py-1 text-xs font-semibold text-white shadow">
+                      <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-success text-success-foreground px-2.5 py-1 text-xs font-semibold shadow">
                         <Leaf className="h-3 w-3" /> Organic
                       </span>
                     )}
                     <span className={`absolute top-3 right-3 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold shadow ${
                       product.is_available
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-gray-200 text-gray-600'
+                        ? 'bg-success-subtle text-success'
+                        : 'bg-surface text-foreground-secondary border border-border-subtle'
                     }`}>
                       {product.is_available ? 'Available' : 'Unavailable'}
                     </span>
@@ -223,19 +227,19 @@ const MyProducts = () => {
 
                   {/* Content */}
                   <div className="p-4">
-                    <p className="text-xs font-medium text-green-600 dark:text-green-500 uppercase tracking-wide mb-0.5">
+                    <p className="text-xs font-semibold text-brand uppercase tracking-wide mb-0.5">
                       {product.category_name}
                     </p>
-                    <h3 className="font-semibold text-gray-900 dark:text-white mb-1 truncate">{product.name}</h3>
+                    <h3 className="font-bold text-foreground mb-1 truncate">{product.name}</h3>
                     <div className="flex items-center justify-between text-sm mb-3">
-                      <span className="font-bold text-gray-900 dark:text-white">
+                      <span className="font-bold text-foreground">
                         {fmt(product.price)}/{product.unit}
                       </span>
-                      <span className="text-gray-500 dark:text-gray-400">
+                      <span className="text-foreground-secondary text-xs font-medium">
                         Stock: {product.stock_quantity}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-4">
+                    <div className="flex items-center gap-2 text-xs text-foreground-secondary font-medium mb-4">
                       <span className="flex items-center gap-1"><Eye className="h-3.5 w-3.5" /> {product.views}</span>
                       {avgRating && (
                         <span>⭐ {avgRating.toFixed(1)} ({product.reviews.length})</span>
@@ -246,14 +250,14 @@ const MyProducts = () => {
                     <div className="flex flex-col gap-2">
                       <Link 
                         to="/farmer/crops"
-                        className="flex w-full items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 transition-colors"
+                        className="flex w-full items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold bg-success-subtle text-success hover:bg-success-subtle/80 transition-colors"
                       >
                         <Leaf className="h-3.5 w-3.5" /> Manage Crop Lifecycle
                       </Link>
                       {product.active_crop_growth_id && (
                         <button
                           onClick={() => dispatch(openStageUpdateModal(product.active_crop_growth_id!))}
-                          className="flex w-full items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 transition-colors"
+                          className="flex w-full items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold bg-info-subtle text-info hover:bg-info-subtle/80 transition-colors"
                         >
                           <TrendingUp className="h-3.5 w-3.5" /> Update Stage
                         </button>
@@ -264,8 +268,8 @@ const MyProducts = () => {
                         disabled={togglingId === product.slug}
                         className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold transition-colors ${
                           product.is_available
-                            ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300'
-                            : 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400'
+                            ? 'bg-surface-elevated text-foreground-secondary hover:bg-state-hover border border-border-subtle'
+                            : 'bg-success-subtle text-success hover:bg-success-subtle/80 border border-success/20'
                         }`}
                         title={product.is_available ? 'Hide from marketplace' : 'Show on marketplace'}
                       >
@@ -280,7 +284,7 @@ const MyProducts = () => {
                       <button
                         onClick={() => handleDelete(product.slug, product.name)}
                         disabled={deletingId === product.slug}
-                        className="h-8 w-8 rounded-xl flex items-center justify-center text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                        className="h-8 w-8 rounded-xl flex items-center justify-center text-danger hover:bg-danger-subtle transition-colors border border-transparent hover:border-danger/20"
                         title="Delete product"
                       >
                         {deletingId === product.slug ? (

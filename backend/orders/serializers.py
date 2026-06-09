@@ -30,7 +30,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
         read_only_fields = ['order', 'price', 'status']
 
 class OrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many=True, read_only=True)
+    items = serializers.SerializerMethodField()
     
     class Meta:
         model = Order
@@ -40,3 +40,42 @@ class OrderSerializer(serializers.ModelSerializer):
             'updated_at', 'items'
         ]
         read_only_fields = ['buyer', 'order_number', 'total_amount', 'created_at', 'updated_at', 'status']
+
+    def get_items(self, obj):
+        request = self.context.get('request')
+        items = obj.items.all()
+        
+        if request and request.user.is_authenticated and not request.user.is_staff:
+            if obj.buyer != request.user:
+                items = items.filter(farmer=request.user)
+                
+        return OrderItemSerializer(items, many=True).data
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        
+        if request and request.user.is_authenticated and not request.user.is_staff:
+            if instance.buyer != request.user:
+                farmer_items = instance.items.filter(farmer=request.user)
+                
+                if not farmer_items.exists():
+                    return data
+                    
+                farmer_total = sum(item.subtotal for item in farmer_items)
+                data['total_amount'] = str(farmer_total)
+                
+                statuses = [item.status for item in farmer_items]
+                
+                if all(s == 'delivered' for s in statuses):
+                    data['status'] = 'delivered'
+                elif all(s == 'cancelled' for s in statuses):
+                    data['status'] = 'cancelled'
+                elif any(s in ['shipped', 'out_for_delivery'] for s in statuses):
+                    data['status'] = 'shipped'
+                elif any(s == 'processing' for s in statuses):
+                    data['status'] = 'processing'
+                else:
+                    data['status'] = 'pending'
+                    
+        return data

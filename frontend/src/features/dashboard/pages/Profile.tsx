@@ -49,7 +49,6 @@ const Profile = () => {
     const formData = new FormData();
     formData.append('profile_picture', file);
     try {
-      // Use the raw axios call for multipart
       const { default: api } = await import('@/lib/api');
       const res = await api.patch<UserType>('/accounts/me/', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -91,39 +90,39 @@ const Profile = () => {
 
   return (
     <div className="mx-auto max-w-4xl pb-10">
-      <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-8 tracking-tight">Profile Settings</h1>
+      <h1 className="text-3xl font-display font-bold text-foreground mb-8 tracking-tight">Profile Settings</h1>
 
       <div className="space-y-8">
         {/* Avatar Section */}
         <motion.div
           initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-          className="rounded-[2.5rem] bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 p-8 flex items-center gap-6 shadow-sm"
+          className="rounded-2xl bg-surface border border-border-subtle p-8 flex items-center gap-6 shadow-sm"
         >
           <div className="relative">
             {user?.profile_picture ? (
               <img
                 src={user.profile_picture}
                 alt={user.full_name}
-                className="h-24 w-24 rounded-[1.5rem] object-cover ring-4 ring-gray-50 dark:ring-gray-900 shadow-md"
+                className="h-24 w-24 rounded-2xl object-cover border border-border-subtle shadow-md"
               />
             ) : (
-              <div className="h-24 w-24 rounded-[1.5rem] bg-gradient-to-br from-gray-900 to-gray-700 dark:from-white dark:to-gray-200 flex items-center justify-center text-white dark:text-gray-900 text-3xl font-black shadow-md ring-4 ring-gray-50 dark:ring-gray-900">
+              <div className="h-24 w-24 rounded-2xl bg-brand-muted flex items-center justify-center text-brand text-3xl font-display font-bold shadow-inner border border-brand/20">
                 {initials}
               </div>
             )}
             <label
               htmlFor="avatar-upload"
-              className="absolute -bottom-2 -right-2 h-10 w-10 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center cursor-pointer shadow-xl ring-2 ring-gray-100 dark:ring-gray-900 hover:scale-110 transition-transform"
+              className="absolute -bottom-2 -right-2 h-10 w-10 rounded-full bg-surface-elevated flex items-center justify-center cursor-pointer shadow-md border border-border-strong hover:scale-110 hover:text-brand transition-all"
               aria-label="Upload avatar"
             >
-              <Camera className="h-5 w-5 text-gray-900 dark:text-white" />
+              <Camera className="h-5 w-5 text-foreground" />
               <input id="avatar-upload" type="file" accept="image/*" className="sr-only" onChange={handleAvatarUpload} />
             </label>
           </div>
           <div>
-            <p className="text-2xl font-black text-gray-900 dark:text-white">{user?.full_name || user?.username}</p>
-            <p className="text-base font-bold text-gray-500 dark:text-gray-400 mt-1">{user?.email}</p>
-            <span className="mt-2 inline-flex items-center rounded-full bg-gray-900 dark:bg-white px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white dark:text-gray-900">
+            <p className="text-2xl font-display font-bold text-foreground">{user?.full_name || user?.username}</p>
+            <p className="text-sm font-medium text-foreground-secondary mt-1">{user?.email}</p>
+            <span className="mt-3 inline-flex items-center rounded-full bg-secondary-muted px-3 py-1 text-xs font-semibold uppercase tracking-wider text-secondary-primary">
               {user?.user_type}
             </span>
           </div>
@@ -132,55 +131,55 @@ const Profile = () => {
         {/* Profile Form */}
         <motion.div
           initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-          className="rounded-[2.5rem] bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 p-8 shadow-sm"
+          className="rounded-2xl bg-surface border border-border-subtle p-8 shadow-sm"
         >
           <div className="flex items-center gap-3 mb-8">
-            <div className="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-               <User className="h-5 w-5 text-gray-900 dark:text-white" />
+            <div className="h-10 w-10 rounded-xl bg-surface-elevated border border-border-subtle flex items-center justify-center">
+               <User className="h-5 w-5 text-foreground" />
             </div>
-            <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Personal Information</h2>
+            <h2 className="text-xl font-display font-bold text-foreground tracking-tight">Personal Information</h2>
           </div>
           
           <form onSubmit={handleSave} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">First Name</label>
+                <label className="block text-xs font-bold text-foreground-secondary uppercase tracking-widest mb-2.5">First Name</label>
                 <Input
                   name="first_name"
                   value={form.first_name}
                   onChange={handleChange}
                   placeholder="John"
                   icon={<User className="h-5 w-5" />}
-                  className="h-16 text-base shadow-inner bg-gray-50 dark:bg-gray-900/50"
+                  className="h-12 bg-surface-elevated border-border-subtle"
                 />
               </div>
               <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Last Name</label>
+                <label className="block text-xs font-bold text-foreground-secondary uppercase tracking-widest mb-2.5">Last Name</label>
                 <Input
                   name="last_name"
                   value={form.last_name}
                   onChange={handleChange}
                   placeholder="Doe"
-                  className="h-16 text-base shadow-inner bg-gray-50 dark:bg-gray-900/50"
+                  className="h-12 bg-surface-elevated border-border-subtle"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Email Address</label>
+                <label className="block text-xs font-bold text-foreground-secondary uppercase tracking-widest mb-2.5">Email Address</label>
                 <div className="relative flex items-center">
-                  <Mail className="absolute left-4 h-5 w-5 text-gray-400" />
+                  <Mail className="absolute left-3.5 h-5 w-5 text-foreground-secondary" />
                   <input
                     value={user?.email ?? ''}
                     readOnly
-                    className="w-full rounded-[1.5rem] border-none bg-gray-100 dark:bg-gray-900/80 pl-12 pr-6 py-5 text-base font-bold text-gray-400 cursor-not-allowed shadow-inner"
+                    className="w-full rounded-xl border border-border-subtle bg-surface-elevated pl-10 pr-4 py-3 text-sm font-medium text-foreground-secondary cursor-not-allowed shadow-sm focus:outline-none"
                   />
                 </div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2 ml-2">Email cannot be changed</p>
+                <p className="text-[10px] font-semibold text-foreground-secondary uppercase tracking-widest mt-2 ml-1">Email cannot be changed</p>
               </div>
               <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Phone Number</label>
+                <label className="block text-xs font-bold text-foreground-secondary uppercase tracking-widest mb-2.5">Phone Number</label>
                 <Input
                   name="phone_number"
                   type="tel"
@@ -188,18 +187,18 @@ const Profile = () => {
                   onChange={handleChange}
                   placeholder="+91 9876543210"
                   icon={<Phone className="h-5 w-5" />}
-                  className="h-16 text-base shadow-inner bg-gray-50 dark:bg-gray-900/50"
+                  className="h-12 bg-surface-elevated border-border-subtle"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Gender</label>
+              <label className="block text-xs font-bold text-foreground-secondary uppercase tracking-widest mb-2.5">Gender</label>
               <select
                 name="gender"
                 value={form.gender}
                 onChange={handleChange}
-                className="w-full rounded-[1.5rem] border-none bg-gray-50 dark:bg-gray-900/50 px-6 py-5 text-base font-bold text-gray-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 shadow-inner appearance-none"
+                className="w-full rounded-xl border border-border-strong bg-surface px-4 py-3 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand shadow-sm appearance-none transition-all"
               >
                 <option value="">Prefer not to say</option>
                 <option value="male">Male</option>
@@ -209,7 +208,7 @@ const Profile = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+              <label className="block text-xs font-bold text-foreground-secondary uppercase tracking-widest mb-2.5 flex items-center gap-2">
                 <MapPin className="h-4 w-4" /> Address
               </label>
               <textarea
@@ -218,12 +217,12 @@ const Profile = () => {
                 value={form.address}
                 onChange={handleChange}
                 placeholder="Your delivery address"
-                className="w-full rounded-[1.5rem] border-none bg-gray-50 dark:bg-gray-900/50 px-6 py-5 text-base font-bold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 shadow-inner resize-none"
+                className="w-full rounded-xl border border-border-strong bg-surface px-4 py-3 text-sm font-medium text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand shadow-sm resize-none transition-all"
               />
             </div>
 
-            <div className="flex justify-end pt-4">
-              <Button type="submit" isLoading={saving} className="h-14 rounded-full px-8 font-black tracking-wide shadow-xl bg-gray-900 text-white hover:bg-black dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100">
+            <div className="flex justify-end pt-2">
+              <Button type="submit" variant="primary" isLoading={saving} className="rounded-full px-6 gap-2">
                 Save Changes
               </Button>
             </div>
@@ -233,52 +232,52 @@ const Profile = () => {
         {/* Password Change */}
         <motion.div
           initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="rounded-[2.5rem] bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 p-8 shadow-sm"
+          className="rounded-2xl bg-surface border border-border-subtle p-8 shadow-sm"
         >
           <div className="flex items-center gap-3 mb-8">
-            <div className="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-              <Shield className="h-5 w-5 text-gray-900 dark:text-white" />
+            <div className="h-10 w-10 rounded-xl bg-surface-elevated border border-border-subtle flex items-center justify-center">
+              <Shield className="h-5 w-5 text-foreground" />
             </div>
-            <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Change Password</h2>
+            <h2 className="text-xl font-display font-bold text-foreground tracking-tight">Change Password</h2>
           </div>
           <form onSubmit={handlePasswordChange} className="space-y-6">
             <div>
-              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Current Password</label>
+              <label className="block text-xs font-bold text-foreground-secondary uppercase tracking-widest mb-2.5">Current Password</label>
               <Input
                 name="current"
                 type="password"
                 value={passwordForm.current}
                 onChange={(e) => setPasswordForm((p) => ({ ...p, current: e.target.value }))}
                 placeholder="••••••••"
-                className="h-16 text-base shadow-inner bg-gray-50 dark:bg-gray-900/50"
+                className="h-12 bg-surface-elevated border-border-subtle"
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">New Password</label>
+                <label className="block text-xs font-bold text-foreground-secondary uppercase tracking-widest mb-2.5">New Password</label>
                 <Input
                   name="newPass"
                   type="password"
                   value={passwordForm.newPass}
                   onChange={(e) => setPasswordForm((p) => ({ ...p, newPass: e.target.value }))}
                   placeholder="Min 8 chars"
-                  className="h-16 text-base shadow-inner bg-gray-50 dark:bg-gray-900/50"
+                  className="h-12 bg-surface-elevated border-border-subtle"
                 />
               </div>
               <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Confirm New Password</label>
+                <label className="block text-xs font-bold text-foreground-secondary uppercase tracking-widest mb-2.5">Confirm New Password</label>
                 <Input
                   name="confirm"
                   type="password"
                   value={passwordForm.confirm}
                   onChange={(e) => setPasswordForm((p) => ({ ...p, confirm: e.target.value }))}
                   placeholder="Re-enter"
-                  className="h-16 text-base shadow-inner bg-gray-50 dark:bg-gray-900/50"
+                  className="h-12 bg-surface-elevated border-border-subtle"
                 />
               </div>
             </div>
-            <div className="flex justify-end pt-4">
-              <Button type="submit" variant="outline" isLoading={changingPass} className="h-14 rounded-full px-8 font-black tracking-wide border-2">
+            <div className="flex justify-end pt-2">
+              <Button type="submit" variant="outline" isLoading={changingPass} className="rounded-full px-6 gap-2">
                 Update Password
               </Button>
             </div>
