@@ -6,10 +6,65 @@
    adding/removing the .dark class on <html> has NO effect.                  */
 @custom-variant dark (&:where(.dark, .dark *));
 
+@layer base {
+  :root {
+    --bg-main: #FCFCFB;
+    --bg-surface: #FFFFFF;
+    --bg-surface-elevated: #FFFFFF;
+    --text-primary: #0F172A;
+    --text-secondary: #64748B;
+    --border-color: rgba(15, 23, 42, 0.08);
+    
+    --brand-primary: #0F5132;
+    --brand-hover: #0A3F27;
+    --accent-primary: #FF7A00;
+    --accent-hover: #E56E00;
+
+    --semantic-success: #16A34A;
+    --semantic-warning: #F59E0B;
+    --semantic-error: #DC2626;
+  }
+
+  .dark {
+    --bg-main: #0B0F14;
+    --bg-surface: #111827;
+    --bg-surface-elevated: #161E2E;
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --border-color: rgba(255, 255, 255, 0.08);
+    
+    --brand-primary: #22C55E;
+    --brand-hover: #16A34A;
+    --accent-primary: #FF8A1F;
+    --accent-hover: #E56E00;
+
+    --semantic-success: #22C55E;
+    --semantic-warning: #FFB020;
+    --semantic-error: #FF5D5D;
+  }
+}
+
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
 
-  /* Farmket brand colors */
+  /* Theme Colors mapped to utilities */
+  --color-background: var(--bg-main);
+  --color-surface: var(--bg-surface);
+  --color-surface-elevated: var(--bg-surface-elevated);
+  --color-foreground: var(--text-primary);
+  --color-muted: var(--text-secondary);
+  --color-border-subtle: var(--border-color);
+  
+  --color-brand: var(--brand-primary);
+  --color-brand-hover: var(--brand-hover);
+  --color-accent: var(--accent-primary);
+  --color-accent-hover: var(--accent-hover);
+  
+  --color-success: var(--semantic-success);
+  --color-warning: var(--semantic-warning);
+  --color-error: var(--semantic-error);
+
+  /* Restored legacy brand colors to fix build errors in sections/pages */
   --color-brand-50:  #f0fdf4;
   --color-brand-100: #dcfce7;
   --color-brand-200: #bbf7d0;
@@ -21,8 +76,6 @@
   --color-brand-800: #166534;
   --color-brand-900: #14532d;
   --color-brand-950: #052e16;
-  
-  --color-accent: #f59e0b;
 }
 
 @layer base {
@@ -35,11 +88,17 @@
   }
 
   body {
-    @apply bg-[#F8FAFC] text-[#111827] dark:bg-[#050505] dark:text-gray-100;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
+  }
+
+  /* Smooth dark mode transitions across the app */
+  body, section, div, p, span, h1, h2, h3, h4, h5, h6, button {
+    @apply transition-colors duration-300;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -47,7 +106,7 @@
   }
 
   a {
-    @apply transition-colors duration-200;
+    @apply transition-colors duration-300;
   }
 
   /* Custom scrollbar */
@@ -91,11 +150,11 @@
   }
 
   .card-hover {
-    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_8px_30px_rgb(255,255,255,0.04)] hover:border-brand-500/30 dark:hover:border-brand-500/30;
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_8px_30px_rgb(255,255,255,0.04)] hover:border-brand/30 dark:hover:border-brand/30;
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-600 to-brand-400 dark:from-brand-400 dark:to-brand-200;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand to-brand-hover dark:from-brand dark:to-brand-hover;
   }
   
   .text-gradient-accent {

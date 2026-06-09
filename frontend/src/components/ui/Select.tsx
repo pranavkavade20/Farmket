@@ -17,7 +17,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         {label && (
           <label
             htmlFor={selectId}
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+            className="block text-sm font-semibold text-foreground mb-1.5"
           >
             {label}
           </label>
@@ -27,12 +27,12 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             ref={ref}
             id={selectId}
             className={cn(
-              'block w-full appearance-none rounded-xl border bg-white px-4 py-3 pr-10 text-sm text-gray-900 shadow-sm',
-              'transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent',
-              'dark:bg-gray-950 dark:border-gray-800 dark:text-white dark:focus:ring-green-500',
+              'block w-full appearance-none rounded-[14px] border border-border-subtle bg-surface px-5 py-3.5 pr-10 text-sm font-medium text-foreground shadow-[0_1px_2px_rgba(0,0,0,0.02)]',
+              'transition-all duration-200 ease-out focus:outline-none focus:ring-4 focus:ring-brand/25 focus:border-brand',
+              'dark:bg-surface dark:shadow-none',
               error
-                ? 'border-red-500 focus:ring-red-500'
-                : 'border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700',
+                ? 'border-error focus:ring-error/25 focus:border-error'
+                : 'hover:border-gray-300 dark:hover:border-gray-600',
               'disabled:cursor-not-allowed disabled:opacity-50',
               className
             )}

@@ -61,7 +61,7 @@ export const HeroSection = () => {
   };
 
   return (
-    <section className="relative w-full flex flex-col items-center bg-[#FAFAF8] dark:bg-gray-900 overflow-hidden pb-16 font-sans text-gray-900 dark:text-gray-50 transition-colors duration-300">
+    <section className="relative w-full flex flex-col items-center bg-[#FAFAF8] dark:bg-[#050505] overflow-hidden pb-16 font-sans text-gray-900 dark:text-gray-50 transition-colors duration-300">
       {/* Abstract Background Shapes */}
       <div className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden">
         <div className="absolute -top-[10%] -right-[5%] w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.08)_0%,rgba(250,250,248,0)_70%)] dark:bg-[radial-gradient(circle,rgba(34,197,94,0.15)_0%,rgba(17,24,39,0)_70%)] blur-[40px]"></div>
@@ -165,7 +165,7 @@ export const HeroSection = () => {
             </a>
             <a
               href="#buyer"
-              className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-white py-3.5 px-7 rounded-full font-semibold flex items-center justify-center gap-2 transition-all border border-gray-200 dark:border-gray-700 hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_8px_16px_rgba(0,0,0,0.2)] w-full sm:w-auto"
+              className="bg-white dark:bg-[#111] hover:bg-gray-50 dark:hover:bg-[#222] text-gray-900 dark:text-white py-3.5 px-7 rounded-full font-semibold flex items-center justify-center gap-2 transition-all border border-gray-200 dark:border-white/5 hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_8px_16px_rgba(255,255,255,0.05)] w-full sm:w-auto"
             >
               I'm a Buyer <ShoppingBag size={18} />
             </a>
@@ -227,7 +227,7 @@ export const HeroSection = () => {
                 repeatType: "reverse",
                 ease: "easeInOut",
               }}
-              className="absolute -top-4 sm:-top-6 left-1/2 -translate-x-1/2 w-10 h-10 sm:w-14 sm:h-14 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] z-20 overflow-hidden border border-gray-100 dark:border-gray-700 transition-colors duration-300"
+              className="absolute -top-4 sm:-top-6 left-1/2 -translate-x-1/2 w-10 h-10 sm:w-14 sm:h-14 bg-white dark:bg-[#111] rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_20px_rgba(255,255,255,0.05)] z-20 overflow-hidden border border-gray-100 dark:border-white/5 transition-colors duration-300"
             >
               <img
                 src={tomatoImg}
@@ -244,7 +244,7 @@ export const HeroSection = () => {
                 ease: "easeInOut",
                 delay: 1,
               }}
-              className="absolute -bottom-4 sm:-bottom-6 left-1/2 -translate-x-1/2 w-10 h-10 sm:w-14 sm:h-14 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] z-20 overflow-hidden border border-gray-100 dark:border-gray-700 transition-colors duration-300"
+              className="absolute -bottom-4 sm:-bottom-6 left-1/2 -translate-x-1/2 w-10 h-10 sm:w-14 sm:h-14 bg-white dark:bg-[#111] rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_20px_rgba(255,255,255,0.05)] z-20 overflow-hidden border border-gray-100 dark:border-white/5 transition-colors duration-300"
             >
               <img
                 src={wheatImg}
@@ -261,7 +261,7 @@ export const HeroSection = () => {
                 ease: "easeInOut",
                 delay: 2,
               }}
-              className="absolute left-[-10px] sm:left-[-28px] top-1/2 -translate-y-1/2 w-10 h-10 sm:w-14 sm:h-14 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] z-20 overflow-hidden border border-gray-100 dark:border-gray-700 transition-colors duration-300"
+              className="absolute left-[-10px] sm:left-[-28px] top-1/2 -translate-y-1/2 w-10 h-10 sm:w-14 sm:h-14 bg-white dark:bg-[#111] rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_20px_rgba(255,255,255,0.05)] z-20 overflow-hidden border border-gray-100 dark:border-white/5 transition-colors duration-300"
             >
               <img
                 src={broccoliImg}
@@ -278,7 +278,7 @@ export const HeroSection = () => {
                 ease: "easeInOut",
                 delay: 3,
               }}
-              className="absolute right-[-10px] sm:right-[-28px] top-1/2 -translate-y-1/2 w-10 h-10 sm:w-14 sm:h-14 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)] z-20 overflow-hidden border border-gray-100 dark:border-gray-700 transition-colors duration-300"
+              className="absolute right-[-10px] sm:right-[-28px] top-1/2 -translate-y-1/2 w-10 h-10 sm:w-14 sm:h-14 bg-white dark:bg-[#111] rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_20px_rgba(255,255,255,0.05)] z-20 overflow-hidden border border-gray-100 dark:border-white/5 transition-colors duration-300"
             >
               <img
                 src={potatoImg}
@@ -309,7 +309,7 @@ export const HeroSection = () => {
                 ],
               }}
               transition={{ duration: 3, repeat: Infinity }}
-              className="absolute w-[80px] h-[80px] sm:w-[100px] sm:h-[100px] lg:w-[120px] lg:h-[120px] bg-white dark:bg-gray-900 rounded-full flex items-center justify-center shadow-[0_15px_35px_rgba(22,163,74,0.15)] z-20 border-[3px] sm:border-4 border-green-600 transition-colors duration-300"
+              className="absolute w-[80px] h-[80px] sm:w-[100px] sm:h-[100px] lg:w-[120px] lg:h-[120px] bg-white dark:bg-[#0A0A0A] rounded-full flex items-center justify-center shadow-[0_15px_35px_rgba(22,163,74,0.15)] z-20 border-[3px] sm:border-4 border-green-600 transition-colors duration-300"
             >
               <img
                 src={logoImg}
@@ -339,7 +339,7 @@ export const HeroSection = () => {
                 repeatType: "reverse",
                 ease: "easeInOut",
               }}
-              className="absolute top-[-5%] sm:top-[0%] lg:top-[5%] right-[2%] sm:right-[10%] lg:right-[5%] bg-white/90 dark:bg-gray-800/90 backdrop-blur-md p-2.5 sm:p-4 rounded-xl sm:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.06)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.4)] border border-white/50 dark:border-gray-700/50 z-20 max-w-[130px] sm:max-w-[180px] lg:max-w-[220px] transition-colors duration-300"
+              className="absolute top-[-5%] sm:top-[0%] lg:top-[5%] right-[2%] sm:right-[10%] lg:right-[5%] bg-white/90 dark:bg-[#111]/90 backdrop-blur-md p-2.5 sm:p-4 rounded-xl sm:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.06)] dark:shadow-[0_10px_30px_rgba(255,255,255,0.05)] border border-white/50 dark:border-white/5 z-20 max-w-[130px] sm:max-w-[180px] lg:max-w-[220px] transition-colors duration-300"
             >
               <div className="text-[10px] sm:text-xs lg:text-sm font-bold text-gray-900 dark:text-white mb-0.5 sm:mb-1 flex items-center gap-1 sm:gap-1.5 transition-colors duration-300">
                 <Leaf className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" /> For Farmers
@@ -357,7 +357,7 @@ export const HeroSection = () => {
                 repeatType: "reverse",
                 ease: "easeInOut",
               }}
-              className="absolute bottom-[-5%] sm:bottom-[0%] lg:bottom-[5%] left-[0%] sm:left-[5%] lg:left-[0%] bg-white/90 dark:bg-gray-800/90 backdrop-blur-md p-2.5 sm:p-4 rounded-xl sm:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.06)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.4)] border border-white/50 dark:border-gray-700/50 z-20 max-w-[130px] sm:max-w-[180px] lg:max-w-[220px] transition-colors duration-300"
+              className="absolute bottom-[-5%] sm:bottom-[0%] lg:bottom-[5%] left-[0%] sm:left-[5%] lg:left-[0%] bg-white/90 dark:bg-[#111]/90 backdrop-blur-md p-2.5 sm:p-4 rounded-xl sm:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.06)] dark:shadow-[0_10px_30px_rgba(255,255,255,0.05)] border border-white/50 dark:border-white/5 z-20 max-w-[130px] sm:max-w-[180px] lg:max-w-[220px] transition-colors duration-300"
             >
               <div className="text-[10px] sm:text-xs lg:text-sm font-bold text-gray-900 dark:text-white mb-0.5 sm:mb-1 flex items-center gap-1 sm:gap-1.5 transition-colors duration-300">
                 <ShoppingBag className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" /> For Buyers

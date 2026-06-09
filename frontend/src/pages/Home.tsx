@@ -56,7 +56,7 @@ const Home = () => {
   };
 
   return (
-    <div className="flex flex-col bg-white dark:bg-[#050505] w-full min-h-screen">
+    <div className="flex flex-col bg-white dark:bg-[#050505] w-full min-h-screen transition-colors duration-300">
       
       {/* 1. Hero */}
       <HeroSection />

@@ -51,18 +51,14 @@ const Navbar = () => {
       to={to}
       onClick={closeMobile}
       className={cn(
-        "flex items-center gap-1.5 text-sm font-semibold transition-all duration-300 relative group",
+        "flex items-center gap-1.5 text-sm font-medium transition-all duration-200 ease-out px-3 py-2 rounded-lg",
         isActive(to)
-          ? "text-brand-600 dark:text-brand-400"
-          : "text-gray-600 hover:text-brand-600 dark:text-gray-300 dark:hover:text-brand-400",
+          ? "text-brand bg-brand/10 dark:bg-brand/10"
+          : "text-muted hover:text-foreground hover:bg-gray-50 dark:hover:bg-white/[0.04]"
       )}
     >
       {label}
       {hasDropdown && <ChevronDown className="h-4 w-4 opacity-50" />}
-      <span className={cn(
-        "absolute -bottom-1 left-0 h-0.5 bg-brand-500 rounded-full transition-all duration-300",
-        isActive(to) ? "w-full" : "w-0 group-hover:w-full"
-      )} />
     </Link>
   );
 
@@ -164,12 +160,12 @@ const Navbar = () => {
             ) : (
               <div className="hidden lg:flex items-center gap-3 pl-2">
                 <Link to="/login">
-                  <Button variant="ghost" className="rounded-full h-10 px-5 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 transition-all">
+                  <Button variant="ghost">
                     Login
                   </Button>
                 </Link>
                 <Link to="/register">
-                  <Button className="rounded-full h-10 px-6 bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-500/20 transition-all hover:shadow-brand-500/40 hover:-translate-y-0.5 text-sm font-semibold">
+                  <Button variant="primary">
                     Sign Up
                   </Button>
                 </Link>

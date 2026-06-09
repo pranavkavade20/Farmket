@@ -8,10 +8,10 @@ interface BadgeProps {
 }
 
 const variantStyles = {
-  default: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
-  success: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-  warning: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
-  error: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+  default: 'bg-gray-100 text-gray-800 dark:bg-white/10 dark:text-gray-200',
+  success: 'bg-success/10 text-success dark:bg-success/20 dark:text-success',
+  warning: 'bg-warning/10 text-warning dark:bg-warning/20 dark:text-warning',
+  error: 'bg-error/10 text-error dark:bg-error/20 dark:text-error',
   info: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
 };
 

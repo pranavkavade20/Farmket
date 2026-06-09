@@ -16,7 +16,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+            className="block text-sm font-semibold text-foreground mb-1.5"
           >
             {label}
           </label>
@@ -31,13 +31,13 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              'block w-full rounded-full border bg-gray-50 px-6 py-4 text-sm font-medium text-gray-900 placeholder-gray-400 shadow-sm',
-              'transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500',
-              'dark:bg-gray-900 dark:border-gray-800 dark:text-white dark:placeholder-gray-500 dark:focus:ring-green-500/30',
+              'block w-full rounded-[14px] border border-border-subtle bg-surface px-5 py-3.5 text-sm font-medium text-foreground placeholder-muted shadow-[0_1px_2px_rgba(0,0,0,0.02)]',
+              'transition-all duration-200 ease-out focus:outline-none focus:ring-4 focus:ring-brand/25 focus:border-brand',
+              'dark:bg-surface dark:shadow-none',
               error
-                ? 'border-red-500 focus:ring-red-500/20'
-                : 'border-transparent hover:border-gray-200 dark:hover:border-gray-700',
-              icon ? 'pl-12' : '',
+                ? 'border-error focus:ring-error/25 focus:border-error'
+                : 'hover:border-gray-300 dark:hover:border-gray-600',
+              icon ? 'pl-11' : '',
               className
             )}
             {...props}

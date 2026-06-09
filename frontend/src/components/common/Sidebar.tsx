@@ -41,7 +41,7 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="hidden w-[280px] flex-col bg-[#F5F5F5] dark:bg-[#0A0A0A] lg:flex px-4 py-8">
+    <aside className="hidden w-[280px] flex-col bg-surface border-r border-border-subtle lg:flex px-4 py-8">
       <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
         <nav className="space-y-2">
           {links.map((link) => (
@@ -51,10 +51,10 @@ const Sidebar = () => {
               end={link.exact}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-4 rounded-full px-5 py-4 text-[13px] font-black uppercase tracking-widest transition-all duration-300',
+                  'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ease-out',
                   isActive
-                    ? 'bg-gray-900 text-white shadow-xl dark:bg-white dark:text-gray-900 scale-[1.02]'
-                    : 'text-gray-500 hover:bg-white hover:text-gray-900 hover:shadow-sm dark:text-gray-400 dark:hover:bg-gray-900 dark:hover:text-white'
+                    ? 'bg-brand/10 text-brand'
+                    : 'text-muted hover:text-foreground hover:bg-gray-50 dark:hover:bg-white/[0.04]'
                 )
               }
             >
