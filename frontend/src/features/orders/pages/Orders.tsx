@@ -38,7 +38,7 @@ const Orders = () => {
   }
 
   return (
-    <div className="mx-auto max-w-[1000px] pb-10">
+    <div className="mx-auto max-w-[1000px] w-full">
       <div className="flex items-end justify-between mb-8">
         <div>
           <h1 className="text-3xl font-display font-bold text-foreground tracking-tight">My Orders</h1>

@@ -55,7 +55,7 @@ const Analytics = () => {
   const kpis = data?.kpis;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl w-full">
       <div className="flex items-end justify-between mb-12">
         <div>
           <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tight">Analytics</h1>
