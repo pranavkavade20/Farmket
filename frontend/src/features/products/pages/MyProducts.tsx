@@ -90,7 +90,7 @@ const MyProducts = () => {
     new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(parseFloat(n));
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl w-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>

@@ -89,7 +89,7 @@ const Profile = () => {
   const initials = (user?.first_name?.[0] ?? user?.username?.[0] ?? '?').toUpperCase();
 
   return (
-    <div className="mx-auto max-w-4xl pb-10">
+    <div className="mx-auto max-w-4xl w-full">
       <h1 className="text-3xl font-display font-bold text-foreground mb-8 tracking-tight">Profile Settings</h1>
 
       <div className="space-y-8">

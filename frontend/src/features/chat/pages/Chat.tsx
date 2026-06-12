@@ -288,11 +288,11 @@ const Chat = () => {
   }, []);
 
   return (
-    <div className="h-[calc(100vh-140px)] w-full max-w-[1400px] mx-auto pb-6">
-      <div className="bg-white dark:bg-[#111] h-full rounded-[3rem] shadow-sm ring-1 ring-gray-100 dark:ring-gray-800 overflow-hidden flex relative">
+    <div className="h-full w-full flex relative">
+      <div className="w-full flex-1 flex overflow-hidden">
         
         {/* Sidebar */}
-        <div className={cn("w-full md:w-[380px] flex-shrink-0 border-r border-gray-100 dark:border-gray-800 md:block bg-[#F8F9FA] dark:bg-gray-900/30", selected ? "hidden" : "block")}>
+        <div className={cn("w-full md:w-[380px] flex-shrink-0 border-r border-gray-100/50 dark:border-gray-800/50 md:block bg-transparent", selected ? "hidden" : "block")}>
           <ChatSidebar
             loading={loadingConv}
             conversations={filteredConversations}
@@ -307,11 +307,11 @@ const Chat = () => {
         </div>
 
         {/* Chat Area */}
-        <div className={cn("flex-1 flex flex-col min-w-0 bg-[#f0f2f5] dark:bg-[#0A0A0A] relative md:flex", !selected ? "hidden" : "flex")}>
+        <div className={cn("flex-1 flex flex-col min-w-0 bg-transparent relative md:flex", !selected ? "hidden" : "flex")}>
           {selected ? (
             <>
               {/* Top Bar */}
-              <div className="h-20 flex-shrink-0 bg-white/80 dark:bg-[#111]/80 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 px-6 flex items-center justify-between z-10">
+              <div className="h-20 flex-shrink-0 bg-white/40 dark:bg-black/20 backdrop-blur-md border-b border-gray-100/50 dark:border-gray-800/50 px-6 flex items-center justify-between z-10">
                 <div className="flex items-center gap-4">
                   <button onClick={() => setSelected(null)} className="md:hidden p-3 -ml-2 text-gray-500 bg-gray-100 rounded-full dark:bg-gray-800">
                     <ArrowLeft className="h-5 w-5" />
@@ -399,8 +399,8 @@ const Chat = () => {
               </div>
             </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-white dark:bg-[#111]">
-              <div className="w-32 h-32 bg-gray-50 dark:bg-gray-900 rounded-full flex items-center justify-center mb-8 shadow-inner">
+            <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-transparent">
+              <div className="w-32 h-32 bg-gray-50/50 dark:bg-gray-900/50 rounded-full flex items-center justify-center mb-8 shadow-inner">
                 <MessageSquare className="h-12 w-12 text-gray-400" />
               </div>
               <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-3 tracking-tight">Your Messages</h2>

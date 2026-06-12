@@ -1,14 +1,21 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Navbar, Sidebar } from '@/components/common';
+import { cn } from '@/lib/utils/cn';
 
 const DashboardLayout = () => {
+  const location = useLocation();
+  const isChat = location.pathname.startsWith('/messages');
+
   return (
-    <div className="flex min-h-screen flex-col bg-[#F5F5F5] dark:bg-[#0A0A0A]">
+    <div className="flex min-h-screen flex-col bg-[#F8F9FA] dark:bg-[#050505]">
       <Navbar />
-      <div className="flex flex-1 overflow-hidden max-w-[1600px] w-full mx-auto mt-4">
+      <div className="flex flex-1 max-w-[1600px] w-full mx-auto pt-4 px-4 sm:px-6 lg:px-8 gap-6">
         <Sidebar />
-        <main className="flex-1 overflow-y-auto bg-white dark:bg-[#111] rounded-[2.5rem] shadow-sm ring-1 ring-gray-100 dark:ring-gray-800 mb-6 mr-4 p-6 lg:p-10 custom-scrollbar">
+        <main className={cn(
+          "flex-1 bg-white/90 backdrop-blur-xl dark:bg-[#111]/90 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] ring-1 ring-gray-100/50 dark:ring-gray-800/50 mb-6 relative flex flex-col",
+          isChat ? "p-0 h-[calc(100vh-120px)] overflow-hidden" : "p-6 lg:p-10 min-h-[calc(100vh-120px)]"
+        )}>
           <Outlet />
         </main>
       </div>

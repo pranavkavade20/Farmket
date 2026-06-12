@@ -45,8 +45,8 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="hidden w-[280px] flex-col bg-surface border-r border-border-subtle lg:flex px-4 py-8">
-      <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+    <aside className="hidden w-[260px] flex-col bg-transparent lg:flex py-2 flex-shrink-0 sticky top-24 h-[calc(100vh-8rem)]">
+      <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar">
         <nav className="space-y-1.5">
           {links.map((link) => (
             <NavLink
@@ -55,15 +55,27 @@ const Sidebar = () => {
               end={link.exact}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 ease-out',
+                  'group flex items-center gap-3.5 rounded-2xl px-4 py-3.5 text-[15px] font-medium transition-all duration-300 ease-out relative overflow-hidden',
                   isActive
-                    ? 'bg-brand-muted text-brand'
-                    : 'text-foreground-secondary hover:text-foreground hover:bg-state-hover'
+                    ? 'text-brand bg-brand/10 dark:bg-brand/20 shadow-sm'
+                    : 'text-foreground-secondary hover:text-foreground hover:bg-gray-100/50 dark:hover:bg-white/5'
                 )
               }
             >
-              {link.icon}
-              {link.label}
+              {({ isActive }) => (
+                <>
+                  {isActive && (
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-brand rounded-r-full shadow-[0_0_10px_rgba(var(--brand),0.5)]" />
+                  )}
+                  <div className={cn(
+                    "transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3",
+                    isActive ? "text-brand" : "text-foreground-secondary group-hover:text-foreground"
+                  )}>
+                    {link.icon}
+                  </div>
+                  <span className="font-semibold tracking-wide z-10">{link.label}</span>
+                </>
+              )}
             </NavLink>
           ))}
         </nav>

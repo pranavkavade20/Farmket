@@ -49,7 +49,7 @@ const FarmerDashboard = () => {
   const fmtDate = (s: string) => new Date(s).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
   return (
-    <div className="mx-auto max-w-[1400px] w-full pb-10">
+    <div className="mx-auto max-w-[1400px] w-full">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-10 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
         <div>
           <h1 className="text-3xl font-display font-bold text-foreground tracking-tight">Welcome back, {user?.first_name || user?.username} 👋</h1>

@@ -30,9 +30,9 @@ export const ChatSidebar: React.FC<Props> = ({
   conversations, selectedId, onSelect, loading, search, onSearchChange, onStartNewChat, currentUserId, onlineUsers
 }) => {
   return (
-    <div className="border-r border-gray-200 dark:border-gray-800 flex flex-col h-full bg-white dark:bg-gray-900">
+    <div className="flex flex-col h-full bg-transparent">
       {/* Header */}
-      <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+      <div className="p-6 border-b border-gray-100/50 dark:border-gray-800/50 flex items-center justify-between">
         <h2 className="text-xl font-bold text-gray-800 dark:text-white">Chats</h2>
         <button
           onClick={onStartNewChat}
