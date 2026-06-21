@@ -1,81 +1,137 @@
 import React from 'react';
 import type { CropGrowth } from '@/types/crops';
-import { ProgressBar } from './ProgressBar';
-import { Leaf, Calendar, CheckCircle, Package } from 'lucide-react';
+import { Leaf, Calendar, ArrowRight, Activity, Droplets } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { openStageUpdateModal } from '../cropsSlice';
+import { motion } from 'framer-motion';
+import { SegmentedProgress } from './SegmentedProgress';
 
 interface CropCardProps {
   crop: CropGrowth;
+  index?: number;
 }
 
-export const CropCard: React.FC<CropCardProps> = ({ crop }) => {
+export const CropCard: React.FC<CropCardProps> = ({ crop, index = 0 }) => {
   const dispatch = useDispatch();
   
-  const handleUpdateStage = () => {
+  const handleUpdateStage = (e: React.MouseEvent) => {
+    e.stopPropagation();
     dispatch(openStageUpdateModal(crop.id));
   };
 
+  const getStatusConfig = (stage: string) => {
+    switch(stage) {
+      case 'HARVESTED': return { bg: 'bg-success/10', text: 'text-success', dot: 'bg-success', label: 'Harvested ✅' };
+      case 'NEAR_HARVEST': return { bg: 'bg-warning/10', text: 'text-warning', dot: 'bg-warning', label: 'Harvest Ready 🌾' };
+      case 'GROWING': return { bg: 'bg-info/10', text: 'text-info', dot: 'bg-info', label: 'Growing 🌿' };
+      case 'PLANTED': return { bg: 'bg-brand/10', text: 'text-brand', dot: 'bg-brand', label: 'Seeded 🌱' };
+      default: return { bg: 'bg-surface-elevated', text: 'text-foreground', dot: 'bg-muted', label: stage?.replace(/_/g, ' ') };
+    }
+  };
+
+  const status = getStatusConfig(crop.stage);
+  const imageUrl = crop.product_details?.images?.[0]?.image || crop.product_details?.image; 
+  const isActionable = crop.stage !== 'HARVESTED';
+
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
-      <div className="p-5">
-        <div className="flex justify-between items-start mb-4">
-          <div>
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-              {crop.product_details?.name || 'Unknown Crop'}
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Stage: <span className="font-medium text-green-600 dark:text-green-400">{crop.stage?.replace(/_/g, ' ')}</span>
-            </p>
-          </div>
-          {crop.organic && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-              <Leaf className="w-3 h-3" /> Organic
-            </span>
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.98, y: 10 }}
+      whileInView={{ opacity: 1, scale: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: index * 0.05 }}
+      className="group relative flex flex-col h-[440px] rounded-3xl bg-surface border border-border-subtle overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 ease-out"
+    >
+      {/* Top: Image Hero */}
+      <div className="relative h-[45%] w-full overflow-hidden bg-surface-elevated shrink-0">
+        <div className="w-full h-full transform transition-transform duration-500 ease-out group-hover:scale-110">
+          {imageUrl ? (
+            <img src={imageUrl} alt={crop.crop_name} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-brand/20 via-surface to-accent/10 opacity-80" />
           )}
         </div>
+        {/* Subtle overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-surface/90" />
 
-        <div className="space-y-4">
-          <div>
-            <div className="flex justify-between text-sm mb-1">
-              <span className="text-gray-500 dark:text-gray-400">Growth Progress</span>
-              <span className="font-medium text-gray-900 dark:text-white">{Math.round(crop.progress)}%</span>
-            </div>
-            <ProgressBar progress={crop.progress} />
+        {/* Floating Status Pill */}
+        <div className="absolute top-4 left-4 z-10">
+          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-md border border-white/10 shadow-sm bg-surface/80`}>
+            <span className="relative flex h-2 w-2">
+              {isActionable && <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${status.dot}`}></span>}
+              <span className={`relative inline-flex rounded-full h-2 w-2 ${status.dot}`}></span>
+            </span>
+            <span className={`text-xs font-semibold tracking-wide ${status.text}`}>
+              {status.label}
+            </span>
           </div>
+        </div>
 
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-              <Calendar className="w-4 h-4 text-gray-400" />
-              <div>
-                <p className="text-xs text-gray-500">Harvest Date</p>
-                <p className="font-medium">{new Date(crop.expected_harvest_date).toLocaleDateString()}</p>
-              </div>
+        {/* Organic Badge */}
+        {crop.organic && (
+          <div className="absolute top-4 right-4 z-10 flex items-center justify-center w-8 h-8 rounded-full bg-surface/80 backdrop-blur-md border border-white/10 text-brand shadow-sm">
+            <Leaf className="w-4 h-4" />
+          </div>
+        )}
+      </div>
+
+      {/* Middle: Crop Information & Bottom: Metrics */}
+      <div className="flex-1 flex flex-col p-5 bg-surface relative z-10">
+        
+        {/* Title Section */}
+        <div className="mb-4">
+          <h3 className="text-xl font-display font-bold text-foreground leading-tight tracking-tight mb-1 group-hover:text-brand transition-colors duration-300">
+            {crop.product_details?.name || 'Unknown Crop'}
+          </h3>
+          <div className="flex items-center gap-3 text-xs font-medium text-muted">
+            <div className="flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5" />
+              {new Date(crop.sowing_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
             </div>
-            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-              <Package className="w-4 h-4 text-gray-400" />
-              <div>
-                <p className="text-xs text-gray-500">Available Qty</p>
-                <p className="font-medium">{crop.available_quantity} {crop.product_details?.unit || 'units'}</p>
-              </div>
+            <div className="w-1 h-1 rounded-full bg-border-strong" />
+            <div className="flex items-center gap-1.5">
+              <Droplets className="w-3.5 h-3.5" />
+              Optimal
             </div>
           </div>
         </div>
-      </div>
-      
-      <div className="px-5 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
-        <div className="text-xs text-gray-500 dark:text-gray-400">
-          Reserved: {Number(crop.expected_quantity) - Number(crop.available_quantity)} {crop.product_details?.unit}
+
+        {/* Modern Segmented Progress */}
+        <div className="mb-auto mt-2">
+          <SegmentedProgress currentStage={crop.stage} />
         </div>
-        <button
-          onClick={handleUpdateStage}
-          disabled={crop.stage === 'HARVESTED'}
-          className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-        >
-          <CheckCircle className="w-4 h-4" />
-          Update Stage
-        </button>
+
+        {/* Info Grid */}
+        <div className="grid grid-cols-2 gap-3 mt-4 opacity-100 transition-all duration-300 group-hover:opacity-0 group-hover:translate-y-4">
+          <div className="p-3 rounded-2xl bg-surface-elevated border border-border-subtle flex flex-col justify-center">
+            <p className="text-[10px] text-muted font-bold uppercase tracking-wider mb-0.5">Harvest</p>
+            <p className="text-sm font-semibold text-foreground truncate">
+              {new Date(crop.expected_harvest_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+            </p>
+          </div>
+          <div className="p-3 rounded-2xl bg-surface-elevated border border-border-subtle flex flex-col justify-center">
+            <p className="text-[10px] text-muted font-bold uppercase tracking-wider mb-0.5">Available</p>
+            <p className="text-sm font-semibold text-foreground truncate">
+              {crop.available_quantity} <span className="text-xs font-medium text-muted">{crop.product_details?.unit || 'u'}</span>
+            </p>
+          </div>
+        </div>
+
+        {/* Footer: Quick Actions */}
+        <div className="absolute inset-x-5 bottom-5 flex gap-2 opacity-0 translate-y-4 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto">
+          <button 
+            onClick={handleUpdateStage}
+            disabled={!isActionable}
+            className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-brand text-white hover:bg-brand-hover active:scale-95 transition-all duration-200 rounded-xl text-sm font-semibold shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Activity className="w-4 h-4" />
+            Update Status
+          </button>
+          <button className="flex items-center justify-center w-12 bg-surface hover:bg-surface-elevated text-foreground active:scale-95 transition-all duration-200 rounded-xl border border-border-strong shadow-sm">
+            <ArrowRight className="w-5 h-5" />
+          </button>
+        </div>
+
       </div>
-    </div>
+    </motion.div>
   );
 };

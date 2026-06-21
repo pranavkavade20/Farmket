@@ -1,12 +1,13 @@
 import React from 'react';
 import type { CropGrowth } from '@/types/crops';
-import { ProgressBar } from './ProgressBar';
+import { SegmentedProgress } from './SegmentedProgress';
 import { Leaf, Clock, ShoppingCart, Bell } from 'lucide-react';
 import { useAppDispatch } from '@/app/hooks';
 import { openReservationModal } from '../cropsSlice';
 import { useFollowCropMutation, useUnfollowCropMutation } from '../cropsApi';
 import { useAuth } from '@/features/auth';
 import toast from 'react-hot-toast';
+import { motion } from 'framer-motion';
 
 interface BuyerCropCardProps {
   crop: CropGrowth;
@@ -39,84 +40,96 @@ export const BuyerCropCard: React.FC<BuyerCropCardProps> = ({ crop }) => {
   // Calculate days remaining
   const daysRemaining = Math.ceil((new Date(crop.expected_harvest_date).getTime() - new Date().getTime()) / (1000 * 3600 * 24));
   
-  let countdownColor = "text-green-600 bg-green-50 dark:bg-green-900/30 dark:text-green-400 border-green-200 dark:border-green-800";
+  let countdownColor = "text-success bg-success-muted border-success/20";
   if (daysRemaining < 7) {
-    countdownColor = "text-red-600 bg-red-50 dark:bg-red-900/30 dark:text-red-400 border-red-200 dark:border-red-800";
+    countdownColor = "text-danger bg-danger-muted border-danger/20";
   } else if (daysRemaining <= 15) {
-    countdownColor = "text-orange-600 bg-orange-50 dark:bg-orange-900/30 dark:text-orange-400 border-orange-200 dark:border-orange-800";
+    countdownColor = "text-warning bg-warning-muted border-warning/20";
   }
 
-  return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300 group">
-      <div className="relative h-48 overflow-hidden bg-gray-100 dark:bg-gray-900">
-        {crop.product_details?.images?.[0] ? (
-          <img 
-            src={crop.product_details.images[0].image} 
-            alt={crop.product_details.name} 
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400">
-            No image available
-          </div>
-        )}
-        
-        {crop.organic && (
-          <div className="absolute top-3 right-3 px-3 py-1 bg-green-500/90 backdrop-blur text-white text-xs font-bold rounded-full shadow-sm flex items-center gap-1">
-            <Leaf className="w-3 h-3" /> ORGANIC
-          </div>
-        )}
+  const imageUrl = crop.product_details?.images?.[0]?.image || crop.product_details?.image;
 
-        <div className={`absolute bottom-3 left-3 px-3 py-1.5 rounded-lg border text-xs font-bold shadow-sm flex items-center gap-1.5 ${countdownColor}`}>
-          <Clock className="w-3.5 h-3.5" />
-          {daysRemaining > 0 ? `Harvest in ${daysRemaining} Days` : 'Ready Soon!'}
+  return (
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.98, y: 10 }}
+      whileInView={{ opacity: 1, scale: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      className="group relative flex flex-col h-[480px] rounded-3xl bg-surface border border-border-subtle overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 ease-out"
+    >
+      {/* Top: Image Hero */}
+      <div className="relative h-[40%] w-full overflow-hidden bg-surface-elevated shrink-0">
+        <div className="w-full h-full transform transition-transform duration-500 ease-out group-hover:scale-110">
+          {imageUrl ? (
+            <img src={imageUrl} alt={crop.product_details?.name} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-muted font-medium bg-gradient-to-br from-brand/20 via-surface to-accent/10 opacity-80">
+              No image available
+            </div>
+          )}
         </div>
+        {/* Subtle overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-surface/90" />
+
+        {/* Floating Countdown Pill */}
+        <div className="absolute top-4 left-4 z-10">
+          <div className={`px-3 py-1.5 rounded-full backdrop-blur-md shadow-sm flex items-center gap-1.5 border ${countdownColor}`}>
+            <Clock className="w-3.5 h-3.5" />
+            <span className="text-xs font-bold tracking-wide">
+              {daysRemaining > 0 ? `Harvest in ${daysRemaining} Days` : 'Ready Soon!'}
+            </span>
+          </div>
+        </div>
+
+        {/* Organic Badge */}
+        {crop.organic && (
+          <div className="absolute top-4 right-4 z-10 flex items-center justify-center w-8 h-8 rounded-full bg-surface/80 backdrop-blur-md border border-white/10 text-brand shadow-sm">
+            <Leaf className="w-4 h-4" />
+          </div>
+        )}
       </div>
 
-      <div className="p-5">
-        <div className="mb-4">
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 font-medium">{crop.farmer_name}</p>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-1">
+      {/* Middle: Info */}
+      <div className="flex-1 flex flex-col p-5 bg-surface relative z-10">
+        <div className="mb-3">
+          <p className="text-xs text-muted mb-1 font-medium">{crop.farmer_name}</p>
+          <h3 className="text-xl font-display font-bold text-foreground leading-tight tracking-tight mb-1 group-hover:text-brand transition-colors duration-300 line-clamp-1">
             {crop.product_details?.name || 'Unknown Crop'}
           </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+          <p className="text-sm text-muted mt-1 line-clamp-2 leading-relaxed">
             {crop.product_details?.description || crop.notes}
           </p>
         </div>
 
-        <div className="space-y-3 mb-5">
-          <div>
-            <div className="flex justify-between text-xs mb-1 font-medium">
-              <span className="text-gray-500 dark:text-gray-400">Growth Progress</span>
-              <span className="text-gray-900 dark:text-white">{Math.round(crop.progress)}%</span>
-            </div>
-            <ProgressBar progress={crop.progress} className="h-1.5" />
-          </div>
+        <div className="mb-auto mt-2">
+          <SegmentedProgress currentStage={crop.stage} />
+        </div>
 
-          <div className="flex justify-between items-end">
-            <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Available to Reserve</p>
-              <p className="font-bold text-gray-900 dark:text-white">
-                {crop.available_quantity} <span className="text-sm font-normal text-gray-500">{crop.product_details?.unit}</span>
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-xs text-gray-500 dark:text-gray-400">Est. Price</p>
-              <p className="font-bold text-green-600 dark:text-green-400">
-                ${crop.product_details?.price} <span className="text-sm font-normal text-gray-500">/{crop.product_details?.unit}</span>
-              </p>
-            </div>
+        {/* Info Grid */}
+        <div className="grid grid-cols-2 gap-3 mt-4">
+          <div className="p-3 rounded-2xl bg-surface-elevated border border-border-subtle flex flex-col justify-center">
+            <p className="text-[10px] text-muted font-bold uppercase tracking-wider mb-0.5">Available</p>
+            <p className="text-sm font-semibold text-foreground truncate">
+              {crop.available_quantity} <span className="text-xs font-medium text-muted">{crop.product_details?.unit || 'u'}</span>
+            </p>
+          </div>
+          <div className="p-3 rounded-2xl bg-surface-elevated border border-border-subtle flex flex-col justify-center text-right">
+            <p className="text-[10px] text-muted font-bold uppercase tracking-wider mb-0.5">Est. Price</p>
+            <p className="text-sm font-semibold text-brand truncate">
+              ${crop.product_details?.price} <span className="text-xs font-medium text-muted">/{crop.product_details?.unit}</span>
+            </p>
           </div>
         </div>
 
-        <div className="flex gap-2">
+        {/* Actions Footer */}
+        <div className="mt-4 flex gap-2">
           <button
             onClick={handleToggleFollow}
             disabled={isFollowing || isUnfollowing}
-            className={`p-2.5 rounded-xl border transition-colors flex items-center justify-center ${
+            className={`p-3 rounded-xl border transition-all duration-200 flex items-center justify-center active:scale-95 ${
               crop.is_followed 
-                ? 'bg-green-50 border-green-200 text-green-600 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400' 
-                : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'
+                ? 'bg-brand/10 border-brand/20 text-brand' 
+                : 'bg-surface border-border-strong text-muted hover:bg-surface-elevated hover:text-foreground'
             }`}
             title={crop.is_followed ? 'Unfollow' : 'Get Notifications'}
           >
@@ -127,7 +140,7 @@ export const BuyerCropCard: React.FC<BuyerCropCardProps> = ({ crop }) => {
             <button
               onClick={handleReserve}
               disabled={Number(crop.available_quantity) <= 0}
-              className="flex-1 py-2.5 px-4 bg-gray-900 hover:bg-black text-white dark:bg-green-600 dark:hover:bg-green-700 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 py-3 px-4 bg-brand hover:bg-brand-hover text-white rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm active:scale-95"
             >
               <ShoppingCart className="w-4 h-4" />
               Reserve Now
@@ -135,6 +148,6 @@ export const BuyerCropCard: React.FC<BuyerCropCardProps> = ({ crop }) => {
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };

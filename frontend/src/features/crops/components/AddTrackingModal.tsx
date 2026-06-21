@@ -10,6 +10,7 @@ import { useAuth } from '@/features/auth';
 import type { Product } from '@/types';
 import { X, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const trackingSchema = z.object({
   product: z.string().min(1, 'Please select a product'),
@@ -41,7 +42,6 @@ export const AddTrackingModal: React.FC = () => {
       setIsLoadingProducts(true);
       productService.getProducts({ ordering: '-created_at' })
         .then((res) => {
-          // Filter to the current farmer's products that DO NOT already have tracking
           const eligible = res.results.filter(
             (p) => p.farmer === user.id && !p.active_crop_growth_id
           );
@@ -51,8 +51,6 @@ export const AddTrackingModal: React.FC = () => {
         .finally(() => setIsLoadingProducts(false));
     }
   }, [isAddTrackingModalOpen, user]);
-
-  if (!isAddTrackingModalOpen) return null;
 
   const handleClose = () => {
     dispatch(closeAddTrackingModal());
@@ -89,127 +87,153 @@ export const AddTrackingModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
-        <div className="flex justify-between items-center p-5 border-b border-gray-100 dark:border-gray-700">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Track Existing Product</h2>
-          <button onClick={handleClose} className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        
-        <div className="overflow-y-auto p-5">
-          <form id="tracking-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Select Product *
-              </label>
-              {isLoadingProducts ? (
-                <div className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 flex items-center text-sm text-gray-500">
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Loading products...
+    <AnimatePresence>
+      {isAddTrackingModalOpen && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+        >
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="bg-surface rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh] border border-border-subtle"
+          >
+            <div className="flex justify-between items-center p-5 border-b border-border-subtle">
+              <h2 className="text-xl font-display font-semibold text-foreground">Track Existing Product</h2>
+              <button 
+                onClick={handleClose} 
+                className="p-1.5 text-muted hover:text-foreground rounded-full hover:bg-surface-elevated transition-colors"
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="overflow-y-auto p-5 custom-scrollbar">
+              <form id="tracking-form" onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
+                    Select Product *
+                  </label>
+                  {isLoadingProducts ? (
+                    <div className="w-full px-4 py-2.5 rounded-xl border border-border-subtle bg-surface-elevated flex items-center text-sm text-muted">
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Loading products...
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      <select 
+                        {...register('product')}
+                        className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-border-strong bg-surface text-foreground focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all appearance-none outline-none"
+                      >
+                        <option value="">-- Choose an eligible product --</option>
+                        {availableProducts.map((p) => (
+                          <option key={p.id} value={p.id}>{p.name} ({p.stock_quantity} {p.unit} in stock)</option>
+                        ))}
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-muted">
+                        <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                      </div>
+                    </div>
+                  )}
+                  {errors.product && <p className="mt-1.5 text-sm text-danger font-medium">{errors.product.message}</p>}
+                  {!isLoadingProducts && availableProducts.length === 0 && (
+                    <p className="mt-2 text-xs text-warning font-medium">
+                      You don't have any untracked products available. Try creating a new product first.
+                    </p>
+                  )}
                 </div>
-              ) : (
-                <select 
-                  {...register('product')}
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-shadow"
-                >
-                  <option value="">-- Choose an eligible product --</option>
-                  {availableProducts.map((p) => (
-                    <option key={p.id} value={p.id}>{p.name} ({p.stock_quantity} {p.unit} in stock)</option>
-                  ))}
-                </select>
-              )}
-              {errors.product && <p className="mt-1 text-sm text-red-500">{errors.product.message}</p>}
-              {!isLoadingProducts && availableProducts.length === 0 && (
-                <p className="mt-2 text-xs text-orange-500 font-medium">
-                  You don't have any untracked products available. Try creating a new product first.
-                </p>
-              )}
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Sowing Date *
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1.5">
+                      Sowing Date *
+                    </label>
+                    <input 
+                      type="date"
+                      {...register('sowing_date')}
+                      className="w-full px-4 py-2.5 rounded-xl border border-border-strong bg-surface text-foreground focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all outline-none"
+                    />
+                    {errors.sowing_date && <p className="mt-1.5 text-sm text-danger font-medium">{errors.sowing_date.message}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1.5">
+                      Expected Harvest *
+                    </label>
+                    <input 
+                      type="date"
+                      {...register('expected_harvest_date')}
+                      className="w-full px-4 py-2.5 rounded-xl border border-border-strong bg-surface text-foreground focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all outline-none"
+                    />
+                    {errors.expected_harvest_date && <p className="mt-1.5 text-sm text-danger font-medium">{errors.expected_harvest_date.message}</p>}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
+                    Expected Yield Quantity *
+                  </label>
+                  <input 
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="e.g. 500"
+                    {...register('expected_quantity')}
+                    className="w-full px-4 py-2.5 rounded-xl border border-border-strong bg-surface text-foreground focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all outline-none"
+                  />
+                  {errors.expected_quantity && <p className="mt-1.5 text-sm text-danger font-medium">{errors.expected_quantity.message}</p>}
+                </div>
+
+                <label className="flex items-center gap-3 cursor-pointer py-2 group">
+                  <div className="relative flex items-center">
+                    <input
+                      type="checkbox"
+                      {...register('organic')}
+                      className="h-4 w-4 rounded border-border-strong text-brand focus:ring-brand/20 bg-surface transition-all cursor-pointer peer"
+                    />
+                  </div>
+                  <span className="text-sm font-medium text-foreground group-hover:text-brand transition-colors">
+                    This crop is organically grown
+                  </span>
                 </label>
-                <input 
-                  type="date"
-                  {...register('sowing_date')}
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-shadow"
-                />
-                {errors.sowing_date && <p className="mt-1 text-sm text-red-500">{errors.sowing_date.message}</p>}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Expected Harvest *
-                </label>
-                <input 
-                  type="date"
-                  {...register('expected_harvest_date')}
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-shadow"
-                />
-                {errors.expected_harvest_date && <p className="mt-1 text-sm text-red-500">{errors.expected_harvest_date.message}</p>}
-              </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
+                    Notes
+                  </label>
+                  <textarea 
+                    {...register('notes')}
+                    rows={2}
+                    placeholder="Seed variety, special conditions..."
+                    className="w-full px-4 py-3 rounded-xl border border-border-strong bg-surface text-foreground placeholder-muted focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all resize-none outline-none"
+                  ></textarea>
+                </div>
+              </form>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Expected Yield Quantity *
-              </label>
-              <input 
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="e.g. 500"
-                {...register('expected_quantity')}
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-shadow"
-              />
-              {errors.expected_quantity && <p className="mt-1 text-sm text-red-500">{errors.expected_quantity.message}</p>}
+            <div className="p-5 border-t border-border-subtle flex gap-3 mt-auto bg-surface">
+              <button
+                type="button"
+                onClick={handleClose}
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-foreground bg-surface-elevated hover:bg-border-subtle rounded-xl transition-all border border-border-subtle active:scale-95"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="tracking-form"
+                disabled={isSubmitting || availableProducts.length === 0}
+                className="flex-1 flex justify-center items-center gap-2 px-4 py-2.5 text-sm font-medium text-surface bg-brand hover:bg-brand-hover active:bg-brand-active disabled:opacity-70 disabled:cursor-not-allowed rounded-xl transition-all shadow-sm active:scale-95"
+              >
+                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Start Tracking'}
+              </button>
             </div>
-
-            <label className="flex items-center gap-3 cursor-pointer py-2">
-              <input
-                type="checkbox"
-                {...register('organic')}
-                className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
-              />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                This crop is organically grown
-              </span>
-            </label>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Notes
-              </label>
-              <textarea 
-                {...register('notes')}
-                rows={2}
-                placeholder="Seed variety, special conditions..."
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-shadow resize-none"
-              ></textarea>
-            </div>
-          </form>
-        </div>
-
-        <div className="p-5 border-t border-gray-100 dark:border-gray-700 flex gap-3 mt-auto">
-          <button
-            type="button"
-            onClick={handleClose}
-            className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 rounded-lg transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            form="tracking-form"
-            disabled={isSubmitting || availableProducts.length === 0}
-            className="flex-1 flex justify-center items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:opacity-70 disabled:cursor-not-allowed rounded-lg transition-colors"
-          >
-            {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Start Tracking'}
-          </button>
-        </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };

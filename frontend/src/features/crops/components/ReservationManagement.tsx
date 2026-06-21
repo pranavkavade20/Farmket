@@ -26,38 +26,40 @@ export const ReservationManagement: React.FC = () => {
     }
   };
 
-  if (isLoading) return <div className="py-8 text-center text-gray-500">Loading reservations...</div>;
+  if (isLoading) return <div className="py-8 text-center text-muted">Loading reservations...</div>;
 
   const pendingReservations = reservations?.filter(r => r.reservation_status === 'PENDING') || [];
   const processedReservations = reservations?.filter(r => r.reservation_status !== 'PENDING') || [];
 
   return (
     <div className="mt-12">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Reservation Requests</h2>
+      <h2 className="text-2xl font-bold text-foreground mb-6 font-display">Reservation Requests</h2>
       
       {pendingReservations.length === 0 && processedReservations.length === 0 ? (
-        <div className="p-8 text-center bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700">
-          <Package className="w-10 h-10 text-gray-400 mx-auto mb-3" />
-          <p className="text-gray-500">No reservations yet.</p>
+        <div className="p-12 text-center bg-surface rounded-3xl border border-border-subtle shadow-sm">
+          <div className="w-16 h-16 rounded-full bg-surface-elevated flex items-center justify-center mx-auto mb-4 border border-border-subtle shadow-inner">
+            <Package className="w-8 h-8 text-muted" />
+          </div>
+          <p className="text-muted font-medium">No reservations yet.</p>
         </div>
       ) : (
         <div className="space-y-6">
           {pendingReservations.length > 0 && (
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200">Needs Action</h3>
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-orange-100 dark:border-orange-900/30 overflow-hidden">
-                <ul className="divide-y divide-gray-100 dark:divide-gray-700">
+              <h3 className="text-lg font-medium text-foreground">Needs Action</h3>
+              <div className="bg-surface rounded-2xl shadow-sm border border-warning/30 overflow-hidden">
+                <ul className="divide-y divide-border-subtle">
                   {pendingReservations.map(res => (
-                    <li key={res.id} className="p-4 sm:p-5 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between hover:bg-orange-50/50 dark:hover:bg-gray-750 transition-colors">
+                    <li key={res.id} className="p-4 sm:p-5 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between hover:bg-surface-elevated transition-colors">
                       <div className="flex items-start gap-4">
-                        <div className="p-2 bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400 rounded-lg">
+                        <div className="p-2 bg-warning-muted text-warning rounded-xl">
                           <Clock className="w-5 h-5" />
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900 dark:text-white">
+                          <p className="font-medium text-foreground">
                             {res.buyer_name} wants {res.quantity_reserved} units of {res.crop_name}
                           </p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                          <p className="text-sm text-muted">
                             Requested on {new Date(res.reserved_at).toLocaleDateString()}
                           </p>
                         </div>
@@ -66,14 +68,14 @@ export const ReservationManagement: React.FC = () => {
                         <button 
                           onClick={() => handleReject(res.id)}
                           disabled={isRejecting || isApproving}
-                          className="flex-1 sm:flex-none px-4 py-2 text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                          className="flex-1 sm:flex-none px-4 py-2 text-sm font-medium text-danger bg-danger-muted hover:bg-danger/20 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                           <XCircle className="w-4 h-4" /> Reject
                         </button>
                         <button 
                           onClick={() => handleApprove(res.id)}
                           disabled={isRejecting || isApproving}
-                          className="flex-1 sm:flex-none px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                          className="flex-1 sm:flex-none px-4 py-2 text-sm font-medium text-white bg-success hover:bg-success/90 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                           <CheckCircle className="w-4 h-4" /> Approve
                         </button>
@@ -87,23 +89,23 @@ export const ReservationManagement: React.FC = () => {
 
           {processedReservations.length > 0 && (
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200">History</h3>
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-                <ul className="divide-y divide-gray-100 dark:divide-gray-700">
+              <h3 className="text-lg font-medium text-foreground">History</h3>
+              <div className="bg-surface rounded-2xl shadow-sm border border-border-subtle overflow-hidden">
+                <ul className="divide-y divide-border-subtle">
                   {processedReservations.map(res => (
-                    <li key={res.id} className="p-4 sm:p-5 flex items-center justify-between">
+                    <li key={res.id} className="p-4 sm:p-5 flex items-center justify-between hover:bg-surface-elevated transition-colors">
                       <div>
-                        <p className="font-medium text-gray-900 dark:text-white">
+                        <p className="font-medium text-foreground">
                           {res.buyer_name} requested {res.quantity_reserved} units of {res.crop_name}
                         </p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-sm text-muted">
                           {new Date(res.reserved_at).toLocaleDateString()}
                         </p>
                       </div>
                       <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                        res.reservation_status === 'CONFIRMED' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
-                        res.reservation_status === 'CANCELLED' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' :
-                        'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                        res.reservation_status === 'CONFIRMED' ? 'bg-success-muted text-success border border-success/20' :
+                        res.reservation_status === 'CANCELLED' ? 'bg-danger-muted text-danger border border-danger/20' :
+                        'bg-surface-elevated text-foreground border border-border-strong'
                       }`}>
                         {res.reservation_status}
                       </span>

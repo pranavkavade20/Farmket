@@ -37,14 +37,14 @@ export const CropCalendar: React.FC<CropCalendarProps> = ({ crops }) => {
 
   if (!crops || crops.length === 0) {
     return (
-      <div className="py-12 text-center border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl">
-        <p className="text-gray-500 dark:text-gray-400">No crops found matching your criteria.</p>
+      <div className="py-16 text-center border-2 border-dashed border-border-strong rounded-3xl bg-surface">
+        <p className="text-muted font-medium">No crops found matching your criteria.</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+    <div className="bg-surface rounded-3xl shadow-sm border border-border-subtle overflow-hidden p-4">
       <Calendar events={events} />
     </div>
   );
