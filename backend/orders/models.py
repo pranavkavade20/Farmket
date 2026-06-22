@@ -61,6 +61,10 @@ class Order(models.Model):
     
     class Meta:
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['buyer']),
+            models.Index(fields=['status']),
+        ]
     
     def __str__(self):
         return f"Order {self.order_number}"
@@ -109,6 +113,13 @@ class OrderItem(models.Model):
     is_prebooking = models.BooleanField(default=False)
     crop_growth = models.ForeignKey('crops.CropGrowth', on_delete=models.SET_NULL, null=True, blank=True)
     
+    class Meta:
+        indexes = [
+            models.Index(fields=['order']),
+            models.Index(fields=['farmer']),
+            models.Index(fields=['status']),
+        ]
+
     def __str__(self):
         return f"{self.quantity} x {self.product.name}"
     

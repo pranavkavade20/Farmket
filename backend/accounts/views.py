@@ -151,6 +151,7 @@ class DashboardStatsView(APIView):
     def get(self, request):
         from orders.models import Order, OrderItem
         from products.models import Product
+        from django.db.models import Sum, F
 
         user = request.user
 
@@ -160,9 +161,9 @@ class DashboardStatsView(APIView):
             farmer_order_items = OrderItem.objects.filter(farmer=user)
             total_orders = farmer_order_items.values('order').distinct().count()
             pending_orders = farmer_order_items.filter(status='pending').values('order').distinct().count()
-            total_revenue = sum(
-                item.subtotal for item in farmer_order_items.filter(status='delivered')
-            )
+            total_revenue = farmer_order_items.filter(status='delivered').aggregate(
+                total=Sum(F('quantity') * F('price'))
+            )['total'] or 0.0
             return Response({
                 'total_orders': total_orders,
                 'pending_orders': pending_orders,
@@ -174,9 +175,9 @@ class DashboardStatsView(APIView):
             buyer_orders = Order.objects.filter(buyer=user)
             total_orders = buyer_orders.count()
             pending_orders = buyer_orders.filter(status__in=['pending', 'processing']).count()
-            total_spent = sum(
-                float(order.total_amount) for order in buyer_orders.filter(status='delivered')
-            )
+            total_spent = buyer_orders.filter(status='delivered').aggregate(
+                total=Sum('total_amount')
+            )['total'] or 0.0
             return Response({
                 'total_orders': total_orders,
                 'pending_orders': pending_orders,

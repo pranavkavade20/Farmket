@@ -22,7 +22,7 @@ const Sidebar = () => {
   const isBuyer = user?.user_type === 'buyer';
 
   const links = [
-    { to: '/dashboard', label: 'Overview', icon: <LayoutDashboard className="h-5 w-5" />, exact: true },
+    ...(!isAdmin ? [{ to: '/dashboard', label: 'Overview', icon: <LayoutDashboard className="h-5 w-5" />, exact: true }] : []),
     ...(isBuyer ? [
       { to: '/dashboard/orders', label: 'Orders', icon: <ShoppingBag className="h-5 w-5" /> },
     ] : []),

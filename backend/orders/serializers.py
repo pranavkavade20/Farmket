@@ -47,7 +47,7 @@ class OrderSerializer(serializers.ModelSerializer):
         
         if request and request.user.is_authenticated and not request.user.is_staff:
             if obj.buyer != request.user:
-                items = items.filter(farmer=request.user)
+                items = [item for item in items if item.farmer == request.user]
                 
         return OrderItemSerializer(items, many=True).data
 
@@ -57,9 +57,9 @@ class OrderSerializer(serializers.ModelSerializer):
         
         if request and request.user.is_authenticated and not request.user.is_staff:
             if instance.buyer != request.user:
-                farmer_items = instance.items.filter(farmer=request.user)
+                farmer_items = [item for item in instance.items.all() if item.farmer == request.user]
                 
-                if not farmer_items.exists():
+                if not farmer_items:
                     return data
                     
                 farmer_total = sum(item.subtotal for item in farmer_items)

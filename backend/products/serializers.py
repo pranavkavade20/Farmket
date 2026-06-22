@@ -74,12 +74,16 @@ class ProductSerializer(serializers.ModelSerializer):
     def get_reservation_count(self, obj):
         growth = obj.active_crop_growth
         if growth:
+            if hasattr(growth, 'active_reservations'):
+                return len(growth.active_reservations)
             return growth.reservations.filter(reservation_status__in=['PENDING', 'CONFIRMED']).count()
         return 0
 
     def get_reserved_quantity(self, obj):
         growth = obj.active_crop_growth
         if growth:
+            if hasattr(growth, 'active_reservations'):
+                return float(sum(r.quantity_reserved for r in growth.active_reservations))
             from django.db.models import Sum
             res = growth.reservations.filter(reservation_status__in=['PENDING', 'CONFIRMED']).aggregate(Sum('quantity_reserved'))
             return float(res['quantity_reserved__sum']) if res['quantity_reserved__sum'] else 0.0
@@ -97,6 +101,8 @@ class ProductSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             growth = obj.active_crop_growth
             if growth:
+                if hasattr(growth, 'current_user_follower'):
+                    return len(growth.current_user_follower) > 0
                 return growth.followers.filter(buyer=request.user).exists()
         return False
 

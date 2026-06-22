@@ -12,7 +12,7 @@ interface ProductCardProps {
   onAddToCart?: (product: Product) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
+const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, onAddToCart }) => {
   const { cart, updateQuantity } = useCart();
   const { user } = useAuth();
   const primaryImage = product.images.find((img) => img.is_primary)?.image ?? product.images[0]?.image;
@@ -117,6 +117,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
       </div>
     </div>
   );
-};
+});
 
 export default ProductCard;

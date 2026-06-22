@@ -54,6 +54,9 @@ class Product(models.Model):
             models.Index(fields=['slug']),
             models.Index(fields=['category']),
             models.Index(fields=['-created_at']),
+            models.Index(fields=['is_available']),
+            models.Index(fields=['price']),
+            models.Index(fields=['farmer']),
         ]
     
     def __str__(self):
@@ -70,6 +73,8 @@ class Product(models.Model):
         
     @property
     def active_crop_growth(self):
+        if hasattr(self, 'prefetched_active_growth'):
+            return self.prefetched_active_growth[0] if self.prefetched_active_growth else None
         return self.crop_growths.exclude(stage='HARVESTED', available_quantity__lte=0).order_by('-expected_harvest_date').first()
         
     @property

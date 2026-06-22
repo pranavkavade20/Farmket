@@ -124,87 +124,18 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        qs = Order.objects.prefetch_related('items', 'items__product')
         if user.is_staff:
-            return Order.objects.all()
+            return qs.all()
         return (
-            Order.objects.filter(buyer=user) |
-            Order.objects.filter(items__farmer=user)
+            qs.filter(buyer=user) |
+            qs.filter(items__farmer=user)
         ).distinct()
 
     @transaction.atomic
     def perform_create(self, serializer):
-        user = self.request.user
-
-        # Fetch buyer's cart
-        try:
-            cart = Cart.objects.get(buyer=user)
-        except Cart.DoesNotExist:
-            from rest_framework.exceptions import ValidationError
-            raise ValidationError('Your cart is empty.')
-
-        cart_items = cart.items.select_related('product', 'product__farmer').all()
-        if not cart_items.exists():
-            from rest_framework.exceptions import ValidationError
-            raise ValidationError('Your cart is empty.')
-
-        # Calculate total
-        total_amount = sum(item.subtotal for item in cart_items)
-
-        order = serializer.save(buyer=user, total_amount=total_amount)
-
-        # Create OrderItems from cart items
-        for ci in cart_items:
-            product = ci.product
-            
-            if ci.is_prebooking:
-                growth = ci.crop_growth
-                if not growth or float(growth.available_quantity) < ci.quantity:
-                    from rest_framework.exceptions import ValidationError
-                    raise ValidationError(f"Not enough reservable quantity for {product.name}")
-                
-                growth.available_quantity = float(growth.available_quantity) - ci.quantity
-                growth.save()
-
-                from crops.models import CropReservation
-                CropReservation.objects.create(
-                    buyer=user,
-                    crop_growth=growth,
-                    quantity_reserved=ci.quantity,
-                    expected_delivery_date=growth.expected_harvest_date,
-                    order=order
-                )
-
-                OrderItem.objects.create(
-                    order=order,
-                    product=product,
-                    farmer=product.farmer,
-                    quantity=ci.quantity,
-                    price=product.price,
-                    status='pending',
-                    is_prebooking=True,
-                    crop_growth=growth
-                )
-            else:
-                # Deduct stock
-                if product.stock_quantity < ci.quantity:
-                    from rest_framework.exceptions import ValidationError
-                    raise ValidationError(f"Not enough stock for {product.name}")
-                
-                product.stock_quantity -= ci.quantity
-                product.save()
-
-                OrderItem.objects.create(
-                    order=order,
-                    product=product,
-                    farmer=product.farmer,
-                    quantity=ci.quantity,
-                    price=product.price,
-                    status='pending',
-                    is_prebooking=False
-                )
-
-        # Clear the cart after order is placed
-        cart_items.delete()
+        from services.order_service import OrderService
+        OrderService.create_order_from_cart(self.request.user, serializer)
 
     @action(detail=True, methods=['patch'])
     def cancel(self, request, pk=None):

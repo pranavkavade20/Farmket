@@ -37,17 +37,40 @@ class ProductViewSet(viewsets.ModelViewSet):
         qs = super().get_queryset()
         user = self.request.user
         
+        from django.db.models import Prefetch, Q
+        from crops.models import CropGrowth, CropReservation, CropFollower
+        
+        growth_qs = CropGrowth.objects.exclude(
+            stage='HARVESTED', available_quantity__lte=0
+        ).order_by('-expected_harvest_date')
+        
+        reservations_qs = CropReservation.objects.filter(reservation_status__in=['PENDING', 'CONFIRMED'])
+        
+        if user and user.is_authenticated:
+            followers_qs = CropFollower.objects.filter(buyer=user)
+            growth_qs = growth_qs.prefetch_related(
+                Prefetch('followers', queryset=followers_qs, to_attr='current_user_follower'),
+                Prefetch('reservations', queryset=reservations_qs, to_attr='active_reservations')
+            )
+        else:
+            growth_qs = growth_qs.prefetch_related(
+                Prefetch('reservations', queryset=reservations_qs, to_attr='active_reservations')
+            )
+            
+        qs = qs.prefetch_related(
+            Prefetch('crop_growths', queryset=growth_qs, to_attr='prefetched_active_growth')
+        )
+        
         if not user or not user.is_authenticated:
             return qs.filter(is_available=True)
             
         if user.is_staff:
             return qs
             
-        from django.db.models import Q
         qs = qs.filter(Q(is_available=True) | Q(farmer=user))
         
         # Farmer specific location filtering
-        if user.user_type == 'farmer':
+        if hasattr(user, 'user_type') and user.user_type == 'farmer':
             try:
                 user_location = user.farmer_profile.location
                 if user_location:
@@ -92,31 +115,13 @@ class ProductViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def reserve(self, request, slug=None):
         product = self.get_object()
-        growth = product.active_crop_growth
-        if not growth:
-            return Response({'error': 'No active crop growth'}, status=status.HTTP_400_BAD_REQUEST)
+        from services.product_service import ProductService
         
-        if hasattr(request.user, 'is_farmer') and request.user.is_farmer and request.user == growth.farmer:
-            return Response({'error': 'Farmers cannot reserve their own crops'}, status=status.HTTP_400_BAD_REQUEST)
-            
-        quantity_requested = float(request.data.get('quantity', 0))
-        
-        if quantity_requested <= 0:
-            return Response({'error': 'Quantity must be greater than 0'}, status=status.HTTP_400_BAD_REQUEST)
-            
-        if quantity_requested > float(growth.available_quantity):
-            return Response({'error': 'Requested quantity exceeds available quantity'}, status=status.HTTP_400_BAD_REQUEST)
-            
-        from crops.models import CropReservation
-        reservation = CropReservation.objects.create(
-            buyer=request.user,
-            crop_growth=growth,
-            quantity_reserved=quantity_requested,
-            expected_delivery_date=request.data.get('expected_delivery_date', growth.expected_harvest_date)
+        reservation = ProductService.reserve_crop(
+            request.user, product, 
+            request.data.get('quantity', 0), 
+            request.data.get('expected_delivery_date')
         )
-        
-        growth.available_quantity = float(growth.available_quantity) - quantity_requested
-        growth.save()
         
         from crops.serializers import CropReservationSerializer
         serializer = CropReservationSerializer(reservation)
@@ -125,23 +130,12 @@ class ProductViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def waitlist(self, request, slug=None):
         product = self.get_object()
-        growth = product.active_crop_growth
-        if not growth:
-            return Response({'error': 'No active crop growth'}, status=status.HTTP_400_BAD_REQUEST)
-            
-        quantity_requested = float(request.data.get('quantity', 0))
-        if quantity_requested <= 0:
-            return Response({'error': 'Quantity must be greater than 0'}, status=status.HTTP_400_BAD_REQUEST)
-            
-        from crops.models import Waitlist
-        waitlist, created = Waitlist.objects.get_or_create(
-            buyer=request.user,
-            crop_growth=growth,
-            defaults={'quantity': quantity_requested}
+        from services.product_service import ProductService
+        
+        ProductService.waitlist_crop(
+            request.user, product, 
+            request.data.get('quantity', 0)
         )
-        if not created:
-            waitlist.quantity = quantity_requested
-            waitlist.save()
             
         return Response({'status': 'waitlisted'}, status=status.HTTP_201_CREATED)
 
