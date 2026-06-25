@@ -65,7 +65,7 @@ By providing a premium user experience and an enterprise-grade backend infrastru
 
 ```mermaid
 graph TD
-    A[React TypeScript Frontend] -->|HTTPS / REST API| B[Django REST Framework]
+    A[React Frontend] -->|HTTPS / REST API| B[Django REST Framework]
     A -->|WebSocket / WSS| C[Django Channels & Daphne]
     
     B --> D[(PostgreSQL)]
