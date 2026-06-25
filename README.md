@@ -4,7 +4,7 @@
 
 A modern, premium farm-to-consumer marketplace connecting farmers directly with buyers.
 
-![Project Banner](assets/banner.png)
+![Project Banner](<img width="213" height="73" alt="image" src="https://github.com/user-attachments/assets/d8d28e55-2e58-434c-a6ba-5b8aa8cdee4c" />)
 
 </div>
 
