@@ -1,10 +1,8 @@
-# Farmket
+# <img width="64" height="67" alt="image" src="https://github.com/user-attachments/assets/a77a81d6-13b7-4e2c-8541-20f0d99a06fa" /> Farmket
 
 <div align="center">
 
-A modern, premium farm-to-consumer marketplace connecting farmers directly with buyers.
-
-![Project Banner](<img width="213" height="73" alt="image" src="https://github.com/user-attachments/assets/d8d28e55-2e58-434c-a6ba-5b8aa8cdee4c" />)
+**A modern, premium farm-to-consumer marketplace connecting farmers directly with buyers.**
 
 </div>
 
@@ -208,10 +206,12 @@ Farmket uses `drf-spectacular` for OpenAPI documentation. Below is a sample of a
 ## Screenshots
 
 ### Dashboard
-![Dashboard](docs/images/dashboard.png)
 
-### Login
-![Login](docs/images/login.png)
+#### Farmer Dashboard
+<img width="1772" height="896" alt="image" src="https://github.com/user-attachments/assets/fa2db7a9-eff8-4395-af7e-a192b24d2857" />
+
+#### Buyer Dashboard
+<img width="1848" height="928" alt="image" src="https://github.com/user-attachments/assets/5f76e0b7-1a13-48e0-ab53-e9cdcdd0fc0e" />
 
 ## Security Features
 
