@@ -9,7 +9,7 @@ import {
 import { motion } from 'framer-motion';
 import type { Order, DashboardStats } from '@/types';
 import { orderService } from '@/features/orders';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 
 const StatCard: React.FC<{
   title: string; value: string; description: string;

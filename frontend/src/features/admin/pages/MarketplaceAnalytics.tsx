@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { adminAnalyticsService, type AdminMarketplaceData } from '../services/adminAnalyticsService';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 
 const COLORS = ['#16a34a', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
 

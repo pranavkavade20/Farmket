@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { closeReservationModal } from '../cropsSlice';
 import { useReserveCropMutation, useGetCropDetailsQuery } from '../cropsApi';
 import { X, Loader2, Package } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 
 export const ReservationModal: React.FC = () => {
   const dispatch = useAppDispatch();

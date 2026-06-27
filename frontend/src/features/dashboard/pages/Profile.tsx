@@ -4,7 +4,7 @@ import { useAuth, authService } from '@/features/auth';
 import { Button, Input } from '@/components/ui';
 import { Camera, User, Mail, Phone, MapPin, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 import type { User as UserType } from '@/types';
 import axios from 'axios';
 

@@ -3,7 +3,7 @@ import { Button, Input } from '@/components/ui';
 import type { Product } from '@/types';
 import { orderService } from '@/features/orders/services/orderService';
 import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 import { X } from 'lucide-react';
 
 interface Props {

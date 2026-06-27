@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { adminAnalyticsService, type AdminUserData } from '../services/adminAnalyticsService';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 
 const UserAnalytics: React.FC = () => {
   const [data, setData] = useState<AdminUserData | null>(null);

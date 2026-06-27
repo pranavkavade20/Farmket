@@ -4,7 +4,7 @@ import { productService } from '@/features/products';
 import type { Product, Category } from '@/types';
 import { useCart } from '@/features/buyer';
 import { useAuth } from '@/features/auth';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 
 import {
   HeroSection,

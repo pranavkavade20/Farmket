@@ -7,7 +7,7 @@ import { useSEO } from '@/hooks';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, ChevronRight, ShieldCheck, Truck, Tag, Lock, Award } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { orderService, type PlaceOrderPayload } from '@/features/orders';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 
 type PaymentMethod = 'cod' | 'upi' | 'online';
 

@@ -6,7 +6,7 @@ import { OrderStatusBadge, Button } from '@/components/ui';
 import { ShoppingBag, Package, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Order } from '@/types';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 
 const Orders = () => {
   useSEO({ title: 'My Orders', description: 'Track your Farmket orders and order history.' });

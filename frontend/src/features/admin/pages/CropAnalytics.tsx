@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { adminAnalyticsService, type AdminCropData } from '../services/adminAnalyticsService';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Calendar } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 
 const CropAnalytics: React.FC = () => {
   const [data, setData] = useState<AdminCropData | null>(null);

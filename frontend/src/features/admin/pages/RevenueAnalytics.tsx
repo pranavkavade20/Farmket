@@ -3,7 +3,7 @@ import { adminAnalyticsService, type AdminExecutiveData } from '../services/admi
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import KPICard from '../components/KPICard';
 import { DollarSign, TrendingUp } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 
 const RevenueAnalytics: React.FC = () => {
   const [data, setData] = useState<AdminExecutiveData | null>(null);

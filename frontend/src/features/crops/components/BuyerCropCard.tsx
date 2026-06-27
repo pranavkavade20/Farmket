@@ -6,7 +6,7 @@ import { useAppDispatch } from '@/app/hooks';
 import { openReservationModal } from '../cropsSlice';
 import { useFollowCropMutation, useUnfollowCropMutation } from '../cropsApi';
 import { useAuth } from '@/features/auth';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 import { motion } from 'framer-motion';
 
 interface BuyerCropCardProps {

@@ -3,7 +3,7 @@ import { Users, ShoppingBag, Package, DollarSign, Download, ArrowRight } from 'l
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import KPICard from '../components/KPICard';
 import { adminAnalyticsService, type AdminExecutiveData } from '../services/adminAnalyticsService';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 
 const AdminDashboard: React.FC = () => {
   const [data, setData] = useState<AdminExecutiveData | null>(null);

@@ -6,7 +6,7 @@ import { OrderStatusBadge, Button } from '@/components/ui';
 import { ArrowLeft, MapPin, CreditCard, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Order } from '@/types';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 import { useAuth } from '@/features/auth';
 
 const STEPS = ['pending', 'processing', 'shipped', 'delivered'] as const;

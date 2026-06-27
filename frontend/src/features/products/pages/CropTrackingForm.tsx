@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 import { cropService, type CropTracking } from '../services/cropService';
 import CropTimeline from '../components/CropTimeline';
 import { Button } from '@/components/ui';

@@ -1,6 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import toast, { Toaster } from 'react-hot-toast';
+import { Toaster, PageSkeleton } from '@/components/ui';
 import { AuthProvider } from '@/features/auth';
 import { AppProvider } from '@/context/AppContext';
 import { ThemeProvider } from '@/context/ThemeContext';
@@ -12,16 +12,7 @@ import DashboardLayout from '@/app/layouts/DashboardLayout';
 import { PrivateRoute, RoleRoute } from '@/routes';
 import { Sprout } from 'lucide-react';
 
-// ── Patch toast to deduplicate identical messages ───────────────────────────
-const originalError = toast.error;
-toast.error = (message, options) => {
-  return originalError(message, { id: typeof message === 'string' ? message : undefined, ...options });
-};
 
-const originalSuccess = toast.success;
-toast.success = (message, options) => {
-  return originalSuccess(message, { id: typeof message === 'string' ? message : undefined, ...options });
-};
 
 // ── Lazy pages ────────────────────────────────────────────────────────────────
 const Home        = lazy(() => import('@/pages/Home'));
@@ -56,12 +47,6 @@ const FarmerMyPosts  = lazy(() => import('@/features/social/pages/MyPosts'));
 
 const NotFound    = lazy(() => import('@/pages/NotFound'));
 
-const PageLoader = () => (
-  <div className="flex h-[60vh] w-full items-center justify-center">
-    <Sprout className="h-10 w-10 animate-pulse text-green-600 dark:text-green-500" />
-  </div>
-);
-
 function App() {
   return (
     <BrowserRouter>
@@ -69,26 +54,9 @@ function App() {
         <AuthProvider>
           <CartProvider>
             <AppProvider>
-              <Toaster
-                position="top-right"
-                toastOptions={{
-                  duration: 4000,
-                  className: '!bg-white !text-gray-900 dark:!bg-[#111] dark:!text-white border border-gray-100 dark:border-gray-800',
-                  style: {
-                    borderRadius: '9999px',
-                    padding: '16px 24px',
-                    fontSize: '15px',
-                    fontWeight: '800',
-                    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-                    background: 'inherit',
-                    color: 'inherit',
-                  },
-                  success: { iconTheme: { primary: '#22c55e', secondary: '#fff' } },
-                  error:   { iconTheme: { primary: '#ef4444', secondary: '#fff' } },
-                }}
-              />
+              <Toaster position="top-center" expand={false} richColors />
               <ErrorBoundary>
-                <Suspense fallback={<PageLoader />}>
+                <Suspense fallback={<PageSkeleton />}>
                   <Routes>
                     {/* ── Public routes ── */}
                     <Route element={<MainLayout />}>

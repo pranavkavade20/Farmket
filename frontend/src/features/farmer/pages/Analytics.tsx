@@ -14,7 +14,7 @@ import {
   LineChart, Line,
 } from 'recharts';
 import { motion } from 'framer-motion';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 

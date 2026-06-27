@@ -9,7 +9,7 @@ import { productService } from '@/features/products';
 import { useAuth } from '@/features/auth';
 import type { Product } from '@/types';
 import { X, Loader2 } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 import { motion, AnimatePresence } from 'framer-motion';
 
 const trackingSchema = z.object({

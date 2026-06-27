@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Bell } from 'lucide-react';
 import { cropService } from '../services/cropService';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 
 interface Props {
   productSlug: string;

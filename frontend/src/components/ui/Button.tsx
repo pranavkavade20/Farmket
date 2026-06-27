@@ -35,7 +35,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled || isLoading}
         {...props}
       >
-        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         <span className={cn('flex items-center gap-2', isLoading && 'opacity-0')}>
           {children}
         </span>

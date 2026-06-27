@@ -6,7 +6,7 @@ import { productService } from '@/features/products';
 import { Button, Input } from '@/components/ui';
 import { ArrowLeft, Package, Leaf, Image as ImageIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 import type { Category } from '@/types';
 
 type UnitType = 'kg' | 'g' | 'l' | 'unit' | 'dozen';

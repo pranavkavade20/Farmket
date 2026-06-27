@@ -6,7 +6,7 @@ import { useAuth } from '@/features/auth';
 import { MessageSquare, MoreVertical, Phone, Video, Info, ArrowLeft, Loader2 } from 'lucide-react';
 
 import { cn } from '@/lib/utils/cn';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 import { WS_BASE_URL } from '@/config/env';
 
 import { ChatSidebar } from '../components/ChatSidebar';

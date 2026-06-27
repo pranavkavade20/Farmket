@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button, Input } from '@/components/ui';
 import type { Product } from '@/types';
 import { productService } from '../services/productService';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 import { X } from 'lucide-react';
 
 interface Props {

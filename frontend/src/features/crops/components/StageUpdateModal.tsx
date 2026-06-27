@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { closeStageUpdateModal } from '../cropsSlice';
 import { useUpdateCropStageMutation } from '../cropsApi';
 import { X, Loader2 } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 import { motion, AnimatePresence } from 'framer-motion';
 
 const stageSchema = z.object({

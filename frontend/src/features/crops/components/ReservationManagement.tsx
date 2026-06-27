@@ -1,7 +1,7 @@
 import React from 'react';
 import { useGetReservationsQuery, useApproveReservationMutation, useRejectReservationMutation } from '../cropsApi';
 import { CheckCircle, XCircle, Clock, Package } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 
 export const ReservationManagement: React.FC = () => {
   const { data: reservations, isLoading } = useGetReservationsQuery();

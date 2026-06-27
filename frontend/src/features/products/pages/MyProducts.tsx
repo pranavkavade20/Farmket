@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Product } from '@/types';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 import { useAppDispatch } from '@/app/hooks';
 import { openStageUpdateModal } from '@/features/crops/cropsSlice';
 import { StageUpdateModal } from '@/features/crops/components/StageUpdateModal';

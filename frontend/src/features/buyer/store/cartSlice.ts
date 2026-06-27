@@ -3,7 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Cart, CartItemDetail } from '@/features/orders';
 import { orderService } from '@/features/orders';
 import type { Product } from '@/types';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 
 interface CartState {
   cart: Cart | null;

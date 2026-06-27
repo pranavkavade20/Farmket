@@ -13,7 +13,7 @@ import { ReservationModal } from '@/features/products/components/ReservationModa
 import { WaitlistModal } from '@/features/products/components/WaitlistModal';
 import { useCart } from '@/features/buyer';
 import { useAuth } from '@/features/auth';
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 import api from '@/lib/api';
 import { 
   Star, MapPin, Truck, ShieldCheck, Leaf, 
