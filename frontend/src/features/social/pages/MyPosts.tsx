@@ -12,7 +12,7 @@ export default function MyPosts() {
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
       </div>
     );
   }
@@ -47,9 +47,9 @@ export default function MyPosts() {
                     <img src={firstMedia.file} alt={post.title} className="w-full h-full object-cover" />
                   )
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center bg-emerald-50 dark:bg-emerald-900/20 p-4 text-center">
-                    <FileText className="h-8 w-8 text-emerald-400 mb-2 opacity-50" />
-                    <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 line-clamp-3">
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-orange-50 dark:bg-orange-900/20 p-4 text-center">
+                    <FileText className="h-8 w-8 text-orange-400 mb-2 opacity-50" />
+                    <p className="text-xs font-semibold text-orange-700 dark:text-orange-400 line-clamp-3">
                       {post.description}
                     </p>
                   </div>

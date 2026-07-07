@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useGetFeedQuery } from '../api/socialApi';
 import { FeedCard } from './FeedCard';
 import { PostComposer } from './PostComposer';
+import { CommentPanel } from './CommentPanel';
 import { useAppSelector } from '@/app/hooks';
 import { Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,6 +15,7 @@ export const SocialFeed: React.FC = () => {
   const { user } = useAppSelector(state => state.auth);
   
   const [showComposer, setShowComposer] = useState(false);
+  const [activeCommentPostId, setActiveCommentPostId] = useState<number | null>(null);
 
   useEffect(() => {
     if (data && data.results) {
@@ -49,6 +51,18 @@ export const SocialFeed: React.FC = () => {
     navigate(`/marketplace/${product.slug}`);
   };
 
+  useEffect(() => {
+    if (activeCommentPostId) {
+      setTimeout(() => {
+        const el = document.getElementById(`post-${activeCommentPostId}`);
+        if (el) {
+          const y = el.getBoundingClientRect().top + window.scrollY - 30; // 30px padding from top
+          window.scrollTo({ top: y, behavior: 'smooth' });
+        }
+      }, 150); // allow layout transition to occur first
+    }
+  }, [activeCommentPostId]);
+
   return (
     <div className="max-w-2xl mx-auto py-8 px-4 sm:px-0">
       {/* Floating Action Button & Modal for Farmers */}
@@ -63,7 +77,7 @@ export const SocialFeed: React.FC = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowComposer(true)}
-                className="fixed bottom-6 right-6 md:bottom-10 md:right-10 h-16 w-16 bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-full shadow-2xl flex items-center justify-center z-40 transition-all border-4 border-white dark:border-gray-900"
+                className="fixed bottom-6 right-6 md:bottom-10 md:right-10 h-16 w-16 bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-full shadow-2xl flex items-center justify-center z-40 transition-all border-4 border-white dark:border-gray-900"
               >
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -98,21 +112,45 @@ export const SocialFeed: React.FC = () => {
       )}
 
       {/* Feed */}
-      <div className="space-y-6">
+      <div className={`space-y-8 mx-auto transition-all duration-300 ${activeCommentPostId ? 'max-w-5xl' : 'max-w-2xl'}`}>
         {posts.map((post, index) => (
-          <FeedCard 
-            key={`${post.id}-${index}`} 
-            post={post} 
-            onCommentClick={(id) => console.log('Open comments for', id)} 
-            onBuyNowClick={handleBuyNowClick} 
-          />
+          <div key={`${post.id}-${index}`} id={`post-${post.id}`} className={`flex flex-col md:flex-row gap-4 lg:gap-6 items-start justify-center transition-all duration-500 ${activeCommentPostId === post.id ? 'md:h-[85vh]' : ''}`}>
+            {/* Feed Card */}
+            <div className={`transition-all duration-300 w-full mx-auto ${activeCommentPostId === post.id ? 'md:w-[500px] lg:w-[600px] flex-shrink-0 md:mx-0 h-full' : 'max-w-2xl'}`}>
+              <FeedCard 
+                post={post} 
+                onCommentClick={(id) => setActiveCommentPostId(activeCommentPostId === id ? null : id)} 
+                onBuyNowClick={handleBuyNowClick}
+                isActive={activeCommentPostId === post.id}
+              />
+            </div>
+            
+            {/* Desktop Inline Comment Panel */}
+            <AnimatePresence>
+              {activeCommentPostId === post.id && (
+                <motion.div 
+                  initial={{ opacity: 0, width: 0, x: -20 }}
+                  animate={{ opacity: 1, width: '100%', maxWidth: '400px', x: 0 }}
+                  exit={{ opacity: 0, width: 0, x: -20 }}
+                  className="hidden md:block flex-shrink-0 h-full w-[350px] lg:w-[400px]"
+                >
+                  <CommentPanel 
+                    postId={activeCommentPostId} 
+                    isOpen={true} 
+                    onClose={() => setActiveCommentPostId(null)} 
+                    isInline={true}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         ))}
       </div>
 
       {/* Loading state */}
       {isFetching && (
         <div className="flex justify-center py-8">
-          <Loader2 className="animate-spin text-emerald-500" size={32} />
+          <Loader2 className="animate-spin text-orange-500" size={32} />
         </div>
       )}
       
@@ -121,6 +159,16 @@ export const SocialFeed: React.FC = () => {
           No posts to show right now.
         </div>
       )}
+
+      {/* Mobile Modal Comment Panel */}
+      <div className="md:hidden">
+        <CommentPanel 
+          postId={activeCommentPostId} 
+          isOpen={activeCommentPostId !== null} 
+          onClose={() => setActiveCommentPostId(null)} 
+          isInline={false}
+        />
+      </div>
     </div>
   );
 };

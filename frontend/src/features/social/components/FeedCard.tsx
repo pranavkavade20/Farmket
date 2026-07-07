@@ -8,9 +8,10 @@ interface FeedCardProps {
   post: any;
   onCommentClick: (postId: number) => void;
   onBuyNowClick: (product: any) => void;
+  isActive?: boolean;
 }
 
-export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyNowClick }) => {
+export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyNowClick, isActive = false }) => {
   const [likePost] = useLikePostMutation();
   const [unlikePost] = useUnlikePostMutation();
   const [savePost] = useSavePostMutation();
@@ -22,6 +23,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
   const [isImageExpanded, setIsImageExpanded] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+  const [isCaptionExpanded, setIsCaptionExpanded] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const { user } = useAppSelector((state) => state.auth);
@@ -29,7 +31,6 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
   const currentMedia = post.media && post.media.length > 0 ? post.media[currentMediaIndex] : null;
   const isVideo = currentMedia?.type === 'video';
 
-  // Play/pause video automatically when it comes into view (Intersection Observer)
   useEffect(() => {
     if (!videoRef.current || !isVideo) return;
     
@@ -37,7 +38,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            videoRef.current?.play().catch(() => {}); // catch autoplay restrictions
+            videoRef.current?.play().catch(() => {});
           } else {
             videoRef.current?.pause();
           }
@@ -54,15 +55,14 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
     try {
       if (isLiked) {
         setIsLiked(false);
-        setLikesCount(p => p - 1);
+        setLikesCount((p: number) => p - 1);
         await unlikePost(post.id).unwrap();
       } else {
         setIsLiked(true);
-        setLikesCount(p => p + 1);
+        setLikesCount((p: number) => p + 1);
         await likePost(post.id).unwrap();
       }
     } catch (err) {
-      // Revert on error
       setIsLiked(!isLiked);
       setLikesCount(isLiked ? likesCount + 1 : likesCount - 1);
     }
@@ -94,187 +94,215 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
     }
   };
 
+  const captionText = post.description || '';
+  const isLongCaption = captionText.length > 120;
+  const displayCaption = isLongCaption && !isCaptionExpanded ? captionText.slice(0, 120) + '...' : captionText;
+
+  // Render Action Buttons to reuse in Desktop (Vertical) and Mobile (Horizontal)
+  const ActionButtons = ({ isDesktop = false }) => (
+    <>
+      <motion.button 
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={handleLike}
+        className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 transition-colors ${isLiked ? 'text-red-500' : 'text-gray-600 dark:text-gray-300 hover:text-red-500'}`}
+        title="Like"
+      >
+        <div className={`p-2 rounded-full ${isDesktop ? 'bg-gray-100 dark:bg-gray-800' : ''}`}>
+          <Heart size={isDesktop ? 22 : 24} fill={isLiked ? 'currentColor' : 'none'} className={isLiked ? 'drop-shadow-sm' : ''} />
+        </div>
+        <span className="font-semibold text-xs">{likesCount}</span>
+      </motion.button>
+
+      <motion.button 
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={() => onCommentClick(post.id)}
+        className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 text-gray-600 dark:text-gray-300 hover:text-orange-500 transition-colors`}
+        title="Comment"
+      >
+        <div className={`p-2 rounded-full ${isDesktop ? 'bg-gray-100 dark:bg-gray-800' : ''}`}>
+          <MessageCircle size={isDesktop ? 22 : 24} />
+        </div>
+        <span className="font-semibold text-xs">{post.comments_count}</span>
+      </motion.button>
+
+      <motion.button 
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 text-gray-600 dark:text-gray-300 hover:text-blue-500 transition-colors`}
+        title="Share"
+      >
+        <div className={`p-2 rounded-full ${isDesktop ? 'bg-gray-100 dark:bg-gray-800' : ''}`}>
+          <Share2 size={isDesktop ? 22 : 24} />
+        </div>
+        {isDesktop && <span className="font-semibold text-xs">Share</span>}
+      </motion.button>
+
+      <motion.button 
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={handleSave}
+        className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 transition-colors ${isSaved ? 'text-orange-600 dark:text-orange-400' : 'text-gray-600 dark:text-gray-300 hover:text-orange-500'}`}
+        title="Bookmark"
+      >
+        <div className={`p-2 rounded-full ${isDesktop ? 'bg-gray-100 dark:bg-gray-800' : ''}`}>
+          <Bookmark size={isDesktop ? 22 : 24} fill={isSaved ? 'currentColor' : 'none'} />
+        </div>
+        {isDesktop && <span className="font-semibold text-xs">Save</span>}
+      </motion.button>
+    </>
+  );
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden mb-6 hover:shadow-md transition-shadow duration-300"
+      className={`bg-white dark:bg-gray-900 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-800 overflow-hidden mb-8 ${isActive ? 'md:h-full flex flex-col' : ''}`}
     >
-      {/* Header */}
-      <div className="p-4 flex items-center justify-between border-b border-gray-50 dark:border-gray-700/50">
-        <div className="flex items-center space-x-3">
-          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white font-bold text-lg shadow-inner">
-            {post.farmer?.first_name?.[0] || post.farmer?.username?.[0] || 'F'}
-          </div>
-          <div>
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-1">
-              {post.farmer?.first_name} {post.farmer?.last_name}
-              {post.is_pinned && <Pin size={14} className="text-emerald-500 rotate-45" />}
-            </h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-              {post.location && <><MapPin size={12} /> {post.location} • </>}
-              {formattedDate}
-            </p>
-          </div>
-        </div>
-        <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
-          <MoreHorizontal size={20} />
-        </button>
-      </div>
-
-      {/* Media Area */}
-      {currentMedia && (
-        <div className="relative aspect-[4/5] sm:aspect-square w-full bg-black group" onClick={handleMediaClick}>
-          {isVideo ? (
-            <>
-              <video
-                key={currentMedia.id}
-                ref={videoRef}
-                src={currentMedia.file}
-                autoPlay
-                loop
-                muted={isMuted}
-                playsInline
-                className="w-full h-full object-contain sm:object-cover"
-              />
-              <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md text-white p-2 rounded-full opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300 z-20">
-                {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+      <div className={`flex flex-col md:flex-row ${isActive ? 'md:h-full' : ''}`}>
+        {/* Main Content Area */}
+        <div className={`flex-1 min-w-0 ${isActive ? 'flex flex-col md:h-full' : ''}`}>
+          {/* Header */}
+          <div className="p-4 md:p-5 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="h-11 w-11 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold text-lg shadow-inner ring-2 ring-white dark:ring-gray-900">
+                {post.farmer?.first_name?.[0] || post.farmer?.username?.[0] || 'F'}
               </div>
-            </>
-          ) : (
-            <img 
-              key={currentMedia.id}
-              src={currentMedia.file} 
-              alt={post.title} 
-              className={`w-full h-full object-contain sm:object-cover transition-transform duration-500 cursor-pointer ${isImageExpanded ? 'scale-105' : ''}`}
-            />
-          )}
-          
-          {post.media.length > 1 && (
-            <>
-              {/* Desktop Hover Navigation Arrows */}
-              <AnimatePresence>
-                {currentMediaIndex > 0 && (
-                  <motion.button
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    onClick={(e) => { e.stopPropagation(); setCurrentMediaIndex(p => p - 1); }}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white p-2 rounded-full backdrop-blur-sm transition-colors z-20 sm:opacity-0 sm:group-hover:opacity-100"
-                  >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-                  </motion.button>
-                )}
-              </AnimatePresence>
-              <AnimatePresence>
-                {currentMediaIndex < post.media.length - 1 && (
-                  <motion.button
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    onClick={(e) => { e.stopPropagation(); setCurrentMediaIndex(p => p + 1); }}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white p-2 rounded-full backdrop-blur-sm transition-colors z-20 sm:opacity-0 sm:group-hover:opacity-100"
-                  >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                  </motion.button>
-                )}
-              </AnimatePresence>
-              
-              {/* Mobile Swipe Overlay (Invisible overlay to capture swipes on mobile if desired, but arrows work fine) */}
-              
-              {/* Pagination Dots */}
-              <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 z-10">
-                {post.media.map((_: any, idx: number) => (
-                  <div 
-                    key={idx} 
-                    className={`h-1.5 rounded-full transition-all duration-300 shadow-sm ${idx === currentMediaIndex ? 'bg-white w-4' : 'bg-white/50 w-1.5'}`} 
-                  />
+              <div>
+                <h3 className="font-bold text-gray-900 dark:text-gray-100 flex items-center gap-1.5 text-base">
+                  {post.farmer?.first_name} {post.farmer?.last_name}
+                  {post.is_pinned && <Pin size={14} className="text-orange-500 rotate-45" />}
+                </h3>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                  {post.location && <><MapPin size={12} /> {post.location} • </>}
+                  {formattedDate}
+                </p>
+              </div>
+            </div>
+            <button className="p-2 text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-full transition-colors">
+              <MoreHorizontal size={20} />
+            </button>
+          </div>
+
+          {/* Caption */}
+          <div className="px-4 md:px-5 pb-4">
+            {post.title && <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg mb-1">{post.title}</h4>}
+            <div className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
+              {displayCaption}
+              {isLongCaption && (
+                <button 
+                  onClick={() => setIsCaptionExpanded(!isCaptionExpanded)}
+                  className="ml-1 text-orange-500 hover:text-orange-600 font-semibold text-sm focus:outline-none"
+                >
+                  {isCaptionExpanded ? 'Show less' : 'Read more'}
+                </button>
+              )}
+            </div>
+            
+            {/* Hashtags */}
+            {post.hashtags && post.hashtags.length > 0 && (
+              <div className="flex flex-wrap gap-2 pt-3">
+                {post.hashtags.map((tag: string, i: number) => (
+                  <span key={i} className="text-xs text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/30 px-2.5 py-1 rounded-full font-semibold border border-orange-100 dark:border-orange-800/50">
+                    #{tag}
+                  </span>
                 ))}
               </div>
-
-              {/* Counter */}
-              <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-white text-xs px-2 py-1 rounded-full z-20 pointer-events-none">
-                {currentMediaIndex + 1}/{post.media.length}
-              </div>
-            </>
-          )}
-        </div>
-      )}
-
-      {/* Content */}
-      <div className="p-4">
-        {/* Action Buttons */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-4">
-            <motion.button 
-              whileTap={{ scale: 0.8 }}
-              onClick={handleLike}
-              className={`flex items-center space-x-1.5 transition-colors ${isLiked ? 'text-red-500' : 'text-gray-600 dark:text-gray-300 hover:text-red-500'}`}
-            >
-              <Heart size={24} fill={isLiked ? 'currentColor' : 'none'} className={isLiked ? 'drop-shadow-sm' : ''} />
-              <span className="font-medium text-sm">{likesCount}</span>
-            </motion.button>
-            <motion.button 
-              whileTap={{ scale: 0.9 }}
-              onClick={() => onCommentClick(post.id)}
-              className="flex items-center space-x-1.5 text-gray-600 dark:text-gray-300 hover:text-emerald-500 transition-colors"
-            >
-              <MessageCircle size={24} />
-              <span className="font-medium text-sm">{post.comments_count}</span>
-            </motion.button>
-            <motion.button 
-              whileTap={{ scale: 0.9 }}
-              className="flex items-center space-x-1.5 text-gray-600 dark:text-gray-300 hover:text-blue-500 transition-colors"
-            >
-              <Share2 size={24} />
-            </motion.button>
+            )}
           </div>
-          <motion.button 
-            whileTap={{ scale: 0.8 }}
-            onClick={handleSave}
-            className={`transition-colors ${isSaved ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-600 dark:text-gray-300 hover:text-emerald-500'}`}
-          >
-            <Bookmark size={24} fill={isSaved ? 'currentColor' : 'none'} />
-          </motion.button>
-        </div>
 
-        {/* Caption & Details */}
-        <div className="space-y-2">
-          {post.title && <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg">{post.title}</h4>}
-          <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
-            {post.description}
-          </p>
-          
-          {/* Hashtags */}
-          {post.hashtags && post.hashtags.length > 0 && (
-            <div className="flex flex-wrap gap-2 pt-2">
-              {post.hashtags.map((tag: string, i: number) => (
-                <span key={i} className="text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-1 rounded-md font-medium">
-                  #{tag}
-                </span>
-              ))}
+          {/* Media Area */}
+          {currentMedia && (
+            <div className={`relative w-full bg-black group ${isActive ? 'flex-1 min-h-0 flex items-center justify-center' : 'aspect-[4/5] sm:aspect-square md:aspect-[4/3]'}`} onClick={handleMediaClick}>
+              {isVideo ? (
+                <>
+                  <video
+                    key={currentMedia.id}
+                    ref={videoRef}
+                    src={currentMedia.file}
+                    autoPlay
+                    loop
+                    muted={isMuted}
+                    playsInline
+                    className="w-full h-full object-contain sm:object-cover"
+                  />
+                  <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md text-white p-2 rounded-full opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300 z-20">
+                    {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                  </div>
+                </>
+              ) : (
+                <img 
+                  key={currentMedia.id}
+                  src={currentMedia.file} 
+                  alt={post.title} 
+                  className={`w-full h-full object-contain sm:object-cover transition-transform duration-500 cursor-pointer ${isImageExpanded ? 'scale-105' : ''}`}
+                />
+              )}
+              
+              {post.media.length > 1 && (
+                <>
+                  <AnimatePresence>
+                    {currentMediaIndex > 0 && (
+                      <motion.button
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        onClick={(e) => { e.stopPropagation(); setCurrentMediaIndex(p => p - 1); }}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white p-2 rounded-full backdrop-blur-md transition-colors z-20 sm:opacity-0 sm:group-hover:opacity-100"
+                      >
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                      </motion.button>
+                    )}
+                  </AnimatePresence>
+                  <AnimatePresence>
+                    {currentMediaIndex < post.media.length - 1 && (
+                      <motion.button
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 10 }}
+                        onClick={(e) => { e.stopPropagation(); setCurrentMediaIndex(p => p + 1); }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white p-2 rounded-full backdrop-blur-md transition-colors z-20 sm:opacity-0 sm:group-hover:opacity-100"
+                      >
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                      </motion.button>
+                    )}
+                  </AnimatePresence>
+                  
+                  <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 z-10">
+                    {post.media.map((_: any, idx: number) => (
+                      <div 
+                        key={idx} 
+                        className={`h-1.5 rounded-full transition-all duration-300 shadow-sm ${idx === currentMediaIndex ? 'bg-white w-5' : 'bg-white/50 w-1.5'}`} 
+                      />
+                    ))}
+                  </div>
+
+                  <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-white font-medium text-xs px-2.5 py-1 rounded-full z-20 pointer-events-none">
+                    {currentMediaIndex + 1}/{post.media.length}
+                  </div>
+                </>
+              )}
             </div>
           )}
 
           {/* Commerce Section (Pinned Product) */}
           {post.product && (
-            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex flex-col gap-3 bg-emerald-50/50 dark:bg-emerald-900/10 p-3 rounded-xl">
-              
-              {/* Product Info & Buy/Pre-book Button */}
+            <div className="m-4 md:m-5 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/10 dark:to-amber-900/10 border border-orange-100 dark:border-orange-800/50 p-4 rounded-2xl">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                  <p className="text-sm font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                     {post.product.name}
                     {post.product.is_prebookable && (
-                      <span className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 text-[10px] px-2 py-0.5 rounded-full font-bold tracking-wider uppercase">
+                      <span className="bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 text-[10px] px-2 py-0.5 rounded-full font-extrabold tracking-wide uppercase">
                         Pre-book
                       </span>
                     )}
                   </p>
-                  <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
+                  <p className="text-xl font-black text-orange-600 dark:text-orange-400 mt-0.5">
                     ₹{post.product.price}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">
                     {post.product.market_state === 'READY_FOR_PREBOOKING' ? 'Pre-booking open' : `${post.product.stock_quantity} available`}
                   </p>
                 </div>
@@ -283,10 +311,10 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => onBuyNowClick(post.product)}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg font-semibold text-sm flex items-center gap-2 shadow-lg shadow-emerald-200 dark:shadow-none transition-colors whitespace-nowrap"
+                    className="bg-orange-600 hover:bg-orange-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-orange-200 dark:shadow-none transition-colors whitespace-nowrap"
                   >
                     {post.product.is_prebookable ? (
-                      <><Calendar size={18} /> Pre-book Now</>
+                      <><Calendar size={18} /> Pre-book</>
                     ) : (
                       <><ShoppingBag size={18} /> Buy Now</>
                     )}
@@ -294,20 +322,20 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
                 )}
               </div>
 
-              {/* Upcoming Harvest Progress (If Applicable) */}
+              {/* Upcoming Harvest Progress */}
               {post.product.crop_stage && (
-                <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-emerald-100 dark:border-emerald-800/50 shadow-sm mt-1">
+                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-3 rounded-xl border border-white dark:border-gray-700 shadow-sm mt-3">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5 uppercase tracking-wider">
+                    <span className="text-xs font-bold text-orange-700 dark:text-orange-400 flex items-center gap-1.5 uppercase tracking-wide">
                       <Sprout size={14} /> {post.product.crop_stage.replace(/_/g, ' ')}
                     </span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1 font-medium">
+                    <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1 font-semibold">
                       <Calendar size={12} className="text-gray-400" /> {post.product.harvest_countdown} days to harvest
                     </span>
                   </div>
-                  <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2 overflow-hidden shadow-inner">
+                  <div className="w-full bg-gray-200/50 dark:bg-gray-700/50 rounded-full h-2 overflow-hidden shadow-inner">
                     <div 
-                      className="bg-gradient-to-r from-green-400 to-emerald-600 h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden" 
+                      className="bg-gradient-to-r from-orange-400 to-orange-600 h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden" 
                       style={{ width: `${post.product.progress_percentage || 0}%` }}
                     >
                       <div className="absolute inset-0 bg-white/20 w-full animate-pulse"></div>
@@ -317,6 +345,18 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
               )}
             </div>
           )}
+
+          {/* Mobile Action Bar (Horizontal at the bottom) */}
+          <div className="md:hidden flex items-center justify-between p-4 border-t border-gray-100 dark:border-gray-800">
+            <div className="flex items-center gap-6">
+              <ActionButtons isDesktop={false} />
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop Action Column (Vertical on the right) */}
+        <div className="hidden md:flex flex-col items-center justify-end p-4 border-l border-gray-100 dark:border-gray-800 w-20 bg-gray-50/30 dark:bg-gray-900/30 gap-8">
+          <ActionButtons isDesktop={true} />
         </div>
       </div>
     </motion.div>
