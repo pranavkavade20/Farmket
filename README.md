@@ -208,10 +208,10 @@ Farmket uses `drf-spectacular` for OpenAPI documentation. Below is a sample of a
 ### Dashboard
 
 #### Farmer Dashboard
-<img width="1772" height="896" alt="image" src="https://github.com/user-attachments/assets/fa2db7a9-eff8-4395-af7e-a192b24d2857" />
+<img width="1597" height="896" alt="Farmer" src="https://github.com/user-attachments/assets/05e70370-3396-47c0-8623-5503c6a3d030" />
 
 #### Buyer Dashboard
-<img width="1848" height="928" alt="image" src="https://github.com/user-attachments/assets/5f76e0b7-1a13-48e0-ab53-e9cdcdd0fc0e" />
+<img width="1646" height="925" alt="Buyer" src="https://github.com/user-attachments/assets/8b2bbd1a-196a-464e-91fc-f990350f20fd" />
 
 ## Security Features
 
@@ -230,87 +230,6 @@ Farmket uses `drf-spectacular` for OpenAPI documentation. Below is a sample of a
 * **Caching**: Redis is utilized for caching frequently accessed data and querysets.
 * **API Optimization**: Compressed JSON responses and HTTP ETags where applicable.
 
-## Testing
-
-Comprehensive testing ensures application stability.
-
-```bash
-# Frontend Testing (Jest / React Testing Library)
-npm test
-
-# Backend Testing (Django Test Framework)
-python manage.py test
-```
-
-## Deployment
-
-### Frontend Deployment
-
-1. Build the production bundle:
-   ```bash
-   npm run build
-   ```
-2. Deploy the generated `dist/` directory to a static hosting provider like Vercel, Netlify, or AWS S3 + CloudFront.
-
-### Backend Deployment
-
-1. Set `DEBUG=False` and configure `ALLOWED_HOSTS`.
-2. Collect static files:
-   ```bash
-   python manage.py collectstatic
-   ```
-3. Run migrations.
-4. Deploy using an ASGI-compatible web server like Daphne or Uvicorn behind a reverse proxy (Nginx) on platforms like AWS EC2, Heroku, or DigitalOcean.
-5. Ensure Redis and PostgreSQL are properly configured in a production environment.
-
-## CI/CD Pipeline
-
-Farmket utilizes automated workflows for Continuous Integration and Continuous Deployment (CI/CD):
-
-1. **Linting & Formatting**: Automated checks run Prettier, ESLint, and Black on every pull request.
-2. **Automated Testing**: Test suites are executed for both frontend and backend codebases.
-3. **Build Verification**: Ensures the Vite build process and Django checks pass without warnings.
-4. **Deployment**: Upon merging to the `main` branch, the pipeline triggers deployment hooks to update production servers safely.
-
-## Contributing
-
-We encourage enterprise-level collaboration and contributions.
-
-1. **Fork** the repository on GitHub.
-2. **Clone** your fork locally.
-3. **Create a branch** for your feature or bug fix (`git checkout -b feature/your-feature-name`).
-4. **Develop** following our code quality standards.
-5. **Commit** your changes with descriptive messages (`git commit -m 'feat: implement new payment gateway'`).
-6. **Push** your branch (`git push origin feature/your-feature-name`).
-7. **Submit a Pull Request** (PR) detailing your changes and referencing related issues.
-
-## Code Quality Standards
-
-* **Frontend**: ESLint, Prettier, strict TypeScript configurations.
-* **Backend**: Black (code formatting), Flake8 (linting), and PEP-8 compliance.
-* **DRF Best Practices**: Fat models, thin views, and reusable service layers.
-
-## Roadmap
-
-* [ ] Implement OAuth2 social login (Google, Facebook).
-* [ ] Integrate a third-party payment gateway (Stripe/PayPal) for seamless transactions.
-* [ ] Introduce an AI-powered recommendation engine for buyers.
-* [ ] Develop native mobile applications using React Native.
-* [ ] Expand multi-language (i18n) and localization support.
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
-
 ## Author
-
-**Farmket Core Team**
 - [GitHub Profile](https://github.com/pranavkavade20)
 
-## Acknowledgements
-
-* [Django](https://www.djangoproject.com/)
-* [React](https://reactjs.org/)
-* [Tailwind CSS](https://tailwindcss.com/)
-* [Vite](https://vitejs.dev/)
-* Open source community contributors and package maintainers.
