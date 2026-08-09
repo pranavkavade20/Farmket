@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useSEO } from '@/hooks';
 import { ProductCard, productService } from '@/features/products';
 import { ProductCardSkeleton, Button} from '@/components/ui';
@@ -125,7 +126,8 @@ const Marketplace = () => {
   const [isLoading, setIsLoading] = useState(true);
   
   // Filters
-  const [search, setSearch] = useState('');
+  const [searchParams] = useSearchParams();
+  const [search, setSearch] = useState(searchParams.get('search') || '');
   const debouncedSearch = useDebounce(search, 500); // 500ms debounce
   const [selectedCategory, setSelectedCategory] = useState('');
   const [organicOnly, setOrganicOnly] = useState(false);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/features/auth";
 import { useTheme } from "@/context";
@@ -12,9 +12,11 @@ import {
   Moon,
   ShoppingCart,
   ChevronDown,
-  Search,
-  MapPin,
-  Heart
+  User,
+  LayoutDashboard,
+  ShoppingBag,
+  Store,
+  Activity
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import logo from "@/assets/images/logo.png";
@@ -27,15 +29,19 @@ const Navbar = () => {
   const { itemCount } = useCart();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   const location = useLocation();
   const navigate = useNavigate();
 
   const closeMobile = () => setIsMobileMenuOpen(false);
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => location.pathname === path || (path !== "/" && location.pathname.startsWith(path));
 
   const handleLogout = async () => {
     await logout();
     closeMobile();
+    setIsDropdownOpen(false);
     navigate("/login");
   };
 
@@ -46,6 +52,18 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    if (isDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isDropdownOpen]);
 
   const navLink = (to: string, label: string) => (
     <Link
@@ -85,33 +103,8 @@ const Navbar = () => {
             <div className="hidden lg:flex items-center gap-1">
               {navLink("/", "Home")}
               {navLink("/marketplace", "Marketplace")}
-              {navLink("/farmers", "Farmers")}
-              {navLink("/how-it-works", "How It Works")}
-            </div>
-          </div>
-
-          {/* Center: Search & Location */}
-          <div className="hidden md:flex flex-1 max-w-xl mx-4">
-            <div className="flex w-full items-center bg-surface border border-border-subtle rounded-full overflow-hidden shadow-sm transition-all focus-within:border-brand/50 focus-within:ring-2 focus-within:ring-brand/20">
-              <div className="flex-1 flex items-center px-4 py-2 border-r border-border-subtle group">
-                <Search className="h-4 w-4 text-muted group-focus-within:text-brand transition-colors" />
-                <input 
-                  type="text" 
-                  placeholder="Search fresh products..." 
-                  className="w-full bg-transparent border-none focus:ring-0 text-sm px-2 text-foreground placeholder:text-muted"
-                />
-              </div>
-              <div className="flex-[0.7] hidden lg:flex items-center px-4 py-2 group">
-                <MapPin className="h-4 w-4 text-muted group-focus-within:text-brand transition-colors" />
-                <input 
-                  type="text" 
-                  placeholder="Location" 
-                  className="w-full bg-transparent border-none focus:ring-0 text-sm px-2 text-foreground placeholder:text-muted"
-                />
-              </div>
-              <button className="bg-brand text-white px-5 py-2.5 text-sm font-semibold hover:bg-brand-hover transition-colors rounded-r-full">
-                Search
-              </button>
+              {navLink("/feed", "Social")}
+              {navLink("/about", "About")}
             </div>
           </div>
 
@@ -128,13 +121,6 @@ const Navbar = () => {
 
             {user ? (
               <div className="flex items-center gap-1 sm:gap-2">
-                <Link
-                  to="/favorites"
-                  className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full text-foreground-secondary transition-all hover:bg-state-hover hover:text-danger"
-                >
-                  <Heart className="h-5 w-5" />
-                </Link>
-                
                 <NotificationCenter />
                 
                 {user.user_type === 'buyer' && (
@@ -151,8 +137,11 @@ const Navbar = () => {
                   </Link>
                 )}
 
-                <div className="hidden lg:flex items-center gap-3 pl-3 ml-1 border-l border-border-subtle">
-                  <Link to="/dashboard" className="flex items-center gap-2 hover:bg-state-hover py-1.5 px-3 rounded-full transition-colors group">
+                <div className="hidden lg:flex items-center gap-3 pl-3 ml-1 border-l border-border-subtle relative" ref={dropdownRef}>
+                  <button 
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="flex items-center gap-2 hover:bg-state-hover py-1.5 px-3 rounded-full transition-colors group focus-ring"
+                  >
                     <Avatar 
                       src={user.profile_picture || undefined} 
                       alt={user.first_name || user.username} 
@@ -166,14 +155,65 @@ const Navbar = () => {
                         {user.user_type}
                       </span>
                     </div>
-                    <ChevronDown className="h-4 w-4 text-muted ml-1 group-hover:text-foreground transition-colors" />
-                  </Link>
+                    <ChevronDown className={cn("h-4 w-4 text-muted ml-1 group-hover:text-foreground transition-transform duration-200", isDropdownOpen && "rotate-180")} />
+                  </button>
                   
-                  {user.user_type === 'farmer' ? (
-                    <Button variant="primary" size="sm" className="hidden xl:flex">Sell Products</Button>
-                  ) : (
-                    <Button variant="outline" size="sm" className="hidden xl:flex border-brand text-brand hover:bg-brand hover:text-white">Browse Market</Button>
-                  )}
+                  {/* Dropdown Menu */}
+                  <AnimatePresence>
+                    {isDropdownOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        transition={{ duration: 0.15, ease: "easeOut" }}
+                        className="absolute right-0 top-full mt-2 w-56 bg-surface rounded-2xl shadow-xl border border-border-subtle overflow-hidden z-50"
+                      >
+                        <div className="p-3 border-b border-border-subtle bg-surface-elevated/50">
+                          <p className="text-sm font-semibold text-foreground truncate">{user.first_name || user.username}</p>
+                          <p className="text-xs text-foreground-secondary truncate">{user.email}</p>
+                        </div>
+                        <div className="p-2 flex flex-col gap-1">
+                          <Link to="/dashboard" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground rounded-lg hover:bg-state-hover transition-colors">
+                            <LayoutDashboard className="h-4 w-4 text-muted" /> Dashboard
+                          </Link>
+                          
+                          {/* Role Specific Links */}
+                          {user.user_type === 'admin' ? (
+                            <Link to="/dashboard/admin/executive" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground rounded-lg hover:bg-state-hover transition-colors">
+                              <Activity className="h-4 w-4 text-muted" /> Analytics
+                            </Link>
+                          ) : (
+                            <>
+                              <Link to="/dashboard/profile" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground rounded-lg hover:bg-state-hover transition-colors">
+                                <User className="h-4 w-4 text-muted" /> Profile
+                              </Link>
+                              {user.user_type === 'farmer' && (
+                                <>
+                                  <Link to="/dashboard/products" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground rounded-lg hover:bg-state-hover transition-colors">
+                                    <Store className="h-4 w-4 text-muted" /> My Products
+                                  </Link>
+                                  <Link to="/farmer/orders" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground rounded-lg hover:bg-state-hover transition-colors">
+                                    <ShoppingBag className="h-4 w-4 text-muted" /> Orders
+                                  </Link>
+                                </>
+                              )}
+                              {user.user_type === 'buyer' && (
+                                <Link to="/dashboard/orders" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground rounded-lg hover:bg-state-hover transition-colors">
+                                  <ShoppingBag className="h-4 w-4 text-muted" /> My Orders
+                                </Link>
+                              )}
+                            </>
+                          )}
+                          
+                          <div className="h-px bg-border-subtle my-1" />
+                          <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2 text-sm font-semibold text-danger rounded-lg hover:bg-danger/10 transition-colors w-full text-left">
+                            <LogOut className="h-4 w-4" /> Log Out
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
                 </div>
               </div>
             ) : (
@@ -211,18 +251,11 @@ const Navbar = () => {
             className="border-t border-border-subtle bg-surface lg:hidden overflow-hidden"
           >
             <div className="flex flex-col gap-1 px-4 py-4">
-              <div className="mb-4">
-                <div className="flex items-center bg-background border border-border-subtle rounded-lg px-3 py-2">
-                  <Search className="h-4 w-4 text-muted mr-2" />
-                  <input type="text" placeholder="Search products..." className="w-full bg-transparent border-none text-sm text-foreground focus:ring-0" />
-                </div>
-              </div>
-
               {[
                 { to: "/", label: "Home" },
                 { to: "/marketplace", label: "Marketplace" },
-                { to: "/farmers", label: "Farmers" },
-                { to: "/how-it-works", label: "How It Works" },
+                { to: "/feed", label: "Social" },
+                { to: "/about", label: "About" },
               ].map(({ to, label }) => (
                 <Link
                   key={to}
@@ -238,18 +271,50 @@ const Navbar = () => {
 
               {user ? (
                 <>
+                  <div className="px-4 py-2 mb-2 bg-surface-elevated/30 rounded-lg flex items-center gap-3">
+                     <Avatar src={user.profile_picture || undefined} alt={user.first_name || user.username} size="sm" />
+                     <div>
+                       <p className="text-sm font-semibold text-foreground">{user.first_name || user.username}</p>
+                       <p className="text-xs text-foreground-secondary uppercase tracking-wider">{user.user_type}</p>
+                     </div>
+                  </div>
+                  
                   <Link to="/dashboard" onClick={closeMobile} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors">
-                    <Avatar src={user.profile_picture || undefined} alt={user.first_name || user.username} size="sm" />
-                    Dashboard
+                    <LayoutDashboard className="h-4 w-4 text-muted" /> Dashboard
                   </Link>
-                  <Link to="/favorites" onClick={closeMobile} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors">
-                    <Heart className="h-4 w-4" /> Favorites
-                  </Link>
+
+                  {user.user_type === 'admin' ? (
+                     <Link to="/dashboard/admin/executive" onClick={closeMobile} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors">
+                       <Activity className="h-4 w-4 text-muted" /> Analytics
+                     </Link>
+                  ) : (
+                    <>
+                      <Link to="/dashboard/profile" onClick={closeMobile} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors">
+                        <User className="h-4 w-4 text-muted" /> Profile
+                      </Link>
+                      {user.user_type === 'farmer' && (
+                        <>
+                          <Link to="/dashboard/products" onClick={closeMobile} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors">
+                            <Store className="h-4 w-4 text-muted" /> My Products
+                          </Link>
+                          <Link to="/farmer/orders" onClick={closeMobile} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors">
+                            <ShoppingBag className="h-4 w-4 text-muted" /> Orders
+                          </Link>
+                        </>
+                      )}
+                      {user.user_type === 'buyer' && (
+                        <Link to="/dashboard/orders" onClick={closeMobile} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors">
+                          <ShoppingBag className="h-4 w-4 text-muted" /> My Orders
+                        </Link>
+                      )}
+                    </>
+                  )}
+
                   <button
                     onClick={() => { toggleDark(); closeMobile(); }}
                     className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors text-left"
                   >
-                    {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />} Theme
+                    {isDark ? <Sun className="h-4 w-4 text-muted" /> : <Moon className="h-4 w-4 text-muted" />} Theme
                   </button>
                   <button
                     onClick={() => void handleLogout()}
