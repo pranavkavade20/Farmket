@@ -13,6 +13,105 @@ import { cn } from '@/lib/utils/cn';
 
 type SortOption = 'price' | '-price' | '-created_at' | '-views';
 
+// Helper hook for debouncing
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debouncedValue;
+}
+
+interface FilterSidebarProps {
+  className?: string;
+  categories: Category[];
+  selectedCategory: string;
+  setSelectedCategory: (val: string) => void;
+  organicOnly: boolean;
+  setOrganicOnly: (val: boolean) => void;
+  activeFilterCount: number;
+  clearFilters: () => void;
+}
+
+const FilterSidebar = ({
+  className,
+  categories,
+  selectedCategory,
+  setSelectedCategory,
+  organicOnly,
+  setOrganicOnly,
+  activeFilterCount,
+  clearFilters
+}: FilterSidebarProps) => (
+  <div className={cn("flex flex-col gap-8", className)}>
+    {/* Categories */}
+    <div>
+      <h3 className="text-xs font-bold text-foreground-secondary mb-4 uppercase tracking-widest">Categories</h3>
+      <div className="space-y-1.5 flex flex-col">
+        <button
+          onClick={() => setSelectedCategory('')}
+          className={cn(
+            "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all font-semibold text-left",
+            !selectedCategory ? "bg-brand text-brand-foreground shadow-sm" : "text-foreground-secondary hover:bg-state-hover"
+          )}
+        >
+          <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0", !selectedCategory ? "bg-white/20" : "bg-surface-elevated")}>
+            <span className="text-base">🌾</span>
+          </div>
+          <span>All Products</span>
+        </button>
+        {categories.map((cat) => (
+          <button
+            key={cat.slug}
+            onClick={() => setSelectedCategory(cat.slug)}
+            className={cn(
+              "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all font-semibold text-left",
+              selectedCategory === cat.slug ? "bg-brand text-brand-foreground shadow-sm" : "text-foreground-secondary hover:bg-state-hover"
+            )}
+          >
+            <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0 overflow-hidden", selectedCategory === cat.slug ? "bg-white/20" : "bg-surface-elevated")}>
+              {cat.image ? (
+                <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
+              ) : (
+                <span className={cn("text-xs font-bold", selectedCategory === cat.slug ? "text-white" : "text-foreground-secondary")}>{cat.name.charAt(0)}</span>
+              )}
+            </div>
+            <span className="truncate">{cat.name}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+
+    {/* Quality */}
+    <div>
+      <h3 className="text-xs font-bold text-foreground-secondary mb-4 uppercase tracking-widest">Quality</h3>
+      <label className="flex items-center gap-3 cursor-pointer group px-3 py-2.5 hover:bg-state-hover rounded-xl transition-all">
+        <input
+          type="checkbox"
+          className="hidden"
+          checked={organicOnly}
+          onChange={(e) => setOrganicOnly(e.target.checked)}
+        />
+        <div className={cn(
+          "w-5 h-5 rounded-[6px] border flex items-center justify-center transition-all",
+          organicOnly ? "bg-brand border-brand text-brand-foreground" : "border-border-strong group-hover:border-brand"
+        )}>
+          {organicOnly && <Check className="h-3.5 w-3.5 stroke-[3]" />}
+        </div>
+        <span className="text-sm font-semibold text-foreground">Organic Only</span>
+      </label>
+    </div>
+
+    {/* Reset */}
+    {activeFilterCount > 0 && (
+      <Button variant="danger" size="md" onClick={clearFilters} className="w-full gap-2 rounded-xl mt-4">
+        <X className="h-4 w-4" /> Clear Filters
+      </Button>
+    )}
+  </div>
+);
+
 const Marketplace = () => {
   useSEO({
     title: 'Marketplace',
@@ -27,6 +126,7 @@ const Marketplace = () => {
   
   // Filters
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 500); // 500ms debounce
   const [selectedCategory, setSelectedCategory] = useState('');
   const [organicOnly, setOrganicOnly] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('-created_at');
@@ -49,33 +149,42 @@ const Marketplace = () => {
 
   useEffect(() => {
     let cancelled = false;
-    setIsLoading(true);
 
-    const params = {
-      ...(selectedCategory ? { 'category__slug': selectedCategory } : {}),
-      ...(organicOnly ? { is_organic: true } : {}),
-      ...(search.trim() ? { search: search.trim() } : {}),
-      ordering: sortBy,
-    };
+    const fetchProducts = async () => {
+      // We keep this to catch debounced search changes, but for category/organic clicks
+      // isLoading is already set to true synchronously to prevent UI flash.
+      setIsLoading(true);
+      
+      const params = {
+        ...(selectedCategory ? { 'category__slug': selectedCategory } : {}),
+        ...(organicOnly ? { is_organic: true } : {}),
+        ...(debouncedSearch.trim() ? { search: debouncedSearch.trim() } : {}),
+        ordering: sortBy,
+      };
 
-    productService.getProducts(params)
-      .then((res) => {
+      try {
+        const res = await productService.getProducts(params);
         if (!cancelled) {
           setProducts(res.results);
           setTotal(res.count);
         }
-      })
-      .catch((err) => {
+      } catch (err) {
         if (!cancelled) {
           if (!axios.isAxiosError(err) || err.response?.status !== 401) {
             toast.error('Failed to load products');
           }
         }
-      })
-      .finally(() => { if (!cancelled) setIsLoading(false); });
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchProducts();
 
     return () => { cancelled = true; };
-  }, [search, selectedCategory, organicOnly, sortBy]);
+  }, [debouncedSearch, selectedCategory, organicOnly, sortBy]);
 
   const handleAddToCart = async (product: Product) => {
     if (!user) {
@@ -86,6 +195,7 @@ const Marketplace = () => {
   };
 
   const clearFilters = () => {
+    setIsLoading(true);
     setSearch('');
     setSelectedCategory('');
     setOrganicOnly(false);
@@ -93,79 +203,12 @@ const Marketplace = () => {
 
   const activeFilterCount = (organicOnly ? 1 : 0) + (selectedCategory ? 1 : 0) + (search ? 1 : 0);
 
-  const FilterSidebar = ({ className }: { className?: string }) => (
-    <div className={cn("flex flex-col gap-8", className)}>
-      {/* Categories */}
-      <div>
-        <h3 className="text-xs font-bold text-foreground-secondary mb-4 uppercase tracking-widest">Categories</h3>
-        <div className="space-y-1.5 flex flex-col">
-          <button
-            onClick={() => setSelectedCategory('')}
-            className={cn(
-              "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all font-semibold text-left",
-              !selectedCategory ? "bg-brand text-brand-foreground shadow-sm" : "text-foreground-secondary hover:bg-state-hover"
-            )}
-          >
-            <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0", !selectedCategory ? "bg-white/20" : "bg-surface-elevated")}>
-              <span className="text-base">🌾</span>
-            </div>
-            <span>All Products</span>
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.slug}
-              onClick={() => setSelectedCategory(cat.slug)}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all font-semibold text-left",
-                selectedCategory === cat.slug ? "bg-brand text-brand-foreground shadow-sm" : "text-foreground-secondary hover:bg-state-hover"
-              )}
-            >
-              <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0 overflow-hidden", selectedCategory === cat.slug ? "bg-white/20" : "bg-surface-elevated")}>
-                {cat.image ? (
-                  <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
-                ) : (
-                  <span className={cn("text-xs font-bold", selectedCategory === cat.slug ? "text-white" : "text-foreground-secondary")}>{cat.name.charAt(0)}</span>
-                )}
-              </div>
-              <span className="truncate">{cat.name}</span>
-            </button>
-          ))}
-        </div>
-      </div>
 
-      {/* Quality */}
-      <div>
-        <h3 className="text-xs font-bold text-foreground-secondary mb-4 uppercase tracking-widest">Quality</h3>
-        <label className="flex items-center gap-3 cursor-pointer group px-3 py-2.5 hover:bg-state-hover rounded-xl transition-all">
-          <input
-            type="checkbox"
-            className="hidden"
-            checked={organicOnly}
-            onChange={(e) => setOrganicOnly(e.target.checked)}
-          />
-          <div className={cn(
-            "w-5 h-5 rounded-[6px] border flex items-center justify-center transition-all",
-            organicOnly ? "bg-brand border-brand text-brand-foreground" : "border-border-strong group-hover:border-brand"
-          )}>
-            {organicOnly && <Check className="h-3.5 w-3.5 stroke-[3]" />}
-          </div>
-          <span className="text-sm font-semibold text-foreground">Organic Only</span>
-        </label>
-      </div>
-
-      {/* Reset */}
-      {activeFilterCount > 0 && (
-        <Button variant="danger" size="md" onClick={clearFilters} className="w-full gap-2 rounded-xl mt-4">
-          <X className="h-4 w-4" /> Clear Filters
-        </Button>
-      )}
-    </div>
-  );
 
   return (
-    <div className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8 min-h-screen">
+    <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8 min-h-screen flex flex-col">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 shrink-0">
         <div>
           <h1 className="text-3xl md:text-4xl font-display font-bold text-foreground tracking-tight mb-2">Marketplace</h1>
           <p className="text-base text-foreground-secondary">
@@ -208,6 +251,7 @@ const Marketplace = () => {
                       <button
                         key={option.value}
                         onClick={() => {
+                          setIsLoading(true);
                           setSortBy(option.value);
                           setIsSortOpen(false);
                         }}
@@ -233,11 +277,25 @@ const Marketplace = () => {
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8 items-start">
+      <div className="flex flex-col lg:flex-row gap-8 items-start flex-1 min-h-[600px]">
         {/* Desktop Sidebar */}
         <aside className="hidden lg:block w-72 shrink-0 sticky top-28">
           <div className="rounded-2xl border border-border-subtle bg-surface p-6 shadow-sm">
-            <FilterSidebar />
+            <FilterSidebar
+              categories={categories}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={(val) => {
+                setIsLoading(true);
+                setSelectedCategory(val);
+              }}
+              organicOnly={organicOnly}
+              setOrganicOnly={(val) => {
+                setIsLoading(true);
+                setOrganicOnly(val);
+              }}
+              activeFilterCount={activeFilterCount}
+              clearFilters={clearFilters}
+            />
           </div>
         </aside>
 
@@ -253,7 +311,22 @@ const Marketplace = () => {
                     <X className="h-5 w-5" />
                   </button>
                 </div>
-                <FilterSidebar className="flex-1" />
+                <FilterSidebar
+                  className="flex-1"
+                  categories={categories}
+                  selectedCategory={selectedCategory}
+                  setSelectedCategory={(val) => {
+                    setIsLoading(true);
+                    setSelectedCategory(val);
+                  }}
+                  organicOnly={organicOnly}
+                  setOrganicOnly={(val) => {
+                    setIsLoading(true);
+                    setOrganicOnly(val);
+                  }}
+                  activeFilterCount={activeFilterCount}
+                  clearFilters={clearFilters}
+                />
                 <div className="mt-8 pt-6 border-t border-border-subtle">
                   <Button variant="primary" className="w-full py-3.5 rounded-xl text-sm" onClick={() => setShowMobileFilters(false)}>Show Products</Button>
                 </div>
@@ -263,13 +336,13 @@ const Marketplace = () => {
         </AnimatePresence>
 
         {/* Product Grid */}
-        <div className="flex-1 w-full">
+        <div className="flex-1 w-full min-h-[800px] flex flex-col">
           {isLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {Array.from({ length: 12 }).map((_, i) => <ProductCardSkeleton key={i} />)}
             </div>
           ) : products.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24 px-4 text-center rounded-3xl border border-dashed border-border-strong bg-surface">
+            <div className="flex-1 w-full flex flex-col items-center justify-center py-24 px-4 text-center rounded-3xl border border-dashed border-border-strong bg-surface">
               <div className="h-20 w-20 rounded-2xl bg-surface-elevated flex items-center justify-center mb-6">
                 <Search className="h-8 w-8 text-foreground-secondary" />
               </div>
@@ -278,15 +351,15 @@ const Marketplace = () => {
               <Button onClick={clearFilters} variant="outline" className="px-6 rounded-full">Clear All Filters</Button>
             </div>
           ) : (
-            <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               <AnimatePresence>
                 {products.map((product, i) => (
-                  <motion.div key={product.id} layout initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.4, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}>
+                  <motion.div key={product.id} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.4, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}>
                     <ProductCard product={product} onAddToCart={handleAddToCart} />
                   </motion.div>
                 ))}
               </AnimatePresence>
-            </motion.div>
+            </div>
           )}
         </div>
       </div>
