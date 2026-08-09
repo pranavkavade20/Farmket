@@ -26,7 +26,6 @@ export default function CropTimeline({ currentStage, history = [], className = '
         {STAGES.map((stage, index) => {
           const isCompleted = index < currentIndex;
           const isCurrent = index === currentIndex;
-          const isFuture = index > currentIndex;
           
           const historyEntry = history.find(h => h.current_stage === stage);
 

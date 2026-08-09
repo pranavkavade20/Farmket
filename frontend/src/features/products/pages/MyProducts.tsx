@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ProductTable } from '../components/ProductTable';
 import { useSEO } from '@/hooks';
 import { useAuth } from '@/features/auth';
 import { productService } from '@/features/products';
-import { Button, Input } from '@/components/ui';
+import { Button} from '@/components/ui';
 import {
   PlusCircle, Package, Edit2, Trash2, Eye, Search,
   Leaf, TrendingUp, ToggleLeft, ToggleRight,
@@ -16,7 +16,6 @@ import { toast } from "sonner";
 import { useAppDispatch } from '@/app/hooks';
 import { openStageUpdateModal } from '@/features/crops/cropsSlice';
 import { StageUpdateModal } from '@/features/crops/components/StageUpdateModal';
-import api from '@/lib/api';
 
 const MyProducts = () => {
   useSEO({ title: 'My Products', description: 'Manage your farm product listings.' });

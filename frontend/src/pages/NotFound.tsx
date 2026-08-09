@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { useSEO } from '@/hooks';
 import { Button } from '@/components/ui';

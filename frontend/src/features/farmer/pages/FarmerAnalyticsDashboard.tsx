@@ -1,5 +1,3 @@
-import React from 'react';
-import { cropService, type CropTracking } from '../../products/services/cropService';
 import HarvestCountdownCard from '../../products/components/HarvestCountdownCard';
 
 export default function FarmerAnalyticsDashboard() {

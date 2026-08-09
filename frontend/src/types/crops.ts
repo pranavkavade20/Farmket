@@ -1,9 +1,4 @@
-export enum CropStage {
-  PLANTED = "PLANTED",
-  GROWING = "GROWING",
-  NEAR_HARVEST = "NEAR_HARVEST",
-  HARVESTED = "HARVESTED",
-}
+export type CropStage = "PLANTED" | "GROWING" | "NEAR_HARVEST" | "HARVESTED";
 
 export interface CropStageHistory {
   id: number;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -129,7 +129,24 @@ export default function CropTrackingForm() {
             </div>
           </div>
           
-          <CropTimeline tracking={tracking} />
+          {(() => {
+            const stageMap: Record<string, string> = {
+              sown: 'PLANTED',
+              growing: 'GROWING',
+              ready_for_harvest: 'NEAR_HARVEST',
+              harvested: 'HARVESTED'
+            };
+            const mappedHistory = tracking.status_history.map(h => ({
+              id: h.id,
+              current_stage: stageMap[h.status] || h.status,
+              timestamp: h.changed_at,
+              remarks: h.notes,
+              updated_by_name: '',
+              previous_stage: null,
+              updated_by: null,
+            }));
+            return <CropTimeline currentStage={stageMap[tracking.current_stage] || tracking.current_stage} history={mappedHistory as any} />
+          })()}
           
           <div className="pt-8 border-t border-border-strong">
             <h4 className="text-base font-bold text-foreground mb-4">Update Stage</h4>

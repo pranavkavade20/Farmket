@@ -113,12 +113,14 @@ export interface ProductFilters {
   search?: string;
   ordering?: 'price' | '-price' | 'created_at' | '-created_at' | 'views' | '-views';
   page?: number;
+  farmer?: number;
 }
 
 // ─── Orders ───────────────────────────────────────────────────────────────────
 
 export type OrderStatus =
   | 'pending'
+  | 'confirmed'
   | 'processing'
   | 'shipped'
   | 'delivered'

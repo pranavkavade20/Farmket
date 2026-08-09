@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSEO } from '@/hooks';
 import { chatService, type Conversation, type ChatMessage, type ChatUser } from '@/features/chat';
 import { useAuth } from '@/features/auth';
-import { MessageSquare, MoreVertical, Phone, Video, Info, ArrowLeft, Loader2 } from 'lucide-react';
+import { MessageSquare,  Phone, Video, Info, ArrowLeft, Loader2 } from 'lucide-react';
 
 import { cn } from '@/lib/utils/cn';
 import { toast } from "sonner";
@@ -292,7 +292,7 @@ const Chat = () => {
       <div className="w-full flex-1 flex overflow-hidden">
         
         {/* Sidebar */}
-        <div className={cn("w-full md:w-[380px] flex-shrink-0 border-r border-gray-100/50 dark:border-gray-800/50 md:block bg-transparent", selected ? "hidden" : "block")}>
+        <div className={cn("w-full md:w-[380px] flex-shrink-0 border-r border-border-subtle md:block bg-transparent transition-colors duration-300", selected ? "hidden" : "block")}>
           <ChatSidebar
             loading={loadingConv}
             conversations={filteredConversations}
@@ -311,9 +311,9 @@ const Chat = () => {
           {selected ? (
             <>
               {/* Top Bar */}
-              <div className="h-20 flex-shrink-0 bg-white/40 dark:bg-black/20 backdrop-blur-md border-b border-gray-100/50 dark:border-gray-800/50 px-6 flex items-center justify-between z-10">
+              <div className="h-20 flex-shrink-0 bg-surface/40 backdrop-blur-md border-b border-border-subtle px-6 flex items-center justify-between z-10 transition-colors duration-300">
                 <div className="flex items-center gap-4">
-                  <button onClick={() => setSelected(null)} className="md:hidden p-3 -ml-2 text-gray-500 bg-gray-100 rounded-full dark:bg-gray-800">
+                  <button onClick={() => setSelected(null)} className="md:hidden p-3 -ml-2 text-foreground-secondary bg-surface-elevated rounded-full transition-colors duration-300">
                     <ArrowLeft className="h-5 w-5" />
                   </button>
                   {(() => {
@@ -326,9 +326,9 @@ const Chat = () => {
                       <>
                         <ChatAvatar name={name} src={icon} size={48} online={isOnline} />
                         <div className="min-w-0">
-                          <h3 className="font-black text-gray-900 dark:text-white truncate text-base">{name}</h3>
-                          <p className="text-[11px] uppercase tracking-widest text-gray-500 font-bold mt-0.5">
-                            {typingUser ? <span className="text-green-500">{typingUser.name} is typing...</span> : (isOnline ? <span className="text-green-500">Online</span> : 'Offline')}
+                          <h3 className="font-black text-foreground truncate text-base transition-colors duration-300">{name}</h3>
+                          <p className="text-[11px] uppercase tracking-widest text-foreground-secondary font-bold mt-0.5 transition-colors duration-300">
+                            {typingUser ? <span className="text-success">{typingUser.name} is typing...</span> : (isOnline ? <span className="text-success">Online</span> : 'Offline')}
                           </p>
                         </div>
                       </>
@@ -336,9 +336,9 @@ const Chat = () => {
                   })()}
                 </div>
                 <div className="flex items-center gap-2">
-                  <button className="h-12 w-12 flex items-center justify-center text-gray-500 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-full transition-colors"><Video className="h-5 w-5" /></button>
-                  <button className="h-12 w-12 flex items-center justify-center text-gray-500 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-full transition-colors"><Phone className="h-5 w-5" /></button>
-                  <button className="h-12 w-12 flex items-center justify-center text-gray-500 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-full transition-colors"><Info className="h-5 w-5" /></button>
+                  <button className="h-12 w-12 flex items-center justify-center text-foreground-secondary bg-surface hover:bg-surface-elevated rounded-full transition-colors"><Video className="h-5 w-5" /></button>
+                  <button className="h-12 w-12 flex items-center justify-center text-foreground-secondary bg-surface hover:bg-surface-elevated rounded-full transition-colors"><Phone className="h-5 w-5" /></button>
+                  <button className="h-12 w-12 flex items-center justify-center text-foreground-secondary bg-surface hover:bg-surface-elevated rounded-full transition-colors"><Info className="h-5 w-5" /></button>
                 </div>
               </div>
 
@@ -354,7 +354,7 @@ const Chat = () => {
                 ) : groupedMessages.map(group => (
                   <div key={group.date} className="space-y-6">
                     <div className="flex justify-center my-6">
-                      <span className="px-4 py-1.5 bg-black/5 dark:bg-white/5 rounded-full text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                      <span className="px-4 py-1.5 bg-surface-elevated/50 rounded-full text-[10px] font-black text-foreground-secondary uppercase tracking-widest transition-colors duration-300">
                         {group.date === new Date().toDateString() ? 'Today' : group.date}
                       </span>
                     </div>
@@ -388,7 +388,7 @@ const Chat = () => {
               </div>
 
               {/* Input Area */}
-              <div className="flex-shrink-0 bg-white dark:bg-[#111] p-4 border-t border-gray-100 dark:border-gray-800">
+              <div className="flex-shrink-0 bg-surface p-4 border-t border-border-subtle transition-colors duration-300">
                 <ChatInput
                   sending={sending}
                   onSend={handleSendMessage}
@@ -400,16 +400,16 @@ const Chat = () => {
             </>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-transparent">
-              <div className="w-32 h-32 bg-gray-50/50 dark:bg-gray-900/50 rounded-full flex items-center justify-center mb-8 shadow-inner">
-                <MessageSquare className="h-12 w-12 text-gray-400" />
+              <div className="w-32 h-32 bg-surface-elevated/50 rounded-full flex items-center justify-center mb-8 shadow-inner transition-colors duration-300">
+                <MessageSquare className="h-12 w-12 text-foreground-secondary transition-colors duration-300" />
               </div>
-              <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-3 tracking-tight">Your Messages</h2>
-              <p className="text-sm font-bold text-gray-400 max-w-sm mx-auto leading-relaxed">
+              <h2 className="text-3xl font-display font-black text-foreground mb-3 tracking-tight transition-colors duration-300">Your Messages</h2>
+              <p className="text-sm font-bold text-foreground-secondary max-w-sm mx-auto leading-relaxed transition-colors duration-300">
                 Connect directly with farmers and buyers. Select a conversation to start messaging.
               </p>
               <button 
                 onClick={() => setIsNewChatOpen(true)}
-                className="mt-10 px-8 h-14 bg-gray-900 dark:bg-white dark:text-gray-900 text-white rounded-full font-black text-sm uppercase tracking-widest hover:scale-105 transition-transform shadow-xl"
+                className="mt-10 px-8 h-14 bg-foreground text-background rounded-full font-black text-sm uppercase tracking-widest hover:scale-105 transition-transform shadow-xl"
               >
                 Start New Chat
               </button>

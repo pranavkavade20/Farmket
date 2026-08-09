@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Image as ImageIcon, Video, FileText, MapPin, Tag, Package, X, Check } from 'lucide-react';
+import { motion} from 'framer-motion';
+import { Image as ImageIcon, Video,  MapPin, Tag, Package, X, Check } from 'lucide-react';
 import { useCreatePostMutation, useUpdatePostMutation } from '../api/socialApi';
 import { productService } from '@/features/products/services/productService';
 import { useAppSelector } from '@/app/hooks';

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Smile, Paperclip, Mic, X, Send, Image, FileText } from 'lucide-react';
+import { Smile, Paperclip,  X, Send} from 'lucide-react';
 
 const EMOJIS = ['👍','❤️','😂','😮','😢','🙏','🔥','👏','😍','🌾','🥦','🍅'];
 

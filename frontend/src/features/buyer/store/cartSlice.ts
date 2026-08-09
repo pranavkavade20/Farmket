@@ -1,5 +1,4 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Cart, CartItemDetail } from '@/features/orders';
 import { orderService } from '@/features/orders';
 import type { Product } from '@/types';

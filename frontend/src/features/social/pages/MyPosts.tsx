@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useGetMyPostsQuery } from '../api/socialApi';
 import { PostComposer } from '../components/PostComposer';
 import { motion, AnimatePresence } from 'framer-motion';

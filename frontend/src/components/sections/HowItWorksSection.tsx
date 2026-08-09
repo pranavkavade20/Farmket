@@ -1,6 +1,5 @@
-import React from 'react';
 import { motion } from 'framer-motion';
-import { UserPlus, PlusCircle, Sprout, Truck, Store, Search, CreditCard, ShoppingBag, MapPin } from 'lucide-react';
+import { UserPlus, PlusCircle, Sprout, Truck,  Search, CreditCard, ShoppingBag, MapPin } from 'lucide-react';
 
 const farmerSteps = [
   { id: 1, icon: UserPlus, title: "Register Profile", desc: "Create a verified farmer account." },

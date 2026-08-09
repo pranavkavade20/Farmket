@@ -1,6 +1,4 @@
 import { motion, type Variants } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui';
 
 import promoImg from '@/assets/images/promo/promo1.png';
 import promoImg2 from '@/assets/images/promo/promo2.png';

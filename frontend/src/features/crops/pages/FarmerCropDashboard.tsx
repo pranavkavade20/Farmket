@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useGetCropsQuery } from '../cropsApi';
 import { CropCard } from '../components/CropCard';
 import { CropTable } from '../components/CropTable';

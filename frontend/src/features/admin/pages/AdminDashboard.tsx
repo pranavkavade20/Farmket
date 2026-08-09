@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Users, ShoppingBag, Package, DollarSign, Download, ArrowRight } from 'lucide-react';
+import { Users, ShoppingBag, Package, DollarSign, Download} from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import KPICard from '../components/KPICard';
 import { adminAnalyticsService, type AdminExecutiveData } from '../services/adminAnalyticsService';

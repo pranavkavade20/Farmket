@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import logo from '@/assets/images/logo.png';
 import { ArrowRight, Leaf } from 'lucide-react';
@@ -123,11 +122,11 @@ const Footer = () => {
                 <input
                   type="email"
                   placeholder="Email address..."
-                  className="w-full rounded-xl border border-border-strong bg-surface/80 backdrop-blur-sm py-3 px-4 pr-14 text-sm font-medium text-foreground shadow-sm outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all"
+                  className="w-full rounded-xl border border-border-strong bg-surface/80 backdrop-blur-sm py-3 px-4 pr-14 text-sm font-medium text-foreground shadow-sm focus-ring transition-all"
                 />
                 <button
                   type="submit"
-                  className="absolute right-1.5 h-9 w-9 rounded-lg bg-brand flex items-center justify-center text-white hover:bg-brand-hover hover:scale-105 active:scale-95 transition-all shadow-md shadow-brand/20"
+                  className="absolute right-1.5 h-9 w-9 rounded-lg bg-brand flex items-center justify-center text-white hover:bg-brand-hover hover:scale-105 active:scale-[0.98] transition-all shadow-md"
                 >
                   <ArrowRight className="h-4 w-4" />
                 </button>

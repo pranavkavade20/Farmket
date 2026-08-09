@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback, useMemo } from 'react';
-import type { Cart, CartItemDetail } from '@/features/orders';
+import type { Cart} from '@/features/orders';
 import type { Product } from '@/types';
 import { useAuth } from '@/features/auth';
 import { useAppSelector, useAppDispatch } from '@/app/hooks';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Leaf, Sprout, Wheat, Package } from 'lucide-react';
-import { CropStage } from '@/types/crops';
+import type { CropStage } from '@/types/crops';
 
 interface Props {
   stage: CropStage | string;

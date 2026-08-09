@@ -17,7 +17,7 @@ const trackingSchema = z.object({
   sowing_date: z.string().min(1, 'Sowing date is required'),
   expected_harvest_date: z.string().min(1, 'Expected harvest date is required'),
   expected_quantity: z.string().min(1, 'Expected quantity is required'),
-  organic: z.boolean().default(false),
+  organic: z.boolean(),
   notes: z.string().optional(),
 });
 
@@ -57,7 +57,7 @@ export const AddTrackingModal: React.FC = () => {
     reset();
   };
 
-  const onSubmit = async (data: TrackingFormData) => {
+  const onSubmit: import("react-hook-form").SubmitHandler<TrackingFormData> = async (data) => {
     if (new Date(data.expected_harvest_date) <= new Date(data.sowing_date)) {
       toast.error('Harvest date must be after sowing date');
       return;
@@ -68,7 +68,7 @@ export const AddTrackingModal: React.FC = () => {
         product: parseInt(data.product, 10),
         sowing_date: data.sowing_date,
         expected_harvest_date: data.expected_harvest_date,
-        expected_quantity: parseFloat(data.expected_quantity),
+        expected_quantity: data.expected_quantity,
         organic: data.organic,
         notes: data.notes || '',
       }).unwrap();

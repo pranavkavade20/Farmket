@@ -29,13 +29,13 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             ref={ref}
             id={selectId}
             className={cn(
-              'block w-full appearance-none rounded-xl border bg-surface px-4 py-3 pr-10 text-sm font-medium text-foreground shadow-sm',
-              'transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:opacity-50 disabled:cursor-not-allowed',
+              'block w-full appearance-none rounded-md border bg-surface px-4 py-2.5 pr-10 text-sm text-foreground shadow-sm',
+              'transition-all duration-200 ease-out focus-ring disabled:opacity-50 disabled:cursor-not-allowed',
               hasError
-                ? 'border-danger focus:border-danger focus:ring-danger/20'
+                ? 'border-danger focus-visible:ring-danger/50'
                 : isSuccess
-                ? 'border-success focus:border-success focus:ring-success/20'
-                : 'border-border-strong hover:border-brand/50 focus:border-brand focus:ring-brand/20',
+                ? 'border-success focus-visible:ring-success/50'
+                : 'border-border-strong hover:border-brand/50',
               className
             )}
             {...props}
@@ -53,7 +53,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           </div>
         </div>
         {hasError && (
-          <p className="text-xs font-medium text-danger animate-in slide-in-from-top-1" role="alert">
+          <p className="text-sm font-medium text-danger animate-in slide-in-from-top-1" role="alert">
             {error}
           </p>
         )}

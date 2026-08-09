@@ -1,4 +1,3 @@
-import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '@/features/auth';
 import { cn } from '@/lib/utils/cn';
@@ -55,17 +54,17 @@ const Sidebar = () => {
               end={link.exact}
               className={({ isActive }) =>
                 cn(
-                  'group flex items-center gap-3.5 rounded-2xl px-4 py-3.5 text-[15px] font-medium transition-all duration-300 ease-out relative overflow-hidden',
+                  'group flex items-center gap-3.5 rounded-2xl px-4 py-3.5 text-[15px] font-medium transition-all duration-300 ease-out relative overflow-hidden focus-ring',
                   isActive
                     ? 'text-brand bg-brand/10 dark:bg-brand/20 shadow-sm'
-                    : 'text-foreground-secondary hover:text-foreground hover:bg-gray-100/50 dark:hover:bg-white/5'
+                    : 'text-foreground-secondary hover:text-foreground hover:bg-state-hover'
                 )
               }
             >
               {({ isActive }) => (
                 <>
                   {isActive && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-brand rounded-r-full shadow-[0_0_10px_rgba(var(--brand),0.5)]" />
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-brand rounded-r-full shadow-glow" />
                   )}
                   <div className={cn(
                     "transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3",

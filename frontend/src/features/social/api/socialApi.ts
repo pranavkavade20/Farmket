@@ -56,7 +56,7 @@ export const socialApi = apiSlice.injectEndpoints({
     }),
     getComments: builder.query<any, number>({
       query: (postId) => `posts/comments/?post_id=${postId}`,
-      providesTags: (result, error, postId) => [{ type: 'Comment', id: postId }] as any,
+      providesTags: (_result, _error, postId) => [{ type: 'Comment', id: postId }] as any,
     }),
     addComment: builder.mutation<any, { post: number; content: string; parent?: number }>({
       query: (data) => ({
@@ -64,7 +64,7 @@ export const socialApi = apiSlice.injectEndpoints({
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: (result, error, { post }) => [{ type: 'Comment', id: post }] as any,
+      invalidatesTags: (_result, _error, { post }) => [{ type: 'Comment', id: post }] as any,
     }),
   }),
 });

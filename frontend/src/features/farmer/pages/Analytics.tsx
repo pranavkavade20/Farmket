@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSEO } from '@/hooks';
 import { useAuth } from '@/features/auth';
 import { analyticsService, type FarmerAnalyticsData } from '@/features/farmer';

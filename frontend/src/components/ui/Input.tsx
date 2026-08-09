@@ -34,27 +34,27 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              'block w-full rounded-md border bg-surface px-4 py-3 text-sm font-medium text-foreground placeholder:text-muted shadow-sm',
-              'transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed',
+              'block w-full rounded-md border bg-surface px-4 py-2.5 text-sm text-foreground placeholder:text-muted shadow-sm',
+              'transition-all duration-200 ease-out focus-ring disabled:opacity-50 disabled:cursor-not-allowed',
               hasError
-                ? 'border-danger focus:border-danger focus:ring-danger'
+                ? 'border-danger focus-visible:ring-danger/50'
                 : isSuccess
-                ? 'border-success focus:border-success focus:ring-success'
-                : 'border-border-strong hover:border-brand/50 focus:border-brand focus:ring-brand',
-              icon ? 'pl-11' : '',
-              (hasError || isSuccess) ? 'pr-11' : '',
+                ? 'border-success focus-visible:ring-success/50'
+                : 'border-border-strong hover:border-brand/50',
+              icon ? 'pl-10' : '',
+              (hasError || isSuccess) ? 'pr-10' : '',
               className
             )}
             {...props}
           />
           {hasError && !isSuccess && (
             <div className="absolute right-3.5 flex items-center justify-center pointer-events-none text-danger">
-              <AlertCircle className="w-5 h-5" />
+              <AlertCircle className="w-4 h-4" />
             </div>
           )}
           {isSuccess && !hasError && (
             <div className="absolute right-3.5 flex items-center justify-center pointer-events-none text-success">
-              <CheckCircle2 className="w-5 h-5" />
+              <CheckCircle2 className="w-4 h-4" />
             </div>
           )}
         </div>

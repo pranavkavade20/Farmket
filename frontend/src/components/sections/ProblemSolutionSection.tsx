@@ -1,6 +1,5 @@
-import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, AlertTriangle, CheckCircle2, TrendingDown, TrendingUp, RefreshCw } from 'lucide-react';
+import {  AlertTriangle, CheckCircle2, TrendingDown, TrendingUp, RefreshCw } from 'lucide-react';
 
 export const ProblemSolutionSection = () => {
   return (

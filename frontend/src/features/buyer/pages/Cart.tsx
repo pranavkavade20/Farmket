@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '@/features/buyer';
 import { useAuth } from '@/features/auth';
 import { Button } from '@/components/ui';
 import { useSEO } from '@/hooks';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, ChevronRight, ShieldCheck, Truck, Tag, Lock, Award } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, ChevronRight, ShieldCheck, Truck,  Lock, Award } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { orderService, type PlaceOrderPayload } from '@/features/orders';
 import { toast } from "sonner";
@@ -68,13 +68,13 @@ const Cart = () => {
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-24 text-center">
-        <ShoppingBag className="mx-auto h-16 w-16 text-gray-300 dark:text-gray-700 mb-4" />
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Your cart is empty</h1>
-        <p className="text-gray-500 dark:text-gray-400 mb-6">
+        <ShoppingBag className="mx-auto h-16 w-16 text-foreground-secondary mb-4 transition-colors duration-300" />
+        <h1 className="text-2xl font-bold text-foreground mb-2 transition-colors duration-300">Your cart is empty</h1>
+        <p className="text-foreground-secondary mb-6 transition-colors duration-300">
           Explore the marketplace and add fresh produce to your cart.
         </p>
         <Link to="/marketplace">
-          <Button className="gap-2">
+          <Button className="gap-2 rounded-full">
             <ShoppingBag className="h-4 w-4" /> Browse Marketplace
           </Button>
         </Link>
@@ -91,21 +91,21 @@ const Cart = () => {
           <span
             className={`h-10 w-10 rounded-full flex items-center justify-center text-sm font-black transition-all duration-300 ${
               step === 'cart'
-                ? 'bg-gray-900 text-white shadow-lg shadow-gray-200 dark:bg-white dark:text-gray-900 dark:shadow-gray-900/40 scale-110'
-                : 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+                ? 'bg-foreground text-background shadow-lg scale-110'
+                : 'bg-surface-elevated text-foreground-secondary'
             }`}
           >
             1
           </span>
           <span className={`font-black uppercase tracking-widest text-xs transition-colors ${
-            step === 'cart' ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'
+            step === 'cart' ? 'text-foreground' : 'text-foreground-secondary'
           }`}>Cart</span>
         </button>
         {/* Connector */}
         <div className="relative mx-6 flex-1 max-w-[80px]">
-          <div className="h-1 w-full bg-gray-100 dark:bg-gray-800 rounded-full" />
+          <div className="h-1 w-full bg-surface-elevated rounded-full transition-colors duration-300" />
           <motion.div
-            className="absolute inset-y-0 left-0 h-1 bg-gray-900 dark:bg-white rounded-full"
+            className="absolute inset-y-0 left-0 h-1 bg-foreground rounded-full"
             initial={{ width: '0%' }}
             animate={{ width: step === 'checkout' ? '100%' : '0%' }}
             transition={{ duration: 0.4, ease: 'easeInOut' }}
@@ -116,14 +116,14 @@ const Cart = () => {
           <span
             className={`h-10 w-10 rounded-full flex items-center justify-center text-sm font-black transition-all duration-300 ${
               step === 'checkout'
-                ? 'bg-gray-900 text-white shadow-lg shadow-gray-200 dark:bg-white dark:text-gray-900 dark:shadow-gray-900/40 scale-110'
-                : 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500'
+                ? 'bg-foreground text-background shadow-lg scale-110'
+                : 'bg-surface-elevated text-foreground-secondary'
             }`}
           >
             2
           </span>
           <span className={`font-black uppercase tracking-widest text-xs transition-colors ${
-            step === 'checkout' ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'
+            step === 'checkout' ? 'text-foreground' : 'text-foreground-secondary'
           }`}>Checkout</span>
         </div>
       </div>
@@ -134,7 +134,7 @@ const Cart = () => {
           <AnimatePresence mode="wait">
             {step === 'cart' ? (
               <motion.div key="cart-step" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-8 tracking-tight">
+                <h1 className="text-3xl font-display font-black text-foreground mb-8 tracking-tight transition-colors duration-300">
                   Your Cart ({items.length} {items.length === 1 ? 'item' : 'items'})
                 </h1>
                 <div className="space-y-4">
@@ -145,9 +145,9 @@ const Cart = () => {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, x: -20 }}
-                      className="flex gap-6 rounded-[2rem] bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 p-6 shadow-sm hover:shadow-lg transition-all"
+                      className="flex gap-6 rounded-[2rem] bg-surface border border-border-subtle p-6 shadow-sm hover:shadow-md transition-all"
                     >
-                      <div className="h-28 w-28 flex-shrink-0 flex items-center justify-center rounded-[1.5rem] bg-[#F8F9FA] dark:bg-gray-900 p-3">
+                      <div className="h-28 w-28 flex-shrink-0 flex items-center justify-center rounded-[1.5rem] bg-surface-elevated p-3 transition-colors duration-300">
                         <img
                           src={
                             item.product_details.images.find((i) => i.is_primary)?.image ||
@@ -161,38 +161,38 @@ const Cart = () => {
                       <div className="flex flex-1 flex-col justify-between py-1">
                         <div className="flex justify-between items-start">
                           <div>
-                            <p className="font-black text-xl text-gray-900 dark:text-white mb-1">
+                            <p className="font-black text-xl text-foreground mb-1 transition-colors duration-300">
                               {item.product_details.name}
                             </p>
-                            <p className="text-sm font-bold text-gray-400">
+                            <p className="text-sm font-bold text-foreground-secondary transition-colors duration-300">
                               by {item.product_details.farmer_name}
                             </p>
                           </div>
                           <button
                             onClick={() => removeItem(item.id)}
-                            className="h-10 w-10 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                            className="h-10 w-10 rounded-full bg-surface-elevated flex items-center justify-center text-foreground-secondary hover:text-danger hover:bg-danger-subtle transition-colors"
                             aria-label="Remove item"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
                         </div>
                         <div className="flex items-center justify-between mt-4">
-                          <div className="flex items-center gap-3 rounded-full bg-gray-100 dark:bg-gray-800 p-1">
+                          <div className="flex items-center gap-3 rounded-full bg-surface-elevated p-1 transition-colors duration-300">
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                              className="h-8 w-8 rounded-full flex items-center justify-center bg-white dark:bg-gray-700 shadow-sm hover:scale-105 transition-transform"
+                              className="h-8 w-8 rounded-full flex items-center justify-center bg-surface shadow-sm hover:scale-105 transition-transform"
                             >
-                              <Minus className="h-4 w-4 text-gray-900 dark:text-white" />
+                              <Minus className="h-4 w-4 text-foreground" />
                             </button>
-                            <span className="w-6 text-center text-base font-black text-gray-900 dark:text-white">{item.quantity}</span>
+                            <span className="w-6 text-center text-base font-black text-foreground transition-colors duration-300">{item.quantity}</span>
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="h-8 w-8 rounded-full flex items-center justify-center bg-white dark:bg-gray-700 shadow-sm hover:scale-105 transition-transform"
+                              className="h-8 w-8 rounded-full flex items-center justify-center bg-surface shadow-sm hover:scale-105 transition-transform"
                             >
-                              <Plus className="h-4 w-4 text-gray-900 dark:text-white" />
+                              <Plus className="h-4 w-4 text-foreground" />
                             </button>
                           </div>
-                          <p className="text-2xl font-black text-gray-900 dark:text-white">
+                          <p className="text-2xl font-black text-foreground transition-colors duration-300">
                             {fmt(item.subtotal)}
                           </p>
                         </div>
@@ -201,18 +201,18 @@ const Cart = () => {
                   ))}
                 </div>
                 <div className="mt-8">
-                  <Link to="/marketplace" className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
+                  <Link to="/marketplace" className="inline-flex items-center gap-2 text-sm font-bold text-foreground-secondary hover:text-foreground transition-colors">
                     <ArrowLeft className="h-4 w-4" /> Continue Shopping
                   </Link>
                 </div>
               </motion.div>
             ) : (
               <motion.div key="checkout-step" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-8 tracking-tight">Checkout</h2>
-                <div className="rounded-[2.5rem] bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 p-8 space-y-8 shadow-sm">
+                <h2 className="text-3xl font-display font-black text-foreground mb-8 tracking-tight transition-colors duration-300">Checkout</h2>
+                <div className="rounded-[2.5rem] bg-surface border border-border-subtle p-8 space-y-8 shadow-sm transition-colors duration-300">
                   {/* Delivery Address */}
                   <div>
-                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">
+                    <label className="block text-xs font-black text-foreground-secondary uppercase tracking-widest mb-3 transition-colors duration-300">
                       Delivery Address *
                     </label>
                     <textarea
@@ -220,13 +220,13 @@ const Cart = () => {
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
                       placeholder="Enter your full delivery address"
-                      className="w-full rounded-[1.5rem] border-none bg-[#F8F9FA] dark:bg-gray-900 px-6 py-5 text-sm font-bold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 transition-all resize-none"
+                      className="w-full rounded-[1.5rem] border-none bg-surface-elevated px-6 py-5 text-sm font-bold text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-4 focus:ring-brand/20 transition-all resize-none"
                     />
                   </div>
 
                   {/* Payment Method */}
                   <div>
-                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">
+                    <label className="block text-xs font-black text-foreground-secondary uppercase tracking-widest mb-3 transition-colors duration-300">
                       Payment Method
                     </label>
                     <div className="grid grid-cols-3 gap-4">
@@ -237,8 +237,8 @@ const Cart = () => {
                           onClick={() => setPaymentMethod(method)}
                           className={`rounded-[1.5rem] border-2 py-4 px-4 text-sm font-black uppercase tracking-widest transition-all ${
                             paymentMethod === method
-                              ? 'border-gray-900 bg-gray-900 text-white dark:border-white dark:bg-white dark:text-gray-900 shadow-md scale-[1.02]'
-                              : 'border-transparent bg-[#F8F9FA] text-gray-500 dark:bg-gray-900 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                              ? 'border-brand bg-brand text-brand-foreground shadow-md scale-[1.02]'
+                              : 'border-transparent bg-surface-elevated text-foreground-secondary hover:bg-state-hover'
                           }`}
                         >
                           {method === 'cod' ? 'Cash' : method}
@@ -249,7 +249,7 @@ const Cart = () => {
 
                   {/* Notes */}
                   <div>
-                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">
+                    <label className="block text-xs font-black text-foreground-secondary uppercase tracking-widest mb-3 transition-colors duration-300">
                       Order Notes (optional)
                     </label>
                     <textarea
@@ -257,13 +257,13 @@ const Cart = () => {
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
                       placeholder="Any special instructions for the farmer…"
-                      className="w-full rounded-[1.5rem] border-none bg-[#F8F9FA] dark:bg-gray-900 px-6 py-5 text-sm font-bold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 transition-all resize-none"
+                      className="w-full rounded-[1.5rem] border-none bg-surface-elevated px-6 py-5 text-sm font-bold text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-4 focus:ring-brand/20 transition-all resize-none"
                     />
                   </div>
                 </div>
                 <button
                   onClick={() => setStep('cart')}
-                  className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors"
+                  className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-foreground-secondary hover:text-foreground transition-colors"
                 >
                   <ArrowLeft className="h-4 w-4" /> Back to cart
                 </button>
@@ -274,21 +274,21 @@ const Cart = () => {
 
         {/* Right — Order Summary */}
         <div className="lg:sticky lg:top-32">
-          <div className="rounded-[2.5rem] bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 p-8 shadow-xl relative overflow-hidden">
+          <div className="rounded-[2.5rem] bg-surface border border-border-subtle p-8 shadow-xl relative overflow-hidden transition-colors duration-300">
             {/* Soft decorative glow */}
-            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 rounded-full bg-green-500/5 dark:bg-white/5 blur-3xl pointer-events-none" />
+            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 rounded-full bg-brand/10 blur-3xl pointer-events-none" />
             
-            <h2 className="text-xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">Order Summary</h2>
-            <div className="space-y-4 text-sm font-bold text-gray-500 dark:text-gray-400">
+            <h2 className="text-xl font-display font-black text-foreground mb-6 tracking-tight transition-colors duration-300">Order Summary</h2>
+            <div className="space-y-4 text-sm font-bold text-foreground-secondary transition-colors duration-300">
               {items.map((item) => (
                 <div key={item.id} className="flex justify-between items-center">
-                  <span className="truncate pr-4 flex-1 text-gray-700 dark:text-gray-300">{item.product_details.name} <span className="text-gray-400 dark:text-gray-500 ml-1">×{item.quantity}</span></span>
-                  <span className="text-gray-900 dark:text-white">{fmt(item.subtotal)}</span>
+                  <span className="truncate pr-4 flex-1 text-foreground transition-colors duration-300">{item.product_details.name} <span className="text-foreground-secondary ml-1">×{item.quantity}</span></span>
+                  <span className="text-foreground transition-colors duration-300">{fmt(item.subtotal)}</span>
                 </div>
               ))}
-              <div className="border-t border-gray-100 dark:border-gray-800 pt-6 mt-6 flex justify-between items-end">
-                <span className="text-sm font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">Total</span>
-                <span className="text-4xl font-black text-gray-900 dark:text-white leading-none">{fmt(total)}</span>
+              <div className="border-t border-border-subtle pt-6 mt-6 flex justify-between items-end">
+                <span className="text-sm font-black uppercase tracking-widest text-foreground-secondary mb-1 transition-colors duration-300">Total</span>
+                <span className="text-4xl font-display font-black text-foreground leading-none transition-colors duration-300">{fmt(total)}</span>
               </div>
             </div>
             
@@ -299,7 +299,7 @@ const Cart = () => {
                     <button
                       onClick={() => setStep('checkout')}
                       id="proceed-to-checkout-btn"
-                      className="w-full h-16 rounded-full bg-gray-900 text-white hover:bg-black dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 font-black text-base transition-all hover:scale-[1.02] active:scale-95 shadow-xl flex items-center justify-center gap-2"
+                      className="w-full h-16 rounded-full bg-foreground text-background hover:bg-foreground/90 font-black text-base transition-all hover:scale-[1.02] active:scale-95 shadow-xl flex items-center justify-center gap-2"
                     >
                       Proceed to Checkout <ChevronRight className="h-5 w-5" />
                     </button>
@@ -310,7 +310,7 @@ const Cart = () => {
                       id="place-order-btn"
                       onClick={handlePlaceOrder}
                       disabled={placing}
-                      className="w-full h-16 rounded-full bg-green-500 text-white hover:bg-green-400 font-black text-base transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-green-500/20 flex items-center justify-center gap-3 disabled:opacity-60 disabled:pointer-events-none disabled:scale-100"
+                      className="w-full h-16 rounded-full bg-brand text-brand-foreground hover:bg-brand-hover font-black text-base transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-brand/20 flex items-center justify-center gap-3 disabled:opacity-60 disabled:pointer-events-none disabled:scale-100"
                     >
                       {placing ? (
                         <>
@@ -333,24 +333,24 @@ const Cart = () => {
             </div>
 
             {/* Trust badges */}
-            <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 grid grid-cols-3 gap-2 text-center relative z-10">
+            <div className="mt-8 pt-6 border-t border-border-subtle grid grid-cols-3 gap-2 text-center relative z-10 transition-colors duration-300">
               <div className="flex flex-col items-center gap-2">
-                <div className="h-10 w-10 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-green-500 dark:text-green-400">
+                <div className="h-10 w-10 rounded-full bg-surface-elevated flex items-center justify-center text-brand">
                   <ShieldCheck className="h-5 w-5" />
                 </div>
-                <span className="text-[10px] uppercase tracking-widest font-bold text-gray-400 dark:text-gray-500 leading-tight">Secure<br/>Pay</span>
+                <span className="text-[10px] uppercase tracking-widest font-bold text-foreground-secondary leading-tight">Secure<br/>Pay</span>
               </div>
               <div className="flex flex-col items-center gap-2">
-                <div className="h-10 w-10 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-blue-500 dark:text-blue-400">
+                <div className="h-10 w-10 rounded-full bg-surface-elevated flex items-center justify-center text-info">
                   <Truck className="h-5 w-5" />
                 </div>
-                <span className="text-[10px] uppercase tracking-widest font-bold text-gray-400 dark:text-gray-500 leading-tight">Free<br/>Shipping</span>
+                <span className="text-[10px] uppercase tracking-widest font-bold text-foreground-secondary leading-tight">Free<br/>Shipping</span>
               </div>
               <div className="flex flex-col items-center gap-2">
-                <div className="h-10 w-10 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-yellow-500 dark:text-yellow-400">
+                <div className="h-10 w-10 rounded-full bg-surface-elevated flex items-center justify-center text-warning">
                   <Award className="h-5 w-5" />
                 </div>
-                <span className="text-[10px] uppercase tracking-widest font-bold text-gray-400 dark:text-gray-500 leading-tight">Quality<br/>Guar</span>
+                <span className="text-[10px] uppercase tracking-widest font-bold text-foreground-secondary leading-tight">Quality<br/>Guar</span>
               </div>
             </div>
           </div>

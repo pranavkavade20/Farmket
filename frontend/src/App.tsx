@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster, PageSkeleton } from '@/components/ui';
 import { AuthProvider } from '@/features/auth';
@@ -10,7 +10,6 @@ import MainLayout from '@/app/layouts/MainLayout';
 import AuthLayout from '@/app/layouts/AuthLayout';
 import DashboardLayout from '@/app/layouts/DashboardLayout';
 import { PrivateRoute, RoleRoute } from '@/routes';
-import { Sprout } from 'lucide-react';
 
 
 

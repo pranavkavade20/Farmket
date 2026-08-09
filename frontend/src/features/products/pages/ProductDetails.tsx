@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useSEO } from '@/hooks';
-import { Button, Input } from '@/components/ui';
+import { Button} from '@/components/ui';
 import { productService } from '@/features/products';
-import type { Product, Review } from '@/types';
+import type { Product} from '@/types';
 import CropTimeline from '@/features/products/components/CropTimeline';
 import { HarvestCountdown } from '@/features/products/components/HarvestCountdown';
 import { CropProgressBar } from '@/features/products/components/CropProgressBar';

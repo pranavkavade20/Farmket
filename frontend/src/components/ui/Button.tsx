@@ -10,22 +10,22 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', size = 'md', isLoading, children, disabled, ...props }, ref) => {
-    const baseStyles = 'inline-flex items-center justify-center font-medium transition-all duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand dark:focus-visible:ring-offset-[#0B0F14] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none disabled:scale-100 relative overflow-hidden';
+    const baseStyles = 'inline-flex items-center justify-center font-medium transition-all duration-200 ease-out focus-ring active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none relative overflow-hidden';
     
     const variants = {
-      primary: 'bg-brand text-white hover:bg-brand-hover shadow-sm hover:shadow-md hover:-translate-y-[1px]',
-      secondary: 'bg-transparent text-brand border border-brand hover:bg-brand/5 shadow-sm',
+      primary: 'bg-brand text-white hover:bg-brand-hover shadow-sm hover:shadow-md dark:shadow-none border border-transparent',
+      secondary: 'bg-secondary text-foreground hover:bg-secondary-hover shadow-sm border border-border-subtle',
       outline: 'bg-transparent text-foreground border border-border-strong hover:bg-state-hover dark:hover:bg-state-hover',
       ghost: 'bg-transparent text-foreground hover:bg-state-hover dark:hover:bg-state-hover',
-      danger: 'bg-danger text-white hover:bg-danger/90 shadow-sm hover:shadow-md hover:-translate-y-[1px]',
-      success: 'bg-success text-white hover:bg-success/90 shadow-sm hover:shadow-md hover:-translate-y-[1px]',
+      danger: 'bg-danger text-white hover:bg-danger/90 shadow-sm border border-transparent',
+      success: 'bg-success text-white hover:bg-success/90 shadow-sm border border-transparent',
     };
 
     const sizes = {
-      sm: 'py-2 px-4 text-xs rounded-md',
-      md: 'py-3 px-6 text-base rounded-lg',
-      lg: 'py-4 px-8 text-lg rounded-xl',
-      icon: 'h-11 w-11 rounded-lg',
+      sm: 'py-1.5 px-3 text-xs rounded-md',
+      md: 'py-2 px-4 text-sm rounded-lg',
+      lg: 'py-3 px-6 text-base rounded-xl',
+      icon: 'h-10 w-10 rounded-lg',
     };
 
     return (
@@ -40,7 +40,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         </span>
         {isLoading && (
           <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            <Loader2 className="h-5 w-5 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin text-current" />
           </span>
         )}
       </button>

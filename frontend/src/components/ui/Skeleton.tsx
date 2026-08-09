@@ -8,7 +8,7 @@ interface SkeletonProps {
 export const Skeleton: React.FC<SkeletonProps> = ({ className }) => (
   <div
     className={cn(
-      'animate-pulse rounded-xl bg-border-strong dark:bg-border-subtle',
+      'animate-pulse-subtle rounded-xl bg-border-subtle dark:bg-border-strong',
       className
     )}
   />

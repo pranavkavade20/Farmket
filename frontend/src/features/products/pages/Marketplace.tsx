@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSEO } from '@/hooks';
 import { ProductCard, productService } from '@/features/products';
-import { ProductCardSkeleton, Button, Input } from '@/components/ui';
+import { ProductCardSkeleton, Button} from '@/components/ui';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, SlidersHorizontal, X, Leaf, Filter, ChevronDown, Check } from 'lucide-react';
+import { Search,  X,  Filter, ChevronDown, Check } from 'lucide-react';
 import type { Product, Category } from '@/types';
 import { useCart } from '@/features/buyer';
 import { useAuth } from '@/features/auth';

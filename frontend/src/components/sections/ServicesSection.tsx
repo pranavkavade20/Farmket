@@ -31,7 +31,7 @@ const ServiceCard = ({ image, icon, title, desc, delay = 0 }: ServiceCardProps) 
       viewport={{ once: true, margin: "-50px" }}
       whileHover={{ y: -8, scale: 1.02 }}
       transition={{ type: "spring", stiffness: 300 }}
-      className="bg-white dark:bg-[#111] rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-md hover:shadow-2xl dark:hover:shadow-[0_0_30px_rgba(22,135,72,0.15)] transition-all relative group h-full flex flex-col"
+      className="bg-surface rounded-3xl overflow-hidden border border-border-subtle shadow-md hover:shadow-xl transition-all relative group h-full flex flex-col"
     >
       {/* Top Image Section */}
       <div className="h-48 w-full overflow-hidden relative">
@@ -40,14 +40,14 @@ const ServiceCard = ({ image, icon, title, desc, delay = 0 }: ServiceCardProps) 
       </div>
 
       {/* Floating Icon Badge */}
-      <div className="absolute top-40 left-6 z-20 w-14 h-14 bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-800 flex items-center justify-center text-[#168748] group-hover:-translate-y-2 transition-transform duration-300">
+      <div className="absolute top-40 left-6 z-20 w-14 h-14 bg-surface rounded-2xl shadow-lg border border-border-subtle flex items-center justify-center text-brand group-hover:-translate-y-2 transition-transform duration-300">
         {icon}
       </div>
 
       {/* Content */}
       <div className="px-8 pt-12 pb-8 flex-1 flex flex-col">
-        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{title}</h3>
-        <p className="text-[15px] text-gray-600 dark:text-gray-400 font-medium leading-relaxed">{desc}</p>
+        <h3 className="text-xl font-bold text-foreground mb-3 transition-colors duration-300">{title}</h3>
+        <p className="text-[15px] text-foreground-secondary font-medium leading-relaxed transition-colors duration-300">{desc}</p>
       </div>
     </motion.div>
   );
@@ -66,10 +66,10 @@ export const ServicesSection = () => {
               viewport={{ once: true }}
               className="flex-1"
            >
-              <span className="inline-block px-4 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+              <span className="inline-block px-4 py-1.5 rounded-full bg-surface text-sm font-semibold text-foreground-secondary mb-6 border border-border-strong shadow-sm transition-colors duration-300">
                 Farmket Services
               </span>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white leading-[1.1] tracking-tight">
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-black text-foreground leading-[1.1] tracking-tight transition-colors duration-300">
                 Empowering Farmers <br className="hidden md:block"/> & Organic Buyers
               </h2>
            </motion.div>
@@ -80,10 +80,10 @@ export const ServicesSection = () => {
               viewport={{ once: true }}
               className="flex-1 lg:max-w-lg lg:text-right flex flex-col lg:items-end gap-6"
            >
-              <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed font-medium">
+              <p className="text-foreground-secondary text-lg leading-relaxed font-medium transition-colors duration-300">
                 We help farmers grow their business digitally while enabling buyers to access fresh, trusted, and organic farm products directly from the source.
               </p>
-              <Button className="rounded-full bg-[#111] hover:bg-[#168748] text-white px-8 py-7 text-[15px] font-bold shadow-xl shadow-black/10 dark:shadow-[#168748]/20 transition-all hover:scale-105 flex items-center justify-center gap-2 border-2 border-transparent">
+              <Button className="rounded-full bg-brand hover:bg-brand-hover text-white px-8 py-7 text-[15px] font-bold shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2 border-2 border-transparent focus-ring">
                  Explore Farmket <ArrowRight className="ml-1 h-5 w-5" />
               </Button>
            </motion.div>
@@ -97,32 +97,32 @@ export const ServicesSection = () => {
              <svg className="w-full h-full" style={{ position: 'absolute' }} viewBox="0 0 100 100" preserveAspectRatio="none">
                 {/* We use percentage-based coordinates that roughly align with the grid centers */}
                 {/* Left Top to Center */}
-                <path d="M 25 25 C 40 25, 45 50, 50 50" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="6 6" className="text-gray-300 dark:text-gray-700 opacity-60" />
-                <circle cx="25" cy="25" r="4" fill="currentColor" className="text-[#168748]" />
+                <path d="M 25 25 C 40 25, 45 50, 50 50" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="6 6" className="text-border-strong opacity-60 transition-colors duration-300" />
+                <circle cx="25" cy="25" r="4" fill="currentColor" className="text-brand transition-colors duration-300" />
                 
                 {/* Left Bottom to Center */}
-                <path d="M 25 75 C 40 75, 45 50, 50 50" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="6 6" className="text-gray-300 dark:text-gray-700 opacity-60" />
-                <circle cx="25" cy="75" r="4" fill="currentColor" className="text-[#168748]" />
+                <path d="M 25 75 C 40 75, 45 50, 50 50" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="6 6" className="text-border-strong opacity-60 transition-colors duration-300" />
+                <circle cx="25" cy="75" r="4" fill="currentColor" className="text-brand transition-colors duration-300" />
 
                 {/* Right Top to Center */}
-                <path d="M 75 25 C 60 25, 55 50, 50 50" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="6 6" className="text-gray-300 dark:text-gray-700 opacity-60" />
-                <circle cx="75" cy="25" r="4" fill="currentColor" className="text-[#168748]" />
+                <path d="M 75 25 C 60 25, 55 50, 50 50" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="6 6" className="text-border-strong opacity-60 transition-colors duration-300" />
+                <circle cx="75" cy="25" r="4" fill="currentColor" className="text-brand transition-colors duration-300" />
 
                 {/* Right Bottom to Center */}
-                <path d="M 75 75 C 60 75, 55 50, 50 50" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="6 6" className="text-gray-300 dark:text-gray-700 opacity-60" />
-                <circle cx="75" cy="75" r="4" fill="currentColor" className="text-[#168748]" />
+                <path d="M 75 75 C 60 75, 55 50, 50 50" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="6 6" className="text-border-strong opacity-60 transition-colors duration-300" />
+                <circle cx="75" cy="75" r="4" fill="currentColor" className="text-brand transition-colors duration-300" />
                 
                 {/* Animated Dots flowing towards center */}
-                <circle r="4" fill="#168748" className="shadow-lg">
+                <circle r="4" fill="currentColor" className="text-brand shadow-lg transition-colors duration-300">
                   <animateMotion dur="3s" repeatCount="indefinite" path="M 25 25 C 40 25, 45 50, 50 50" />
                 </circle>
-                <circle r="4" fill="#168748">
+                <circle r="4" fill="currentColor" className="text-brand transition-colors duration-300">
                   <animateMotion dur="3.5s" repeatCount="indefinite" path="M 25 75 C 40 75, 45 50, 50 50" />
                 </circle>
-                <circle r="4" fill="#168748">
+                <circle r="4" fill="currentColor" className="text-brand transition-colors duration-300">
                   <animateMotion dur="3.2s" repeatCount="indefinite" path="M 75 25 C 60 25, 55 50, 50 50" />
                 </circle>
-                <circle r="4" fill="#168748">
+                <circle r="4" fill="currentColor" className="text-brand transition-colors duration-300">
                   <animateMotion dur="3.8s" repeatCount="indefinite" path="M 75 75 C 60 75, 55 50, 50 50" />
                 </circle>
              </svg>
@@ -151,11 +151,11 @@ export const ServicesSection = () => {
           <div className="flex justify-center items-center py-12 lg:py-0 z-20 order-first lg:order-none relative h-full">
              <div className="relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
                 {/* Outer pulsing rings */}
-                <div className="absolute inset-0 bg-[#E2F5D6] dark:bg-green-900/30 rounded-full animate-ping opacity-75" style={{ animationDuration: '3s' }}></div>
-                <div className="absolute inset-4 bg-[#B9F046]/40 dark:bg-green-800/40 rounded-full animate-pulse" style={{ animationDuration: '2s' }}></div>
+                <div className="absolute inset-0 bg-brand/20 rounded-full animate-ping opacity-75" style={{ animationDuration: '3s' }}></div>
+                <div className="absolute inset-4 bg-brand/40 rounded-full animate-pulse" style={{ animationDuration: '2s' }}></div>
                 
                 {/* Inner glowing core */}
-                <div className="relative z-10 w-28 h-28 md:w-36 md:h-36 bg-gradient-to-br from-[#168748] to-[#0A2617] rounded-full shadow-[0_0_40px_rgba(22,135,72,0.4)] flex items-center justify-center border-4 border-white dark:border-gray-900 ring-8 ring-[#E2F5D6]/50 dark:ring-green-900/20">
+                <div className="relative z-10 w-28 h-28 md:w-36 md:h-36 bg-gradient-to-br from-brand to-brand-hover rounded-full shadow-[0_0_40px_rgba(22,135,72,0.4)] flex items-center justify-center border-4 border-surface ring-8 ring-brand/30 transition-colors duration-300">
                    <motion.img 
                       src={logoImg} 
                       alt="Farmket Logo" 

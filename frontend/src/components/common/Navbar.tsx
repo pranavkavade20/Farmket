@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/features/auth";
 import { useTheme } from "@/context";
@@ -51,10 +51,10 @@ const Navbar = () => {
       to={to}
       onClick={closeMobile}
       className={cn(
-        "flex items-center gap-1.5 text-sm font-medium transition-all duration-300 ease-out px-3 py-2 rounded-xl",
+        "flex items-center gap-1.5 text-sm font-medium transition-all duration-300 ease-out px-4 py-2 rounded-full",
         isActive(to)
-          ? "text-brand bg-brand-muted"
-          : "text-foreground-secondary hover:text-foreground hover:bg-state-hover dark:hover:bg-state-hover"
+          ? "text-brand bg-brand/10 dark:bg-brand/20"
+          : "text-foreground-secondary hover:text-foreground hover:bg-state-hover"
       )}
     >
       {label}
@@ -65,26 +65,26 @@ const Navbar = () => {
   return (
     <div className={cn(
       "sticky top-0 z-50 w-full transition-all duration-300 border-b",
-      isScrolled ? "glass border-border-subtle py-2" : "bg-transparent border-transparent py-4"
+      isScrolled ? "glass border-border-subtle py-3" : "bg-background border-transparent py-4"
     )}>
       <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
-        <div className="flex h-14 items-center justify-between">
+        <div className="flex h-12 items-center justify-between">
 
           {/* Left: Logo */}
-          <div className="flex items-center shrink-0 mr-6">
-            <Link to="/" className="flex items-center gap-2 group">
+          <div className="flex items-center shrink-0 mr-8">
+            <Link to="/" className="flex items-center gap-3 group">
               <div className="relative">
-                <div className="absolute inset-0 bg-brand rounded-full blur-md opacity-0 group-hover:opacity-40 transition-opacity duration-300"></div>
-                <img src={logo} alt="Farmket Logo" className="h-10 w-10 object-contain relative z-10 drop-shadow-sm transition-transform duration-300 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-brand rounded-full blur-md opacity-0 group-hover:opacity-40 transition-opacity duration-300 dark:group-hover:shadow-glow"></div>
+                <img src={logo} alt="Farmket Logo" className="h-9 w-9 object-contain relative z-10 drop-shadow-sm transition-transform duration-300 group-hover:scale-105" />
               </div>
               <span className="text-2xl font-display font-bold tracking-tight text-foreground">
-                Farm<span className="text-transparent bg-clip-text bg-gradient-to-r from-brand to-accent">ket</span>
+                Farm<span className="text-gradient">ket</span>
               </span>
             </Link>
           </div>
 
           {/* Center: Navigation Links */}
-          <div className="hidden lg:flex flex-1 items-center justify-center gap-8 xl:gap-10">
+          <div className="hidden lg:flex flex-1 items-center justify-center gap-2">
             {navLink("/", "Home")}
             {(!user || user.user_type === 'buyer' || user.user_type === 'farmer' || user.user_type === 'admin') && (
               <>
@@ -100,17 +100,17 @@ const Navbar = () => {
             <button
               onClick={toggleDark}
               aria-label="Toggle dark mode"
-              className="hidden lg:flex h-10 w-10 items-center justify-center rounded-full text-foreground-secondary transition-all hover:bg-state-hover hover:scale-105 active:scale-95"
+              className="hidden lg:flex h-10 w-10 items-center justify-center rounded-full text-foreground-secondary transition-all hover:bg-state-hover hover:scale-105 active:scale-95 focus-ring"
             >
               {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
 
             {user ? (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <Link
                   to="/messages"
                   title="Messages"
-                  className="flex items-center justify-center h-10 w-10 rounded-full transition-all hover:bg-state-hover hover:scale-105 active:scale-95 text-foreground-secondary"
+                  className="flex items-center justify-center h-10 w-10 rounded-full transition-all hover:bg-state-hover hover:scale-105 active:scale-95 text-foreground-secondary focus-ring"
                 >
                   <MessageSquare className="h-5 w-5" />
                 </Link>
@@ -118,12 +118,12 @@ const Navbar = () => {
                 {user.user_type === 'buyer' && (
                   <Link
                     to="/cart"
-                    className="group flex items-center justify-center h-10 w-10 rounded-full transition-all hover:bg-state-hover hover:scale-105 active:scale-95 text-foreground-secondary"
+                    className="group flex items-center justify-center h-10 w-10 rounded-full transition-all hover:bg-state-hover hover:scale-105 active:scale-95 text-foreground-secondary focus-ring"
                   >
                     <div className="relative">
                       <ShoppingCart className="h-5 w-5" />
                       {itemCount > 0 && (
-                        <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-white shadow-sm ring-2 ring-surface">
+                        <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-white shadow-sm ring-2 ring-background">
                           {itemCount > 9 ? "9+" : itemCount}
                         </span>
                       )}
@@ -131,7 +131,7 @@ const Navbar = () => {
                   </Link>
                 )}
 
-                <div className="hidden lg:flex items-center gap-2 pl-2 border-l border-border-subtle ml-2">
+                <div className="hidden lg:flex items-center gap-2 pl-3 border-l border-border-subtle ml-2">
                   <Link to="/dashboard">
                     <Button variant="outline" className="rounded-full h-10 pl-1 pr-4 bg-surface text-sm font-medium hover:bg-state-hover flex items-center gap-2 transition-all shadow-none">
                       {user.profile_picture ? (
@@ -141,7 +141,7 @@ const Navbar = () => {
                           className="h-8 w-8 rounded-full object-cover border border-border-subtle"
                         />
                       ) : (
-                        <div className="h-8 w-8 rounded-full bg-brand-muted flex items-center justify-center">
+                        <div className="h-8 w-8 rounded-full bg-brand/10 dark:bg-brand/20 flex items-center justify-center">
                           <UserIcon className="h-4 w-4 text-brand" />
                         </div>
                       )}
@@ -151,7 +151,8 @@ const Navbar = () => {
                   <Button
                     variant="ghost"
                     onClick={() => void handleLogout()}
-                    className="rounded-full h-10 w-10 p-0 text-foreground-secondary hover:text-danger hover:bg-danger-muted transition-all hover:scale-105 active:scale-95"
+                    className="rounded-full h-10 w-10 p-0 text-foreground-secondary hover:text-danger hover:bg-danger/10 transition-all hover:scale-105 active:scale-95"
+                    title="Logout"
                   >
                     <LogOut className="h-5 w-5" />
                   </Button>
@@ -160,12 +161,12 @@ const Navbar = () => {
             ) : (
               <div className="hidden lg:flex items-center gap-3 pl-2">
                 <Link to="/login">
-                  <Button variant="ghost">
+                  <Button variant="ghost" className="font-semibold">
                     Login
                   </Button>
                 </Link>
                 <Link to="/register">
-                  <Button variant="primary">
+                  <Button variant="primary" className="font-semibold rounded-full px-6 shadow-md hover:shadow-lg dark:shadow-none">
                     Sign Up
                   </Button>
                 </Link>
@@ -176,7 +177,7 @@ const Navbar = () => {
             <div className="flex items-center gap-2 lg:hidden">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-state-hover text-foreground transition-colors"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-state-hover text-foreground transition-colors focus-ring"
               >
                 {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
@@ -193,9 +194,9 @@ const Navbar = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="absolute left-0 top-full w-full bg-surface/95 backdrop-blur-xl border-b border-border-subtle shadow-xl lg:hidden"
+            className="absolute left-0 top-full w-full bg-surface/95 backdrop-blur-2xl border-b border-border-subtle shadow-xl lg:hidden"
           >
-            <div className="flex flex-col gap-2 px-4 py-6">
+            <div className="flex flex-col gap-2 px-6 py-6">
               {[
                 { to: "/", label: "Home" },
                 ...(!user || user.user_type === 'buyer' || user.user_type === 'farmer' || user.user_type === 'admin' ? [
@@ -219,7 +220,7 @@ const Navbar = () => {
                   key={to}
                   to={to}
                   onClick={closeMobile}
-                  className="rounded-xl px-4 py-3 text-base font-semibold text-foreground hover:bg-brand-muted hover:text-brand transition-colors"
+                  className="rounded-xl px-4 py-3.5 text-base font-medium text-foreground hover:bg-brand/10 hover:text-brand transition-colors"
                 >
                   {label}
                 </Link>
@@ -229,26 +230,26 @@ const Navbar = () => {
 
               <button
                 onClick={() => { toggleDark(); closeMobile(); }}
-                className="flex items-center gap-3 rounded-xl px-4 py-3 text-base font-semibold text-foreground hover:bg-state-hover transition-colors"
+                className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-base font-medium text-foreground hover:bg-state-hover transition-colors"
               >
                 {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-                {isDark ? "Light Mode" : "Dark Mode"}
+                {isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
               </button>
 
               {user ? (
                 <button
                   onClick={() => void handleLogout()}
-                  className="flex items-center gap-3 rounded-xl px-4 py-3 text-base font-semibold text-danger hover:bg-danger-muted transition-colors"
+                  className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-base font-medium text-danger hover:bg-danger/10 transition-colors"
                 >
                   <LogOut className="h-5 w-5" /> Logout
                 </button>
               ) : (
-                <div className="mt-4 flex flex-col gap-3">
+                <div className="mt-6 flex flex-col gap-3">
                   <Link to="/login" onClick={closeMobile}>
-                    <Button variant="outline" className="w-full rounded-xl h-12 font-bold">Login</Button>
+                    <Button variant="outline" className="w-full rounded-xl h-12 font-semibold">Login</Button>
                   </Link>
                   <Link to="/register" onClick={closeMobile}>
-                    <Button variant="primary" className="w-full rounded-xl h-12 font-bold">Sign Up</Button>
+                    <Button variant="primary" className="w-full rounded-xl h-12 font-semibold shadow-md">Sign Up</Button>
                   </Link>
                 </div>
               )}

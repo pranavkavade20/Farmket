@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, MapPin, Mic, Video, Image } from 'lucide-react';
+import { FileText, MapPin, Mic} from 'lucide-react';
 import type { ChatMessage } from '@/features/chat';
 
 interface Props { msg: ChatMessage; isMe: boolean; }

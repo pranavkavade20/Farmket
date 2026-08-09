@@ -15,7 +15,7 @@ const About = () => {
   });
   
   return (
-    <div className="flex flex-col bg-green-50 dark:bg-[#0A0A0A] w-full min-h-screen pt-12 transition-colors duration-300">
+    <div className="flex flex-col bg-background text-foreground w-full min-h-screen pt-12 transition-colors duration-300">
 
       <ProblemSolutionSection />
       <FeaturesBentoSection />

@@ -23,7 +23,7 @@ export const cropsApi = apiSlice.injectEndpoints({
     }),
     getCropDetails: builder.query<CropGrowth, number>({
       query: (id) => `/crops/${id}/`,
-      providesTags: (result, error, id) => [{ type: 'Crop', id }],
+      providesTags: (_result, _error, id) => [{ type: 'Crop', id }],
     }),
     createCrop: builder.mutation<CropGrowth, Partial<CropGrowth>>({
       query: (initialCrop) => ({
@@ -39,7 +39,7 @@ export const cropsApi = apiSlice.injectEndpoints({
         method: 'POST',
         body: patch,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Crop', id }, { type: 'Crop', id: 'LIST' }],
+      invalidatesTags: (_result, _error, { id }) => [{ type: 'Crop', id }, { type: 'Crop', id: 'LIST' }],
     }),
     reserveCrop: builder.mutation<CropReservation, { id: number; quantity: number; expected_delivery_date?: string }>({
       query: ({ id, ...patch }) => ({
@@ -47,21 +47,21 @@ export const cropsApi = apiSlice.injectEndpoints({
         method: 'POST',
         body: patch,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Crop', id }, { type: 'Crop', id: 'LIST' }, { type: 'Reservation', id: 'LIST' }],
+      invalidatesTags: (_result, _error, { id }) => [{ type: 'Crop', id }, { type: 'Crop', id: 'LIST' }, { type: 'Reservation', id: 'LIST' }],
     }),
     followCrop: builder.mutation<void, number>({
       query: (id) => ({
         url: `/crops/${id}/follow/`,
         method: 'POST',
       }),
-      invalidatesTags: (result, error, id) => [{ type: 'Crop', id }],
+      invalidatesTags: (_result, _error, id) => [{ type: 'Crop', id }],
     }),
     unfollowCrop: builder.mutation<void, number>({
       query: (id) => ({
         url: `/crops/${id}/unfollow/`,
         method: 'POST',
       }),
-      invalidatesTags: (result, error, id) => [{ type: 'Crop', id }],
+      invalidatesTags: (_result, _error, id) => [{ type: 'Crop', id }],
     }),
     getReservations: builder.query<CropReservation[], void>({
       query: () => '/crops/reservations/',
@@ -80,14 +80,14 @@ export const cropsApi = apiSlice.injectEndpoints({
         url: `/crops/reservations/${id}/approve/`,
         method: 'POST',
       }),
-      invalidatesTags: (result, error, id) => [{ type: 'Reservation', id }, { type: 'Crop', id: 'LIST' }],
+      invalidatesTags: (_result, _error, id) => [{ type: 'Reservation', id }, { type: 'Crop', id: 'LIST' }],
     }),
     rejectReservation: builder.mutation<void, number>({
       query: (id) => ({
         url: `/crops/reservations/${id}/reject/`,
         method: 'POST',
       }),
-      invalidatesTags: (result, error, id) => [{ type: 'Reservation', id }, { type: 'Crop', id: 'LIST' }],
+      invalidatesTags: (_result, _error, id) => [{ type: 'Reservation', id }, { type: 'Crop', id: 'LIST' }],
     }),
   }),
 });

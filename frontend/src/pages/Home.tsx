@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSEO } from '@/hooks';
 import { productService } from '@/features/products';
 import type { Product, Category } from '@/types';
@@ -56,7 +56,7 @@ const Home = () => {
   };
 
   return (
-    <div className="flex flex-col bg-white dark:bg-[#050505] w-full min-h-screen transition-colors duration-300">
+    <div className="flex flex-col bg-background w-full min-h-screen transition-colors duration-300 text-foreground">
       
       {/* 1. Hero */}
       <HeroSection />
@@ -66,28 +66,28 @@ const Home = () => {
 
 
       {/* E-Commerce Sections integrated into the premium flow */}
-      <section className="w-full bg-[#FAFAF8] dark:bg-[#0A0A0A] py-20 border-b border-gray-100 dark:border-white/5">
+      <section className="w-full bg-surface py-20 border-b border-border-subtle">
         <div className="mx-auto w-full max-w-[1600px] px-6 sm:px-8 lg:px-12">
            <PopularCategories categories={categoriesList} />
         </div>
       </section>
 
       {/* Services Band */}
-      <section className="w-full dark:bg-[#0A0A0A] pb-16 pt-4">
+      <section className="w-full bg-surface pb-16 pt-4">
         <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8">
            <ServicesSection />
         </div>
       </section>
 
       {/* Promo Banners Band */}
-      <section className="w-full dark:bg-[#0A0A0A] py-8">
+      <section className="w-full bg-surface py-8">
         <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8">
            <PromoBanners />
         </div>
       </section>
 
       {/* Products Band */}
-      <section className="w-full bg-white dark:bg-[#050505]">
+      <section className="w-full bg-background border-t border-border-subtle pt-12">
         <div className="mx-auto w-full max-w-[1600px] px-6 sm:px-8 lg:px-12 flex flex-col">
           <WeeklyBestSelling 
             products={products.slice(0, 5).reverse()} 
@@ -106,7 +106,7 @@ const Home = () => {
       </section>
 
       {/* Activity and Testimonials */}
-      <div className="mt-16 border-t border-gray-100 dark:border-white/5">
+      <div className="mt-16 border-t border-border-subtle bg-surface">
         <SuccessStoriesSection />
       </div>
       

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Calendar } from 'lucide-react';
-import { CropGrowth } from '@/types/crops';
+import type { CropGrowth } from '@/types/crops';
 import { CropStageBadge } from './CropStageBadge';
 import { CropProgressBar } from './CropProgressBar';
-import { format } from 'date-fns';
+
 
 interface Props {
   crop: CropGrowth;
@@ -34,7 +34,7 @@ export const CropStatusCard: React.FC<Props> = ({ crop, className = '' }) => {
             Expected Harvest
           </p>
           <p className="text-sm font-medium text-gray-900 dark:text-white">
-            {crop.expected_harvest_date ? format(new Date(crop.expected_harvest_date), 'MMM dd, yyyy') : 'N/A'}
+            {crop.expected_harvest_date ? new Date(crop.expected_harvest_date).toLocaleDateString() : 'N/A'}
           </p>
         </div>
         <div>

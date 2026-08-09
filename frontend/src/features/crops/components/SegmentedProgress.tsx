@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CropStage } from '@/types/crops';
+import type { CropStage } from '@/types/crops';
 
 interface SegmentedProgressProps {
   currentStage: CropStage | string;

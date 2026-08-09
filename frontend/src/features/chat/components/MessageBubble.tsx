@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, CheckCheck, MoreVertical, Trash2, Edit2, Reply, SmilePlus } from 'lucide-react';
+import { Check, CheckCheck,  Trash2, Edit2, Reply, SmilePlus } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import type { ChatMessage } from '@/features/chat';
 import { MessageBubbleContent } from './MessageBubbleContent';

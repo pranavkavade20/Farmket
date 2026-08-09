@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, Apple } from 'lucide-react';
 import { motion, type Variants } from 'framer-motion';
@@ -40,8 +39,8 @@ export const PopularCategories = ({ categories }: PopularCategoriesProps) => {
         transition={{ duration: 0.6 }}
         className="flex items-center justify-between mb-8"
       >
-        <h2 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">Popular Categories</h2>
-        <Link to="/marketplace" className="rounded-full bg-[#111] px-5 py-2 text-xs font-bold text-white transition-all hover:bg-black flex items-center gap-2 dark:bg-white dark:text-gray-900">
+        <h2 className="text-2xl font-display font-black tracking-tight text-foreground transition-colors duration-300">Popular Categories</h2>
+        <Link to="/marketplace" className="rounded-full bg-foreground text-background px-5 py-2 text-xs font-bold transition-all hover:scale-105 active:scale-95 shadow-sm flex items-center gap-2">
           Show All <ChevronRight className="h-3 w-3" />
         </Link>
       </motion.div>
@@ -65,8 +64,8 @@ export const PopularCategories = ({ categories }: PopularCategoriesProps) => {
                     <Apple className="h-10 w-10 text-gray-700 dark:text-gray-200 opacity-60 mix-blend-multiply" />
                   )}
                 </div>
-                <h3 className="font-bold text-[15px] text-gray-900 dark:text-white text-center leading-tight">{c.name}</h3>
-                <p className="text-[11px] text-gray-400 mt-1.5 font-bold uppercase tracking-wide">
+                <h3 className="font-bold text-[15px] text-foreground text-center leading-tight transition-colors duration-300">{c.name}</h3>
+                <p className="text-[11px] text-foreground-secondary mt-1.5 font-bold uppercase tracking-wide transition-colors duration-300">
                   {c.product_count !== undefined ? c.product_count : 0} Product{c.product_count !== 1 ? 's' : ''}
                 </p>
               </Link>

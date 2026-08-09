@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import farmerImg from '@/assets/images/farmer_product.png';
 
