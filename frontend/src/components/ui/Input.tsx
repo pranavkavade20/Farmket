@@ -34,7 +34,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              'block w-full rounded-md border bg-surface px-4 py-2.5 text-sm text-foreground placeholder:text-muted shadow-sm',
+              'block w-full rounded-[10px] border bg-surface px-4 py-2.5 text-sm text-foreground placeholder:text-muted shadow-sm',
               'transition-all duration-200 ease-out focus-ring disabled:opacity-50 disabled:cursor-not-allowed',
               hasError
                 ? 'border-danger focus-visible:ring-danger/50'

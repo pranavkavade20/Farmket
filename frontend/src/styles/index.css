@@ -1,112 +1,96 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700&display=swap');
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
   :root {
-    /* ── Semantic Backgrounds (Zinc based for premium feel) ── */
-    --bg-main: #FAFAFA;
+    /* ── Semantic Backgrounds ── */
+    --bg-main: #F7FAF8;
     --bg-surface: #FFFFFF;
     --bg-surface-elevated: #FFFFFF;
     
     /* ── Semantic Text ── */
-    --text-primary: #09090B;
-    --text-secondary: #52525B;
-    --text-muted: #A1A1AA;
+    --text-primary: #17211B;
+    --text-secondary: #5F6B63;
+    --text-muted: #87918A;
     
     /* ── Semantic Borders ── */
-    --border-subtle: #E4E4E7;
-    --border-strong: #D4D4D8;
+    --border-subtle: #E3EAE5;
+    --border-strong: #C8D3CC;
 
-    /* ── Brand Colors (Emerald/Forest) ── */
-    --brand-primary: #059669; 
-    --brand-hover: #047857;
-    --brand-active: #065F46;
-    --brand-muted: #D1FAE5;
+    /* ── Brand Colors (Farmket Green) ── */
+    --brand-primary: #028F4B; 
+    --brand-hover: #027A40;
+    --brand-active: #016637;
+    --brand-muted: #E6F4ED;
     
-    /* ── Secondary Colors (Earthy/Neutral) ── */
-    --secondary-primary: #3F3F46;
-    --secondary-hover: #27272A;
-    --secondary-active: #18181B;
-    --secondary-muted: #F4F4F5;
-
-    /* ── Accent Colors (Warm Orange) ── */
-    --accent-primary: #EA580C;
-    --accent-hover: #C2410C;
-    --accent-active: #9A3412;
-    --accent-muted: #FFEDD5;
+    /* ── Accent Colors ── */
+    --accent-yellow: #F4C430;
+    --accent-orange: #F97316;
 
     /* ── Status Colors ── */
-    --semantic-success: #10B981;
-    --semantic-success-muted: #D1FAE5;
-    --semantic-warning: #F59E0B;
-    --semantic-warning-muted: #FEF3C7;
-    --semantic-danger: #EF4444;
+    --semantic-success: #028F4B;
+    --semantic-success-muted: #E6F4ED;
+    --semantic-warning: #F97316;
+    --semantic-warning-muted: #FFEDD5;
+    --semantic-danger: #DC2626;
     --semantic-danger-muted: #FEE2E2;
     --semantic-info: #3B82F6;
     --semantic-info-muted: #DBEAFE;
 
     /* ── Interactive States ── */
-    --state-hover: rgba(9, 9, 11, 0.04);
-    --state-active: rgba(9, 9, 11, 0.08);
-    --state-disabled: rgba(9, 9, 11, 0.38);
+    --state-hover: rgba(23, 33, 27, 0.04);
+    --state-active: rgba(23, 33, 27, 0.08);
+    --state-disabled: rgba(23, 33, 27, 0.38);
   }
 
   .dark {
-    /* ── Semantic Backgrounds (True Dark/Zinc) ── */
-    --bg-main: #09090B;
-    --bg-surface: #09090B;
-    --bg-surface-elevated: #18181B;
+    /* ── Semantic Backgrounds ── */
+    --bg-main: #0D1711;
+    --bg-surface: #142019;
+    --bg-surface-elevated: #1A281F;
     
     /* ── Semantic Text ── */
-    --text-primary: #FAFAFA;
-    --text-secondary: #A1A1AA;
-    --text-muted: #71717A;
+    --text-primary: #F7FAF8;
+    --text-secondary: #C8D3CC;
+    --text-muted: #87918A;
     
     /* ── Semantic Borders ── */
-    --border-subtle: #27272A;
-    --border-strong: #3F3F46;
+    --border-subtle: #26362C;
+    --border-strong: #3A4C40;
 
-    /* ── Brand Colors (Vibrant Emerald) ── */
-    --brand-primary: #10B981;
-    --brand-hover: #34D399;
-    --brand-active: #059669;
-    --brand-muted: #064E3B;
+    /* ── Brand Colors (Farmket Green) ── */
+    --brand-primary: #028F4B;
+    --brand-hover: #03A859;
+    --brand-active: #04C168;
+    --brand-muted: #01331B;
     
-    /* ── Secondary Colors ── */
-    --secondary-primary: #A1A1AA;
-    --secondary-hover: #D4D4D8;
-    --secondary-active: #FAFAFA;
-    --secondary-muted: #18181B;
-
     /* ── Accent Colors ── */
-    --accent-primary: #F97316;
-    --accent-hover: #FB923C;
-    --accent-active: #EA580C;
-    --accent-muted: #7C2D12;
+    --accent-yellow: #F4C430;
+    --accent-orange: #F97316;
 
     /* ── Status Colors ── */
-    --semantic-success: #10B981;
-    --semantic-success-muted: #064E3B;
-    --semantic-warning: #F59E0B;
-    --semantic-warning-muted: #78350F;
-    --semantic-danger: #EF4444;
+    --semantic-success: #028F4B;
+    --semantic-success-muted: #01331B;
+    --semantic-warning: #F97316;
+    --semantic-warning-muted: #7C2D12;
+    --semantic-danger: #DC2626;
     --semantic-danger-muted: #7F1D1D;
     --semantic-info: #3B82F6;
     --semantic-info-muted: #1E3A8A;
 
     /* ── Interactive States ── */
-    --state-hover: rgba(250, 250, 250, 0.08);
-    --state-active: rgba(250, 250, 250, 0.12);
-    --state-disabled: rgba(250, 250, 250, 0.38);
+    --state-hover: rgba(247, 250, 248, 0.08);
+    --state-active: rgba(247, 250, 248, 0.12);
+    --state-disabled: rgba(247, 250, 248, 0.38);
   }
 }
 
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-display: 'Outfit', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: 'Manrope', ui-sans-serif, system-ui, -apple-system, sans-serif;
 
   /* Theme Colors mapped to utilities */
   --color-background: var(--bg-main);
@@ -125,15 +109,8 @@
   --color-brand-active: var(--brand-active);
   --color-brand-muted: var(--brand-muted);
   
-  --color-secondary: var(--secondary-primary);
-  --color-secondary-hover: var(--secondary-hover);
-  --color-secondary-active: var(--secondary-active);
-  --color-secondary-muted: var(--secondary-muted);
-
-  --color-accent: var(--accent-primary);
-  --color-accent-hover: var(--accent-hover);
-  --color-accent-active: var(--accent-active);
-  --color-accent-muted: var(--accent-muted);
+  --color-accent-yellow: var(--accent-yellow);
+  --color-accent-orange: var(--accent-orange);
   
   --color-success: var(--semantic-success);
   --color-success-muted: var(--semantic-success-muted);
@@ -148,21 +125,9 @@
   --color-state-active: var(--state-active);
   --color-state-disabled: var(--state-disabled);
 
-  /* Legacy brand colors (to prevent build errors during migration) */
-  --color-brand-50:  #f0fdf4;
-  --color-brand-100: #dcfce7;
-  --color-brand-200: #bbf7d0;
-  --color-brand-300: #86efac;
-  --color-brand-400: #4ade80;
-  --color-brand-500: #22c55e;
-  --color-brand-600: #16a34a;
-  --color-brand-700: #15803d;
-  --color-brand-800: #166534;
-  --color-brand-900: #14532d;
-  --color-brand-950: #052e16;
-
   /* Typography Scale */
   --text-display: 3.5rem;
+  --text-heading-lg: 3rem;
   --text-heading: 2.25rem;
   --text-subheading: 1.5rem;
   --text-body: 1rem;
@@ -181,14 +146,12 @@
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-  --shadow-glow: 0 0 20px rgba(16, 185, 129, 0.2);
+  --shadow-glow: 0 0 20px rgba(2, 143, 75, 0.15);
   
   /* Custom Animations */
   --animate-fade-in: fadeIn 0.4s ease-out;
   --animate-slide-up: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   --animate-scale-in: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  --animate-pulse-subtle: pulseSubtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   
   @keyframes fadeIn {
     from { opacity: 0; }
@@ -201,10 +164,6 @@
   @keyframes scaleIn {
     from { opacity: 0; transform: scale(0.97); }
     to { opacity: 1; transform: scale(1); }
-  }
-  @keyframes pulseSubtle {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.8; }
   }
 }
 

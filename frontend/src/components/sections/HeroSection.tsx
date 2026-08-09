@@ -1,13 +1,9 @@
-import { useState } from "react";
+
 import {
-  Search,
   ChevronRight,
   Leaf,
-  Users,
   ShoppingBag,
   Star,
-  CheckCircle,
-  Package,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
@@ -22,7 +18,6 @@ import broccoliImg from "@/assets/images/hero/hero_icon_broccoli.png";
 import potatoImg from "@/assets/images/hero/hero_icon_potatoo.png";
 
 export const HeroSection = () => {
-  const [activeCategory, setActiveCategory] = useState("Vegetables");
 
   // Framer motion variants
   const containerVariants: Variants = {
@@ -42,14 +37,6 @@ export const HeroSection = () => {
     },
   };
 
-  const slideInVariants: Variants = {
-    hidden: { opacity: 0, x: -30 },
-    show: {
-      opacity: 1,
-      x: 0,
-      transition: { type: "spring", stiffness: 300, damping: 24 },
-    },
-  };
 
   const scaleInVariants: Variants = {
     hidden: { opacity: 0, scale: 0.95 },
@@ -134,14 +121,12 @@ export const HeroSection = () => {
 
           <motion.h1
             variants={fadeUpVariants}
-            className="text-[36px] sm:text-[44px] lg:text-[64px] font-display font-extrabold leading-[1.1] tracking-tight mb-6 text-foreground px-2 sm:px-0 transition-colors duration-300"
+            className="text-[40px] sm:text-[48px] lg:text-[64px] font-display font-extrabold leading-[1.15] tracking-tight mb-6 text-foreground px-2 sm:px-0 transition-colors duration-300"
           >
-            One Platform.
+            Fresh From Farms.
             <br />
-            More Opportunities.
-            <br />
-            <span className="text-gradient">
-              For Farmers & Buyers.
+            <span className="text-brand">
+              Directly To You.
             </span>
           </motion.h1>
 
@@ -149,25 +134,24 @@ export const HeroSection = () => {
             variants={fadeUpVariants}
             className="text-lg text-foreground-secondary mb-10 max-w-lg leading-relaxed mx-auto lg:mx-0 transition-colors duration-300"
           >
-            Buy fresh produce directly from trusted farmers or sell your crops
-            to thousands of verified buyers across India.
+            Connect directly with trusted farmers and discover fresh agricultural products near you. 
           </motion.p>
 
           <motion.div
             variants={scaleInVariants}
-            className="flex flex-col sm:flex-row gap-4 mx-0 sm:mx-10 mb-10 w-full sm:w-auto px-4 sm:px-0"
+            className="flex flex-col sm:flex-row gap-4 mx-0 sm:mx-10 mb-10 w-full sm:w-auto px-4 sm:px-0 lg:mx-0"
           >
             <a
-              href="#farmer"
-              className="bg-brand hover:bg-brand-hover text-white py-3.5 px-7 rounded-full font-semibold flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 hover:shadow-lg w-full sm:w-auto shadow-md"
+              href="/marketplace"
+              className="bg-brand hover:bg-brand-hover text-white py-3.5 px-8 rounded-[12px] font-semibold flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 hover:shadow-lg w-full sm:w-auto shadow-md"
             >
-              I'm a Farmer <ChevronRight size={18} />
+              Explore Marketplace <ShoppingBag size={18} />
             </a>
             <a
-              href="#buyer"
-              className="bg-surface hover:bg-state-hover text-foreground py-3.5 px-7 rounded-full font-semibold flex items-center justify-center gap-2 transition-all border border-border-strong hover:-translate-y-0.5 shadow-sm hover:shadow-md w-full sm:w-auto"
+              href="/dashboard/products/add"
+              className="bg-surface hover:bg-brand-muted text-brand py-3.5 px-8 rounded-[12px] font-semibold flex items-center justify-center gap-2 transition-all border border-brand hover:-translate-y-0.5 shadow-sm w-full sm:w-auto"
             >
-              I'm a Buyer <ShoppingBag size={18} />
+              Sell Your Products <ChevronRight size={18} />
             </a>
           </motion.div>
 

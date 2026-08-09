@@ -13,19 +13,19 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const baseStyles = 'inline-flex items-center justify-center font-medium transition-all duration-200 ease-out focus-ring active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none relative overflow-hidden';
     
     const variants = {
-      primary: 'bg-brand text-white hover:bg-brand-hover shadow-sm hover:shadow-md dark:shadow-none border border-transparent',
-      secondary: 'bg-secondary text-foreground hover:bg-secondary-hover shadow-sm border border-border-subtle',
+      primary: 'bg-brand text-white hover:bg-brand-hover shadow-sm border border-transparent',
+      secondary: 'bg-surface text-brand border border-brand hover:bg-brand-muted hover:text-brand-active shadow-sm',
       outline: 'bg-transparent text-foreground border border-border-strong hover:bg-state-hover dark:hover:bg-state-hover',
-      ghost: 'bg-transparent text-foreground hover:bg-state-hover dark:hover:bg-state-hover',
+      ghost: 'bg-transparent text-brand hover:bg-brand-muted',
       danger: 'bg-danger text-white hover:bg-danger/90 shadow-sm border border-transparent',
       success: 'bg-success text-white hover:bg-success/90 shadow-sm border border-transparent',
     };
 
     const sizes = {
       sm: 'py-1.5 px-3 text-xs rounded-md',
-      md: 'py-2 px-4 text-sm rounded-lg',
-      lg: 'py-3 px-6 text-base rounded-xl',
-      icon: 'h-10 w-10 rounded-lg',
+      md: 'py-2 px-4 text-sm rounded-[10px]',
+      lg: 'py-3 px-6 text-base rounded-[12px]',
+      icon: 'h-10 w-10 rounded-[10px]',
     };
 
     return (

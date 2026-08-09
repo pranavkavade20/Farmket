@@ -8,12 +8,12 @@ interface BadgeProps {
 }
 
 const variantStyles = {
-  default: 'bg-secondary-muted text-secondary-primary dark:bg-secondary-muted dark:text-text-primary',
-  brand: 'bg-brand-muted text-brand-primary dark:bg-brand-muted dark:text-brand-primary',
-  success: 'bg-success-muted text-success dark:text-success',
-  warning: 'bg-warning-muted text-warning dark:text-warning',
-  danger: 'bg-danger-muted text-danger dark:text-danger',
-  info: 'bg-info-muted text-info dark:text-info',
+  default: 'bg-surface border border-border-subtle text-foreground-secondary',
+  brand: 'bg-brand-muted text-brand',
+  success: 'bg-success-muted text-success',
+  warning: 'bg-warning-muted text-warning',
+  danger: 'bg-danger-muted text-danger',
+  info: 'bg-info-muted text-info',
 };
 
 export const Badge: React.FC<BadgeProps> = ({ children, variant = 'default', className }) => (

@@ -33,6 +33,8 @@ const AddProduct  = lazy(() => import('@/features/products/pages/AddProduct'));
 // New Crop Tracking
 const FarmerCropDashboard = lazy(() => import('@/features/crops/pages/FarmerCropDashboard'));
 
+// Farmer Profile
+const FarmerProfile = lazy(() => import('@/features/farmer/pages/FarmerProfile'));
 
 // Admin Pages
 const AdminDashboard = lazy(() => import('@/features/admin/pages/AdminDashboard'));
@@ -63,6 +65,7 @@ function App() {
                       <Route path="about" element={<About />} />
                       <Route path="marketplace" element={<Marketplace />} />
                       <Route path="marketplace/:id" element={<ProductDetails />} />
+                      <Route path="farmers/:id" element={<FarmerProfile />} />
 
                       <Route path="feed" element={<SocialFeedPage />} />
                     </Route>
