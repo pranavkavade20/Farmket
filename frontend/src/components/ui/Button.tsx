@@ -10,11 +10,11 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', size = 'md', isLoading, children, disabled, ...props }, ref) => {
-    const baseStyles = 'inline-flex items-center justify-center font-medium transition-all duration-300 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand dark:focus-visible:ring-offset-[#0B0F14] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none disabled:scale-100 relative overflow-hidden';
+    const baseStyles = 'inline-flex items-center justify-center font-medium transition-all duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand dark:focus-visible:ring-offset-[#0B0F14] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none disabled:scale-100 relative overflow-hidden';
     
     const variants = {
       primary: 'bg-brand text-white hover:bg-brand-hover shadow-sm hover:shadow-md hover:-translate-y-[1px]',
-      secondary: 'bg-secondary text-white hover:bg-secondary-hover shadow-sm',
+      secondary: 'bg-transparent text-brand border border-brand hover:bg-brand/5 shadow-sm',
       outline: 'bg-transparent text-foreground border border-border-strong hover:bg-state-hover dark:hover:bg-state-hover',
       ghost: 'bg-transparent text-foreground hover:bg-state-hover dark:hover:bg-state-hover',
       danger: 'bg-danger text-white hover:bg-danger/90 shadow-sm hover:shadow-md hover:-translate-y-[1px]',
@@ -22,10 +22,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     const sizes = {
-      sm: 'h-9 px-4 text-xs rounded-lg',
-      md: 'h-11 px-6 text-sm rounded-xl',
-      lg: 'h-14 px-8 text-base rounded-2xl',
-      icon: 'h-11 w-11 rounded-xl',
+      sm: 'py-2 px-4 text-xs rounded-md',
+      md: 'py-3 px-6 text-base rounded-lg',
+      lg: 'py-4 px-8 text-lg rounded-xl',
+      icon: 'h-11 w-11 rounded-lg',
     };
 
     return (

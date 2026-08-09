@@ -34,13 +34,13 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              'block w-full rounded-xl border bg-surface px-4 py-3 text-sm font-medium text-foreground placeholder:text-muted shadow-sm',
-              'transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:opacity-50 disabled:cursor-not-allowed',
+              'block w-full rounded-md border bg-surface px-4 py-3 text-sm font-medium text-foreground placeholder:text-muted shadow-sm',
+              'transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed',
               hasError
-                ? 'border-danger focus:border-danger focus:ring-danger/20'
+                ? 'border-danger focus:border-danger focus:ring-danger'
                 : isSuccess
-                ? 'border-success focus:border-success focus:ring-success/20'
-                : 'border-border-strong hover:border-brand/50 focus:border-brand focus:ring-brand/20',
+                ? 'border-success focus:border-success focus:ring-success'
+                : 'border-border-strong hover:border-brand/50 focus:border-brand focus:ring-brand',
               icon ? 'pl-11' : '',
               (hasError || isSuccess) ? 'pr-11' : '',
               className
@@ -59,7 +59,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
         {hasError && (
-          <p className="text-xs font-medium text-danger animate-in slide-in-from-top-1" role="alert">
+          <p className="text-sm font-medium text-danger animate-in slide-in-from-top-1" role="alert">
             {error}
           </p>
         )}

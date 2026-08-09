@@ -7,30 +7,30 @@
 @layer base {
   :root {
     /* ── Semantic Backgrounds ── */
-    --bg-main: #F8FAFC;
+    --bg-main: #F9FAFB;
     --bg-surface: #FFFFFF;
     --bg-surface-elevated: #FFFFFF;
     
     /* ── Semantic Text ── */
-    --text-primary: #0F172A;
+    --text-primary: #111827;
     --text-secondary: #475569;
-    --text-muted: #94A3B8;
+    --text-muted: #6B7280;
     
     /* ── Semantic Borders ── */
     --border-subtle: #E2E8F0;
-    --border-strong: #CBD5E1;
+    --border-strong: #D1D5DB;
 
     /* ── Brand Colors ── */
-    /* Primary: Deep sophisticated green */
-    --brand-primary: #15803D;
-    --brand-hover: #166534;
-    --brand-active: #14532D;
+    /* Primary: Fresh Green */
+    --brand-primary: #2E7D32;
+    --brand-hover: #4CAF50;
+    --brand-active: #1B5E20;
     --brand-muted: #DCFCE7;
     
-    /* Secondary: Professional slate */
-    --secondary-primary: #334155;
-    --secondary-hover: #1E293B;
-    --secondary-active: #0F172A;
+    /* Secondary: Earth Brown */
+    --secondary-primary: #5D4037;
+    --secondary-hover: #4E342E;
+    --secondary-active: #3E2723;
     --secondary-muted: #F1F5F9;
 
     /* Accent: Vibrant orange for CTAs */
@@ -44,7 +44,7 @@
     --semantic-success-muted: #D1FAE5;
     --semantic-warning: #F59E0B;
     --semantic-warning-muted: #FEF3C7;
-    --semantic-danger: #EF4444;
+    --semantic-danger: #DC2626;
     --semantic-danger-muted: #FEE2E2;
     --semantic-info: #3B82F6;
     --semantic-info-muted: #DBEAFE;
