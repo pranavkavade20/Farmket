@@ -22,31 +22,31 @@ const containerVariants: Variants = {
 };
 
 const itemVariants: Variants = {
-  hidden: { opacity: 0, scale: 0.95, y: 20 },
-  visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
 };
 
 export const WeeklyBestSelling = ({ products, onAddToCart, activeTab, setActiveTab }: WeeklyBestSellingProps) => {
   return (
-    <section className="relative w-full py-12 lg:py-20">
+    <section className="relative w-full">
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-50px" }}
         transition={{ duration: 0.6 }}
         className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6"
       >
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-800/50 mb-4 shadow-sm">
-            <Sparkles className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" />
-            <span className="text-[10px] font-bold text-brand-700 dark:text-brand-300 uppercase tracking-widest">Marketplace</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface border border-border-strong mb-4 shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-brand" />
+            <span className="text-[10px] font-semibold text-foreground-secondary uppercase tracking-widest">Marketplace</span>
           </div>
-          <h2 className="text-3xl md:text-4xl font-black tracking-tight text-gray-900 dark:text-white">
-            Weekly <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-brand-400">Best Selling</span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-black tracking-tight text-foreground">
+            Weekly <span className="text-brand">Best Selling</span>
           </h2>
         </div>
-        <Link to="/marketplace" className="group rounded-full glass border border-gray-200 dark:border-white/10 px-6 py-2.5 text-sm font-bold text-gray-900 dark:text-white transition-all hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2 self-start md:self-auto hover:shadow-md">
-          Show All <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+        <Link to="/marketplace" className="group rounded-full bg-surface border border-border-strong px-5 py-2.5 text-sm font-bold text-foreground transition-all hover:bg-state-hover flex items-center gap-2 self-start md:self-auto shadow-sm">
+          View Marketplace <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
         </Link>
       </motion.div>
 
@@ -54,17 +54,17 @@ export const WeeklyBestSelling = ({ products, onAddToCart, activeTab, setActiveT
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true, margin: "-50px" }}
-        transition={{ duration: 0.6, delay: 0.2 }}
+        transition={{ duration: 0.6, delay: 0.1 }}
         className="flex items-center gap-3 overflow-x-auto pb-4 custom-scrollbar mb-8 -mx-6 px-6 sm:mx-0 sm:px-0"
       >
         {TABS.map((tab) => (
           <button 
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`whitespace-nowrap px-6 py-3 rounded-xl text-sm font-bold transition-all duration-300 relative ${
+            className={`whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 border ${
               activeTab === tab 
-              ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/30 border border-brand-500' 
-              : 'glass text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-white/10 hover:border-brand-300 dark:hover:border-brand-700 hover:shadow-md'
+              ? 'bg-foreground text-background border-foreground shadow-md' 
+              : 'bg-surface text-foreground-secondary border-border-strong hover:text-foreground hover:border-foreground/50'
             }`}
           >
             {tab}

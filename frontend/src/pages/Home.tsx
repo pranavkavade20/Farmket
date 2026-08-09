@@ -9,18 +9,11 @@ import { toast } from "sonner";
 import {
   HeroSection,
   SocialProofSection,
-  ProblemSolutionSection,
-  HowItWorksSection,
   FeaturesBentoSection,
   PopularCategories,
-  ServicesSection,
-  PromoBanners,
   WeeklyBestSelling,
   ProductGridSection,
-  ProductShowcaseSection,
   SuccessStoriesSection,
-  MarketplaceActivitySection,
-  FAQSection,
   CTASection
 } from '@/components/sections';
 
@@ -64,31 +57,19 @@ const Home = () => {
       {/* 2. Social Proof */}
       <SocialProofSection />
 
+      {/* 3. Core Value Proposition / Features */}
+      <FeaturesBentoSection />
 
-      {/* E-Commerce Sections integrated into the premium flow */}
+      {/* 4. Marketplace Preview */}
       <section className="w-full bg-surface py-20 border-b border-border-subtle">
-        <div className="mx-auto w-full max-w-[1600px] px-6 sm:px-8 lg:px-12">
+        <div className="mx-auto w-full max-w-7xl px-6 lg:px-8">
            <PopularCategories categories={categoriesList} />
         </div>
       </section>
 
-      {/* Services Band */}
-      <section className="w-full bg-surface pb-16 pt-4">
-        <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8">
-           <ServicesSection />
-        </div>
-      </section>
-
-      {/* Promo Banners Band */}
-      <section className="w-full bg-surface py-8">
-        <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8">
-           <PromoBanners />
-        </div>
-      </section>
-
       {/* Products Band */}
-      <section className="w-full bg-background border-t border-border-subtle pt-12">
-        <div className="mx-auto w-full max-w-[1600px] px-6 sm:px-8 lg:px-12 flex flex-col">
+      <section className="w-full bg-background border-t border-border-subtle pt-24 pb-16">
+        <div className="mx-auto w-full max-w-7xl px-6 lg:px-8 flex flex-col gap-24">
           <WeeklyBestSelling 
             products={products.slice(0, 5).reverse()} 
             onAddToCart={handleAddToCart}
@@ -106,7 +87,7 @@ const Home = () => {
       </section>
 
       {/* Activity and Testimonials */}
-      <div className="mt-16 border-t border-border-subtle bg-surface">
+      <div className="mt-8 border-t border-border-subtle bg-surface">
         <SuccessStoriesSection />
       </div>
       

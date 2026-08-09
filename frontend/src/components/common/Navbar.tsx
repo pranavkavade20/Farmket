@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/features/auth";
 import { useTheme } from "@/context";
 import { useCart } from "@/features/buyer";
-import { Button, Avatar } from "@/components/ui";
+import { Avatar } from "@/components/ui";
 import {
   Menu,
   X,
@@ -70,10 +70,10 @@ const Navbar = () => {
       to={to}
       onClick={closeMobile}
       className={cn(
-        "flex items-center gap-1.5 text-[15px] font-medium transition-all duration-300 ease-out px-3 py-2 rounded-lg",
+        "flex items-center gap-1.5 text-sm transition-all duration-300 ease-out px-4 py-2 rounded-full",
         isActive(to)
-          ? "text-brand bg-brand/10 dark:bg-brand/20"
-          : "text-foreground-secondary hover:text-foreground hover:bg-state-hover"
+          ? "font-semibold text-foreground bg-foreground/5"
+          : "font-medium text-foreground-secondary hover:text-foreground hover:bg-state-hover border border-transparent"
       )}
     >
       {label}
@@ -83,24 +83,21 @@ const Navbar = () => {
   return (
     <div className={cn(
       "sticky top-0 z-50 w-full transition-all duration-300 border-b",
-      isScrolled ? "bg-surface/90 backdrop-blur-xl border-border-subtle shadow-sm py-2" : "bg-background border-transparent py-4"
+      isScrolled ? "bg-background/80 backdrop-blur-xl border-border-subtle shadow-sm py-2" : "bg-background border-transparent py-4"
     )}>
-      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="flex h-14 items-center justify-between gap-4">
 
           {/* Left: Logo & Main Navigation */}
-          <div className="flex items-center gap-6 xl:gap-10 shrink-0">
-            <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="relative">
-                <div className="absolute inset-0 bg-brand rounded-full blur-md opacity-0 group-hover:opacity-40 transition-opacity duration-300"></div>
-                <img src={logo} alt="Farmket Logo" className="h-8 w-8 object-contain relative z-10 transition-transform duration-300 group-hover:scale-105" />
-              </div>
-              <span className="text-xl font-display font-bold tracking-tight text-foreground">
-                Farm<span className="text-brand">ket</span>
+          <div className="flex items-center gap-8 shrink-0">
+            <Link to="/" className="flex items-center gap-3 group">
+              <img src={logo} alt="Farmket Logo" className="h-8 w-8 object-contain transition-transform duration-300 group-hover:scale-105" />
+              <span className="text-xl font-display font-bold tracking-tight text-foreground group-hover:text-brand transition-colors duration-300">
+                Farmket
               </span>
             </Link>
 
-            <div className="hidden lg:flex items-center gap-1">
+            <div className="hidden lg:flex items-center gap-1 ml-4">
               {navLink("/", "Home")}
               {navLink("/marketplace", "Marketplace")}
               {navLink("/feed", "Social")}
@@ -109,28 +106,28 @@ const Navbar = () => {
           </div>
 
           {/* Right: User Actions */}
-          <div className="flex items-center justify-end gap-2 xl:gap-3 shrink-0">
+          <div className="flex items-center justify-end gap-2 shrink-0">
             
             <button
               onClick={toggleDark}
               aria-label="Toggle dark mode"
-              className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full text-foreground-secondary transition-all hover:bg-state-hover hover:text-foreground"
+              className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full text-foreground-secondary transition-all hover:bg-state-hover hover:text-foreground border border-transparent hover:border-border-subtle"
             >
-              {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
 
             {user ? (
-              <div className="flex items-center gap-1 sm:gap-2">
+              <div className="flex items-center gap-1 sm:gap-2 pl-2">
                 <NotificationCenter />
                 
                 {user.user_type === 'buyer' && (
                   <Link
                     to="/cart"
-                    className="flex h-10 w-10 items-center justify-center rounded-full text-foreground-secondary transition-all hover:bg-state-hover hover:text-foreground relative"
+                    className="flex h-10 w-10 items-center justify-center rounded-full text-foreground-secondary transition-all hover:bg-state-hover hover:text-foreground relative border border-transparent hover:border-border-subtle"
                   >
-                    <ShoppingCart className="h-5 w-5" />
+                    <ShoppingCart className="h-4 w-4" />
                     {itemCount > 0 && (
-                      <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-accent-orange px-1 text-[10px] font-bold text-white shadow-sm ring-2 ring-surface">
+                      <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-brand px-1 text-[10px] font-bold text-white shadow-sm">
                         {itemCount > 9 ? "9+" : itemCount}
                       </span>
                     )}
@@ -140,7 +137,7 @@ const Navbar = () => {
                 <div className="hidden lg:flex items-center gap-3 pl-3 ml-1 border-l border-border-subtle relative" ref={dropdownRef}>
                   <button 
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="flex items-center gap-2 hover:bg-state-hover py-1.5 px-3 rounded-full transition-colors group focus-ring"
+                    className="flex items-center gap-2 hover:bg-state-hover py-1.5 px-3 rounded-full transition-colors group focus-ring border border-transparent hover:border-border-subtle"
                   >
                     <Avatar 
                       src={user.profile_picture || undefined} 
@@ -148,14 +145,14 @@ const Navbar = () => {
                       size="sm" 
                     />
                     <div className="flex flex-col items-start leading-none">
-                      <span className="text-sm font-semibold text-foreground group-hover:text-brand transition-colors">
+                      <span className="text-sm font-semibold text-foreground transition-colors">
                         {user.first_name || user.username}
                       </span>
-                      <span className="text-[11px] font-medium text-foreground-secondary uppercase tracking-wider">
+                      <span className="text-[10px] font-semibold text-foreground-secondary uppercase tracking-wider">
                         {user.user_type}
                       </span>
                     </div>
-                    <ChevronDown className={cn("h-4 w-4 text-muted ml-1 group-hover:text-foreground transition-transform duration-200", isDropdownOpen && "rotate-180")} />
+                    <ChevronDown className={cn("h-4 w-4 text-foreground-secondary ml-1 transition-transform duration-200", isDropdownOpen && "rotate-180")} />
                   </button>
                   
                   {/* Dropdown Menu */}
@@ -166,40 +163,40 @@ const Navbar = () => {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         transition={{ duration: 0.15, ease: "easeOut" }}
-                        className="absolute right-0 top-full mt-2 w-56 bg-surface rounded-2xl shadow-xl border border-border-subtle overflow-hidden z-50"
+                        className="absolute right-0 top-full mt-2 w-56 bg-surface rounded-2xl shadow-md border border-border-strong overflow-hidden z-50"
                       >
-                        <div className="p-3 border-b border-border-subtle bg-surface-elevated/50">
+                        <div className="p-3 border-b border-border-subtle bg-background">
                           <p className="text-sm font-semibold text-foreground truncate">{user.first_name || user.username}</p>
                           <p className="text-xs text-foreground-secondary truncate">{user.email}</p>
                         </div>
-                        <div className="p-2 flex flex-col gap-1">
+                        <div className="p-2 flex flex-col gap-1 bg-surface">
                           <Link to="/dashboard" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground rounded-lg hover:bg-state-hover transition-colors">
-                            <LayoutDashboard className="h-4 w-4 text-muted" /> Dashboard
+                            <LayoutDashboard className="h-4 w-4 text-foreground-secondary" /> Dashboard
                           </Link>
                           
                           {/* Role Specific Links */}
                           {user.user_type === 'admin' ? (
                             <Link to="/dashboard/admin/executive" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground rounded-lg hover:bg-state-hover transition-colors">
-                              <Activity className="h-4 w-4 text-muted" /> Analytics
+                              <Activity className="h-4 w-4 text-foreground-secondary" /> Analytics
                             </Link>
                           ) : (
                             <>
                               <Link to="/dashboard/profile" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground rounded-lg hover:bg-state-hover transition-colors">
-                                <User className="h-4 w-4 text-muted" /> Profile
+                                <User className="h-4 w-4 text-foreground-secondary" /> Profile
                               </Link>
                               {user.user_type === 'farmer' && (
                                 <>
                                   <Link to="/dashboard/products" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground rounded-lg hover:bg-state-hover transition-colors">
-                                    <Store className="h-4 w-4 text-muted" /> My Products
+                                    <Store className="h-4 w-4 text-foreground-secondary" /> My Products
                                   </Link>
                                   <Link to="/farmer/orders" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground rounded-lg hover:bg-state-hover transition-colors">
-                                    <ShoppingBag className="h-4 w-4 text-muted" /> Orders
+                                    <ShoppingBag className="h-4 w-4 text-foreground-secondary" /> Orders
                                   </Link>
                                 </>
                               )}
                               {user.user_type === 'buyer' && (
                                 <Link to="/dashboard/orders" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground rounded-lg hover:bg-state-hover transition-colors">
-                                  <ShoppingBag className="h-4 w-4 text-muted" /> My Orders
+                                  <ShoppingBag className="h-4 w-4 text-foreground-secondary" /> My Orders
                                 </Link>
                               )}
                             </>
@@ -217,23 +214,23 @@ const Navbar = () => {
                 </div>
               </div>
             ) : (
-              <div className="hidden lg:flex items-center gap-3 pl-3">
-                <Link to="/login">
-                  <Button variant="ghost" size="sm" className="font-semibold">Log In</Button>
+              <div className="hidden lg:flex items-center gap-2 pl-3 ml-2 border-l border-border-subtle">
+                <Link to="/login" className="px-4 py-2 text-sm font-semibold text-foreground-secondary hover:text-foreground transition-colors">
+                  Log In
                 </Link>
-                <Link to="/register">
-                  <Button variant="primary" size="sm" className="font-semibold rounded-full shadow-sm">Sign Up</Button>
+                <Link to="/register" className="px-4 py-2 rounded-full bg-foreground text-background text-sm font-semibold hover:scale-105 active:scale-95 transition-all shadow-sm">
+                  Sign Up
                 </Link>
               </div>
             )}
 
             {/* Mobile menu button */}
-            <div className="flex items-center gap-2 lg:hidden">
+            <div className="flex items-center gap-2 lg:hidden pl-2 border-l border-border-subtle ml-2">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-state-hover text-foreground transition-colors focus-ring"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-border-strong bg-surface text-foreground transition-colors focus-ring"
               >
-                {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                {isMobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
               </button>
             </div>
           </div>
@@ -248,7 +245,7 @@ const Navbar = () => {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="border-t border-border-subtle bg-surface lg:hidden overflow-hidden"
+            className="border-t border-border-subtle bg-surface lg:hidden overflow-hidden shadow-md"
           >
             <div className="flex flex-col gap-1 px-4 py-4">
               {[
@@ -261,7 +258,12 @@ const Navbar = () => {
                   key={to}
                   to={to}
                   onClick={closeMobile}
-                  className="rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-brand/10 hover:text-brand transition-colors"
+                  className={cn(
+                    "rounded-xl px-4 py-3 text-sm transition-colors",
+                    isActive(to) 
+                      ? "bg-background border border-border-strong font-bold text-foreground shadow-sm" 
+                      : "font-medium text-foreground hover:bg-state-hover border border-transparent"
+                  )}
                 >
                   {label}
                 </Link>
@@ -271,40 +273,40 @@ const Navbar = () => {
 
               {user ? (
                 <>
-                  <div className="px-4 py-2 mb-2 bg-surface-elevated/30 rounded-lg flex items-center gap-3">
+                  <div className="px-4 py-3 mb-2 bg-background border border-border-subtle rounded-xl flex items-center gap-3 shadow-sm">
                      <Avatar src={user.profile_picture || undefined} alt={user.first_name || user.username} size="sm" />
                      <div>
-                       <p className="text-sm font-semibold text-foreground">{user.first_name || user.username}</p>
-                       <p className="text-xs text-foreground-secondary uppercase tracking-wider">{user.user_type}</p>
+                       <p className="text-sm font-bold text-foreground">{user.first_name || user.username}</p>
+                       <p className="text-[10px] text-foreground-secondary uppercase tracking-wider font-semibold">{user.user_type}</p>
                      </div>
                   </div>
                   
                   <Link to="/dashboard" onClick={closeMobile} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors">
-                    <LayoutDashboard className="h-4 w-4 text-muted" /> Dashboard
+                    <LayoutDashboard className="h-4 w-4 text-foreground-secondary" /> Dashboard
                   </Link>
 
                   {user.user_type === 'admin' ? (
                      <Link to="/dashboard/admin/executive" onClick={closeMobile} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors">
-                       <Activity className="h-4 w-4 text-muted" /> Analytics
+                       <Activity className="h-4 w-4 text-foreground-secondary" /> Analytics
                      </Link>
                   ) : (
                     <>
                       <Link to="/dashboard/profile" onClick={closeMobile} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors">
-                        <User className="h-4 w-4 text-muted" /> Profile
+                        <User className="h-4 w-4 text-foreground-secondary" /> Profile
                       </Link>
                       {user.user_type === 'farmer' && (
                         <>
                           <Link to="/dashboard/products" onClick={closeMobile} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors">
-                            <Store className="h-4 w-4 text-muted" /> My Products
+                            <Store className="h-4 w-4 text-foreground-secondary" /> My Products
                           </Link>
                           <Link to="/farmer/orders" onClick={closeMobile} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors">
-                            <ShoppingBag className="h-4 w-4 text-muted" /> Orders
+                            <ShoppingBag className="h-4 w-4 text-foreground-secondary" /> Orders
                           </Link>
                         </>
                       )}
                       {user.user_type === 'buyer' && (
                         <Link to="/dashboard/orders" onClick={closeMobile} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors">
-                          <ShoppingBag className="h-4 w-4 text-muted" /> My Orders
+                          <ShoppingBag className="h-4 w-4 text-foreground-secondary" /> My Orders
                         </Link>
                       )}
                     </>
@@ -314,7 +316,7 @@ const Navbar = () => {
                     onClick={() => { toggleDark(); closeMobile(); }}
                     className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors text-left"
                   >
-                    {isDark ? <Sun className="h-4 w-4 text-muted" /> : <Moon className="h-4 w-4 text-muted" />} Theme
+                    {isDark ? <Sun className="h-4 w-4 text-foreground-secondary" /> : <Moon className="h-4 w-4 text-foreground-secondary" />} Theme
                   </button>
                   <button
                     onClick={() => void handleLogout()}
@@ -325,11 +327,11 @@ const Navbar = () => {
                 </>
               ) : (
                 <div className="mt-4 flex flex-col gap-2">
-                  <Link to="/login" onClick={closeMobile}>
-                    <Button variant="outline" className="w-full justify-center rounded-lg">Log In</Button>
+                  <Link to="/login" onClick={closeMobile} className="px-4 py-3 text-sm font-semibold text-foreground border border-border-strong rounded-xl text-center bg-surface hover:bg-state-hover transition-colors">
+                    Log In
                   </Link>
-                  <Link to="/register" onClick={closeMobile}>
-                    <Button variant="primary" className="w-full justify-center rounded-lg">Sign Up</Button>
+                  <Link to="/register" onClick={closeMobile} className="px-4 py-3 text-sm font-semibold text-background bg-foreground rounded-xl text-center hover:scale-[1.02] active:scale-[0.98] transition-transform">
+                    Sign Up
                   </Link>
                 </div>
               )}
