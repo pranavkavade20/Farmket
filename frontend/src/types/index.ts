@@ -173,3 +173,29 @@ export interface DashboardStats {
   total_revenue?: number;
   total_products?: number;
 }
+
+
+// ─── Social Feed ──────────────────────────────────────────────────────────────
+
+export interface PostMedia {
+  id: number;
+  type: 'image' | 'video';
+  file: string;
+}
+
+export interface Post {
+  id: number;
+  farmer: Partial<User>;
+  title: string;
+  description: string;
+  location: string;
+  is_pinned: boolean;
+  created_at: string;
+  hashtags: string[];
+  media: PostMedia[];
+  product?: Product;
+  is_liked: boolean;
+  likes_count: number;
+  is_saved: boolean;
+  comments_count: number;
+}

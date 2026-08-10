@@ -10,6 +10,16 @@ interface CommentPanelProps {
   isInline?: boolean;
 }
 
+interface CommentType {
+  id: number | string;
+  user?: {
+    first_name?: string;
+    username?: string;
+  };
+  created_at: string;
+  content: string;
+}
+
 export const CommentPanel: React.FC<CommentPanelProps> = ({ postId, isOpen, onClose, isInline = false }) => {
   const { data: comments, isLoading } = useGetCommentsQuery(postId as number, {
     skip: !isOpen || postId === null,
@@ -46,34 +56,34 @@ export const CommentPanel: React.FC<CommentPanelProps> = ({ postId, isOpen, onCl
     }
   };
 
-  const renderComment = (comment: any) => (
+  const renderComment = (comment: CommentType) => (
     <div key={comment.id} className="flex gap-3 mb-6">
       <div className="h-8 w-8 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex-shrink-0 flex items-center justify-center text-white font-bold text-sm shadow-inner">
         {comment.user?.first_name?.[0] || comment.user?.username?.[0] || 'U'}
       </div>
       <div className="flex-1">
-        <div className="bg-gray-50 dark:bg-gray-800/60 rounded-2xl p-3 shadow-sm border border-gray-100 dark:border-gray-700/50">
+        <div className="bg-surface-elevated rounded-2xl p-3 shadow-sm border border-border-subtle">
           <div className="flex items-baseline justify-between mb-1">
-            <span className="font-semibold text-sm text-gray-900 dark:text-gray-100">
+            <span className="font-semibold text-sm text-foreground">
               {comment.user?.first_name || comment.user?.username}
             </span>
-            <span className="text-xs text-gray-500 dark:text-gray-400">
+            <span className="text-xs text-muted">
               {new Date(comment.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
             </span>
           </div>
-          <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{comment.content}</p>
+          <p className="text-sm text-foreground-secondary whitespace-pre-wrap">{comment.content}</p>
         </div>
         <div className="flex items-center gap-4 mt-2 ml-1">
-          <button className="text-xs font-medium text-gray-500 hover:text-orange-500 transition-colors">Like</button>
-          <button className="text-xs font-medium text-gray-500 hover:text-orange-500 transition-colors">Reply</button>
+          <button className="text-xs font-medium text-muted hover:text-orange-500 transition-colors">Like</button>
+          <button className="text-xs font-medium text-muted hover:text-orange-500 transition-colors">Reply</button>
         </div>
       </div>
     </div>
   );
 
   const panelClasses = isInline
-    ? "fixed inset-x-0 bottom-0 z-[70] h-[85vh] rounded-t-3xl md:relative md:inset-auto md:h-full md:w-full md:rounded-3xl md:z-10 bg-white dark:bg-gray-900 shadow-2xl md:shadow-sm border-t md:border border-gray-200 dark:border-gray-800 overflow-hidden flex flex-col"
-    : "fixed inset-x-0 bottom-0 md:inset-x-auto md:right-0 md:top-0 md:bottom-0 md:w-[420px] lg:w-[480px] h-[85vh] md:h-full bg-white dark:bg-gray-900 shadow-2xl z-[70] flex flex-col md:rounded-l-2xl rounded-t-3xl md:rounded-tr-none overflow-hidden border-l border-gray-200 dark:border-gray-800";
+    ? "fixed inset-x-0 bottom-0 z-[70] h-[85vh] rounded-t-3xl md:relative md:inset-auto md:h-full md:w-full md:rounded-3xl md:z-10 bg-surface shadow-2xl md:shadow-sm border-t md:border border-border-subtle overflow-hidden flex flex-col"
+    : "fixed inset-x-0 bottom-0 md:inset-x-auto md:right-0 md:top-0 md:bottom-0 md:w-[420px] lg:w-[480px] h-[85vh] md:h-full bg-surface shadow-2xl z-[70] flex flex-col md:rounded-l-2xl rounded-t-3xl md:rounded-tr-none overflow-hidden border-l border-border-subtle";
 
   return (
     <AnimatePresence>
@@ -99,18 +109,17 @@ export const CommentPanel: React.FC<CommentPanelProps> = ({ postId, isOpen, onCl
           >
             {/* Mobile handle */}
             <div className="md:hidden flex justify-center pt-3 pb-1 w-full" onClick={onClose}>
-              <div className="w-12 h-1.5 bg-gray-300 dark:bg-gray-700 rounded-full" />
+              <div className="w-12 h-1.5 bg-border-strong rounded-full" />
             </div>
 
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800 sticky top-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md z-10">
-              <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 flex items-center gap-2">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border-subtle sticky top-0 bg-surface/80 backdrop-blur-md z-10">
+              <h3 className="font-bold text-lg text-foreground flex items-center gap-2">
                 <MessageCircle className="text-orange-500" size={20} />
                 Comments
               </h3>
               <button
-                onClick={onClose}
-                className="p-2 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                className="p-2 text-muted hover:text-foreground hover:bg-surface-elevated rounded-full transition-colors"
               >
                 <X size={20} />
               </button>
@@ -127,18 +136,18 @@ export const CommentPanel: React.FC<CommentPanelProps> = ({ postId, isOpen, onCl
                   {comments.map(renderComment)}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400 space-y-4">
-                  <div className="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mb-2">
-                    <MessageCircle size={28} className="text-gray-400 dark:text-gray-500" />
+                <div className="flex flex-col items-center justify-center h-full text-muted space-y-4">
+                  <div className="w-16 h-16 bg-surface-elevated rounded-full flex items-center justify-center mb-2">
+                    <MessageCircle size={28} className="text-muted" />
                   </div>
-                  <p className="font-medium text-gray-600 dark:text-gray-300">No comments yet</p>
+                  <p className="font-medium text-foreground-secondary">No comments yet</p>
                   <p className="text-sm">Be the first to share your thoughts!</p>
                 </div>
               )}
             </div>
 
             {/* Input Area */}
-            <div className="p-4 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 sticky bottom-0 z-10">
+            <div className="p-4 border-t border-border-subtle bg-surface sticky bottom-0 z-10">
               <form onSubmit={handleSubmit} className="flex gap-3">
                 <div className="flex-1 relative">
                   <input
@@ -146,7 +155,7 @@ export const CommentPanel: React.FC<CommentPanelProps> = ({ postId, isOpen, onCl
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
                     placeholder="Add a comment..."
-                    className="w-full bg-gray-100 dark:bg-gray-800 border-none rounded-full py-3 px-5 pr-12 focus:outline-none focus:ring-2 focus:ring-orange-500/50 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500"
+                    className="w-full bg-surface-elevated border-none rounded-full py-3 px-5 pr-12 focus:outline-none focus:ring-2 focus:ring-orange-500/50 text-sm text-foreground placeholder-muted"
                   />
                   <button
                     type="submit"

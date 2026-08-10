@@ -155,7 +155,7 @@ export const SocialFeed: React.FC = () => {
       )}
       
       {!isFetching && posts.length === 0 && (
-        <div className="text-center py-20 text-gray-500">
+        <div className="text-center py-20 text-muted">
           No posts to show right now.
         </div>
       )}

@@ -4,11 +4,12 @@ import { Image as ImageIcon, Video,  MapPin, Tag, Package, X, Check } from 'luci
 import { useCreatePostMutation, useUpdatePostMutation } from '../api/socialApi';
 import { productService } from '@/features/products/services/productService';
 import { useAppSelector } from '@/app/hooks';
+import { Post, Product } from '@/types';
 
 interface PostComposerProps {
   onSuccess?: () => void;
   onClose?: () => void;
-  existingPost?: any; // For edit mode
+  existingPost?: Post; // For edit mode
 }
 
 export const PostComposer: React.FC<PostComposerProps> = ({ onSuccess, onClose, existingPost }) => {
@@ -17,7 +18,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({ onSuccess, onClose, 
   const [updatePost, { isLoading: isUpdating }] = useUpdatePostMutation();
   const isLoading = isCreating || isUpdating;
 
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
 
   // Pre-fill state if editing
   const [title, setTitle] = useState(existingPost?.title || '');
@@ -100,12 +101,12 @@ export const PostComposer: React.FC<PostComposerProps> = ({ onSuccess, onClose, 
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden max-w-2xl w-full mx-auto max-h-[90vh] flex flex-col"
+      className="bg-surface rounded-2xl shadow-xl border border-border-subtle overflow-hidden max-w-2xl w-full mx-auto max-h-[90vh] flex flex-col"
     >
-      <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-900/50 shrink-0">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white">{existingPost ? 'Edit Post' : 'Create New Post'}</h2>
+      <div className="p-6 border-b border-border-subtle flex justify-between items-center bg-surface-elevated shrink-0">
+        <h2 className="text-xl font-bold text-foreground">{existingPost ? 'Edit Post' : 'Create New Post'}</h2>
         {onClose && (
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+          <button onClick={onClose} className="text-muted hover:text-foreground">
             <X size={24} />
           </button>
         )}
@@ -123,13 +124,13 @@ export const PostComposer: React.FC<PostComposerProps> = ({ onSuccess, onClose, 
               placeholder="Post Title (optional)" 
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-transparent border-none text-lg font-semibold placeholder-gray-400 focus:ring-0 p-0 text-gray-900 dark:text-white"
+              className="w-full bg-transparent border-none text-lg font-semibold placeholder-muted focus:ring-0 p-0 text-foreground"
             />
             <textarea 
               placeholder="What are you harvesting today?" 
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-transparent border-none resize-none placeholder-gray-400 focus:ring-0 p-0 text-gray-700 dark:text-gray-300 min-h-[100px]"
+              className="w-full bg-transparent border-none resize-none placeholder-muted focus:ring-0 p-0 text-foreground min-h-[100px]"
             />
           </div>
         </div>
@@ -169,17 +170,17 @@ export const PostComposer: React.FC<PostComposerProps> = ({ onSuccess, onClose, 
         )}
 
         {/* Pin Product Details */}
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 space-y-4 border border-gray-100 dark:border-gray-700/50">
-          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">Pin Your Product (Optional)</h3>
+        <div className="bg-surface-elevated rounded-xl p-4 space-y-4 border border-border-subtle">
+          <h3 className="text-sm font-semibold text-foreground-secondary uppercase tracking-wider mb-2">Pin Your Product (Optional)</h3>
           
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Package size={16} className="text-gray-400" />
+              <Package size={16} className="text-muted" />
             </div>
             <select
               value={productId}
               onChange={(e) => setProductId(e.target.value)}
-              className="pl-9 w-full rounded-lg border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm text-gray-700 dark:text-gray-200"
+              className="pl-9 w-full rounded-lg border-border-subtle bg-surface focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm text-foreground"
             >
               <option value="">Select a product to pin...</option>
               {products.map((prod: any) => (
@@ -192,20 +193,20 @@ export const PostComposer: React.FC<PostComposerProps> = ({ onSuccess, onClose, 
           
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <MapPin size={16} className="text-gray-400" />
+              <MapPin size={16} className="text-muted" />
             </div>
             <input 
               type="text" 
               placeholder="Location" 
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              className="pl-9 w-full rounded-lg border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
+              className="pl-9 w-full rounded-lg border-border-subtle bg-surface focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
             />
           </div>
         </div>
 
         {/* Bottom Actions */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-800">
+        <div className="flex items-center justify-between pt-4 border-t border-border-subtle">
           <div className="flex items-center space-x-2">
             <label className="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-full cursor-pointer transition-colors">
               <ImageIcon size={22} />

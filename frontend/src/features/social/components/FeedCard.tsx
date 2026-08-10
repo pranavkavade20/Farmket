@@ -3,11 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, MessageCircle, Share2, Bookmark, ShoppingBag, MapPin, MoreHorizontal, Pin, VolumeX, Volume2, Calendar, Sprout } from 'lucide-react';
 import { useLikePostMutation, useUnlikePostMutation, useSavePostMutation, useUnsavePostMutation } from '../api/socialApi';
 import { useAppSelector } from '@/app/hooks';
+import { Post, Product } from '@/types';
 
 interface FeedCardProps {
-  post: any;
+  post: Post;
   onCommentClick: (postId: number) => void;
-  onBuyNowClick: (product: any) => void;
+  onBuyNowClick: (product: Product) => void;
   isActive?: boolean;
 }
 
@@ -105,10 +106,10 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={handleLike}
-        className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 transition-colors ${isLiked ? 'text-red-500' : 'text-gray-600 dark:text-gray-300 hover:text-red-500'}`}
+        className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 transition-colors ${isLiked ? 'text-red-500' : 'text-foreground-secondary hover:text-red-500'}`}
         title="Like"
       >
-        <div className={`p-2 rounded-full ${isDesktop ? 'bg-gray-100 dark:bg-gray-800' : ''}`}>
+        <div className={`p-2 rounded-full ${isDesktop ? 'bg-surface-elevated' : ''}`}>
           <Heart size={isDesktop ? 22 : 24} fill={isLiked ? 'currentColor' : 'none'} className={isLiked ? 'drop-shadow-sm' : ''} />
         </div>
         <span className="font-semibold text-xs">{likesCount}</span>
@@ -118,10 +119,10 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => onCommentClick(post.id)}
-        className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 text-gray-600 dark:text-gray-300 hover:text-orange-500 transition-colors`}
+        className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 text-foreground-secondary hover:text-orange-500 transition-colors`}
         title="Comment"
       >
-        <div className={`p-2 rounded-full ${isDesktop ? 'bg-gray-100 dark:bg-gray-800' : ''}`}>
+        <div className={`p-2 rounded-full ${isDesktop ? 'bg-surface-elevated' : ''}`}>
           <MessageCircle size={isDesktop ? 22 : 24} />
         </div>
         <span className="font-semibold text-xs">{post.comments_count}</span>
@@ -130,10 +131,10 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
       <motion.button 
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
-        className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 text-gray-600 dark:text-gray-300 hover:text-blue-500 transition-colors`}
+        className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 text-foreground-secondary hover:text-blue-500 transition-colors`}
         title="Share"
       >
-        <div className={`p-2 rounded-full ${isDesktop ? 'bg-gray-100 dark:bg-gray-800' : ''}`}>
+        <div className={`p-2 rounded-full ${isDesktop ? 'bg-surface-elevated' : ''}`}>
           <Share2 size={isDesktop ? 22 : 24} />
         </div>
         {isDesktop && <span className="font-semibold text-xs">Share</span>}
@@ -143,10 +144,10 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={handleSave}
-        className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 transition-colors ${isSaved ? 'text-orange-600 dark:text-orange-400' : 'text-gray-600 dark:text-gray-300 hover:text-orange-500'}`}
+        className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 transition-colors ${isSaved ? 'text-orange-600 dark:text-orange-400' : 'text-foreground-secondary hover:text-orange-500'}`}
         title="Bookmark"
       >
-        <div className={`p-2 rounded-full ${isDesktop ? 'bg-gray-100 dark:bg-gray-800' : ''}`}>
+        <div className={`p-2 rounded-full ${isDesktop ? 'bg-surface-elevated' : ''}`}>
           <Bookmark size={isDesktop ? 22 : 24} fill={isSaved ? 'currentColor' : 'none'} />
         </div>
         {isDesktop && <span className="font-semibold text-xs">Save</span>}
@@ -158,7 +159,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`bg-white dark:bg-gray-900 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-800 overflow-hidden mb-8 ${isActive ? 'md:h-full flex flex-col' : ''}`}
+      className={`bg-surface rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-border-subtle overflow-hidden mb-8 ${isActive ? 'md:h-full flex flex-col' : ''}`}
     >
       <div className={`flex flex-col md:flex-row ${isActive ? 'md:h-full' : ''}`}>
         {/* Main Content Area */}
@@ -170,25 +171,25 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
                 {post.farmer?.first_name?.[0] || post.farmer?.username?.[0] || 'F'}
               </div>
               <div>
-                <h3 className="font-bold text-gray-900 dark:text-gray-100 flex items-center gap-1.5 text-base">
+                <h3 className="font-bold text-foreground flex items-center gap-1.5 text-base">
                   {post.farmer?.first_name} {post.farmer?.last_name}
                   {post.is_pinned && <Pin size={14} className="text-orange-500 rotate-45" />}
                 </h3>
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                <p className="text-xs font-medium text-muted flex items-center gap-1">
                   {post.location && <><MapPin size={12} /> {post.location} • </>}
                   {formattedDate}
                 </p>
               </div>
             </div>
-            <button className="p-2 text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-full transition-colors">
+            <button className="p-2 text-muted hover:text-foreground hover:bg-surface-elevated rounded-full transition-colors">
               <MoreHorizontal size={20} />
             </button>
           </div>
 
           {/* Caption */}
           <div className="px-4 md:px-5 pb-4">
-            {post.title && <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg mb-1">{post.title}</h4>}
-            <div className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
+            {post.title && <h4 className="font-bold text-foreground text-lg mb-1">{post.title}</h4>}
+            <div className="text-foreground-secondary text-sm leading-relaxed whitespace-pre-wrap">
               {displayCaption}
               {isLongCaption && (
                 <button 
@@ -347,7 +348,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
           )}
 
           {/* Mobile Action Bar (Horizontal at the bottom) */}
-          <div className="md:hidden flex items-center justify-between p-4 border-t border-gray-100 dark:border-gray-800">
+          <div className="md:hidden flex items-center justify-between p-4 border-t border-border-subtle">
             <div className="flex items-center gap-6">
               <ActionButtons isDesktop={false} />
             </div>
@@ -355,7 +356,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
         </div>
 
         {/* Desktop Action Column (Vertical on the right) */}
-        <div className="hidden md:flex flex-col items-center justify-end p-4 border-l border-gray-100 dark:border-gray-800 w-20 bg-gray-50/30 dark:bg-gray-900/30 gap-8">
+        <div className="hidden md:flex flex-col items-center justify-end p-4 border-l border-border-subtle w-20 bg-surface-elevated gap-8">
           <ActionButtons isDesktop={true} />
         </div>
       </div>

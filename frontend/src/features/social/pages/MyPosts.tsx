@@ -20,13 +20,13 @@ export default function MyPosts() {
   return (
     <div className="max-w-5xl mx-auto py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">My Posts</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-2">Manage your posts and update your community.</p>
+        <h1 className="text-3xl font-extrabold text-foreground tracking-tight">My Posts</h1>
+        <p className="text-muted mt-2">Manage your posts and update your community.</p>
       </div>
 
       {posts.length === 0 ? (
-        <div className="text-center py-20 bg-gray-50 dark:bg-gray-900/50 rounded-3xl border border-gray-100 dark:border-gray-800">
-          <p className="text-gray-500 dark:text-gray-400 font-medium">You haven't created any posts yet.</p>
+        <div className="text-center py-20 bg-surface rounded-3xl border border-border-subtle">
+          <p className="text-muted font-medium">You haven't created any posts yet.</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-4">
@@ -38,7 +38,7 @@ export default function MyPosts() {
                 key={post.id}
                 whileHover={{ scale: 0.98 }}
                 onClick={() => setEditingPost(post)}
-                className="relative aspect-square bg-gray-100 dark:bg-gray-800 rounded-xl md:rounded-2xl overflow-hidden group cursor-pointer"
+                className="relative aspect-square bg-surface-elevated rounded-xl md:rounded-2xl overflow-hidden group cursor-pointer"
               >
                 {firstMedia ? (
                   firstMedia.type === 'video' ? (
