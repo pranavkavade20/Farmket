@@ -23,33 +23,13 @@ dist-ssr
 *.sln
 *.sw?
 
-# Ignore assets folder
-src/assets/
-
-# Ignore public assets
-public/assets/
-
-# Ignore images
-*.png
-*.jpg
-*.jpeg
-*.gif
-*.svg
-*.webp
-
-# Ignore videos
-*.mp4
-*.mov
-*.avi
-*.webm
-
-# Ignore audio
-*.mp3
-*.wav
-
-# Ignore PDFs and docs
-*.pdf
-*.docx
-
 # Environments
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# eslint
+.eslintcache

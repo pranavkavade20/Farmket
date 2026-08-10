@@ -160,3 +160,13 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# Editor directories and files
+.vscode/
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
