@@ -50,3 +50,6 @@ public/assets/
 # Ignore PDFs and docs
 *.pdf
 *.docx
+
+# Environments
+.env
