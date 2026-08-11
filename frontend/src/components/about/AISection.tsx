@@ -1,29 +1,18 @@
-import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { AIMock } from './ui-mocks/AIMock';
 import { DashboardMock } from './ui-mocks/DashboardMock';
 import { BrainCircuit, Sparkles, Network } from 'lucide-react';
+import { floatingVariants, ambientBackgroundVariants, floatingSlightVariants } from '@/utils/animations';
 
 export const AISection = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"]
-  });
-
-  const dashboardY = useTransform(scrollYProgress, [0, 1], [0, -100]);
-  const dashboardScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.9, 1, 0.9]);
-  const dashboardOpacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 0.4, 0.4, 0]);
-  
-  const aiY = useTransform(scrollYProgress, [0, 1], [150, -150]);
-  const aiScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 1.1, 0.8]);
-  const aiOpacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0]);
-
   return (
-    <section ref={containerRef} className="bg-gray-50 dark:bg-[#0A100D] py-32 relative overflow-hidden text-gray-900 dark:text-white transition-colors duration-300">
+    <section className="bg-gray-50 dark:bg-[#0A100D] py-32 relative overflow-hidden text-gray-900 dark:text-white transition-colors duration-300">
       {/* Dynamic Background Network */}
-      <div className="absolute inset-0 z-0 opacity-20">
+      <motion.div 
+        variants={ambientBackgroundVariants}
+        animate="animate"
+        className="absolute inset-0 z-0 opacity-20"
+      >
         <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -32,16 +21,15 @@ export const AISection = () => {
           </defs>
           <rect width="100%" height="100%" fill="url(#grid)" />
         </svg>
-      </div>
+      </motion.div>
 
       <div className="container mx-auto px-6 md:px-12 relative z-10 flex flex-col lg:flex-row-reverse items-center gap-16">
         
         {/* Text Content */}
         <motion.div 
-          initial={{ opacity: 0, x: 50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="flex-1"
         >
           <span className="text-purple-600 dark:text-purple-400 font-semibold tracking-wider uppercase text-sm mb-4 flex items-center gap-2">
@@ -81,18 +69,24 @@ export const AISection = () => {
           
           {/* Background UI Context (Dashboard) */}
           <motion.div 
-            style={{ y: dashboardY, scale: dashboardScale, opacity: dashboardOpacity }}
-            className="absolute z-10 w-full flex justify-center scale-90 blur-[2px] grayscale-[0.5]"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 0.4, scale: 0.9 }}
+            transition={{ duration: 0.8 }}
+            className="absolute z-10 w-full flex justify-center blur-[2px] grayscale-[0.5]"
           >
-            <DashboardMock className="border-purple-500/20" />
+            <motion.div variants={floatingSlightVariants} animate="animate" style={{ animationDelay: '1s' }}>
+              <DashboardMock className="border-purple-500/20" />
+            </motion.div>
           </motion.div>
 
           {/* Foreground AI Widget */}
           <motion.div 
-            style={{ y: aiY, scale: aiScale, opacity: aiOpacity }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
             className="absolute z-20 w-full flex justify-center"
           >
-            <div className="relative">
+            <motion.div variants={floatingVariants} animate="animate" className="relative">
               {/* Connecting glowing line from background to foreground */}
               <svg className="absolute -top-32 left-1/2 -translate-x-1/2 w-2 h-32 -z-10 text-purple-500/50">
                 <line x1="1" y1="0" x2="1" y2="128" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4" className="animate-pulse" />
@@ -102,7 +96,7 @@ export const AISection = () => {
               
               {/* Ambient Glow */}
               <div className="absolute -inset-10 bg-purple-500/20 blur-3xl rounded-full -z-10 opacity-70"></div>
-            </div>
+            </motion.div>
           </motion.div>
 
         </div>

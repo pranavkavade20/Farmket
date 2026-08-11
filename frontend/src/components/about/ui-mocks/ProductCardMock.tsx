@@ -58,7 +58,7 @@ export const ProductCardMock = ({ className = '', style }: { className?: string,
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: '98%' }}
-              transition={{ delay: 0.5, duration: 1 }}
+              transition={{ delay: 0.5, duration: 1, ease: [0.22, 1, 0.36, 1] }}
               className="h-full bg-brand rounded-full"
             />
           </div>

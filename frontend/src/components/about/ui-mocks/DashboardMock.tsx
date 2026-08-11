@@ -51,9 +51,9 @@ export const DashboardMock = ({ className = '' }: { className?: string }) => {
           ].map((stat, i) => (
             <motion.div
               key={stat.label}
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
+              transition={{ delay: i * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="p-4 rounded-xl border border-border-subtle bg-surface flex flex-col gap-2 shadow-sm"
             >
               <div className="flex items-center gap-2 text-foreground-secondary text-xs font-medium">
@@ -83,7 +83,7 @@ export const DashboardMock = ({ className = '' }: { className?: string }) => {
                 key={i}
                 initial={{ height: "0%" }}
                 animate={{ height: `${h}%` }}
-                transition={{ delay: 0.3 + i * 0.05, duration: 0.5 }}
+                transition={{ delay: 0.3 + i * 0.05, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                 className={`flex-1 rounded-t-sm ${i === 6 ? 'bg-brand' : 'bg-brand/20'}`}
               />
             ))}

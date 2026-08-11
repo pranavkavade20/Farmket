@@ -1,29 +1,25 @@
-import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { SearchInterfaceMock } from './ui-mocks/SearchInterfaceMock';
 import { ProductCardMock } from './ui-mocks/ProductCardMock';
 import { Search, Sparkles, ShieldCheck } from 'lucide-react';
+import { floatingVariants, ambientBackgroundVariants } from '@/utils/animations';
 
 export const BuyerStory = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"]
-  });
-
-  const searchY = useTransform(scrollYProgress, [0, 0.5], [100, 0]);
-  const searchScale = useTransform(scrollYProgress, [0, 0.5], [0.9, 1]);
-
-  const productsOpacity = useTransform(scrollYProgress, [0.4, 0.6], [0, 1]);
-  const productsY = useTransform(scrollYProgress, [0.4, 0.6], [50, 0]);
-
   return (
-    <section ref={containerRef} className="bg-surface py-32 relative overflow-hidden">
+    <section className="bg-surface py-32 relative overflow-hidden">
       {/* Dynamic Background */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[120px] pointer-events-none transform translate-x-1/3 -translate-y-1/3" />
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-brand/5 rounded-full blur-[100px] pointer-events-none transform -translate-x-1/3 translate-y-1/3" />
+        <motion.div 
+          variants={ambientBackgroundVariants}
+          animate="animate"
+          className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[120px] pointer-events-none transform translate-x-1/3 -translate-y-1/3" 
+        />
+        <motion.div 
+          variants={ambientBackgroundVariants}
+          animate="animate"
+          style={{ animationDelay: '2s' }}
+          className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-brand/5 rounded-full blur-[100px] pointer-events-none transform -translate-x-1/3 translate-y-1/3" 
+        />
       </div>
 
       <div className="container mx-auto px-6 md:px-12 relative z-10">
@@ -31,10 +27,9 @@ export const BuyerStory = () => {
 
           {/* Text Content */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8 }}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="flex-1 max-w-xl"
           >
             <span className="text-blue-500 font-semibold tracking-wider uppercase text-sm mb-4 flex items-center gap-2">
@@ -72,25 +67,31 @@ export const BuyerStory = () => {
           {/* Cinematic UI Presentation */}
           <div className="flex-1 w-full relative h-[600px] flex items-center justify-center perspective-1000">
             <motion.div
-              style={{ y: searchY, scale: searchScale }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
               className="absolute z-20 w-full flex justify-center -top-10"
             >
-              <SearchInterfaceMock className="shadow-2xl ring-1 ring-black/5" />
+              <motion.div variants={floatingVariants} animate="animate">
+                <SearchInterfaceMock className="shadow-2xl ring-1 ring-black/5" />
+              </motion.div>
             </motion.div>
 
             {/* Emerging Product Result */}
             <motion.div
-              style={{ opacity: productsOpacity, y: productsY }}
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
               className="absolute z-30 w-full flex justify-center top-64"
             >
-              <div className="relative">
+              <motion.div variants={floatingVariants} animate="animate" style={{ animationDelay: '1.5s' }} className="relative">
                 {/* Connecting line */}
                 <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-px h-16 bg-gradient-to-b from-brand/50 to-transparent"></div>
                 <ProductCardMock className="shadow-2xl ring-2 ring-brand/50 rotate-y-[-5deg] rotate-x-[5deg] scale-110" />
 
                 {/* Highlight Glow */}
                 <div className="absolute -inset-4 bg-brand/20 blur-2xl -z-10 rounded-full opacity-50"></div>
-              </div>
+              </motion.div>
             </motion.div>
           </div>
 

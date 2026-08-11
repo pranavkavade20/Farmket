@@ -1,27 +1,36 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { ambientBackgroundVariants } from '@/utils/animations';
 
 export const FutureVision = () => {
-  const [particles] = useState<Array<{x: number, y: number, duration: number, delay: number}>>(() => 
-    [...Array(12)].map(() => ({
-      x: Math.random() * 200 - 100,
-      y: Math.random() * 200 - 100,
-      duration: 2 + Math.random() * 2,
-      delay: Math.random() * 2,
-    }))
-  );
+  const [particles, setParticles] = useState<Array<{x: number, y: number, duration: number, delay: number}>>([]);
+
+  useEffect(() => {
+    // Only generate random coordinates on mount to prevent hydration mismatch/layout shifts
+    setParticles(
+      [...Array(12)].map(() => ({
+        x: Math.random() * 200 - 100,
+        y: Math.random() * 200 - 100,
+        duration: 2 + Math.random() * 2,
+        delay: Math.random() * 2,
+      }))
+    );
+  }, []);
 
   return (
     <section className="relative w-full min-h-[80vh] bg-surface flex flex-col items-center justify-center overflow-hidden py-32">
       {/* Background glowing gradients */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand/5 rounded-full blur-[120px] pointer-events-none"></div>
+      <motion.div 
+        variants={ambientBackgroundVariants}
+        animate="animate"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand/5 rounded-full blur-[120px] pointer-events-none" 
+      />
       
       <div className="container mx-auto px-6 md:px-12 relative z-10 text-center flex flex-col items-center">
         <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 1, ease: "easeOut" }}
+          initial={{ opacity: 0, scale: 0.98, y: 24 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="max-w-4xl"
         >
           <h2 className="text-4xl md:text-6xl font-display font-bold leading-tight mb-8">
