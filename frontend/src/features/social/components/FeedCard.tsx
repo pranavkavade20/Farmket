@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, MessageCircle, Share2, Bookmark, ShoppingBag, MapPin, MoreHorizontal, Pin, VolumeX, Volume2, Calendar, Sprout } from 'lucide-react';
 import { useLikePostMutation, useUnlikePostMutation, useSavePostMutation, useUnsavePostMutation } from '../api/socialApi';
 import { useAppSelector } from '@/app/hooks';
-import { Post, Product } from '@/types';
+import type { Post, Product } from '@/types';
 
 interface FeedCardProps {
   post: Post;

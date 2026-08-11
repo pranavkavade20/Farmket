@@ -4,7 +4,7 @@ import { Image as ImageIcon, Video,  MapPin, Tag, Package, X, Check } from 'luci
 import { useCreatePostMutation, useUpdatePostMutation } from '../api/socialApi';
 import { productService } from '@/features/products/services/productService';
 import { useAppSelector } from '@/app/hooks';
-import { Post, Product } from '@/types';
+import type { Post, Product } from '@/types';
 
 interface PostComposerProps {
   onSuccess?: () => void;
