@@ -17,7 +17,7 @@ const buyerSteps = [
 
 export const HowItWorksSection = () => {
   return (
-    <section id="how-it-works" className="relative w-full bg-white dark:bg-[#050505] py-24 lg:py-32 border-b border-gray-100 dark:border-white/5 overflow-hidden">
+    <section id="how-it-works" className="relative w-full bg-background dark:bg-background py-24 lg:py-32 border-b border-gray-100 dark:border-white/5 overflow-hidden">
       {/* Background Gradients */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[40%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] rounded-full bg-brand-50/50 dark:bg-brand-900/10 blur-[120px] mix-blend-multiply dark:mix-blend-lighten" />

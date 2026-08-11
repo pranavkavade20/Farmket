@@ -3,7 +3,7 @@ import {  AlertTriangle, CheckCircle2, TrendingDown, TrendingUp, RefreshCw } fro
 
 export const ProblemSolutionSection = () => {
   return (
-    <section className="relative w-full bg-[#FAFAF8] dark:bg-[#050505] py-24 lg:py-32 overflow-hidden border-b border-gray-100 dark:border-white/5">
+    <section className="relative w-full bg-background dark:bg-background py-24 lg:py-32 overflow-hidden border-b border-gray-100 dark:border-white/5">
       {/* Premium Background Effects */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[20%] left-[-10%] w-[40%] h-[40%] rounded-full bg-red-400/5 dark:bg-red-500/5 blur-[120px] mix-blend-multiply dark:mix-blend-lighten" />

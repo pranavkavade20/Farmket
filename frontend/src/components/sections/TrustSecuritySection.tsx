@@ -3,7 +3,7 @@ import { ShieldCheck, Lock, Fingerprint, BadgeCheck } from 'lucide-react';
 
 export const TrustSecuritySection = () => {
   return (
-    <section className="w-full bg-white dark:bg-[#0A0A0A] py-24 lg:py-32 border-b border-gray-100 dark:border-gray-900">
+    <section className="w-full bg-background dark:bg-background py-24 lg:py-32 border-b border-gray-100 dark:border-gray-900">
       <div className="mx-auto max-w-[1600px] px-6 sm:px-8 lg:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
           

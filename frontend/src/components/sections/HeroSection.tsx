@@ -6,8 +6,8 @@ import buyerImg from "@/assets/images/hero/young_buyer.png";
 
 export const HeroSection = () => {
   return (
-    <section className="relative w-full bg-background overflow-hidden pt-20 pb-24 md:pt-32 md:pb-32 font-sans transition-colors duration-300">
-      <div className="w-full max-w-7xl mx-auto px-6 lg:px-8 flex flex-col lg:flex-row items-center justify-between gap-16 relative z-10">
+    <section className="relative w-full bg-background overflow-hidden pt-14 pb-20 md:pt-20 md:pb-24 lg:pt-24 lg:pb-24 font-sans transition-colors duration-300 min-h-[calc(100vh-5.5rem)] lg:min-h-[calc(100vh-5rem)]">
+      <div className="w-full max-w-7xl mx-auto px-6 lg:px-8 flex min-h-[calc(100vh-5.5rem)] lg:min-h-[calc(100vh-5rem)] flex-col lg:flex-row items-center justify-center gap-12 relative z-10">
         
         {/* Left Content Area */}
         <div className="flex-1 flex flex-col justify-center items-start w-full max-w-2xl">
@@ -102,10 +102,10 @@ export const HeroSection = () => {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="flex-1 w-full relative hidden lg:flex items-center justify-center h-[600px]"
+          className="flex-1 w-full relative hidden lg:flex items-center justify-center h-[420px] xl:h-[520px]"
         >
           {/* Main Visual Composition */}
-          <div className="relative w-full max-w-[600px] aspect-[4/3] flex items-center justify-center">
+          <div className="relative w-full max-w-[480px] xl:max-w-[550px] aspect-[4/3] flex items-center justify-center">
             
             {/* Elegant Background Element */}
             <div className="absolute inset-0 bg-brand/5 dark:bg-brand/10 rounded-[40px] transform -rotate-3 scale-105 border border-brand/10 transition-transform duration-700 hover:rotate-0"></div>

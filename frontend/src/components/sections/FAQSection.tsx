@@ -25,7 +25,7 @@ export const FAQSection = () => {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
 
   return (
-    <section className="relative w-full bg-white dark:bg-[#050505] py-24 lg:py-32 border-b border-gray-100 dark:border-white/5 overflow-hidden">
+    <section className="relative w-full bg-background dark:bg-background py-24 lg:py-32 border-b border-gray-100 dark:border-white/5 overflow-hidden">
       {/* Background Gradients */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 right-0 w-[40%] h-[40%] rounded-full bg-brand-500/5 blur-[120px]" />
