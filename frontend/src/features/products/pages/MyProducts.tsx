@@ -4,11 +4,11 @@ import { ProductTable } from '../components/ProductTable';
 import { useSEO } from '@/hooks';
 import { useAuth } from '@/features/auth';
 import { productService } from '@/features/products';
-import { Button} from '@/components/ui';
+import { Button } from '@/components/ui';
 import {
-  PlusCircle, Package, Edit2, Trash2, Eye, Search,
+  PlusCircle, Package, Trash2, Eye, Search,
   Leaf, TrendingUp, ToggleLeft, ToggleRight,
-  LayoutGrid, List
+  LayoutGrid, List, Badge
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Product } from '@/types';
@@ -125,14 +125,14 @@ const MyProducts = () => {
           />
         </div>
         <div className="flex items-center gap-1 bg-surface border border-border-subtle p-1 rounded-xl shrink-0">
-          <button 
+          <button
             onClick={() => setView('grid')}
             className={`p-2 rounded-lg transition-colors ${view === 'grid' ? 'bg-surface-elevated shadow-sm text-foreground' : 'text-foreground-secondary hover:text-foreground'}`}
             title="Grid View"
           >
             <LayoutGrid className="w-4 h-4" />
           </button>
-          <button 
+          <button
             onClick={() => setView('table')}
             className={`p-2 rounded-lg transition-colors ${view === 'table' ? 'bg-surface-elevated shadow-sm text-foreground' : 'text-foreground-secondary hover:text-foreground'}`}
             title="Table View"
@@ -175,15 +175,15 @@ const MyProducts = () => {
           )}
         </motion.div>
       ) : view === 'table' ? (
-        <ProductTable 
-          products={filteredProducts} 
-          onDelete={handleDelete} 
+        <ProductTable
+          products={filteredProducts}
+          onDelete={handleDelete}
           onToggleAvailability={handleToggleAvailability}
           deletingId={deletingId}
           togglingId={togglingId}
         />
       ) : (
-        <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           <AnimatePresence>
             {filteredProducts.map((product, i) => {
               const primaryImage =
@@ -201,97 +201,108 @@ const MyProducts = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ delay: i * 0.03 }}
-                  className="rounded-2xl bg-surface border border-border-subtle overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                  className="group flex flex-col rounded-2xl bg-surface border border-border-subtle overflow-hidden shadow-sm hover:shadow-md hover:border-border-strong transition-all h-full"
                 >
-                  {/* Image */}
-                  <div className="relative h-44 bg-surface-elevated overflow-hidden border-b border-border-subtle">
+                  {/* Image Container with standard 4:3 aspect ratio */}
+                  <div className="relative aspect-[4/3] w-full bg-surface-elevated border-b border-border-subtle overflow-hidden">
                     <img
-                      src={primaryImage ?? 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop'}
+                      src={primaryImage || undefined}
                       alt={product.name}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    {product.is_organic && (
-                      <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-success text-success-foreground px-2.5 py-1 text-xs font-semibold shadow">
-                        <Leaf className="h-3 w-3" /> Organic
-                      </span>
-                    )}
-                    <span className={`absolute top-3 right-3 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold shadow ${
-                      product.is_available
-                        ? 'bg-success-subtle text-success'
-                        : 'bg-surface text-foreground-secondary border border-border-subtle'
-                    }`}>
-                      {product.is_available ? 'Available' : 'Unavailable'}
-                    </span>
+
+                    {/* Floating Badges */}
+                    <div className="absolute top-3 left-3 flex gap-2">
+                      {product.is_organic && (
+                        <Badge variant="success" size="sm" className="shadow-sm shadow-black/5">Organic</Badge>
+                      )}
+                    </div>
+                    <div className="absolute top-3 right-3 flex gap-2">
+                      <Badge variant={product.is_available ? 'success' : 'outline'} size="sm" className="shadow-sm shadow-black/5 bg-surface/90 backdrop-blur-sm">
+                        {product.is_available ? 'Available' : 'Unavailable'}
+                      </Badge>
+                    </div>
                   </div>
 
                   {/* Content */}
-                  <div className="p-4">
-                    <p className="text-xs font-semibold text-brand uppercase tracking-wide mb-0.5">
+                  <div className="p-5 flex flex-1 flex-col">
+                    <p className="text-xs font-semibold text-foreground-secondary uppercase tracking-wider mb-1">
                       {product.category_name}
                     </p>
-                    <h3 className="font-bold text-foreground mb-1 truncate">{product.name}</h3>
-                    <div className="flex items-center justify-between text-sm mb-3">
-                      <span className="font-bold text-foreground">
-                        {fmt(product.price)}/{product.unit}
-                      </span>
-                      <span className="text-foreground-secondary text-xs font-medium">
+                    <h3 className="text-lg font-bold text-foreground mb-1 truncate leading-tight group-hover:text-brand transition-colors">
+                      {product.name}
+                    </h3>
+
+                    <div className="flex items-center justify-between mt-2 mb-4">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-xl font-black text-foreground">
+                          {fmt(product.price)}
+                        </span>
+                        <span className="text-xs font-bold text-foreground-secondary">
+                          /{product.unit}
+                        </span>
+                      </div>
+                      <span className="text-xs font-semibold text-foreground-secondary bg-background px-2 py-1 rounded-md border border-border-subtle">
                         Stock: {product.stock_quantity}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-foreground-secondary font-medium mb-4">
-                      <span className="flex items-center gap-1"><Eye className="h-3.5 w-3.5" /> {product.views}</span>
+
+                    <div className="flex items-center gap-3 text-xs font-semibold text-foreground-secondary mb-4">
+                      <span className="flex items-center gap-1.5"><Eye className="h-4 w-4 text-foreground" /> {product.views} Views</span>
                       {avgRating && (
-                        <span>⭐ {avgRating.toFixed(1)} ({product.reviews.length})</span>
+                        <span className="flex items-center gap-1 text-accent-yellow">⭐ {avgRating.toFixed(1)} ({product.reviews.length})</span>
                       )}
                     </div>
 
-                    {/* Actions */}
-                    <div className="flex flex-col gap-2">
-                      <Link 
+                    {/* Actions Bar */}
+                    <div className="mt-auto pt-4 border-t border-border-subtle grid grid-cols-4 gap-2">
+                      <Link
                         to="/farmer/crops"
-                        className="flex w-full items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold bg-success-subtle text-success hover:bg-success-subtle/80 transition-colors"
+                        className="col-span-2 flex items-center justify-center gap-1.5 rounded-xl py-2 px-2 text-[11px] sm:text-xs font-bold bg-success-subtle text-success hover:bg-success hover:text-white transition-colors border border-success/20"
+                        title="Manage Crop Lifecycle"
                       >
-                        <Leaf className="h-3.5 w-3.5" /> Manage Crop Lifecycle
+                        <Leaf className="h-3.5 w-3.5 shrink-0" /> Manage Crop
                       </Link>
-                      {product.active_crop_growth_id && (
+
+                      <div className="col-span-2 flex justify-end gap-2">
+                        {product.active_crop_growth_id && (
+                          <button
+                            onClick={() => dispatch(openStageUpdateModal(product.active_crop_growth_id!))}
+                            className="flex-1 flex items-center justify-center rounded-xl bg-info-subtle text-info hover:bg-info hover:text-white transition-colors border border-info/20"
+                            title="Update Stage"
+                          >
+                            <TrendingUp className="h-4 w-4" />
+                          </button>
+                        )}
                         <button
-                          onClick={() => dispatch(openStageUpdateModal(product.active_crop_growth_id!))}
-                          className="flex w-full items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold bg-info-subtle text-info hover:bg-info-subtle/80 transition-colors"
+                          onClick={() => handleToggleAvailability(product)}
+                          disabled={togglingId === product.slug}
+                          className={`flex-1 flex items-center justify-center rounded-xl transition-colors border ${product.is_available
+                            ? 'bg-surface hover:bg-state-hover border-border-strong text-foreground-secondary'
+                            : 'bg-success-subtle text-success hover:bg-success hover:text-white border-success/20'
+                            }`}
+                          title={product.is_available ? 'Hide from marketplace' : 'Show on marketplace'}
                         >
-                          <TrendingUp className="h-3.5 w-3.5" /> Update Stage
+                          {togglingId === product.slug ? (
+                            <span className="animate-spin text-xs">↻</span>
+                          ) : product.is_available ? (
+                            <ToggleRight className="h-4 w-4 text-success" />
+                          ) : (
+                            <ToggleLeft className="h-4 w-4" />
+                          )}
                         </button>
-                      )}
-                      <div className="flex gap-2">
-                      <button
-                        onClick={() => handleToggleAvailability(product)}
-                        disabled={togglingId === product.slug}
-                        className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold transition-colors ${
-                          product.is_available
-                            ? 'bg-surface-elevated text-foreground-secondary hover:bg-state-hover border border-border-subtle'
-                            : 'bg-success-subtle text-success hover:bg-success-subtle/80 border border-success/20'
-                        }`}
-                        title={product.is_available ? 'Hide from marketplace' : 'Show on marketplace'}
-                      >
-                        {togglingId === product.slug ? (
-                          <span className="animate-spin">↻</span>
-                        ) : product.is_available ? (
-                          <><ToggleRight className="h-3.5 w-3.5" /> Available</>
-                        ) : (
-                          <><ToggleLeft className="h-3.5 w-3.5" /> Unavailable</>
-                        )}
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product.slug, product.name)}
-                        disabled={deletingId === product.slug}
-                        className="h-8 w-8 rounded-xl flex items-center justify-center text-danger hover:bg-danger-subtle transition-colors border border-transparent hover:border-danger/20"
-                        title="Delete product"
-                      >
-                        {deletingId === product.slug ? (
-                          <span className="animate-spin text-xs">↻</span>
-                        ) : (
-                          <Trash2 className="h-3.5 w-3.5" />
-                        )}
-                      </button>
+                        <button
+                          onClick={() => handleDelete(product.slug, product.name)}
+                          disabled={deletingId === product.slug}
+                          className="flex-1 flex items-center justify-center rounded-xl text-danger hover:bg-danger hover:text-white transition-colors border border-danger/20 bg-danger-subtle"
+                          title="Delete product"
+                        >
+                          {deletingId === product.slug ? (
+                            <span className="animate-spin text-xs">↻</span>
+                          ) : (
+                            <Trash2 className="h-4 w-4 shrink-0" />
+                          )}
+                        </button>
                       </div>
                     </div>
                   </div>

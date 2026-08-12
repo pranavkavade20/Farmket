@@ -134,7 +134,7 @@ const ProductDetails = () => {
     );
   }
 
-  const images = product.images.length > 0 ? product.images.map(img => img.image) : ['https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=600&fit=crop'];
+  const images = product.images.length > 0 ? product.images.map(img => img.image) : [];
   const avgRating = product.reviews.length > 0 ? (product.reviews.reduce((sum, r) => sum + r.rating, 0) / product.reviews.length).toFixed(1) : '4.8';
   const reviewsCount = product.reviews.length > 0 ? product.reviews.length : 124;
 

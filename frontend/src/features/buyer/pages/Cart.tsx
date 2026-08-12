@@ -152,7 +152,7 @@ const Cart = () => {
                           src={
                             item.product_details.images.find((i) => i.is_primary)?.image ||
                             item.product_details.images[0]?.image ||
-                            'https://images.unsplash.com/photo-1542838132-92c53300491e?w=200&fit=crop'
+                            undefined
                           }
                           alt={item.product_details.name}
                           className="max-h-full max-w-full object-contain mix-blend-multiply dark:mix-blend-normal"

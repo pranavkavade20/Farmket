@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/Table';
+import { Badge } from '@/components/ui';
 import { Leaf, Eye, ToggleLeft, ToggleRight, Trash2, TrendingUp } from 'lucide-react';
 import type { Product } from '@/types';
 import { useAppDispatch } from '@/app/hooks';
@@ -14,12 +15,12 @@ interface ProductTableProps {
   togglingId: string | null;
 }
 
-export const ProductTable: React.FC<ProductTableProps> = ({ 
-  products, 
-  onDelete, 
-  onToggleAvailability, 
-  deletingId, 
-  togglingId 
+export const ProductTable: React.FC<ProductTableProps> = ({
+  products,
+  onDelete,
+  onToggleAvailability,
+  deletingId,
+  togglingId
 }) => {
   const dispatch = useAppDispatch();
 
@@ -27,16 +28,16 @@ export const ProductTable: React.FC<ProductTableProps> = ({
     new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(parseFloat(n));
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+    <div className="bg-surface rounded-xl shadow-sm border border-border-subtle overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>Product</TableHead>
-            <TableHead>Price</TableHead>
-            <TableHead>Stock</TableHead>
-            <TableHead>Stats</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+          <TableRow className="border-border-subtle bg-surface-elevated">
+            <TableHead className="font-semibold text-foreground">Product</TableHead>
+            <TableHead className="font-semibold text-foreground">Price</TableHead>
+            <TableHead className="font-semibold text-foreground">Stock</TableHead>
+            <TableHead className="font-semibold text-foreground">Stats</TableHead>
+            <TableHead className="font-semibold text-foreground">Status</TableHead>
+            <TableHead className="text-right font-semibold text-foreground">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -49,62 +50,56 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                 : null;
 
             return (
-              <TableRow key={product.id}>
+              <TableRow key={product.id} className="border-border-subtle hover:bg-state-hover transition-colors group">
                 <TableCell>
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 shrink-0 rounded-lg bg-gray-100 dark:bg-gray-800 overflow-hidden">
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 shrink-0 rounded-lg bg-background border border-border-subtle overflow-hidden flex items-center justify-center">
                       <img
-                        src={primaryImage ?? 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=100&h=100&fit=crop'}
+                        src={primaryImage || undefined}
                         alt={product.name}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-cover transition-transform group-hover:scale-105"
                       />
                     </div>
                     <div>
-                      <div className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                      <div className="font-bold text-foreground flex items-center gap-2 mb-0.5">
                         {product.name}
                         {product.is_organic && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-1.5 py-0.5 text-[10px] font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                            <Leaf className="h-3 w-3" />
-                          </span>
+                          <Badge variant="success" size="sm" className="px-1.5 py-0 h-4 text-[10px]">Organic</Badge>
                         )}
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                      <div className="text-xs font-semibold uppercase tracking-wider text-foreground-secondary">
                         {product.category_name}
                       </div>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <span className="font-medium text-gray-900 dark:text-white">
+                  <span className="font-bold text-foreground">
                     {fmt(product.price)}
                   </span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400"> /{product.unit}</span>
+                  <span className="text-xs font-medium text-foreground-secondary"> /{product.unit}</span>
                 </TableCell>
                 <TableCell>
-                  {product.stock_quantity}
+                  <span className="font-bold text-foreground">{product.stock_quantity}</span>
                 </TableCell>
                 <TableCell>
-                  <div className="flex flex-col gap-1 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex flex-col gap-1 text-xs font-medium text-foreground-secondary">
                     <span className="flex items-center gap-1"><Eye className="h-3.5 w-3.5" /> {product.views} views</span>
                     {avgRating && (
-                      <span>⭐ {avgRating.toFixed(1)} ({product.reviews.length})</span>
+                      <span className="flex items-center gap-1 text-accent-yellow">⭐ {avgRating.toFixed(1)} ({product.reviews.length})</span>
                     )}
                   </div>
                 </TableCell>
                 <TableCell>
-                  <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${
-                    product.is_available
-                      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                      : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
-                  }`}>
+                  <Badge variant={product.is_available ? 'success' : 'outline'}>
                     {product.is_available ? 'Available' : 'Unavailable'}
-                  </span>
+                  </Badge>
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center justify-end gap-2">
-                    <Link 
+                  <div className="flex items-center justify-end gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
+                    <Link
                       to="/farmer/crops"
-                      className="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors"
+                      className="p-2 text-foreground-secondary hover:text-success hover:bg-success-subtle rounded-lg transition-colors border border-transparent hover:border-success/20"
                       title="Manage Crop Lifecycle"
                     >
                       <Leaf className="h-4 w-4" />
@@ -112,7 +107,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     {product.active_crop_growth_id && (
                       <button
                         onClick={() => dispatch(openStageUpdateModal(product.active_crop_growth_id!))}
-                        className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                        className="p-2 text-foreground-secondary hover:text-info hover:bg-info-subtle rounded-lg transition-colors border border-transparent hover:border-info/20"
                         title="Update Stage"
                       >
                         <TrendingUp className="h-4 w-4" />
@@ -121,21 +116,21 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     <button
                       onClick={() => onToggleAvailability(product)}
                       disabled={togglingId === product.slug}
-                      className="p-1.5 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                      className="p-2 text-foreground-secondary hover:text-foreground hover:bg-state-hover rounded-lg transition-colors border border-transparent hover:border-border-subtle"
                       title={product.is_available ? 'Hide from marketplace' : 'Show on marketplace'}
                     >
                       {togglingId === product.slug ? (
                         <span className="animate-spin text-xs inline-block h-4 w-4 text-center leading-4">↻</span>
                       ) : product.is_available ? (
-                        <ToggleRight className="h-4 w-4 text-green-600 dark:text-green-400" />
+                        <ToggleRight className="h-4 w-4 text-success" />
                       ) : (
-                        <ToggleLeft className="h-4 w-4 text-gray-400" />
+                        <ToggleLeft className="h-4 w-4" />
                       )}
                     </button>
                     <button
                       onClick={() => onDelete(product.slug, product.name)}
                       disabled={deletingId === product.slug}
-                      className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                      className="p-2 text-foreground-secondary hover:text-danger hover:bg-danger-subtle rounded-lg transition-colors border border-transparent hover:border-danger/20"
                       title="Delete product"
                     >
                       {deletingId === product.slug ? (
