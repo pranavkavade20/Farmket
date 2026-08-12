@@ -26,6 +26,10 @@ const MyProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [view, setView] = useState<'grid' | 'table'>('table'); // Default to table as requested
@@ -38,21 +42,33 @@ const MyProducts = () => {
   }, [user, navigate]);
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setCurrentPage(1); // Reset page on search
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    setLoading(true);
     productService
-      .getProducts({ ordering: '-created_at' })
+      .getProducts({ 
+        ordering: '-created_at', 
+        farmer: user.id,
+        page: currentPage,
+        ...(debouncedSearch ? { search: debouncedSearch } : {})
+      })
       .then((res) => {
-        // Show only current farmer's products
-        const myProducts = res.results.filter((p) => p.farmer === user?.id);
-        setProducts(myProducts);
+        setProducts(res.results);
+        setTotalCount(res.count);
+        setTotalPages(Math.ceil(res.count / 10) || 1);
       })
       .catch(() => toast.error('Failed to load products'))
       .finally(() => setLoading(false));
-  }, [user]);
+  }, [user, currentPage, debouncedSearch]);
 
-  const filteredProducts = products.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.category_name?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredProducts = products;
 
   const handleDelete = async (slug: string, name: string) => {
     if (!window.confirm(`Are you sure you want to delete "${name}"?`)) return;
@@ -95,7 +111,7 @@ const MyProducts = () => {
         <div>
           <h1 className="text-2xl font-display font-bold text-foreground">My Products</h1>
           <p className="text-sm text-foreground-secondary mt-1">
-            {products.length} product{products.length !== 1 ? 's' : ''} listed
+            {totalCount} product{totalCount !== 1 ? 's' : ''} listed
           </p>
         </div>
         <div className="flex gap-3">
@@ -311,6 +327,35 @@ const MyProducts = () => {
             })}
           </AnimatePresence>
         </motion.div>
+      )}
+
+      {/* Pagination Controls */}
+      {!loading && totalPages > 1 && (
+        <div className="mt-8 flex items-center justify-between border-t border-border-subtle pt-6">
+          <p className="text-sm text-foreground-secondary">
+            Showing <span className="font-medium text-foreground">{(currentPage - 1) * 10 + 1}</span> to{' '}
+            <span className="font-medium text-foreground">{Math.min(currentPage * 10, totalCount)}</span> of{' '}
+            <span className="font-medium text-foreground">{totalCount}</span> results
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
       )}
 
       {/* Render the modal so it opens when dispatched */}
