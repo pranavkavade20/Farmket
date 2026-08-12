@@ -4,11 +4,11 @@ import { ProductTable } from '../components/ProductTable';
 import { useSEO } from '@/hooks';
 import { useAuth } from '@/features/auth';
 import { productService } from '@/features/products';
-import { Button } from '@/components/ui';
+import { Button, Badge } from '@/components/ui';
 import {
   PlusCircle, Package, Trash2, Eye, Search,
   Leaf, TrendingUp, ToggleLeft, ToggleRight,
-  LayoutGrid, List, Badge
+  LayoutGrid, List
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Product } from '@/types';
