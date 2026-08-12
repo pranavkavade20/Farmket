@@ -83,7 +83,7 @@ export const WeeklyBestSelling = ({ products, onAddToCart, activeTab, setActiveT
         >
           {products.map((p) => (
             <motion.div key={p.id} variants={itemVariants} className="h-full">
-              <ProductCard product={p} onAddToCart={onAddToCart} />
+              <ProductCard product={p} onAddToCart={onAddToCart} hideAddToCart={true} />
             </motion.div>
           ))}
         </motion.div>

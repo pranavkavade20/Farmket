@@ -10,9 +10,10 @@ import { cn } from '@/lib/utils/cn';
 interface ProductCardProps {
   product: Product;
   onAddToCart?: (product: Product) => void;
+  hideAddToCart?: boolean;
 }
 
-const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, onAddToCart }) => {
+const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, onAddToCart, hideAddToCart = false }) => {
   const { cart, updateQuantity } = useCart();
   const { user } = useAuth();
   const primaryImage = product.images.find((img) => img.is_primary)?.image ?? product.images[0]?.image;
@@ -38,7 +39,7 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, onAddToCa
   const isVerified = true;
 
   return (
-    <div className="group relative flex flex-col rounded-2xl border border-border-subtle bg-surface p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-border-strong hover:shadow-md">
+    <div className="group relative flex flex-col h-full rounded-2xl border border-border-subtle bg-surface p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-border-strong hover:shadow-md">
       
       {/* Top Badges & Favorite */}
       <div className="absolute left-4 top-4 z-10 flex gap-2">
@@ -109,38 +110,40 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, onAddToCa
             </span>
           </div>
 
-          {user?.user_type === 'farmer' || user?.user_type === 'admin' ? null : cartItem ? (
-            <div className="flex h-10 w-full items-center justify-between rounded-lg bg-surface border border-brand p-1 shadow-sm">
-              <button 
-                onClick={handleDecrease}
-                className="flex h-full w-10 items-center justify-center rounded-md bg-brand-muted text-brand hover:bg-brand hover:text-white transition-colors"
+          {!hideAddToCart && (
+            user?.user_type === 'farmer' || user?.user_type === 'admin' ? null : cartItem ? (
+              <div className="flex h-10 w-full items-center justify-between rounded-lg bg-surface border border-brand p-1 shadow-sm">
+                <button 
+                  onClick={handleDecrease}
+                  className="flex h-full w-10 items-center justify-center rounded-md bg-brand-muted text-brand hover:bg-brand hover:text-white transition-colors"
+                >
+                  <Minus className="h-4 w-4" />
+                </button>
+                <span className="text-sm font-bold text-foreground">{cartItem.quantity}</span>
+                <button 
+                  onClick={handleIncrease}
+                  className="flex h-full w-10 items-center justify-center rounded-md bg-brand-muted text-brand hover:bg-brand hover:text-white transition-colors"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <Button
+                variant={(product.in_stock && product.is_available) ? 'secondary' : 'outline'}
+                disabled={!product.in_stock || !product.is_available}
+                onClick={() => onAddToCart?.(product)}
+                className={cn(
+                  "w-full font-bold",
+                  (!product.in_stock || !product.is_available) && "border-border-strong text-muted bg-surface cursor-not-allowed"
+                )}
               >
-                <Minus className="h-4 w-4" />
-              </button>
-              <span className="text-sm font-bold text-foreground">{cartItem.quantity}</span>
-              <button 
-                onClick={handleIncrease}
-                className="flex h-full w-10 items-center justify-center rounded-md bg-brand-muted text-brand hover:bg-brand hover:text-white transition-colors"
-              >
-                <Plus className="h-4 w-4" />
-              </button>
-            </div>
-          ) : (
-            <Button
-              variant={(product.in_stock && product.is_available) ? 'secondary' : 'outline'}
-              disabled={!product.in_stock || !product.is_available}
-              onClick={() => onAddToCart?.(product)}
-              className={cn(
-                "w-full font-bold",
-                (!product.in_stock || !product.is_available) && "border-border-strong text-muted bg-surface cursor-not-allowed"
-              )}
-            >
-              {(product.in_stock && product.is_available) ? (
-                <>Add To Cart</>
-              ) : (
-                !product.is_available ? 'Unavailable' : 'Out of stock'
-              )}
-            </Button>
+                {(product.in_stock && product.is_available) ? (
+                  <>Add To Cart</>
+                ) : (
+                  !product.is_available ? 'Unavailable' : 'Out of stock'
+                )}
+              </Button>
+            )
           )}
         </div>
       </div>
