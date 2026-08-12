@@ -4,32 +4,12 @@ import { useAuth, authService } from '@/features/auth';
 import { useSEO } from '@/hooks';
 import { Button, OrderStatusBadge } from '@/components/ui';
 import {
-  Package, TrendingUp, Clock, ArrowRight, PlusCircle, User, ShoppingBag
+  Package, TrendingUp, Clock, ArrowRight, Sprout, User, ShoppingBag, Newspaper
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Order, DashboardStats } from '@/types';
 import { orderService } from '@/features/orders';
 import { toast } from "sonner";
-
-const StatCard: React.FC<{
-  title: string; value: string; description: string;
-  icon: React.ReactNode; color: string; delay?: number;
-  loading?: boolean;
-}> = ({ title, value, description, icon, color, delay = 0, loading }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay }}
-    className="rounded-2xl bg-surface border border-border-subtle p-6 shadow-sm hover:shadow-md transition-shadow"
-  >
-    <div className="flex items-center justify-between mb-4">
-      <p className="text-xs font-bold uppercase tracking-widest text-foreground-secondary">{title}</p>
-      <div className={`inline-flex h-12 w-12 items-center justify-center rounded-xl ${color} shadow-sm text-white`}>
-        {icon}
-      </div>
-    </div>
-    {loading ? <div className="h-10 w-24 animate-pulse rounded-lg bg-border-strong" /> : <p className="text-3xl font-display font-bold text-foreground leading-none">{value}</p>}
-    <p className="mt-3 text-sm font-medium text-foreground-secondary">{description}</p>
-  </motion.div>
-);
 
 const FarmerDashboard = () => {
   const { user } = useAuth();
@@ -49,54 +29,123 @@ const FarmerDashboard = () => {
   const fmtDate = (s: string) => new Date(s).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
   return (
-    <div className="mx-auto max-w-[1400px] w-full">
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-10 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
-        <div>
-          <h1 className="text-3xl font-display font-bold text-foreground tracking-tight">Welcome back, {user?.first_name || user?.username} 👋</h1>
-          <p className="mt-2 text-base text-foreground-secondary">Here's what's happening with your farm store today.</p>
-        </div>
-        <div className="flex gap-4">
-          <Link to="/dashboard/products/new">
-            <Button variant="primary" size="lg" className="rounded-full shadow-sm gap-2">
-              <PlusCircle className="h-5 w-5" /> Add Product
-            </Button>
-          </Link>
-        </div>
+    <div className="mx-auto max-w-[1400px] w-full flex flex-col gap-8 pb-10">
+      {/* Header */}
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-1">
+        <h1 className="text-3xl font-display font-semibold text-foreground tracking-tight">
+          Welcome, <span className="text-foreground-secondary">{user?.first_name || user?.username}</span> 👋
+        </h1>
+        <p className="text-sm text-foreground-secondary">Manage your farm store, track crops, and fulfill orders.</p>
       </motion.div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        <StatCard title="Total Orders" value={String(stats?.total_orders ?? 0)} description="Lifetime orders" icon={<ShoppingBag className="h-6 w-6" />} color="bg-gradient-to-br from-brand to-accent" delay={0} loading={statsLoading} />
-        <StatCard title="Revenue" value={fmt(stats?.total_revenue ?? 0)} description="From delivered orders" icon={<TrendingUp className="h-6 w-6" />} color="bg-info" delay={0.05} loading={statsLoading} />
-        <StatCard title="Products Listed" value={String(stats?.total_products ?? 0)} description="Active listings" icon={<Package className="h-6 w-6" />} color="bg-secondary" delay={0.1} loading={statsLoading} />
-        <StatCard title="Pending Orders" value={String(stats?.pending_orders ?? 0)} description="Awaiting confirmation" icon={<Clock className="h-6 w-6" />} color="bg-warning" delay={0.15} loading={statsLoading} />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="lg:col-span-2 rounded-2xl bg-surface border border-border-subtle shadow-sm overflow-hidden flex flex-col">
-          <div className="flex items-center justify-between px-6 py-5 border-b border-border-subtle bg-surface-elevated">
-            <h2 className="text-lg font-bold text-foreground">Recent Orders</h2>
-            <Link to="/farmer/orders" className="text-sm font-semibold text-brand hover:text-brand-hover flex items-center gap-1.5 transition-colors">View all <ArrowRight className="h-4 w-4" /></Link>
+      {/* Top Section: Hero + Quick Links */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Hero Card */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
+          className="lg:col-span-1 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-400 p-8 flex flex-col justify-between text-white shadow-md relative overflow-hidden"
+        >
+          <div className="absolute top-0 right-0 p-4 opacity-20">
+             <Sprout className="w-32 h-32" />
           </div>
-          <div className="divide-y divide-border-subtle flex-1">
-            {ordersLoading ? [1, 2, 3, 4].map(i => <div key={i} className="flex items-center justify-between px-6 py-5"><div className="space-y-3"><div className="h-5 w-32 animate-pulse rounded-md bg-border-strong" /><div className="h-4 w-20 animate-pulse rounded-md bg-border-subtle" /></div><div className="h-6 w-24 animate-pulse rounded-full bg-border-strong" /></div>) : recentOrders.length === 0 ? <div className="px-6 py-16 text-center"><p className="text-base text-foreground-secondary mb-2">No orders yet.</p></div> : recentOrders.map(order => <Link to={`/farmer/orders/${order.id}`} key={order.id} className="group flex items-center justify-between px-6 py-5 hover:bg-state-hover transition-colors"><div><p className="text-base font-semibold text-foreground group-hover:text-brand transition-colors">{(order as any).order_number ?? `ORD-${String(order.id).padStart(4, '0')}`}</p><p className="text-sm text-foreground-secondary mt-1">{fmtDate(order.created_at)}</p></div><div className="flex items-center gap-4"><OrderStatusBadge status={order.status} /><span className="text-lg font-bold text-foreground">{fmt(order.total_amount)}</span></div></Link>)}
+          <div className="relative z-10">
+            <h2 className="text-2xl font-display font-bold leading-tight mb-2 max-w-[200px]">
+              Expand Your Reach
+            </h2>
+            <p className="text-blue-50 text-sm mb-6 max-w-[220px]">
+              Add new harvests to the marketplace to attract more buyers today.
+            </p>
           </div>
+          <Link to="/dashboard/products/new" className="relative z-10 w-fit">
+            <Button variant="primary" className="bg-gray-900 text-white hover:bg-black rounded-lg px-6 font-semibold shadow-sm border-0">
+              Add Product
+            </Button>
+          </Link>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="rounded-2xl bg-surface border border-border-subtle shadow-sm p-8 relative overflow-hidden">
-          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 rounded-full bg-brand/10 blur-3xl pointer-events-none" />
-          <h2 className="text-xs font-bold uppercase tracking-widest text-foreground-secondary mb-8">Your Profile</h2>
-          <div className="flex flex-col items-center text-center relative z-10">
-            {user?.profile_picture ? <img src={user.profile_picture} alt={user.full_name} className="h-24 w-24 rounded-full object-cover shadow-md mb-5 border border-border-subtle" /> : <div className="h-24 w-24 rounded-full bg-brand-muted flex items-center justify-center text-brand text-3xl font-display font-bold shadow-inner mb-5 border border-brand/20">{(user?.first_name?.[0] ?? user?.username?.[0] ?? '?').toUpperCase()}</div>}
-            <p className="text-xl font-display font-bold text-foreground">{user?.full_name || user?.username}</p>
-            <p className="text-sm text-foreground-secondary mt-1">{user?.email}</p>
-            <span className="mt-3 inline-flex items-center rounded-full bg-secondary-muted px-3 py-1 text-xs font-semibold uppercase tracking-wider text-secondary-primary">{user?.user_type}</span>
+        {/* Quick Services Carousel-style container */}
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 }}
+          className="lg:col-span-2 flex flex-col gap-3"
+        >
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-foreground">Quick Services</h3>
           </div>
-          <div className="mt-8 space-y-3 relative z-10">
-            <Link to="/dashboard/profile" className="block"><Button variant="primary" className="w-full rounded-full gap-2"><User className="h-4 w-4" /> Edit Profile</Button></Link>
-            <Link to="/dashboard/analytics" className="block"><Button variant="outline" className="w-full rounded-full gap-2"><TrendingUp className="h-4 w-4" /> View Analytics</Button></Link>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 h-full">
+            <Link to="/farmer/crops" className="rounded-xl border border-border-subtle bg-surface p-5 flex flex-col items-center justify-center text-center hover:border-brand transition-colors group shadow-sm">
+               <div className="h-12 w-12 rounded-full bg-brand/10 flex items-center justify-center mb-3 group-hover:bg-brand/20 transition-colors">
+                 <Sprout className="w-5 h-5 text-brand" />
+               </div>
+               <span className="text-sm font-semibold text-foreground">Crop Tracking</span>
+            </Link>
+            <Link to="/dashboard/analytics" className="rounded-xl border border-border-subtle bg-surface p-5 flex flex-col items-center justify-center text-center hover:border-accent-orange transition-colors group shadow-sm">
+               <div className="h-12 w-12 rounded-full bg-accent-orange/10 flex items-center justify-center mb-3 group-hover:bg-accent-orange/20 transition-colors">
+                 <TrendingUp className="w-5 h-5 text-accent-orange" />
+               </div>
+               <span className="text-sm font-semibold text-foreground">Analytics</span>
+            </Link>
+            <Link to="/farmer/posts" className="rounded-xl border border-border-subtle bg-surface p-5 flex flex-col items-center justify-center text-center hover:border-info transition-colors group shadow-sm">
+               <div className="h-12 w-12 rounded-full bg-info/10 flex items-center justify-center mb-3 group-hover:bg-info/20 transition-colors">
+                 <Newspaper className="w-5 h-5 text-info" />
+               </div>
+               <span className="text-sm font-semibold text-foreground">Community Posts</span>
+            </Link>
           </div>
         </motion.div>
       </div>
+
+      {/* Stats Overview */}
+      <div className="flex flex-col gap-3 mt-4">
+        <h3 className="text-sm font-bold text-foreground">Store Overview</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { label: 'Total Orders', value: stats?.total_orders, icon: <ShoppingBag className="w-4 h-4 text-brand" />, loading: statsLoading },
+            { label: 'Revenue', value: stats ? fmt(stats.total_revenue) : null, icon: <TrendingUp className="w-4 h-4 text-info" />, loading: statsLoading },
+            { label: 'Active Products', value: stats?.total_products, icon: <Package className="w-4 h-4 text-warning" />, loading: statsLoading },
+            { label: 'Pending', value: stats?.pending_orders, icon: <Clock className="w-4 h-4 text-danger" />, loading: statsLoading },
+          ].map((s, i) => (
+            <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + (i * 0.05) }} className="rounded-xl bg-surface border border-border-subtle p-5 shadow-sm flex items-center justify-between">
+              <div>
+                <p className="text-xs font-semibold text-foreground-secondary mb-1">{s.label}</p>
+                {s.loading ? <div className="h-6 w-16 animate-pulse bg-border-strong rounded-md" /> : <p className="text-xl font-bold text-foreground">{s.value ?? 0}</p>}
+              </div>
+              <div className="h-10 w-10 rounded-full bg-background flex items-center justify-center border border-border-subtle shadow-sm">
+                {s.icon}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Recent Orders List */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mt-4 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-bold text-foreground">Recent Orders</h3>
+          <Link to="/farmer/orders" className="text-xs font-semibold text-brand hover:underline">View all</Link>
+        </div>
+        <div className="rounded-xl bg-surface border border-border-subtle shadow-sm overflow-hidden flex flex-col">
+          <div className="divide-y divide-border-subtle">
+            {ordersLoading ? [1, 2, 3].map(i => <div key={i} className="flex items-center justify-between px-5 py-4"><div className="space-y-2"><div className="h-4 w-32 animate-pulse rounded bg-border-strong" /><div className="h-3 w-20 animate-pulse rounded bg-border-subtle" /></div><div className="h-6 w-20 animate-pulse rounded-full bg-border-strong" /></div>) : recentOrders.length === 0 ? <div className="px-5 py-10 text-center"><p className="text-sm text-foreground-secondary">No orders yet.</p></div> : recentOrders.map(order => (
+              <Link to={`/farmer/orders/${order.id}`} key={order.id} className="group flex items-center justify-between px-5 py-4 hover:bg-state-hover transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-lg bg-background border border-border-subtle flex items-center justify-center text-foreground-secondary group-hover:text-brand transition-colors shadow-sm">
+                    <ShoppingBag className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground group-hover:text-brand transition-colors">{(order as any).order_number ?? `ORD-${String(order.id).padStart(4, '0')}`}</p>
+                    <p className="text-xs text-foreground-secondary mt-0.5">{fmtDate(order.created_at)}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-6">
+                  <div className="hidden sm:block"><OrderStatusBadge status={order.status} /></div>
+                  <span className="text-sm font-bold text-foreground w-20 text-right">{fmt(order.total_amount)}</span>
+                  <ArrowRight className="w-4 h-4 text-border-strong group-hover:text-foreground transition-colors" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 };

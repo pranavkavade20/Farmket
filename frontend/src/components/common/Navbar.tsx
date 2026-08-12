@@ -23,7 +23,11 @@ import logo from "@/assets/images/logo.png";
 import NotificationCenter from "./NotificationCenter";
 import { motion, AnimatePresence } from "framer-motion";
 
-const Navbar = () => {
+interface NavbarProps {
+  isDashboard?: boolean;
+}
+
+const Navbar = ({ isDashboard = false }: NavbarProps) => {
   const { user, logout } = useAuth();
   const { isDark, toggle: toggleDark } = useTheme();
   const { itemCount } = useCart();
@@ -46,12 +50,13 @@ const Navbar = () => {
   };
 
   useEffect(() => {
+    if (isDashboard) return; // No scroll effect needed in dashboard flex layout
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isDashboard]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -82,28 +87,41 @@ const Navbar = () => {
 
   return (
     <div className={cn(
-      "sticky top-0 z-50 w-full transition-all duration-300 border-b",
-      isScrolled ? "bg-background/80 backdrop-blur-xl border-border-subtle shadow-sm py-2" : "bg-background border-transparent py-4"
+      isDashboard ? "h-14 flex items-center bg-surface border-b border-border-subtle shrink-0 px-4 md:px-6 lg:px-8" : "sticky top-0 z-50 w-full transition-all duration-300 border-b",
+      !isDashboard && isScrolled ? "bg-background/80 backdrop-blur-xl border-border-subtle shadow-sm py-2" : !isDashboard && "bg-background border-transparent py-4"
     )}>
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="flex h-14 items-center justify-between gap-4">
+      <div className={cn("w-full flex h-14 items-center justify-between gap-4", !isDashboard && "mx-auto max-w-7xl px-6 lg:px-8")}>
 
-          {/* Left: Logo & Main Navigation */}
-          <div className="flex items-center gap-8 shrink-0">
-            <Link to="/" className="flex items-center gap-3 group">
-              <img src={logo} alt="Farmket Logo" className="h-8 w-8 object-contain transition-transform duration-300 group-hover:scale-105" />
-              <span className="text-xl font-display font-bold tracking-tight text-foreground group-hover:text-brand transition-colors duration-300">
-                Farmket
-              </span>
-            </Link>
-
-            <div className="hidden lg:flex items-center gap-1 ml-4">
-              {navLink("/", "Home")}
-              {navLink("/marketplace", "Marketplace")}
-              {navLink("/feed", "Social")}
-              {navLink("/about", "About")}
+        {/* Left: Logo & Main Navigation (or Search in Dashboard) */}
+        <div className="flex items-center gap-8 shrink-0 flex-1">
+          {!isDashboard ? (
+            <>
+              <Link to="/" className="flex items-center gap-3 group">
+                <img src={logo} alt="Farmket Logo" className="h-8 w-8 object-contain transition-transform duration-300 group-hover:scale-105" />
+                <span className="text-xl font-display font-bold tracking-tight text-foreground group-hover:text-brand transition-colors duration-300">
+                  Farmket
+                </span>
+              </Link>
+              <div className="hidden lg:flex items-center gap-1 ml-4">
+                {navLink("/", "Home")}
+                {navLink("/marketplace", "Marketplace")}
+                {navLink("/feed", "Social")}
+                {navLink("/about", "About")}
+              </div>
+            </>
+          ) : (
+            <div className="hidden md:flex flex-1 max-w-md">
+               <div className="relative w-full">
+                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="h-4 w-4 text-foreground-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                 </div>
+                 <input type="text" placeholder="Search..." className="block w-full pl-9 pr-3 py-1.5 border border-border-subtle rounded-md leading-5 bg-background text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-1 focus:ring-brand focus:border-brand sm:text-sm transition-colors" />
+               </div>
             </div>
-          </div>
+          )}
+        </div>
 
           {/* Right: User Actions */}
           <div className="flex items-center justify-end gap-2 shrink-0">
@@ -234,7 +252,6 @@ const Navbar = () => {
               </button>
             </div>
           </div>
-        </div>
       </div>
 
       {/* Mobile Menu */}

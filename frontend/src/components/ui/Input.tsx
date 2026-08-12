@@ -19,7 +19,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="text-sm font-medium text-foreground-secondary"
+            className="text-sm font-semibold text-foreground-secondary"
           >
             {label}
           </label>
@@ -34,13 +34,13 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              'block w-full rounded-[10px] border bg-surface px-4 py-2.5 text-sm text-foreground placeholder:text-muted shadow-sm',
+              'block w-full rounded-lg border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted shadow-sm',
               'transition-all duration-200 ease-out focus-ring disabled:opacity-50 disabled:cursor-not-allowed',
               hasError
                 ? 'border-danger focus-visible:ring-danger/50'
                 : isSuccess
                 ? 'border-success focus-visible:ring-success/50'
-                : 'border-border-strong hover:border-brand/50',
+                : 'border-border-strong hover:border-foreground-secondary',
               icon ? 'pl-10' : '',
               (hasError || isSuccess) ? 'pr-10' : '',
               className
@@ -59,7 +59,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
         {hasError && (
-          <p className="text-sm font-medium text-danger animate-in slide-in-from-top-1" role="alert">
+          <p className="text-xs font-medium text-danger animate-in slide-in-from-top-1" role="alert">
             {error}
           </p>
         )}

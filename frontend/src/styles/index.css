@@ -6,85 +6,85 @@
 
 @layer base {
   :root {
-    /* ── Semantic Backgrounds ── */
-    --bg-main: #F7FAF8;
+    /* ── Semantic Backgrounds (Premium Light) ── */
+    --bg-main: #F9FAFB;
     --bg-surface: #FFFFFF;
     --bg-surface-elevated: #FFFFFF;
     
-    /* ── Semantic Text ── */
-    --text-primary: #17211B;
-    --text-secondary: #5F6B63;
-    --text-muted: #87918A;
+    /* ── Semantic Text (Slate/Zinc scale) ── */
+    --text-primary: #09090B;
+    --text-secondary: #52525B;
+    --text-muted: #71717A;
     
     /* ── Semantic Borders ── */
-    --border-subtle: #E3EAE5;
-    --border-strong: #C8D3CC;
+    --border-subtle: #E4E4E7;
+    --border-strong: #D4D4D8;
 
-    /* ── Brand Colors (Farmket Green) ── */
-    --brand-primary: #028F4B; 
-    --brand-hover: #027A40;
-    --brand-active: #016637;
-    --brand-muted: #E6F4ED;
+    /* ── Brand Colors (Refined Farmket Green) ── */
+    --brand-primary: #10B981; 
+    --brand-hover: #059669;
+    --brand-active: #047857;
+    --brand-muted: #D1FAE5;
     
     /* ── Accent Colors ── */
-    --accent-yellow: #F4C430;
+    --accent-yellow: #F59E0B;
     --accent-orange: #F97316;
 
     /* ── Status Colors ── */
-    --semantic-success: #028F4B;
-    --semantic-success-muted: #E6F4ED;
-    --semantic-warning: #F97316;
-    --semantic-warning-muted: #FFEDD5;
-    --semantic-danger: #DC2626;
+    --semantic-success: #10B981;
+    --semantic-success-muted: #D1FAE5;
+    --semantic-warning: #F59E0B;
+    --semantic-warning-muted: #FEF3C7;
+    --semantic-danger: #EF4444;
     --semantic-danger-muted: #FEE2E2;
     --semantic-info: #3B82F6;
     --semantic-info-muted: #DBEAFE;
 
     /* ── Interactive States ── */
-    --state-hover: rgba(23, 33, 27, 0.04);
-    --state-active: rgba(23, 33, 27, 0.08);
-    --state-disabled: rgba(23, 33, 27, 0.38);
+    --state-hover: rgba(9, 9, 11, 0.04);
+    --state-active: rgba(9, 9, 11, 0.08);
+    --state-disabled: rgba(9, 9, 11, 0.38);
   }
 
   .dark {
-    /* ── Semantic Backgrounds ── */
-    --bg-main: #0D1711;
-    --bg-surface: #142019;
-    --bg-surface-elevated: #1A281F;
+    /* ── Semantic Backgrounds (Premium Dark) ── */
+    --bg-main: #09090B;
+    --bg-surface: #121214;
+    --bg-surface-elevated: #18181B;
     
     /* ── Semantic Text ── */
-    --text-primary: #F7FAF8;
-    --text-secondary: #C8D3CC;
-    --text-muted: #87918A;
+    --text-primary: #FAFAFA;
+    --text-secondary: #A1A1AA;
+    --text-muted: #71717A;
     
     /* ── Semantic Borders ── */
-    --border-subtle: #26362C;
-    --border-strong: #3A4C40;
+    --border-subtle: #27272A;
+    --border-strong: #3F3F46;
 
-    /* ── Brand Colors (Farmket Green) ── */
-    --brand-primary: #028F4B;
-    --brand-hover: #03A859;
-    --brand-active: #04C168;
-    --brand-muted: #01331B;
+    /* ── Brand Colors (Vibrant for Dark Mode) ── */
+    --brand-primary: #10B981;
+    --brand-hover: #34D399;
+    --brand-active: #6EE7B7;
+    --brand-muted: #064E3B;
     
     /* ── Accent Colors ── */
-    --accent-yellow: #F4C430;
-    --accent-orange: #F97316;
+    --accent-yellow: #FBBF24;
+    --accent-orange: #FB923C;
 
     /* ── Status Colors ── */
-    --semantic-success: #028F4B;
-    --semantic-success-muted: #01331B;
-    --semantic-warning: #F97316;
-    --semantic-warning-muted: #7C2D12;
-    --semantic-danger: #DC2626;
+    --semantic-success: #10B981;
+    --semantic-success-muted: #064E3B;
+    --semantic-warning: #F59E0B;
+    --semantic-warning-muted: #78350F;
+    --semantic-danger: #EF4444;
     --semantic-danger-muted: #7F1D1D;
     --semantic-info: #3B82F6;
     --semantic-info-muted: #1E3A8A;
 
     /* ── Interactive States ── */
-    --state-hover: rgba(247, 250, 248, 0.08);
-    --state-active: rgba(247, 250, 248, 0.12);
-    --state-disabled: rgba(247, 250, 248, 0.38);
+    --state-hover: rgba(250, 250, 250, 0.06);
+    --state-active: rgba(250, 250, 250, 0.10);
+    --state-disabled: rgba(250, 250, 250, 0.38);
   }
 }
 
@@ -127,42 +127,42 @@
 
   /* Typography Scale */
   --text-display: 3.5rem;
-  --text-heading-lg: 3rem;
-  --text-heading: 2.25rem;
-  --text-subheading: 1.5rem;
-  --text-body: 1rem;
-  --text-caption: 0.875rem;
-  --text-small: 0.75rem;
+  --text-heading-lg: 2.5rem;
+  --text-heading: 2rem;
+  --text-subheading: 1.25rem;
+  --text-body: 0.9375rem; /* 15px */
+  --text-caption: 0.8125rem; /* 13px */
+  --text-small: 0.75rem; /* 12px */
 
   /* Border Radius */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
-  --radius-2xl: 1.5rem;
+  --radius-2xl: 1.25rem;
   --radius-full: 9999px;
 
   /* Premium Subtle Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.02);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.03);
-  --shadow-glow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 0 24px rgba(16, 185, 129, 0.15); /* Brand glow */
   
-  /* Custom Animations */
-  --animate-fade-in: fadeIn 0.4s ease-out;
-  --animate-slide-up: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  --animate-scale-in: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  /* Custom Animations - Reduced */
+  --animate-fade-in: fadeIn 0.3s ease-out;
+  --animate-slide-up: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-scale-in: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
   }
   @keyframes slideUp {
-    from { opacity: 0; transform: translateY(12px); }
+    from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
   }
   @keyframes scaleIn {
-    from { opacity: 0; transform: scale(0.97); }
+    from { opacity: 0; transform: scale(0.98); }
     to { opacity: 1; transform: scale(1); }
   }
 }
@@ -190,10 +190,10 @@
     @apply font-display font-semibold tracking-tight text-foreground;
   }
   
-  h1 { @apply text-[var(--text-display)] leading-tight; }
-  h2 { @apply text-[var(--text-heading)] leading-snug; }
-  h3 { @apply text-[var(--text-subheading)] leading-snug; }
-  p  { @apply text-[var(--text-body)] leading-relaxed; }
+  h1 { @apply text-[length:var(--text-display)] leading-tight; }
+  h2 { @apply text-[length:var(--text-heading)] leading-snug; }
+  h3 { @apply text-[length:var(--text-subheading)] leading-snug; }
+  p  { @apply text-[length:var(--text-body)] leading-relaxed; }
 
   a {
     @apply transition-colors duration-200;
@@ -201,14 +201,14 @@
 
   /* Custom scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-border-strong rounded-full border-2 border-background;
+    @apply bg-border-strong rounded-full;
   }
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-muted;
@@ -227,19 +227,19 @@
 
 @layer utilities {
   .animate-in {
-    animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
   
   .glass {
-    @apply bg-surface/80 dark:bg-surface/60 backdrop-blur-2xl border border-border-subtle;
+    @apply bg-surface/80 dark:bg-surface/60 backdrop-blur-xl border border-border-subtle;
   }
   
   .glass-card {
-    @apply bg-surface border border-border-subtle shadow-sm rounded-2xl dark:shadow-none transition-colors duration-200;
+    @apply bg-surface border border-border-subtle shadow-sm rounded-xl transition-colors duration-200;
   }
 
   .card-hover {
-    @apply transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:hover:shadow-md hover:border-border-strong dark:hover:border-border-strong;
+    @apply transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-border-strong;
   }
 
   .text-gradient {
@@ -253,6 +253,6 @@
   
   /* Focus utilities */
   .focus-ring {
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-shadow;
   }
 }
