@@ -299,9 +299,9 @@ const Cart = () => {
                     <button
                       onClick={() => setStep('checkout')}
                       id="proceed-to-checkout-btn"
-                      className="w-full h-16 rounded-full bg-foreground text-background hover:bg-foreground/90 font-black text-base transition-all hover:scale-[1.02] active:scale-95 shadow-xl flex items-center justify-center gap-2"
+                      className="w-full h-16 rounded-full px-6 whitespace-nowrap bg-foreground text-background hover:bg-foreground/90 font-bold text-base transition-all hover:scale-[1.02] active:scale-95 shadow-xl flex items-center justify-center gap-2"
                     >
-                      Proceed to Checkout <ChevronRight className="h-5 w-5" />
+                      Proceed to Checkout <ChevronRight className="h-5 w-5 shrink-0" />
                     </button>
                   </motion.div>
                 ) : (
@@ -310,11 +310,11 @@ const Cart = () => {
                       id="place-order-btn"
                       onClick={handlePlaceOrder}
                       disabled={placing}
-                      className="w-full h-16 rounded-full bg-brand text-brand-foreground hover:bg-brand-hover font-black text-base transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-brand/20 flex items-center justify-center gap-3 disabled:opacity-60 disabled:pointer-events-none disabled:scale-100"
+                      className="w-full h-16 rounded-full px-6 whitespace-nowrap bg-brand text-brand-foreground hover:bg-brand-hover font-bold text-base transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-brand/20 flex items-center justify-center gap-3 disabled:opacity-60 disabled:pointer-events-none disabled:scale-100"
                     >
                       {placing ? (
                         <>
-                          <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
+                          <svg className="h-5 w-5 animate-spin shrink-0" viewBox="0 0 24 24" fill="none">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z" />
                           </svg>
