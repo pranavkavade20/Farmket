@@ -51,13 +51,13 @@ const Cart = () => {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-16 text-center">
+      <Container maxWidth="narrow" className="py-16 text-center">
         <div className="animate-pulse space-y-4">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-24 rounded-2xl bg-gray-200 dark:bg-gray-800" />
           ))}
         </div>
-      </div>
+      </Container>
     );
   }
 
@@ -67,7 +67,7 @@ const Cart = () => {
 
   if (items.length === 0) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-24 text-center">
+      <Container maxWidth="narrow" className="py-24 text-center">
         <ShoppingBag className="mx-auto h-16 w-16 text-foreground-secondary mb-4 transition-colors duration-300" />
         <h1 className="text-2xl font-bold text-foreground mb-2 transition-colors duration-300">Your cart is empty</h1>
         <p className="text-foreground-secondary mb-6 transition-colors duration-300">
@@ -78,7 +78,7 @@ const Cart = () => {
             <ShoppingBag className="h-4 w-4" /> Browse Marketplace
           </Button>
         </Link>
-      </div>
+      </Container>
     );
   }
 

@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useSEO } from '@/hooks';
 import { useAuth } from '@/features/auth';
 import { productService } from '@/features/products';
-import { Button, Input } from '@/components/ui';
+import { Button, Input, Container } from '@/components/ui';
 import { ArrowLeft, Package, Leaf, Image as ImageIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from "sonner";
@@ -62,11 +62,11 @@ const AddProduct = () => {
 
   if (user?.user_type !== 'farmer') {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-24 text-center">
+      <Container maxWidth="narrow" className="py-24 text-center">
         <Package className="mx-auto h-12 w-12 text-foreground-secondary mb-4" />
         <h2 className="text-xl font-display font-bold text-foreground mb-2">Farmers Only</h2>
         <p className="text-foreground-secondary">Only farmer accounts can list products.</p>
-      </div>
+      </Container>
     );
   }
 
@@ -135,8 +135,8 @@ const AddProduct = () => {
 
       toast.success(`"${product.name}" listed successfully! 🌱`);
       navigate('/dashboard/products');
-    } catch (err: any) {
-      const data = err?.response?.data;
+    } catch (err: unknown) {
+      const data = (err as { response?: { data?: Record<string, string | string[]> } })?.response?.data;
       if (data) {
         const firstError = Object.values(data)[0];
         toast.error(Array.isArray(firstError) ? firstError[0] : String(firstError));
@@ -149,7 +149,7 @@ const AddProduct = () => {
   };
 
   return (
-    <div className="mx-auto max-w-3xl w-full">
+    <Container maxWidth="narrow">
       {/* Back link */}
       <Link to="/dashboard/products" className="inline-flex items-center gap-2 text-sm font-semibold text-foreground-secondary hover:text-foreground transition-colors mb-6">
         <ArrowLeft className="h-4 w-4" /> Back to My Products
@@ -345,7 +345,7 @@ const AddProduct = () => {
           </div>
         </form>
       </motion.div>
-    </div>
+    </Container>
   );
 };
 

@@ -97,6 +97,8 @@ export interface Product {
   market_state: 'UPCOMING' | 'GROWING' | 'READY_FOR_PREBOOKING' | 'READY_TO_HARVEST' | 'AVAILABLE_NOW' | 'LOW_STOCK' | 'SOLD_OUT';
   stage: string | null;
   progress: number;
+  crop_stage?: string;
+  progress_percentage?: number;
   harvest_countdown: number;
   reservation_count: number;
   reserved_quantity: number;
@@ -141,11 +143,14 @@ export interface OrderItem {
 
 export interface Order {
   id: number;
+  order_number?: string;
   buyer: number;
   items: OrderItem[];
   status: OrderStatus;
   total_amount: string;
   delivery_address: string;
+  payment_method?: string;
+  notes?: string;
   created_at: string;
   updated_at: string;
 }

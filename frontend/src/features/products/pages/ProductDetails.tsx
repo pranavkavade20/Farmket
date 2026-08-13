@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import api from '@/lib/api';
 import { 
   Star, MapPin, Truck, ShieldCheck, Leaf, 
-  Minus, Plus, ShoppingCart, Heart, MessageSquare, AlertCircle
+  Minus, Plus, ShoppingCart, Heart, MessageSquare
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 
@@ -25,6 +25,7 @@ const ProductDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [growthDetails, setGrowthDetails] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
@@ -49,6 +50,7 @@ const ProductDetails = () => {
 
   useEffect(() => {
     if (id) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsLoading(true);
       productService.getProduct(id)
         .then(async (prod) => {
@@ -94,6 +96,7 @@ const ProductDetails = () => {
         toast.success('Following crop for updates');
       }
     } catch (err) {
+      console.error(err);
       toast.error('Failed to update follow status');
     }
   };
@@ -113,6 +116,7 @@ const ProductDetails = () => {
       setComment('');
       toast.success('Review submitted successfully!');
     } catch (error) {
+      console.error(error);
       toast.error('Failed to submit review');
     } finally {
       setIsSubmittingReview(false);
@@ -120,17 +124,17 @@ const ProductDetails = () => {
   };
 
   if (isLoading) {
-    return <div className="mx-auto max-w-7xl px-4 py-20 text-center animate-pulse text-foreground-secondary">Loading product details...</div>;
+    return <Container className="py-20 text-center animate-pulse text-foreground-secondary">Loading product details...</Container>;
   }
 
   if (!product) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-32 text-center">
+      <Container className="py-32 text-center">
         <h2 className="text-2xl font-bold text-foreground mb-4">Product Not Found</h2>
         <Link to="/marketplace">
           <Button>Back to Marketplace</Button>
         </Link>
-      </div>
+      </Container>
     );
   }
 

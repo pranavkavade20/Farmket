@@ -7,11 +7,13 @@ import { useAppSelector } from '@/app/hooks';
 import { Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { Container } from '@/components/ui';
 
 export const SocialFeed: React.FC = () => {
   const [cursor, setCursor] = useState<string | void>(undefined);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [posts, setPosts] = useState<any[]>([]);
-  const { data, isLoading, isFetching } = useGetFeedQuery(cursor);
+  const { data, isFetching } = useGetFeedQuery(cursor);
   const { user } = useAppSelector(state => state.auth);
   
   const [showComposer, setShowComposer] = useState(false);
@@ -20,8 +22,10 @@ export const SocialFeed: React.FC = () => {
   useEffect(() => {
     if (data && data.results) {
       if (cursor) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setPosts(prev => [...prev, ...data.results]);
       } else {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setPosts(data.results);
       }
     }
@@ -42,10 +46,12 @@ export const SocialFeed: React.FC = () => {
   useEffect(() => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, isFetching]);
 
   const navigate = useNavigate();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleBuyNowClick = (product: any) => {
     // Navigate to the marketplace product details page using slug
     navigate(`/marketplace/${product.slug}`);
@@ -64,7 +70,7 @@ export const SocialFeed: React.FC = () => {
   }, [activeCommentPostId]);
 
   return (
-    <div className="max-w-2xl mx-auto py-8 px-4 sm:px-0">
+    <Container maxWidth="reading" className="py-8 px-0 sm:px-0">
       {/* Floating Action Button & Modal for Farmers */}
       {user?.user_type === 'farmer' && (
         <>
@@ -169,6 +175,6 @@ export const SocialFeed: React.FC = () => {
           isInline={false}
         />
       </div>
-    </div>
+    </Container>
   );
 };

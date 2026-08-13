@@ -4,7 +4,7 @@ import { ProductTable } from '../components/ProductTable';
 import { useSEO } from '@/hooks';
 import { useAuth } from '@/features/auth';
 import { productService } from '@/features/products';
-import { Button, Badge } from '@/components/ui';
+import { Badge, Button, Container } from '@/components/ui';
 import {
   PlusCircle, Package, Trash2, Eye, Search,
   Leaf, TrendingUp, ToggleLeft, ToggleRight,
@@ -51,6 +51,7 @@ const MyProducts = () => {
 
   useEffect(() => {
     if (!user?.id) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     productService
       .getProducts({ 
@@ -105,7 +106,7 @@ const MyProducts = () => {
     new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(parseFloat(n));
 
   return (
-    <div className="mx-auto max-w-7xl w-full">
+    <Container>
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -360,7 +361,7 @@ const MyProducts = () => {
 
       {/* Render the modal so it opens when dispatched */}
       <StageUpdateModal />
-    </div>
+    </Container>
   );
 };
 

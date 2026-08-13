@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSEO } from '@/hooks';
 import { orderService } from '@/features/orders';
-import { OrderStatusBadge, Button } from '@/components/ui';
+import { OrderStatusBadge, Button, Container } from '@/components/ui';
 import { ShoppingBag, Package, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Order } from '@/types';
@@ -29,16 +29,16 @@ const Orders = () => {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-10 space-y-4">
+      <Container maxWidth="narrow" className="py-10 space-y-4">
         {[1, 2, 3].map((i) => (
           <div key={i} className="h-28 animate-pulse rounded-2xl bg-border-strong" />
         ))}
-      </div>
+      </Container>
     );
   }
 
   return (
-    <div className="mx-auto max-w-[1000px] w-full">
+    <Container maxWidth="narrow" className="py-8">
       <div className="flex items-end justify-between mb-8">
         <div>
           <h1 className="text-3xl font-display font-bold text-foreground tracking-tight">My Orders</h1>
@@ -85,7 +85,7 @@ const Orders = () => {
               <div className="flex items-start justify-between mb-5">
                 <div>
                   <p className="text-lg font-bold text-foreground group-hover:text-brand transition-colors">
-                    {(order as any).order_number ?? `ORD-${String(order.id).padStart(4, '0')}`}
+                    {order.order_number ?? `ORD-${String(order.id).padStart(4, '0')}`}
                   </p>
                   <p className="text-xs font-semibold text-foreground-secondary mt-1 uppercase tracking-widest">{fmtDate(order.created_at)}</p>
                 </div>
@@ -109,7 +109,7 @@ const Orders = () => {
           ))}
         </div>
       )}
-    </div>
+    </Container>
   );
 };
 

@@ -311,7 +311,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => onBuyNowClick(post.product)}
+                    onClick={() => onBuyNowClick(post.product!)}
                     className="bg-orange-600 hover:bg-orange-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-orange-200 dark:shadow-none transition-colors whitespace-nowrap"
                   >
                     {post.product.is_prebookable ? (

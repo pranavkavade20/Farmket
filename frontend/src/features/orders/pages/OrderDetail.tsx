@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useSEO } from '@/hooks';
 import { orderService } from '@/features/orders';
-import { OrderStatusBadge, Button } from '@/components/ui';
+import { OrderStatusBadge, Button, Container } from '@/components/ui';
 import { ArrowLeft, MapPin, CreditCard, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
-import type { Order } from '@/types';
+import type { Order, OrderStatus } from '@/types';
 import { toast } from "sonner";
 import { useAuth } from '@/features/auth';
 
@@ -50,8 +50,9 @@ const OrderDetail = () => {
       const updated = await orderService.getOrder(Number(id!));
       setOrder(updated);
       toast.success('Status updated');
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Failed to update status');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } } };
+      toast.error(error.response?.data?.error || 'Failed to update status');
     } finally {
       setUpdatingItem(null);
     }
@@ -67,25 +68,25 @@ const OrderDetail = () => {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-16 animate-pulse space-y-4">
+      <Container maxWidth="narrow" className="py-16 animate-pulse space-y-4">
         <div className="h-8 w-48 rounded-xl bg-border-strong" />
         <div className="h-48 rounded-2xl bg-border-strong" />
         <div className="h-48 rounded-2xl bg-border-strong" />
-      </div>
+      </Container>
     );
   }
 
   if (!order) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-24 text-center">
+      <Container maxWidth="narrow" className="py-24 text-center">
         <h2 className="text-xl font-bold text-foreground mb-2">Order not found</h2>
         <Link to="/dashboard/orders"><Button variant="outline">Back to Orders</Button></Link>
-      </div>
+      </Container>
     );
   }
 
   return (
-    <div className="mx-auto max-w-[1000px] pb-10">
+    <Container maxWidth="narrow" className="pb-10">
       <div className="flex items-center gap-6 mb-12">
         <Link to="/dashboard/orders">
           <button className="h-12 w-12 rounded-full bg-surface border border-border-subtle flex items-center justify-center hover:shadow-md hover:scale-105 transition-all">
@@ -94,7 +95,7 @@ const OrderDetail = () => {
         </Link>
         <div>
           <h1 className="text-3xl font-display font-bold text-foreground tracking-tight">
-            {(order as any).order_number ?? `Order #${order.id}`}
+            {order.order_number ?? `Order #${order.id}`}
           </h1>
           <p className="text-sm font-semibold text-foreground-secondary uppercase tracking-widest mt-1">{fmtDate(order.created_at)}</p>
         </div>
@@ -165,7 +166,7 @@ const OrderDetail = () => {
                 <p className="text-xs font-semibold text-foreground-secondary uppercase tracking-widest mt-1 mb-3">Qty: {item.quantity} × {fmt(item.price_at_purchase ?? '0')}</p>
                 
                 <div className="flex items-center gap-3">
-                  <OrderStatusBadge status={item.status as any} />
+                  <OrderStatusBadge status={item.status as OrderStatus} />
                   
                   {user?.user_type === 'farmer' && item.status === 'pending' && (
                     <Button variant="primary" size="sm" onClick={() => handleItemTransition(item.id, 'processing')} isLoading={updatingItem === item.id} className="h-8 text-[10px]">Accept & Process</Button>
@@ -212,10 +213,10 @@ const OrderDetail = () => {
             <h3 className="text-xs font-bold uppercase tracking-widest text-foreground-secondary">Payment Method</h3>
           </div>
           <p className="text-xl font-display font-bold text-foreground uppercase">
-            {(order as any).payment_method ?? 'COD'}
+            {order.payment_method ?? 'COD'}
           </p>
         </div>
-        {(order as any).notes && (
+        {order.notes && (
           <div className="md:col-span-2 rounded-2xl bg-surface-elevated border border-border-subtle p-8">
             <div className="flex items-center gap-3 mb-4">
               <div className="h-10 w-10 rounded-full bg-surface border border-border-subtle flex items-center justify-center shadow-sm">
@@ -223,11 +224,11 @@ const OrderDetail = () => {
               </div>
               <h3 className="text-xs font-bold uppercase tracking-widest text-foreground-secondary">Notes</h3>
             </div>
-            <p className="text-sm font-medium text-foreground leading-relaxed">{(order as any).notes}</p>
+            <p className="text-sm font-medium text-foreground leading-relaxed">{order.notes}</p>
           </div>
         )}
       </motion.div>
-    </div>
+    </Container>
   );
 };
 

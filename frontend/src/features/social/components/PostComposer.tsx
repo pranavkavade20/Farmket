@@ -68,7 +68,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({ onSuccess, onClose, 
     formData.append('title', title);
     formData.append('description', description);
     formData.append('location', location);
-    if (productId) formData.append('product_id', productId);
+    if (productId) formData.append('product_id', String(productId));
     
     // For updates, passing empty product_id removes it.
     if (existingPost && !productId) {

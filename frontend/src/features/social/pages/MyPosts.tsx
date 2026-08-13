@@ -3,10 +3,12 @@ import { useGetMyPostsQuery } from '../api/socialApi';
 import { PostComposer } from '../components/PostComposer';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, Heart, MessageCircle, FileText, Image as ImageIcon } from 'lucide-react';
+import { Container } from '@/components/ui';
 
 export default function MyPosts() {
   const { data, isLoading } = useGetMyPostsQuery();
   const posts = data?.results || (Array.isArray(data) ? data : []);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [editingPost, setEditingPost] = useState<any | null>(null);
 
   if (isLoading) {
@@ -18,7 +20,7 @@ export default function MyPosts() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto py-8">
+    <Container maxWidth="narrow" className="py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-extrabold text-foreground tracking-tight">My Posts</h1>
         <p className="text-muted mt-2">Manage your posts and update your community.</p>
@@ -30,6 +32,7 @@ export default function MyPosts() {
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-4">
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {posts.map((post: any) => {
             const firstMedia = post.media && post.media.length > 0 ? post.media[0] : null;
             
@@ -97,6 +100,6 @@ export default function MyPosts() {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </Container>
   );
 }

@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils/cn';
 
 interface ContainerProps extends React.HTMLAttributes<HTMLDivElement> {
   as?: React.ElementType;
-  maxWidth?: 'default' | 'wide';
+  maxWidth?: 'reading' | 'narrow' | 'default' | 'wide';
 }
 
 export const Container = React.forwardRef<HTMLDivElement, ContainerProps>(
@@ -13,7 +13,10 @@ export const Container = React.forwardRef<HTMLDivElement, ContainerProps>(
         ref={ref}
         className={cn(
           'w-full mx-auto px-4 sm:px-6 lg:px-8', 
-          maxWidth === 'wide' ? 'max-w-[1400px]' : 'max-w-[1280px]',
+          maxWidth === 'reading' ? 'max-w-2xl' :
+          maxWidth === 'narrow' ? 'max-w-4xl' :
+          maxWidth === 'wide' ? 'max-w-[1400px]' : 
+          'max-w-[1280px]',
           className
         )}
         {...props}
