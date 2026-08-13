@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useSEO } from '@/hooks';
-import { Button } from '@/components/ui';
+import { Button, Container } from '@/components/ui';
 import { motion } from 'framer-motion';
 import { Home, ArrowLeft } from 'lucide-react';
 
@@ -10,7 +10,7 @@ const NotFound = () => {
   useSEO({ title: '404 — Page Not Found' });
 
   return (
-    <div className="flex min-h-[80vh] flex-col items-center justify-center px-4 text-center">
+    <Container className="flex min-h-[80vh] flex-col items-center justify-center text-center">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -47,7 +47,7 @@ const NotFound = () => {
           </button>
         </div>
       </motion.div>
-    </div>
+    </Container>
   );
 };
 

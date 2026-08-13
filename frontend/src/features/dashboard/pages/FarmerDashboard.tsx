@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth, authService } from '@/features/auth';
 import { useSEO } from '@/hooks';
-import { Button, OrderStatusBadge } from '@/components/ui';
+import { Button, OrderStatusBadge, Stack } from '@/components/ui';
 import {
-  Package, TrendingUp, Clock, ArrowRight, Sprout, User, ShoppingBag, Newspaper
+  Package, TrendingUp, Clock, ArrowRight, Sprout, ShoppingBag, Newspaper
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Order, DashboardStats } from '@/types';
@@ -29,7 +29,7 @@ const FarmerDashboard = () => {
   const fmtDate = (s: string) => new Date(s).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
   return (
-    <div className="mx-auto max-w-[1400px] w-full flex flex-col gap-8 pb-10">
+    <Stack gap="lg" className="w-full pb-10">
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-1">
         <h1 className="text-3xl font-display font-semibold text-foreground tracking-tight">
@@ -41,12 +41,12 @@ const FarmerDashboard = () => {
       {/* Top Section: Hero + Quick Links */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Hero Card */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
           className="lg:col-span-1 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-400 p-8 flex flex-col justify-between text-white shadow-md relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 p-4 opacity-20">
-             <Sprout className="w-32 h-32" />
+            <Sprout className="w-32 h-32" />
           </div>
           <div className="relative z-10">
             <h2 className="text-2xl font-display font-bold leading-tight mb-2 max-w-[200px]">
@@ -64,7 +64,7 @@ const FarmerDashboard = () => {
         </motion.div>
 
         {/* Quick Services Carousel-style container */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 }}
           className="lg:col-span-2 flex flex-col gap-3"
         >
@@ -73,22 +73,22 @@ const FarmerDashboard = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 h-full">
             <Link to="/farmer/crops" className="rounded-xl border border-border-subtle bg-surface p-5 flex flex-col items-center justify-center text-center hover:border-brand transition-colors group shadow-sm">
-               <div className="h-12 w-12 rounded-full bg-brand/10 flex items-center justify-center mb-3 group-hover:bg-brand/20 transition-colors">
-                 <Sprout className="w-5 h-5 text-brand" />
-               </div>
-               <span className="text-sm font-semibold text-foreground">Crop Tracking</span>
+              <div className="h-12 w-12 rounded-full bg-brand/10 flex items-center justify-center mb-3 group-hover:bg-brand/20 transition-colors">
+                <Sprout className="w-5 h-5 text-brand" />
+              </div>
+              <span className="text-sm font-semibold text-foreground">Crop Tracking</span>
             </Link>
             <Link to="/dashboard/analytics" className="rounded-xl border border-border-subtle bg-surface p-5 flex flex-col items-center justify-center text-center hover:border-accent-orange transition-colors group shadow-sm">
-               <div className="h-12 w-12 rounded-full bg-accent-orange/10 flex items-center justify-center mb-3 group-hover:bg-accent-orange/20 transition-colors">
-                 <TrendingUp className="w-5 h-5 text-accent-orange" />
-               </div>
-               <span className="text-sm font-semibold text-foreground">Analytics</span>
+              <div className="h-12 w-12 rounded-full bg-accent-orange/10 flex items-center justify-center mb-3 group-hover:bg-accent-orange/20 transition-colors">
+                <TrendingUp className="w-5 h-5 text-accent-orange" />
+              </div>
+              <span className="text-sm font-semibold text-foreground">Analytics</span>
             </Link>
             <Link to="/farmer/posts" className="rounded-xl border border-border-subtle bg-surface p-5 flex flex-col items-center justify-center text-center hover:border-info transition-colors group shadow-sm">
-               <div className="h-12 w-12 rounded-full bg-info/10 flex items-center justify-center mb-3 group-hover:bg-info/20 transition-colors">
-                 <Newspaper className="w-5 h-5 text-info" />
-               </div>
-               <span className="text-sm font-semibold text-foreground">Community Posts</span>
+              <div className="h-12 w-12 rounded-full bg-info/10 flex items-center justify-center mb-3 group-hover:bg-info/20 transition-colors">
+                <Newspaper className="w-5 h-5 text-info" />
+              </div>
+              <span className="text-sm font-semibold text-foreground">Community Posts</span>
             </Link>
           </div>
         </motion.div>
@@ -100,7 +100,7 @@ const FarmerDashboard = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             { label: 'Total Orders', value: stats?.total_orders, icon: <ShoppingBag className="w-4 h-4 text-brand" />, loading: statsLoading },
-            { label: 'Revenue', value: stats ? fmt(stats.total_revenue) : null, icon: <TrendingUp className="w-4 h-4 text-info" />, loading: statsLoading },
+            { label: 'Revenue', value: stats ? fmt(stats.total_revenue ?? 0) : null, icon: <TrendingUp className="w-4 h-4 text-info" />, loading: statsLoading },
             { label: 'Active Products', value: stats?.total_products, icon: <Package className="w-4 h-4 text-warning" />, loading: statsLoading },
             { label: 'Pending', value: stats?.pending_orders, icon: <Clock className="w-4 h-4 text-danger" />, loading: statsLoading },
           ].map((s, i) => (
@@ -132,7 +132,7 @@ const FarmerDashboard = () => {
                     <ShoppingBag className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-foreground group-hover:text-brand transition-colors">{(order as any).order_number ?? `ORD-${String(order.id).padStart(4, '0')}`}</p>
+                    <p className="text-sm font-semibold text-foreground group-hover:text-brand transition-colors">{((order as unknown) as { order_number?: string }).order_number ?? `ORD-${String(order.id).padStart(4, '0')}`}</p>
                     <p className="text-xs text-foreground-secondary mt-0.5">{fmtDate(order.created_at)}</p>
                   </div>
                 </div>
@@ -146,7 +146,7 @@ const FarmerDashboard = () => {
           </div>
         </div>
       </motion.div>
-    </div>
+    </Stack>
   );
 };
 

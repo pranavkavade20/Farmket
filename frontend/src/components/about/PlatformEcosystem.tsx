@@ -4,11 +4,12 @@ import { ProductCardMock } from './ui-mocks/ProductCardMock';
 import { SearchInterfaceMock } from './ui-mocks/SearchInterfaceMock';
 import { AIMock } from './ui-mocks/AIMock';
 import { floatingVariants, pulseVariants } from '@/utils/animations';
+import { Container } from '@/components/ui';
 
 export const PlatformEcosystem = () => {
   return (
     <section className="py-32 bg-background relative overflow-hidden flex flex-col items-center">
-      <div className="container mx-auto px-6 md:px-12 mb-20 text-center relative z-20">
+      <Container className="mb-20 text-center relative z-20">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -21,7 +22,7 @@ export const PlatformEcosystem = () => {
             Every component works together seamlessly to bring the farm directly to the buyer, optimized at every step.
           </p>
         </motion.div>
-      </div>
+      </Container>
 
       <div className="w-full max-w-7xl h-[800px] relative perspective-1000 flex items-center justify-center">
         <motion.div 

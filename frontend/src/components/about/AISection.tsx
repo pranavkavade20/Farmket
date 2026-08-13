@@ -3,6 +3,7 @@ import { AIMock } from './ui-mocks/AIMock';
 import { DashboardMock } from './ui-mocks/DashboardMock';
 import { BrainCircuit, Sparkles, Network } from 'lucide-react';
 import { floatingVariants, ambientBackgroundVariants, floatingSlightVariants } from '@/utils/animations';
+import { Container } from '@/components/ui';
 
 export const AISection = () => {
   return (
@@ -23,7 +24,7 @@ export const AISection = () => {
         </svg>
       </motion.div>
 
-      <div className="container mx-auto px-6 md:px-12 relative z-10 flex flex-col lg:flex-row-reverse items-center gap-16">
+      <Container className="relative z-10 flex flex-col lg:flex-row-reverse items-center gap-16">
         
         {/* Text Content */}
         <motion.div 
@@ -101,7 +102,7 @@ export const AISection = () => {
 
         </div>
 
-      </div>
+      </Container>
     </section>
   );
 };

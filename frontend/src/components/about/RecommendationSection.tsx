@@ -1,17 +1,19 @@
 import { motion } from 'framer-motion';
 import { Filter, Eye, Heart, Download } from 'lucide-react';
 import { floatingVariants, floatingSlightVariants } from '@/utils/animations';
+import { Container } from '@/components/ui';
 
 export const RecommendationSection = () => {
   return (
     <section className="bg-background py-32 relative overflow-hidden min-h-[120vh]">
-      <motion.div 
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="container mx-auto px-6 md:px-12 text-center mb-16 relative z-20"
-      >
-        <h2 className="text-3xl md:text-5xl font-display font-bold mb-4">How recommendations work.</h2>
+      <Container>
+        <motion.div 
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16 relative z-20"
+        >
+          <h2 className="text-3xl md:text-5xl font-display font-bold mb-4">How recommendations work.</h2>
         <p className="text-lg text-foreground-secondary max-w-2xl mx-auto">
           We synthesize thousands of data points in real-time to curate the perfect feed for every buyer.
         </p>
@@ -144,7 +146,9 @@ export const RecommendationSection = () => {
            </motion.div>
         </div>
 
-      </div>
+        </div>
+
+      </Container>
     </section>
   );
 };

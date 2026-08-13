@@ -1,21 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ambientBackgroundVariants } from '@/utils/animations';
+import { Container } from '@/components/ui';
 
 export const FutureVision = () => {
-  const [particles, setParticles] = useState<Array<{x: number, y: number, duration: number, delay: number}>>([]);
-
-  useEffect(() => {
-    // Only generate random coordinates on mount to prevent hydration mismatch/layout shifts
-    setParticles(
-      [...Array(12)].map(() => ({
-        x: Math.random() * 200 - 100,
-        y: Math.random() * 200 - 100,
-        duration: 2 + Math.random() * 2,
-        delay: Math.random() * 2,
-      }))
-    );
-  }, []);
+  const [particles] = useState<Array<{x: number, y: number, duration: number, delay: number}>>(() => 
+    [...Array(12)].map(() => ({
+      x: Math.random() * 200 - 100,
+      y: Math.random() * 200 - 100,
+      duration: 2 + Math.random() * 2,
+      delay: Math.random() * 2,
+    }))
+  );
 
   return (
     <section className="relative w-full min-h-[80vh] bg-surface flex flex-col items-center justify-center overflow-hidden py-32">
@@ -26,7 +22,7 @@ export const FutureVision = () => {
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand/5 rounded-full blur-[120px] pointer-events-none" 
       />
       
-      <div className="container mx-auto px-6 md:px-12 relative z-10 text-center flex flex-col items-center">
+      <Container className="relative z-10 text-center flex flex-col items-center">
         <motion.div 
           initial={{ opacity: 0, scale: 0.98, y: 24 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -92,7 +88,7 @@ export const FutureVision = () => {
           ))}
 
         </div>
-      </div>
+      </Container>
     </section>
   );
 };

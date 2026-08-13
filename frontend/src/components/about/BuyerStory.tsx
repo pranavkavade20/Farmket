@@ -3,6 +3,7 @@ import { SearchInterfaceMock } from './ui-mocks/SearchInterfaceMock';
 import { ProductCardMock } from './ui-mocks/ProductCardMock';
 import { Search, Sparkles, ShieldCheck } from 'lucide-react';
 import { floatingVariants, ambientBackgroundVariants } from '@/utils/animations';
+import { Container } from '@/components/ui';
 
 export const BuyerStory = () => {
   return (
@@ -22,7 +23,7 @@ export const BuyerStory = () => {
         />
       </div>
 
-      <div className="container mx-auto px-6 md:px-12 relative z-10">
+      <Container className="relative z-10">
         <div className="flex flex-col lg:flex-row items-center gap-16">
 
           {/* Text Content */}
@@ -96,7 +97,7 @@ export const BuyerStory = () => {
           </div>
 
         </div>
-      </div>
+      </Container>
     </section>
   );
 };

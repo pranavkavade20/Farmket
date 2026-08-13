@@ -1,6 +1,7 @@
 import { type ComponentType } from 'react';
 import { motion } from 'framer-motion';
 import { User, Wheat, Store, ShoppingCart, CheckCircle } from 'lucide-react';
+import { Container } from '@/components/ui';
 
 const FlowNode = ({ 
   icon: Icon, 
@@ -80,28 +81,30 @@ export const MarketplaceFlow = () => {
 
   return (
     <section className="bg-background py-32 relative">
-      <motion.div 
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="container mx-auto px-6 md:px-12 text-center mb-20"
-      >
-        <h2 className="text-3xl md:text-5xl font-display font-bold mb-6">The seamless flow of trade.</h2>
-        <p className="text-lg text-foreground-secondary max-w-2xl mx-auto">
-          Farmket streamlines the agricultural supply chain, removing friction at every step from farm to table.
-        </p>
-      </motion.div>
+      <Container>
+        <motion.div 
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-20"
+        >
+          <h2 className="text-3xl md:text-5xl font-display font-bold mb-6">The seamless flow of trade.</h2>
+          <p className="text-lg text-foreground-secondary max-w-2xl mx-auto">
+            Farmket streamlines the agricultural supply chain, removing friction at every step from farm to table.
+          </p>
+        </motion.div>
 
-      <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between px-6 md:px-12 relative pb-32">
-        {nodes.map((node, index) => (
-          <FlowNode 
-            key={index}
-            index={index}
-            totalNodes={nodes.length}
-            {...node}
-          />
-        ))}
-      </div>
+        <div className="w-full flex flex-col md:flex-row items-center justify-between relative pb-32">
+          {nodes.map((node, index) => (
+            <FlowNode 
+              key={index}
+              index={index}
+              totalNodes={nodes.length}
+              {...node}
+            />
+          ))}
+        </div>
+      </Container>
     </section>
   );
 };

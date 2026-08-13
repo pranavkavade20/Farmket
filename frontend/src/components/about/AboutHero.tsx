@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { DashboardMock } from './ui-mocks/DashboardMock';
 import { floatingVariants, ambientBackgroundVariants } from '@/utils/animations';
+import { Container } from '@/components/ui';
 
 export const AboutHero = () => {
   return (
@@ -20,7 +21,7 @@ export const AboutHero = () => {
         />
       </div>
 
-      <div className="relative z-10 container mx-auto px-6 md:px-12 flex flex-col items-center justify-center text-center mt-20 h-full">
+      <Container className="relative z-10 flex flex-col items-center justify-center text-center mt-20 h-full">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -64,7 +65,7 @@ export const AboutHero = () => {
           <span className="text-sm font-medium text-muted uppercase tracking-widest">Explore</span>
           <div className="w-px h-16 bg-gradient-to-b from-brand to-transparent"></div>
         </motion.div>
-      </div>
+      </Container>
 
       {/* Overlay gradient to blend with next section */}
       <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-background to-transparent z-30 pointer-events-none"></div>

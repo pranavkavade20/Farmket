@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { Navbar, Sidebar } from '@/components/common';
+import { Container } from '@/components/ui';
 import { cn } from '@/lib/utils/cn';
 
 const DashboardLayout = () => {
@@ -15,9 +16,9 @@ const DashboardLayout = () => {
           "flex-1 overflow-y-auto relative transition-all duration-300 custom-scrollbar",
           isChat ? "p-0" : "p-4 md:p-6 lg:p-8"
         )}>
-          <div className="mx-auto max-w-7xl w-full">
+          <Container>
             <Outlet />
-          </div>
+          </Container>
         </main>
       </div>
     </div>
