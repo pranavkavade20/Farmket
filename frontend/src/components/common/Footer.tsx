@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import logo from '@/assets/images/logo.png';
 import { ArrowRight, Leaf } from 'lucide-react';
+import { Container } from '@/components/ui';
 
 const XIcon = () => (
   <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
@@ -30,7 +31,7 @@ const Footer = () => {
   return (
     <footer className="bg-background overflow-hidden w-full border-t border-border-subtle relative transition-colors duration-300">
 
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 pt-20 pb-12 relative z-10">
+      <Container className="pt-20 pb-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-8">
 
           {/* Brand & Socials */}
@@ -137,7 +138,7 @@ const Footer = () => {
              <button className="hover:text-foreground transition-colors">INR (₹)</button>
           </div>
         </div>
-      </div>
+      </Container>
     </footer>
   );
 };

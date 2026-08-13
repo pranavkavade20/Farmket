@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useSEO } from '@/hooks';
-import { Button} from '@/components/ui';
+import { Button, Container } from '@/components/ui';
 import { productService } from '@/features/products';
 import type { Product} from '@/types';
 import CropTimeline from '@/features/products/components/CropTimeline';
@@ -196,7 +196,7 @@ const ProductDetails = () => {
   };
 
   return (
-    <div className="mx-auto max-w-[1600px] px-4 py-12 sm:px-6 lg:px-8 min-h-screen">
+    <Container maxWidth="wide" className="py-12 min-h-screen">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-3 text-sm font-semibold text-foreground-secondary mb-10">
         <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
@@ -465,7 +465,7 @@ const ProductDetails = () => {
         isOpen={isWaitlistModalOpen} 
         onClose={() => setIsWaitlistModalOpen(false)} 
       />
-    </div>
+    </Container>
   );
 };
 

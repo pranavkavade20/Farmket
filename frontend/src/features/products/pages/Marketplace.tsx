@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useSEO } from '@/hooks';
 import { ProductCard, productService } from '@/features/products';
-import { ProductCardSkeleton, Button} from '@/components/ui';
+import { ProductCardSkeleton, Button, Container, Grid } from '@/components/ui';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search,  X,  Filter, ChevronDown, Check } from 'lucide-react';
 import type { Product, Category } from '@/types';
@@ -205,10 +205,9 @@ const Marketplace = () => {
 
   const activeFilterCount = (organicOnly ? 1 : 0) + (selectedCategory ? 1 : 0) + (search ? 1 : 0);
 
-
-
   return (
-    <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8 min-h-screen flex flex-col">
+    <Container className="py-8 min-h-screen flex flex-col">
+
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 shrink-0">
         <div>
@@ -340,9 +339,9 @@ const Marketplace = () => {
         {/* Product Grid */}
         <div className="flex-1 w-full min-h-[800px] flex flex-col">
           {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <Grid cols="auto-fit" gap="md">
               {Array.from({ length: 12 }).map((_, i) => <ProductCardSkeleton key={i} />)}
-            </div>
+            </Grid>
           ) : products.length === 0 ? (
             <div className="flex-1 w-full flex flex-col items-center justify-center py-24 px-4 text-center rounded-3xl border border-dashed border-border-strong bg-surface">
               <div className="h-20 w-20 rounded-2xl bg-surface-elevated flex items-center justify-center mb-6">
@@ -353,7 +352,7 @@ const Marketplace = () => {
               <Button onClick={clearFilters} variant="outline" className="px-6 rounded-full">Clear All Filters</Button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <Grid cols="auto-fit" gap="md">
               <AnimatePresence>
                 {products.map((product, i) => (
                   <motion.div key={product.id} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.4, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}>
@@ -361,11 +360,11 @@ const Marketplace = () => {
                   </motion.div>
                 ))}
               </AnimatePresence>
-            </div>
+            </Grid>
           )}
         </div>
       </div>
-    </div>
+    </Container>
   );
 };
 

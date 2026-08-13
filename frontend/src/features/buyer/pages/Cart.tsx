@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '@/features/buyer';
 import { useAuth } from '@/features/auth';
-import { Button } from '@/components/ui';
+import { Button, Container } from '@/components/ui';
 import { useSEO } from '@/hooks';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, ChevronRight, ShieldCheck, Truck,  Lock, Award } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -83,7 +83,7 @@ const Cart = () => {
   }
 
   return (
-    <div className="mx-auto max-w-[1400px] px-4 py-12 sm:px-6 lg:px-8 min-h-screen">
+    <Container maxWidth="wide" className="py-12 min-h-screen">
       {/* Step indicator */}
       <div className="flex items-center gap-0 text-sm mb-12 select-none">
         {/* Step 1 */}
@@ -356,7 +356,7 @@ const Cart = () => {
           </div>
         </div>
       </div>
-    </div>
+    </Container>
   );
 };
 

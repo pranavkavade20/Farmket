@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useSEO } from '@/hooks';
-import { Button, ProductCardSkeleton } from '@/components/ui';
+import { Button, ProductCardSkeleton, Container } from '@/components/ui';
 import { ProductCard } from '@/features/products';
 import type { Product } from '@/types';
 import { MapPin, Star, ShieldCheck, Leaf, Tractor, Phone, Mail, Award, MessageSquare } from 'lucide-react';
@@ -59,7 +59,7 @@ const FarmerProfile = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
       </div>
 
-      <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8 -mt-20 relative z-10">
+      <Container className="-mt-20 relative z-10">
         
         {/* Profile Header Card */}
         <div className="bg-surface rounded-3xl p-6 sm:p-10 shadow-lg border border-border-subtle mb-10 flex flex-col md:flex-row gap-8 items-start md:items-center">
@@ -195,7 +195,7 @@ const FarmerProfile = () => {
           </div>
           
         </div>
-      </div>
+      </Container>
     </div>
   );
 };

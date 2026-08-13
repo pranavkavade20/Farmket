@@ -16,6 +16,8 @@ import {
   CTASection
 } from '@/components/sections';
 
+import { Container, Section, Stack } from '@/components/ui';
+
 const Home = () => {
   useSEO({
     title: 'Farmket | Modern Agricultural Commerce',
@@ -57,30 +59,32 @@ const Home = () => {
       <SocialProofSection />
 
       {/* 3. Marketplace Preview */}
-      <section className="w-full bg-surface py-20 border-b border-border-subtle">
-        <div className="mx-auto w-full max-w-7xl px-6 lg:px-8">
+      <Section className="bg-surface border-b border-border-subtle" spacing="lg">
+        <Container>
           <PopularCategories categories={categoriesList} />
-        </div>
-      </section>
+        </Container>
+      </Section>
 
       {/* Products Band */}
-      <section className="w-full bg-background border-t border-border-subtle pt-24 pb-16">
-        <div className="mx-auto w-full max-w-7xl px-6 lg:px-8 flex flex-col gap-24">
-          <WeeklyBestSelling
-            products={products.slice(0, 5).reverse()}
-            onAddToCart={handleAddToCart}
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-          />
+      <Section className="bg-background border-t border-border-subtle" spacing="lg">
+        <Container>
+          <Stack gap="xl">
+            <WeeklyBestSelling
+              products={products.slice(0, 5).reverse()}
+              onAddToCart={handleAddToCart}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+            />
 
-          <ProductGridSection
-            title="Trending Products"
-            products={products.slice(0, 5)}
-            onAddToCart={handleAddToCart}
-            badge="Trending"
-          />
-        </div>
-      </section>
+            <ProductGridSection
+              title="Trending Products"
+              products={products.slice(0, 5)}
+              onAddToCart={handleAddToCart}
+              badge="Trending"
+            />
+          </Stack>
+        </Container>
+      </Section>
 
       {/* Activity and Testimonials */}
       <div className="mt-8 border-t border-border-subtle bg-surface">

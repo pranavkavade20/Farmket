@@ -53,11 +53,11 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, onAddToCa
 
       {/* Image Container */}
       <Link to={`/marketplace/${product.slug}`} className="block">
-        <div className="relative mb-4 flex h-48 w-full items-center justify-center rounded-xl bg-background p-4 transition-colors group-hover:bg-brand-muted/20 overflow-hidden">
+        <div className="relative mb-4 flex aspect-[4/3] w-full items-center justify-center rounded-xl bg-background p-4 transition-colors group-hover:bg-brand-muted/20 overflow-hidden">
           <img
             src={primaryImage || undefined}
             alt={product.name}
-            className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-[1.03]"
+            className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-[1.03]"
             loading="lazy"
           />
         </div>
