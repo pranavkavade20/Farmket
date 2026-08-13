@@ -14,7 +14,7 @@ const MarketplaceAnalytics: React.FC = () => {
       try {
         const response = await adminAnalyticsService.getMarketplaceAnalytics();
         setData(response);
-      } catch (error) {
+      } catch {
         toast.error('Failed to load marketplace analytics');
       } finally {
         setLoading(false);
@@ -26,18 +26,18 @@ const MarketplaceAnalytics: React.FC = () => {
   if (loading || !data) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-green-600"></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-brand"></div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Marketplace Analytics</h1>
+      <h1 className="text-2xl font-bold text-foreground">Marketplace Analytics</h1>
       
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-[#111]">
-          <h3 className="mb-6 text-lg font-bold text-gray-900 dark:text-white">Order Status Distribution</h3>
+        <div className="rounded-2xl border border-border-subtle bg-surface p-6 shadow-sm">
+          <h3 className="mb-6 text-lg font-bold text-foreground">Order Status Distribution</h3>
           <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -65,8 +65,8 @@ const MarketplaceAnalytics: React.FC = () => {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-[#111]">
-          <h3 className="mb-6 text-lg font-bold text-gray-900 dark:text-white">Top Categories</h3>
+        <div className="rounded-2xl border border-border-subtle bg-surface p-6 shadow-sm">
+          <h3 className="mb-6 text-lg font-bold text-foreground">Top Categories</h3>
           <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>

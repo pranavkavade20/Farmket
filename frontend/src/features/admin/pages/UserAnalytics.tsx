@@ -12,7 +12,7 @@ const UserAnalytics: React.FC = () => {
       try {
         const response = await adminAnalyticsService.getUserAnalytics();
         setData(response);
-      } catch (error) {
+      } catch {
         toast.error('Failed to load user analytics');
       } finally {
         setLoading(false);
@@ -24,18 +24,18 @@ const UserAnalytics: React.FC = () => {
   if (loading || !data) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-green-600"></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-brand"></div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">User Analytics</h1>
-      <p className="text-sm text-gray-500 dark:text-gray-400">Track farmer and buyer growth over the last 6 months.</p>
+      <h1 className="text-2xl font-bold text-foreground">User Analytics</h1>
+      <p className="text-sm text-muted">Track farmer and buyer growth over the last 6 months.</p>
       
-      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-[#111]">
-        <h3 className="mb-6 text-lg font-bold text-gray-900 dark:text-white">User Registration Trend</h3>
+      <div className="rounded-2xl border border-border-subtle bg-surface p-6 shadow-sm">
+        <h3 className="mb-6 text-lg font-bold text-foreground">User Registration Trend</h3>
         <div className="h-96 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data.user_growth} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>

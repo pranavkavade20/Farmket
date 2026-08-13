@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth, authService } from '@/features/auth';
 import { useSEO } from '@/hooks';
 import { Button, OrderStatusBadge } from '@/components/ui';
-import { ShoppingBag, Clock, ArrowRight, User, Star, Search } from 'lucide-react';
+import { ShoppingBag, Clock, ArrowRight, User, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Order, DashboardStats } from '@/types';
 import { orderService } from '@/features/orders';
@@ -109,7 +109,7 @@ const BuyerDashboard = () => {
                       <ShoppingBag className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-foreground group-hover:text-brand transition-colors">{(order as any).order_number ?? `ORD-${String(order.id).padStart(4, '0')}`}</p>
+                      <p className="text-sm font-semibold text-foreground group-hover:text-brand transition-colors">{(order as Order & { order_number?: string }).order_number ?? `ORD-${String(order.id).padStart(4, '0')}`}</p>
                       <p className="text-xs text-foreground-secondary mt-0.5">{fmtDate(order.created_at)}</p>
                     </div>
                   </div>
@@ -131,7 +131,7 @@ const BuyerDashboard = () => {
             {[
               { label: 'Total Orders', value: stats?.total_orders, icon: <ShoppingBag className="w-4 h-4 text-brand" />, loading: statsLoading },
               { label: 'Pending Orders', value: stats?.pending_orders, icon: <Clock className="w-4 h-4 text-warning" />, loading: statsLoading },
-            ].map((s, i) => (
+            ].map((s) => (
               <div key={s.label} className="rounded-xl bg-surface border border-border-subtle p-5 shadow-sm flex items-center justify-between">
                 <div>
                   <p className="text-xs font-semibold text-foreground-secondary mb-1">{s.label}</p>

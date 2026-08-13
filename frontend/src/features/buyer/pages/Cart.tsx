@@ -170,7 +170,7 @@ const Cart = () => {
                           </div>
                           <button
                             onClick={() => removeItem(item.id)}
-                            className="h-10 w-10 rounded-full bg-surface-elevated flex items-center justify-center text-foreground-secondary hover:text-danger hover:bg-danger-subtle transition-colors"
+                            className="h-10 w-10 rounded-full bg-surface-elevated flex items-center justify-center text-foreground-secondary hover:text-danger hover:bg-danger-muted transition-colors"
                             aria-label="Remove item"
                           >
                             <Trash2 className="h-4 w-4" />

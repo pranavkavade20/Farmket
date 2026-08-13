@@ -275,7 +275,7 @@ const MyProducts = () => {
                     <div className="mt-auto pt-4 border-t border-border-subtle grid grid-cols-4 gap-2">
                       <Link
                         to="/farmer/crops"
-                        className="col-span-2 flex items-center justify-center gap-1.5 rounded-xl py-2 px-2 text-[11px] sm:text-xs font-bold bg-success-subtle text-success hover:bg-success hover:text-white transition-colors border border-success/20"
+                        className="col-span-2 flex items-center justify-center gap-1.5 rounded-xl py-2 px-2 text-[11px] sm:text-xs font-bold bg-success-muted text-success hover:bg-success hover:text-white transition-colors border border-success/20"
                         title="Manage Crop Lifecycle"
                       >
                         <Leaf className="h-3.5 w-3.5 shrink-0" /> Manage Crop
@@ -285,7 +285,7 @@ const MyProducts = () => {
                         {product.active_crop_growth_id && (
                           <button
                             onClick={() => dispatch(openStageUpdateModal(product.active_crop_growth_id!))}
-                            className="flex-1 flex items-center justify-center rounded-xl bg-info-subtle text-info hover:bg-info hover:text-white transition-colors border border-info/20"
+                            className="flex-1 flex items-center justify-center rounded-xl bg-info-muted text-info hover:bg-info hover:text-white transition-colors border border-info/20"
                             title="Update Stage"
                           >
                             <TrendingUp className="h-4 w-4" />
@@ -296,7 +296,7 @@ const MyProducts = () => {
                           disabled={togglingId === product.slug}
                           className={`flex-1 flex items-center justify-center rounded-xl transition-colors border ${product.is_available
                             ? 'bg-surface hover:bg-state-hover border-border-strong text-foreground-secondary'
-                            : 'bg-success-subtle text-success hover:bg-success hover:text-white border-success/20'
+                            : 'bg-success-muted text-success hover:bg-success hover:text-white border-success/20'
                             }`}
                           title={product.is_available ? 'Hide from marketplace' : 'Show on marketplace'}
                         >
@@ -311,7 +311,7 @@ const MyProducts = () => {
                         <button
                           onClick={() => handleDelete(product.slug, product.name)}
                           disabled={deletingId === product.slug}
-                          className="flex-1 flex items-center justify-center rounded-xl text-danger hover:bg-danger hover:text-white transition-colors border border-danger/20 bg-danger-subtle"
+                          className="flex-1 flex items-center justify-center rounded-xl text-danger hover:bg-danger hover:text-white transition-colors border border-danger/20 bg-danger-muted"
                           title="Delete product"
                         >
                           {deletingId === product.slug ? (

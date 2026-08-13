@@ -53,6 +53,7 @@ const Register = () => {
     },
   });
 
+  // eslint-disable-next-line
   const selectedUserType = watch('user_type');
 
   const onSubmit = async (data: RegisterFormValues) => {

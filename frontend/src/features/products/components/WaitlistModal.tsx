@@ -24,7 +24,7 @@ export const WaitlistModal = ({ product, isOpen, onClose }: Props) => {
       await productService.waitlistProduct(product.slug, quantity);
       toast.success('Joined waitlist successfully!');
       onClose();
-    } catch (err) {
+    } catch {
       toast.error('Failed to join waitlist');
     } finally {
       setLoading(false);

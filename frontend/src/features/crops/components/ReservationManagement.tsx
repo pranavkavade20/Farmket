@@ -12,7 +12,7 @@ export const ReservationManagement: React.FC = () => {
     try {
       await approveReservation(id).unwrap();
       toast.success('Reservation approved');
-    } catch (error) {
+    } catch {
       toast.error('Failed to approve reservation');
     }
   };
@@ -21,7 +21,7 @@ export const ReservationManagement: React.FC = () => {
     try {
       await rejectReservation(id).unwrap();
       toast.success('Reservation rejected');
-    } catch (error) {
+    } catch {
       toast.error('Failed to reject reservation');
     }
   };

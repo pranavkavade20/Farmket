@@ -39,7 +39,7 @@ export const StageUpdateModal: React.FC = () => {
       toast.success('Crop stage updated successfully');
       handleClose();
     } catch (err: unknown) {
-      toast.error((err as any)?.data?.error || 'Failed to update stage');
+      toast.error((err as { data?: { error?: string } })?.data?.error || 'Failed to update stage');
     }
   };
 

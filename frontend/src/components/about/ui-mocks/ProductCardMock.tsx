@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Leaf, MapPin, Package, Sprout } from 'lucide-react';
 
-export const ProductCardMock = ({ className = '', style }: { className?: string, style?: any }) => {
+export const ProductCardMock = ({ className = '', style }: { className?: string, style?: React.CSSProperties }) => {
   return (
     <motion.div
       style={style}

@@ -6,7 +6,7 @@ import { Button, OrderStatusBadge } from '@/components/ui';
 import { Link } from 'react-router-dom';
 import {
   TrendingUp, ShoppingBag, Package, Star, Eye, IndianRupee,
-  ArrowUpRight, Calendar, PlusCircle, CheckCircle, Clock,
+  ArrowUpRight, Calendar, PlusCircle,
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -27,7 +27,7 @@ const Analytics = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user?.user_type !== 'farmer') { setLoading(false); return; }
+    if (user?.user_type !== 'farmer') return;
     analyticsService
       .getFarmerAnalytics()
       .then(setData)

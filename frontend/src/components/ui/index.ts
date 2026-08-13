@@ -11,6 +11,7 @@ export { Calendar, type CalendarEvent } from './Calendar';
 export { Tooltip } from './Tooltip';
 export { Toaster } from './Toaster';
 export { PageSkeleton } from './PageSkeleton';
+export { Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs';
 
 // Layout Primitives
 export { Container } from './Container';

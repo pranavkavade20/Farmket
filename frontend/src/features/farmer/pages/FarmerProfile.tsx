@@ -130,7 +130,7 @@ const FarmerProfile = () => {
                 </div>
                 
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-success-subtle text-success flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-success-muted text-success flex items-center justify-center">
                     <Leaf className="w-6 h-6" />
                   </div>
                   <div>

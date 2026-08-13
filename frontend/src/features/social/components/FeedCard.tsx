@@ -12,6 +12,81 @@ interface FeedCardProps {
   isActive?: boolean;
 }
 
+interface ActionButtonsProps {
+  isDesktop?: boolean;
+  isLiked: boolean;
+  likesCount: number;
+  handleLike: () => void;
+  onCommentClick: (postId: number) => void;
+  post: Post;
+  handleSave: () => void;
+  isSaved: boolean;
+}
+
+const ActionButtons: React.FC<ActionButtonsProps> = ({ 
+  isDesktop = false, 
+  isLiked, 
+  likesCount, 
+  handleLike, 
+  onCommentClick, 
+  post, 
+  handleSave, 
+  isSaved 
+}) => (
+  <>
+    <motion.button 
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.9 }}
+      onClick={handleLike}
+      className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 transition-colors ${isLiked ? 'text-red-500' : 'text-foreground-secondary hover:text-red-500'}`}
+      title="Like"
+    >
+      <div className={`p-2 rounded-full ${isDesktop ? 'bg-surface-elevated' : ''}`}>
+        <Heart size={isDesktop ? 22 : 24} fill={isLiked ? 'currentColor' : 'none'} className={isLiked ? 'drop-shadow-sm' : ''} />
+      </div>
+      <span className="font-semibold text-xs">{likesCount}</span>
+    </motion.button>
+
+    <motion.button 
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.9 }}
+      onClick={() => onCommentClick(post.id)}
+      className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 text-foreground-secondary hover:text-orange-500 transition-colors`}
+      title="Comment"
+    >
+      <div className={`p-2 rounded-full ${isDesktop ? 'bg-surface-elevated' : ''}`}>
+        <MessageCircle size={isDesktop ? 22 : 24} />
+      </div>
+      <span className="font-semibold text-xs">{post.comments_count}</span>
+    </motion.button>
+
+    <motion.button 
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.9 }}
+      className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 text-foreground-secondary hover:text-blue-500 transition-colors`}
+      title="Share"
+    >
+      <div className={`p-2 rounded-full ${isDesktop ? 'bg-surface-elevated' : ''}`}>
+        <Share2 size={isDesktop ? 22 : 24} />
+      </div>
+      {isDesktop && <span className="font-semibold text-xs">Share</span>}
+    </motion.button>
+
+    <motion.button 
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.9 }}
+      onClick={handleSave}
+      className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 transition-colors ${isSaved ? 'text-orange-600 dark:text-orange-400' : 'text-foreground-secondary hover:text-orange-500'}`}
+      title="Bookmark"
+    >
+      <div className={`p-2 rounded-full ${isDesktop ? 'bg-surface-elevated' : ''}`}>
+        <Bookmark size={isDesktop ? 22 : 24} fill={isSaved ? 'currentColor' : 'none'} />
+      </div>
+      {isDesktop && <span className="font-semibold text-xs">Save</span>}
+    </motion.button>
+  </>
+);
+
 export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyNowClick, isActive = false }) => {
   const [likePost] = useLikePostMutation();
   const [unlikePost] = useUnlikePostMutation();
@@ -63,7 +138,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
         setLikesCount((p: number) => p + 1);
         await likePost(post.id).unwrap();
       }
-    } catch (err) {
+    } catch {
       setIsLiked(!isLiked);
       setLikesCount(isLiked ? likesCount + 1 : likesCount - 1);
     }
@@ -78,7 +153,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
         setIsSaved(true);
         await savePost(post.id).unwrap();
       }
-    } catch (err) {
+    } catch {
       setIsSaved(!isSaved);
     }
   };
@@ -99,61 +174,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
   const isLongCaption = captionText.length > 120;
   const displayCaption = isLongCaption && !isCaptionExpanded ? captionText.slice(0, 120) + '...' : captionText;
 
-  // Render Action Buttons to reuse in Desktop (Vertical) and Mobile (Horizontal)
-  const ActionButtons = ({ isDesktop = false }) => (
-    <>
-      <motion.button 
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={handleLike}
-        className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 transition-colors ${isLiked ? 'text-red-500' : 'text-foreground-secondary hover:text-red-500'}`}
-        title="Like"
-      >
-        <div className={`p-2 rounded-full ${isDesktop ? 'bg-surface-elevated' : ''}`}>
-          <Heart size={isDesktop ? 22 : 24} fill={isLiked ? 'currentColor' : 'none'} className={isLiked ? 'drop-shadow-sm' : ''} />
-        </div>
-        <span className="font-semibold text-xs">{likesCount}</span>
-      </motion.button>
 
-      <motion.button 
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={() => onCommentClick(post.id)}
-        className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 text-foreground-secondary hover:text-orange-500 transition-colors`}
-        title="Comment"
-      >
-        <div className={`p-2 rounded-full ${isDesktop ? 'bg-surface-elevated' : ''}`}>
-          <MessageCircle size={isDesktop ? 22 : 24} />
-        </div>
-        <span className="font-semibold text-xs">{post.comments_count}</span>
-      </motion.button>
-
-      <motion.button 
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 text-foreground-secondary hover:text-blue-500 transition-colors`}
-        title="Share"
-      >
-        <div className={`p-2 rounded-full ${isDesktop ? 'bg-surface-elevated' : ''}`}>
-          <Share2 size={isDesktop ? 22 : 24} />
-        </div>
-        {isDesktop && <span className="font-semibold text-xs">Share</span>}
-      </motion.button>
-
-      <motion.button 
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={handleSave}
-        className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 transition-colors ${isSaved ? 'text-orange-600 dark:text-orange-400' : 'text-foreground-secondary hover:text-orange-500'}`}
-        title="Bookmark"
-      >
-        <div className={`p-2 rounded-full ${isDesktop ? 'bg-surface-elevated' : ''}`}>
-          <Bookmark size={isDesktop ? 22 : 24} fill={isSaved ? 'currentColor' : 'none'} />
-        </div>
-        {isDesktop && <span className="font-semibold text-xs">Save</span>}
-      </motion.button>
-    </>
-  );
 
   return (
     <motion.div 
@@ -271,7 +292,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
                   </AnimatePresence>
                   
                   <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 z-10">
-                    {post.media.map((_: any, idx: number) => (
+                    {post.media.map((_: unknown, idx: number) => (
                       <div 
                         key={idx} 
                         className={`h-1.5 rounded-full transition-all duration-300 shadow-sm ${idx === currentMediaIndex ? 'bg-white w-5' : 'bg-white/50 w-1.5'}`} 
@@ -292,7 +313,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
             <div className="m-4 md:m-5 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/10 dark:to-amber-900/10 border border-orange-100 dark:border-orange-800/50 p-4 rounded-2xl">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                  <p className="text-sm font-bold text-foreground flex items-center gap-2">
                     {post.product.name}
                     {post.product.is_prebookable && (
                       <span className="bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 text-[10px] px-2 py-0.5 rounded-full font-extrabold tracking-wide uppercase">
@@ -303,7 +324,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
                   <p className="text-xl font-black text-orange-600 dark:text-orange-400 mt-0.5">
                     ₹{post.product.price}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">
+                  <p className="text-xs text-foreground-secondary font-medium mt-0.5">
                     {post.product.market_state === 'READY_FOR_PREBOOKING' ? 'Pre-booking open' : `${post.product.stock_quantity} available`}
                   </p>
                 </div>
@@ -330,8 +351,8 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
                     <span className="text-xs font-bold text-orange-700 dark:text-orange-400 flex items-center gap-1.5 uppercase tracking-wide">
                       <Sprout size={14} /> {post.product.crop_stage.replace(/_/g, ' ')}
                     </span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1 font-semibold">
-                      <Calendar size={12} className="text-gray-400" /> {post.product.harvest_countdown} days to harvest
+                    <span className="text-xs text-foreground-secondary flex items-center gap-1 font-semibold">
+                      <Calendar size={12} className="text-muted" /> {post.product.harvest_countdown} days to harvest
                     </span>
                   </div>
                   <div className="w-full bg-gray-200/50 dark:bg-gray-700/50 rounded-full h-2 overflow-hidden shadow-inner">
@@ -350,14 +371,32 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
           {/* Mobile Action Bar (Horizontal at the bottom) */}
           <div className="md:hidden flex items-center justify-between p-4 border-t border-border-subtle">
             <div className="flex items-center gap-6">
-              <ActionButtons isDesktop={false} />
+              <ActionButtons 
+                isDesktop={false} 
+                isLiked={isLiked} 
+                likesCount={likesCount} 
+                handleLike={handleLike} 
+                onCommentClick={onCommentClick} 
+                post={post} 
+                handleSave={handleSave} 
+                isSaved={isSaved} 
+              />
             </div>
           </div>
         </div>
 
         {/* Desktop Action Column (Vertical on the right) */}
         <div className="hidden md:flex flex-col items-center justify-end p-4 border-l border-border-subtle w-20 bg-surface-elevated gap-8">
-          <ActionButtons isDesktop={true} />
+          <ActionButtons 
+            isDesktop={true} 
+            isLiked={isLiked} 
+            likesCount={likesCount} 
+            handleLike={handleLike} 
+            onCommentClick={onCommentClick} 
+            post={post} 
+            handleSave={handleSave} 
+            isSaved={isSaved} 
+          />
         </div>
       </div>
     </motion.div>

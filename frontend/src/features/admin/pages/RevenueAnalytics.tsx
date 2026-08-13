@@ -14,7 +14,7 @@ const RevenueAnalytics: React.FC = () => {
       try {
         const response = await adminAnalyticsService.getExecutiveOverview();
         setData(response);
-      } catch (error) {
+      } catch {
         toast.error('Failed to load revenue analytics');
       } finally {
         setLoading(false);
@@ -26,7 +26,7 @@ const RevenueAnalytics: React.FC = () => {
   if (loading || !data) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-green-600"></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-brand"></div>
       </div>
     );
   }
@@ -35,7 +35,7 @@ const RevenueAnalytics: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Revenue Analytics</h1>
+      <h1 className="text-2xl font-bold text-foreground">Revenue Analytics</h1>
       
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <KPICard
@@ -58,8 +58,8 @@ const RevenueAnalytics: React.FC = () => {
         />
       </div>
 
-      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-[#111]">
-        <h3 className="mb-6 text-lg font-bold text-gray-900 dark:text-white">Revenue Trend</h3>
+      <div className="rounded-2xl border border-border-subtle bg-surface p-6 shadow-sm">
+        <h3 className="mb-6 text-lg font-bold text-foreground">Revenue Trend</h3>
         <div className="h-96 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data.revenue_trend} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>

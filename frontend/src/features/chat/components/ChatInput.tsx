@@ -53,12 +53,12 @@ export const ChatInput: React.FC<Props> = ({
     <div className="relative">
       {/* Reply preview */}
       {replyTo && (
-        <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex-1 border-l-4 border-green-500 pl-2">
-            <p className="text-[10px] font-semibold text-green-600">{replyTo.sender_name}</p>
-            <p className="text-xs text-gray-500 truncate">{replyTo.content}</p>
+        <div className="flex items-center gap-2 px-4 py-2 bg-surface-elevated border-t border-border-subtle">
+          <div className="flex-1 border-l-4 border-brand pl-2">
+            <p className="text-[10px] font-semibold text-brand">{replyTo.sender_name}</p>
+            <p className="text-xs text-foreground-secondary truncate">{replyTo.content}</p>
           </div>
-          <button onClick={onCancelReply} className="text-gray-400 hover:text-gray-600">
+          <button onClick={onCancelReply} className="text-muted hover:text-foreground">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -66,7 +66,7 @@ export const ChatInput: React.FC<Props> = ({
 
       {/* Emoji picker */}
       {showEmoji && (
-        <div className="absolute bottom-full mb-2 left-4 z-50 bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-3 flex flex-wrap gap-2 w-60 border border-gray-200 dark:border-gray-700">
+        <div className="absolute bottom-full mb-2 left-4 z-50 bg-surface rounded-2xl shadow-xl p-3 flex flex-wrap gap-2 w-60 border border-border-subtle">
           {EMOJIS.map(e => (
             <button
               key={e}
@@ -79,12 +79,12 @@ export const ChatInput: React.FC<Props> = ({
         </div>
       )}
 
-      <div className="flex items-end gap-2 px-3 py-3 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+      <div className="flex items-end gap-2 px-3 py-3 border-t border-border-subtle bg-surface">
         {/* Emoji button */}
         <button
           type="button"
           onClick={() => setShowEmoji(v => !v)}
-          className="p-2 rounded-full text-gray-400 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
+          className="p-2 rounded-full text-muted hover:text-brand hover:bg-brand-muted/20 transition-colors"
         >
           <Smile className="h-5 w-5" />
         </button>
@@ -93,7 +93,7 @@ export const ChatInput: React.FC<Props> = ({
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
-          className="p-2 rounded-full text-gray-400 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
+          className="p-2 rounded-full text-muted hover:text-brand hover:bg-brand-muted/20 transition-colors"
         >
           <Paperclip className="h-5 w-5" />
         </button>
@@ -113,7 +113,7 @@ export const ChatInput: React.FC<Props> = ({
           onKeyDown={handleKey}
           rows={1}
           placeholder="Type a message…"
-          className="flex-1 resize-none rounded-2xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900 dark:text-white max-h-32 overflow-y-auto"
+          className="flex-1 resize-none rounded-2xl border border-border-strong bg-surface-elevated px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand text-foreground max-h-32 overflow-y-auto"
           style={{ minHeight: 42 }}
           disabled={disabled}
         />
@@ -123,7 +123,7 @@ export const ChatInput: React.FC<Props> = ({
           type="button"
           onClick={submit}
           disabled={!text.trim() || sending || disabled}
-          className="p-2.5 rounded-full bg-green-600 text-white hover:bg-green-700 disabled:opacity-40 transition-all shadow-md disabled:shadow-none"
+          className="p-2.5 rounded-full bg-brand text-white hover:bg-brand-hover disabled:opacity-40 transition-all shadow-md disabled:shadow-none"
         >
           {sending ? (
             <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">

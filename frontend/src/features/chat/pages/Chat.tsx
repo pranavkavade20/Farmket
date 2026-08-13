@@ -35,7 +35,7 @@ const Chat = () => {
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
-  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const selectedRef = useRef<number | null>(null);
 
   useEffect(() => { selectedRef.current = selected?.id ?? null; }, [selected]);
@@ -54,13 +54,14 @@ const Chat = () => {
         });
         return next;
       });
-    } catch (err) {
+    } catch {
       toast.error('Failed to load conversations');
     } finally {
       setLoadingConv(false);
     }
   }, []);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchConversations(); }, [fetchConversations]);
 
   const initRef = useRef<number | null>(null);
@@ -88,6 +89,7 @@ const Chat = () => {
   }, [location.state, location.pathname, navigate]);
 
   // ── WebSocket Logic ────────────────────────────────────────────────────────
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleWsEvent = useCallback((data: any) => {
     switch (data.type) {
       case 'chat_message':
@@ -183,6 +185,7 @@ const Chat = () => {
   useEffect(() => {
     if (!selected) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMessages([]);
     setLoadingMsgs(true);
     setReplyingTo(null);
@@ -221,20 +224,20 @@ const Chat = () => {
         setMessages(prev => [...prev, msg]);
       }
       setReplyingTo(null);
-    } catch (err) {
+    } catch {
       toast.error('Failed to send');
     } finally {
       setSending(false);
     }
   };
 
-  const handleSendFile = async (file: File, type: any) => {
+  const handleSendFile = async (file: File, type: "image" | "video" | "audio" | "document") => {
     if (!selected) return;
     setSending(true);
     try {
       const msg = await chatService.sendMedia(selected.id, file, type);
       setMessages(prev => [...prev, msg]);
-    } catch (err) {
+    } catch {
       toast.error('Upload failed');
     } finally {
       setSending(false);
@@ -266,7 +269,7 @@ const Chat = () => {
         return [conv, ...prev];
       });
       setSelected(conv);
-    } catch (err) {
+    } catch {
       toast.error('Failed to start chat');
     }
   };
@@ -277,7 +280,7 @@ const Chat = () => {
     return name.toLowerCase().includes(sidebarSearch.toLowerCase());
   });
 
-  const groupedMessages = messages.reduce((acc: any[], msg) => {
+  const groupedMessages = messages.reduce((acc: { date: string, msgs: ChatMessage[] }[], msg) => {
     const date = new Date(msg.created_at).toDateString();
     if (!acc.length || acc[acc.length - 1].date !== date) {
       acc.push({ date, msgs: [msg] });

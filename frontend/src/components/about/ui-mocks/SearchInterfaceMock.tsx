@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Search, Sparkles, Filter, ChevronRight } from 'lucide-react';
 
-export const SearchInterfaceMock = ({ className = '', style }: { className?: string, style?: any }) => {
+export const SearchInterfaceMock = ({ className = '', style }: { className?: string, style?: React.CSSProperties }) => {
   return (
     <motion.div
       style={style}

@@ -37,7 +37,7 @@ export const ReservationModal: React.FC = () => {
       toast.success('Reservation request sent to farmer!');
       handleClose();
     } catch (err: unknown) {
-      toast.error((err as any)?.data?.error || 'Failed to reserve crop');
+      toast.error((err as { data?: { error?: string } })?.data?.error || 'Failed to reserve crop');
     }
   };
 

@@ -22,13 +22,15 @@ export interface CropReservation {
   expected_delivery_date: string | null;
 }
 
+import type { Product } from './index';
+
 export interface CropGrowth {
   id: number;
   farmer: number;
   farmer_name: string;
   crop_name: string;
   product: number | null;
-  product_details: any;
+  product_details: Partial<Product> | null;
   sowing_date: string;
   expected_harvest_date: string;
   actual_harvest_date: string | null;

@@ -39,6 +39,7 @@ export const AddTrackingModal: React.FC = () => {
 
   useEffect(() => {
     if (isAddTrackingModalOpen && user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsLoadingProducts(true);
       productService.getProducts({ ordering: '-created_at' })
         .then((res) => {
@@ -75,7 +76,8 @@ export const AddTrackingModal: React.FC = () => {
       
       toast.success('Crop tracking started successfully!');
       handleClose();
-    } catch (err: any) {
+    } catch (error: unknown) {
+      const err = error as { data?: unknown };
       const apiErr = err?.data;
       if (apiErr && typeof apiErr === 'object') {
         const firstError = Object.values(apiErr)[0];

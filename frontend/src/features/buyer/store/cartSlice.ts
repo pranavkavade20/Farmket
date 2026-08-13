@@ -18,8 +18,8 @@ export const refreshCartThunk = createAsyncThunk('cart/refresh', async (_, { rej
   try {
     const data = await orderService.getCart();
     return { ...data, items: data.items ?? [] };
-  } catch (err: any) {
-    return rejectWithValue(err.message || 'Failed to refresh cart');
+  } catch (err: unknown) {
+    return rejectWithValue((err as { message?: string })?.message || 'Failed to refresh cart');
   }
 });
 
@@ -28,8 +28,9 @@ export const addToCartThunk = createAsyncThunk('cart/add', async ({ product, qua
     await orderService.addToCart(product.id, quantity);
     await dispatch(refreshCartThunk()).unwrap();
     toast.success(`${quantity > 1 ? `${quantity} x ` : ''}${product.name} added to cart!`);
-  } catch (err: any) {
-    const message = err.response?.data?.error || err.message || 'Failed to add to cart';
+  } catch (err: unknown) {
+    const error = err as { response?: { data?: { error?: string } }, message?: string };
+    const message = error.response?.data?.error || error.message || 'Failed to add to cart';
     toast.error(message);
     return rejectWithValue(message);
   }
@@ -40,9 +41,9 @@ export const removeItemThunk = createAsyncThunk('cart/remove', async (itemId: nu
     await orderService.removeCartItem(itemId);
     toast.success('Item removed');
     return itemId;
-  } catch (err: any) {
+  } catch (err: unknown) {
     toast.error('Failed to remove item');
-    return rejectWithValue(err.message || 'Failed to remove item');
+    return rejectWithValue((err as { message?: string })?.message || 'Failed to remove item');
   }
 });
 
@@ -53,8 +54,9 @@ export const updateQuantityThunk = createAsyncThunk('cart/updateQuantity', async
   try {
     const updated = await orderService.updateCartItem(itemId, quantity);
     return { itemId, updated: updated as CartItemDetail };
-  } catch (err: any) {
-    const message = err.response?.data?.error || err.message || 'Failed to update quantity';
+  } catch (err: unknown) {
+    const error = err as { response?: { data?: { error?: string } }, message?: string };
+    const message = error.response?.data?.error || error.message || 'Failed to update quantity';
     toast.error(message);
     return rejectWithValue(message);
   }

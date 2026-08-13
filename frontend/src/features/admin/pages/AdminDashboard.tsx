@@ -28,7 +28,7 @@ const AdminDashboard: React.FC = () => {
     try {
       await adminAnalyticsService.exportReport(type);
       toast.success(`${type} report downloaded successfully`);
-    } catch (error) {
+    } catch {
       toast.error(`Failed to export ${type} report`);
     }
   };
@@ -36,7 +36,7 @@ const AdminDashboard: React.FC = () => {
   if (loading || !data) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-green-600"></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-brand"></div>
       </div>
     );
   }
@@ -47,22 +47,22 @@ const AdminDashboard: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Executive Overview</h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          <h1 className="text-2xl font-bold text-foreground">Executive Overview</h1>
+          <p className="mt-1 text-sm text-muted">
             Monitor platform health, marketplace performance, and business growth.
           </p>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={() => handleExport('users')}
-            className="flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-gray-700 border border-gray-200 hover:bg-gray-50 dark:bg-[#111] dark:text-gray-200 dark:border-gray-800 dark:hover:bg-gray-800/50 transition-colors"
+            className="flex items-center gap-2 rounded-lg bg-surface px-4 py-2 text-sm font-medium text-foreground-secondary border border-border-subtle hover:bg-state-hover transition-colors"
           >
             <Download className="h-4 w-4" />
             Users Report
           </button>
           <button
             onClick={() => handleExport('orders')}
-            className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors"
+            className="flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-brand-foreground hover:bg-brand-hover transition-colors"
           >
             <Download className="h-4 w-4" />
             Orders Report
@@ -104,8 +104,8 @@ const AdminDashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Revenue Trend Chart */}
-        <div className="rounded-2xl border border-gray-100 bg-white p-6 dark:border-gray-800 dark:bg-[#111] shadow-sm">
-          <h3 className="mb-6 text-lg font-bold text-gray-900 dark:text-white">Revenue Trend (30 Days)</h3>
+        <div className="rounded-2xl border border-border-subtle bg-surface p-6 shadow-sm">
+          <h3 className="mb-6 text-lg font-bold text-foreground">Revenue Trend (30 Days)</h3>
           <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data.revenue_trend} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
@@ -130,8 +130,8 @@ const AdminDashboard: React.FC = () => {
         </div>
 
         {/* User Growth Chart */}
-        <div className="rounded-2xl border border-gray-100 bg-white p-6 dark:border-gray-800 dark:bg-[#111] shadow-sm">
-          <h3 className="mb-6 text-lg font-bold text-gray-900 dark:text-white">User Growth</h3>
+        <div className="rounded-2xl border border-border-subtle bg-surface p-6 shadow-sm">
+          <h3 className="mb-6 text-lg font-bold text-foreground">User Growth</h3>
           <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data.user_trend} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>

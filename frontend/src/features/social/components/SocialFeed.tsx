@@ -8,11 +8,11 @@ import { Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Container } from '@/components/ui';
+import type { Post, Product } from '@/types';
 
 export const SocialFeed: React.FC = () => {
   const [cursor, setCursor] = useState<string | void>(undefined);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const { data, isFetching } = useGetFeedQuery(cursor);
   const { user } = useAppSelector(state => state.auth);
   
@@ -23,9 +23,13 @@ export const SocialFeed: React.FC = () => {
     if (data && data.results) {
       if (cursor) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        setPosts(prev => [...prev, ...data.results]);
+        setPosts(prev => {
+          const newPosts = data.results.filter(
+            (newPost: Post) => !prev.some((p: Post) => p.id === newPost.id)
+          );
+          return [...prev, ...newPosts];
+        });
       } else {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setPosts(data.results);
       }
     }
@@ -51,8 +55,7 @@ export const SocialFeed: React.FC = () => {
 
   const navigate = useNavigate();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleBuyNowClick = (product: any) => {
+  const handleBuyNowClick = (product: Product) => {
     // Navigate to the marketplace product details page using slug
     navigate(`/marketplace/${product.slug}`);
   };

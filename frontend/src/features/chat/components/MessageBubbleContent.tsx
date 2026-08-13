@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React from 'react';
 import { FileText, MapPin, Mic} from 'lucide-react';
 import type { ChatMessage } from '@/features/chat';

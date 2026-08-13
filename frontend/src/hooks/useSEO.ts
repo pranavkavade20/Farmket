@@ -16,6 +16,9 @@ export function useSEO({
   );
 
   useEffect(() => {
+    const originalTitle = prevTitle.current;
+    const originalDesc = prevDescription.current;
+
     document.title = `${title} | Farmket`;
 
     if (description) {
@@ -29,10 +32,10 @@ export function useSEO({
     }
 
     return () => {
-      document.title = prevTitle.current;
+      document.title = originalTitle;
       if (description) {
         document.querySelector('meta[name="description"]')
-          ?.setAttribute('content', prevDescription.current);
+          ?.setAttribute('content', originalDesc);
       }
     };
   }, [title, description]);

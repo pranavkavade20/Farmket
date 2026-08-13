@@ -5,6 +5,7 @@ import { useCreatePostMutation, useUpdatePostMutation } from '../api/socialApi';
 import { productService } from '@/features/products/services/productService';
 import { useAppSelector } from '@/app/hooks';
 import type { Post, Product } from '@/types';
+import { Button } from '@/components/ui';
 
 interface PostComposerProps {
   onSuccess?: () => void;
@@ -31,7 +32,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({ onSuccess, onClose, 
   const [previews, setPreviews] = useState<string[]>([]);
   
   // Existing media tracking
-  const [existingMedia, setExistingMedia] = useState<any[]>(existingPost?.media || []);
+  const [existingMedia, setExistingMedia] = useState<{ id: number; file: string; type: string }[]>(existingPost?.media || []);
   const [mediaToDelete, setMediaToDelete] = useState<number[]>([]);
 
   useEffect(() => {
@@ -138,7 +139,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({ onSuccess, onClose, 
         {/* Media Previews */}
         {(existingMedia.length > 0 || previews.length > 0) && (
           <div className="flex gap-3 overflow-x-auto pb-2">
-            {existingMedia.map((media: any) => (
+            {existingMedia.map((media: { id: number; file: string; type: string }) => (
               <div key={`existing-${media.id}`} className="relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden group">
                 {media.type === 'video' ? (
                   <video src={media.file} className="w-full h-full object-cover" />
@@ -183,7 +184,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({ onSuccess, onClose, 
               className="pl-9 w-full rounded-lg border-border-subtle bg-surface focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm text-foreground"
             >
               <option value="">Select a product to pin...</option>
-              {products.map((prod: any) => (
+              {products.map((prod: Product) => (
                 <option key={prod.id} value={prod.id}>
                   {prod.name} ({prod.market_state?.replace(/_/g, ' ') || 'Ready'}) - ₹{prod.price}
                 </option>
@@ -220,15 +221,15 @@ export const PostComposer: React.FC<PostComposerProps> = ({ onSuccess, onClose, 
               <Tag size={22} />
             </button>
           </div>
-          <motion.button 
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+          <Button 
             disabled={isLoading || !description}
+            isLoading={isLoading}
             type="submit"
-            className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:hover:bg-emerald-600 text-white px-6 py-2 rounded-full font-semibold shadow-md flex items-center gap-2"
+            variant="primary"
+            className="rounded-full shadow-md px-6 py-2"
           >
-            {isLoading ? 'Posting...' : <><Check size={18} /> Post</>}
-          </motion.button>
+            {!isLoading && <><Check size={18} className="mr-2" /> Post</>}
+          </Button>
         </div>
       </form>
     </motion.div>

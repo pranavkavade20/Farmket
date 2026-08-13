@@ -18,7 +18,7 @@ export const BuyerCropCard: React.FC<BuyerCropCardProps> = ({ crop }) => {
   const { user } = useAuth();
   const [followCrop, { isLoading: isFollowing }] = useFollowCropMutation();
   const [unfollowCrop, { isLoading: isUnfollowing }] = useUnfollowCropMutation();
-  
+
   const handleReserve = () => {
     dispatch(openReservationModal(crop.id));
   };
@@ -32,14 +32,14 @@ export const BuyerCropCard: React.FC<BuyerCropCardProps> = ({ crop }) => {
         await followCrop(crop.id).unwrap();
         toast.success('Following crop for updates');
       }
-    } catch (err) {
+    } catch {
       toast.error('Failed to update follow status');
     }
   };
 
   // Calculate days remaining
   const daysRemaining = Math.ceil((new Date(crop.expected_harvest_date).getTime() - new Date().getTime()) / (1000 * 3600 * 24));
-  
+
   let countdownColor = "text-success bg-success-muted border-success/20";
   if (daysRemaining < 7) {
     countdownColor = "text-danger bg-danger-muted border-danger/20";
@@ -47,10 +47,10 @@ export const BuyerCropCard: React.FC<BuyerCropCardProps> = ({ crop }) => {
     countdownColor = "text-warning bg-warning-muted border-warning/20";
   }
 
-  const imageUrl = crop.product_details?.images?.[0]?.image || crop.product_details?.image;
+  const imageUrl = crop.product_details?.images?.[0]?.image;
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, scale: 0.98, y: 10 }}
       whileInView={{ opacity: 1, scale: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
@@ -126,16 +126,15 @@ export const BuyerCropCard: React.FC<BuyerCropCardProps> = ({ crop }) => {
           <button
             onClick={handleToggleFollow}
             disabled={isFollowing || isUnfollowing}
-            className={`p-3 rounded-xl border transition-all duration-200 flex items-center justify-center active:scale-95 ${
-              crop.is_followed 
-                ? 'bg-brand/10 border-brand/20 text-brand' 
-                : 'bg-surface border-border-strong text-muted hover:bg-surface-elevated hover:text-foreground'
-            }`}
+            className={`p-3 rounded-xl border transition-all duration-200 flex items-center justify-center active:scale-95 ${crop.is_followed
+              ? 'bg-brand/10 border-brand/20 text-brand'
+              : 'bg-surface border-border-strong text-muted hover:bg-surface-elevated hover:text-foreground'
+              }`}
             title={crop.is_followed ? 'Unfollow' : 'Get Notifications'}
           >
             <Bell className={`w-5 h-5 ${crop.is_followed ? 'fill-current' : ''}`} />
           </button>
-          
+
           {user?.user_type === 'farmer' || user?.user_type === 'admin' ? null : (
             <button
               onClick={handleReserve}

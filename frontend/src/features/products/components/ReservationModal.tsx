@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Button, Input } from '@/components/ui';
 import type { Product } from '@/types';
 import { orderService } from '@/features/orders/services/orderService';
-import { useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
 import { X } from 'lucide-react';
 
@@ -15,7 +14,6 @@ interface Props {
 export const ReservationModal = ({ product, isOpen, onClose }: Props) => {
   const [quantity, setQuantity] = useState<number>(product.minimum_order || 1);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   if (!isOpen) return null;
 
@@ -32,7 +30,7 @@ export const ReservationModal = ({ product, isOpen, onClose }: Props) => {
       toast.success('Added to prebooking cart!');
       onClose();
       // Optionally navigate to cart or stay
-    } catch (err) {
+    } catch {
       toast.error('Failed to reserve harvest. Please try again.');
     } finally {
       setLoading(false);

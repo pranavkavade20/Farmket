@@ -20,7 +20,7 @@ export interface CropTracking {
 }
 
 export const cropService = {
-  createTracking: async (productSlug: string, data: any): Promise<CropTracking> => {
+  createTracking: async (productSlug: string, data: Record<string, unknown>): Promise<CropTracking> => {
     const response = await api.post(`/products/products/${productSlug}/tracking/`, data);
     return response.data;
   },

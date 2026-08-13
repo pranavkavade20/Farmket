@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion';
-import { BarChart3, LineChart, Package, Sprout, TrendingUp, Users } from 'lucide-react';
+import { Package, Sprout, TrendingUp, Users, LineChart } from 'lucide-react';
 
-export const DashboardMock = ({ className = '' }: { className?: string }) => {
+export const DashboardMock = ({ className = '', style }: { className?: string, style?: React.CSSProperties }) => {
   return (
-    <div className={`flex w-full max-w-4xl rounded-2xl border border-border-subtle bg-surface-elevated shadow-2xl overflow-hidden backdrop-blur-xl ${className}`}>
+    <div style={style} className={`flex w-full max-w-4xl rounded-2xl border border-border-subtle bg-surface-elevated shadow-2xl overflow-hidden backdrop-blur-xl ${className}`}>
       {/* Sidebar */}
       <div className="w-48 border-r border-border-subtle bg-background/50 p-4 hidden md:flex flex-col gap-4">
         <div className="flex items-center gap-2 mb-4">

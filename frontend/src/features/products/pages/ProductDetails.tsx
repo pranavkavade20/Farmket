@@ -338,12 +338,12 @@ const ProductDetails = () => {
             
             {user?.user_type !== 'farmer' && (
               <div className="flex flex-col sm:flex-row items-center gap-4 mt-2">
-                <Button variant="outline" className={cn("flex-1 h-14 w-full gap-2 rounded-full font-bold", isFollowing ? 'text-danger border-danger-subtle bg-danger-subtle' : 'text-foreground-secondary hover:text-foreground')} onClick={handleFollowToggle}>
+                <Button variant="outline" className={cn("flex-1 h-14 w-full gap-2 rounded-full font-bold", isFollowing ? 'text-danger border-danger-muted bg-danger-muted' : 'text-foreground-secondary hover:text-foreground')} onClick={handleFollowToggle}>
                   <Heart className={cn("h-5 w-5", isFollowing ? 'fill-current' : '')} /> {isFollowing ? 'Following' : 'Follow Crop'}
                 </Button>
                 <Button 
                   variant="secondary" 
-                  className="flex-1 h-14 w-full gap-2 rounded-full font-bold bg-success-subtle text-success hover:bg-success-subtle/80"
+                  className="flex-1 h-14 w-full gap-2 rounded-full font-bold bg-success-muted text-success hover:bg-success-muted/80"
                   onClick={() => navigate('/messages', { state: { userId: product.farmer } })}
                 >
                   <MessageSquare className="h-5 w-5" /> Chat with Farmer
@@ -355,7 +355,7 @@ const ProductDetails = () => {
           {/* Guarantees */}
           <div className="grid grid-cols-2 gap-6 mt-12 pt-10 border-t border-border-strong">
             <div className="flex items-center gap-4">
-              <div className="h-14 w-14 rounded-full bg-info-subtle text-info flex items-center justify-center shrink-0">
+              <div className="h-14 w-14 rounded-full bg-info-muted text-info flex items-center justify-center shrink-0">
                 <Truck className="h-6 w-6" />
               </div>
               <div>
@@ -364,7 +364,7 @@ const ProductDetails = () => {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <div className="h-14 w-14 rounded-full bg-success-subtle text-success flex items-center justify-center shrink-0">
+              <div className="h-14 w-14 rounded-full bg-success-muted text-success flex items-center justify-center shrink-0">
                 <ShieldCheck className="h-6 w-6" />
               </div>
               <div>

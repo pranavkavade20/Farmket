@@ -99,7 +99,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                   <div className="flex items-center justify-end gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
                     <Link
                       to="/farmer/crops"
-                      className="p-2 text-foreground-secondary hover:text-success hover:bg-success-subtle rounded-lg transition-colors border border-transparent hover:border-success/20"
+                      className="p-2 text-foreground-secondary hover:text-success hover:bg-success-muted rounded-lg transition-colors border border-transparent hover:border-success/20"
                       title="Manage Crop Lifecycle"
                     >
                       <Leaf className="h-4 w-4" />
@@ -107,7 +107,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     {product.active_crop_growth_id && (
                       <button
                         onClick={() => dispatch(openStageUpdateModal(product.active_crop_growth_id!))}
-                        className="p-2 text-foreground-secondary hover:text-info hover:bg-info-subtle rounded-lg transition-colors border border-transparent hover:border-info/20"
+                        className="p-2 text-foreground-secondary hover:text-info hover:bg-info-muted rounded-lg transition-colors border border-transparent hover:border-info/20"
                         title="Update Stage"
                       >
                         <TrendingUp className="h-4 w-4" />
@@ -130,7 +130,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     <button
                       onClick={() => onDelete(product.slug, product.name)}
                       disabled={deletingId === product.slug}
-                      className="p-2 text-foreground-secondary hover:text-danger hover:bg-danger-subtle rounded-lg transition-colors border border-transparent hover:border-danger/20"
+                      className="p-2 text-foreground-secondary hover:text-danger hover:bg-danger-muted rounded-lg transition-colors border border-transparent hover:border-danger/20"
                       title="Delete product"
                     >
                       {deletingId === product.slug ? (

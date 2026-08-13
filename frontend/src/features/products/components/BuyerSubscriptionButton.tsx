@@ -15,9 +15,10 @@ export default function BuyerSubscriptionButton({ productSlug }: Props) {
       setIsLoading(true);
       await cropService.subscribeInterest(productSlug);
       toast.success('You will be notified when this crop is ready!');
-    } catch (error: any) {
-      if (error.response?.data?.non_field_errors) {
-        toast.error(error.response.data.non_field_errors[0] || 'Already subscribed');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { non_field_errors?: string[] } } };
+      if (err.response?.data?.non_field_errors) {
+        toast.error(err.response.data.non_field_errors[0] || 'Already subscribed');
       } else {
         toast.error('Failed to subscribe. Please try again.');
       }

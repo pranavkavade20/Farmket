@@ -66,7 +66,7 @@ export const productService = {
     await api.post(`/products/products/${slug}/unfollow/`);
   },
 
-  reserveProduct: async (slug: string, quantity: number, expected_delivery_date?: string): Promise<any> => {
+  reserveProduct: async (slug: string, quantity: number, expected_delivery_date?: string): Promise<unknown> => {
     const response = await api.post(`/products/products/${slug}/reserve/`, {
       quantity,
       expected_delivery_date,
@@ -74,7 +74,7 @@ export const productService = {
     return response.data;
   },
 
-  waitlistProduct: async (slug: string, quantity: number): Promise<any> => {
+  waitlistProduct: async (slug: string, quantity: number): Promise<unknown> => {
     const response = await api.post(`/products/products/${slug}/waitlist/`, {
       quantity,
     });

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { useEffect, useCallback, useMemo } from 'react';
 import type { Cart} from '@/features/orders';
 import type { Product } from '@/types';

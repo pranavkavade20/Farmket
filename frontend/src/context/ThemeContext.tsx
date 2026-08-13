@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { useEffect, useCallback, useMemo } from 'react';
 import { useAppSelector, useAppDispatch } from '@/app/hooks';
 import { toggleTheme } from '@/features/theme/themeSlice';

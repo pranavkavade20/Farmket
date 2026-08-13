@@ -26,8 +26,7 @@ export const MessageBubble: React.FC<Props> = ({
 }) => {
   const [showActions, setShowActions] = useState(false);
   const [showReactPicker, setShowReactPicker] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editText, setEditText] = useState(msg.content);
+
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const groupedReactions = msg.reactions.reduce<Record<string, number>>((acc, r) => {
@@ -62,7 +61,7 @@ export const MessageBubble: React.FC<Props> = ({
         {msg.reply_to_details && (
           <div className={cn(
             'text-xs rounded-t-xl px-3 py-1.5 mb-0.5 border-l-4 border-green-400 w-full',
-            isMe ? 'bg-green-700/60 text-green-100' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
+            isMe ? 'bg-green-700/60 text-green-100' : 'bg-surface-elevated text-foreground-secondary'
           )}>
             <span className="font-semibold block">{msg.reply_to_details.sender_name}</span>
             <span className="truncate block">{msg.reply_to_details.content}</span>
@@ -74,13 +73,13 @@ export const MessageBubble: React.FC<Props> = ({
           'relative rounded-2xl px-3.5 py-2.5 shadow-sm',
           isMe
             ? 'bg-green-600 text-white rounded-br-sm'
-            : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-bl-sm border border-gray-100 dark:border-gray-700',
+            : 'bg-surface text-foreground rounded-bl-sm border border-border-subtle',
           msg.reply_to_details ? 'rounded-t-none' : ''
         )}>
           <MessageBubbleContent msg={msg} isMe={isMe} />
 
           {/* Time + status */}
-          <div className={cn('flex items-center gap-1 mt-1 justify-end', isMe ? 'text-green-200' : 'text-gray-400')}>
+          <div className={cn('flex items-center gap-1 mt-1 justify-end', isMe ? 'text-green-200' : 'text-muted')}>
             {msg.is_edited && <span className="text-[9px] opacity-70">edited</span>}
             <span className="text-[10px]">{fmtTime(msg.created_at)}</span>
             {isMe && (
@@ -98,7 +97,7 @@ export const MessageBubble: React.FC<Props> = ({
               <button
                 key={emoji}
                 onClick={() => onReact(msg.id, emoji)}
-                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full px-1.5 py-0.5 text-xs shadow-sm hover:scale-110 transition-transform"
+                className="bg-surface border border-border-subtle rounded-full px-1.5 py-0.5 text-xs shadow-sm hover:scale-110 transition-transform"
               >
                 {emoji} {count > 1 ? count : ''}
               </button>
@@ -123,7 +122,7 @@ export const MessageBubble: React.FC<Props> = ({
             <div className="relative">
               <button
                 onClick={() => setShowReactPicker(v => !v)}
-                className="p-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow text-gray-500 hover:text-yellow-500 transition-colors"
+                className="p-1.5 rounded-full bg-surface border border-border-subtle shadow text-muted hover:text-yellow-500 transition-colors"
                 title="React"
               >
                 <SmilePlus className="h-3.5 w-3.5" />
@@ -135,7 +134,7 @@ export const MessageBubble: React.FC<Props> = ({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
                     className={cn(
-                      'absolute bottom-8 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl p-2 flex gap-1',
+                      'absolute bottom-8 z-50 bg-surface border border-border-subtle rounded-2xl shadow-xl p-2 flex gap-1',
                       isMe ? 'right-0' : 'left-0'
                     )}
                   >
@@ -156,7 +155,7 @@ export const MessageBubble: React.FC<Props> = ({
             {/* Reply */}
             <button
               onClick={() => { onReply(msg); setShowActions(false); }}
-              className="p-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow text-gray-500 hover:text-green-500 transition-colors"
+              className="p-1.5 rounded-full bg-surface border border-border-subtle shadow text-muted hover:text-brand transition-colors"
               title="Reply"
             >
               <Reply className="h-3.5 w-3.5" />
@@ -166,7 +165,7 @@ export const MessageBubble: React.FC<Props> = ({
             {isMe && msg.message_type === 'text' && onEdit && (
               <button
                 onClick={() => { onEdit(msg); setShowActions(false); }}
-                className="p-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow text-gray-500 hover:text-blue-500 transition-colors"
+                className="p-1.5 rounded-full bg-surface border border-border-subtle shadow text-muted hover:text-blue-500 transition-colors"
                 title="Edit"
               >
                 <Edit2 className="h-3.5 w-3.5" />
@@ -177,7 +176,7 @@ export const MessageBubble: React.FC<Props> = ({
             {isMe && onDelete && (
               <button
                 onClick={() => { onDelete(msg.id); setShowActions(false); }}
-                className="p-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow text-gray-500 hover:text-red-500 transition-colors"
+                className="p-1.5 rounded-full bg-surface border border-border-subtle shadow text-muted hover:text-red-500 transition-colors"
                 title="Delete"
               >
                 <Trash2 className="h-3.5 w-3.5" />

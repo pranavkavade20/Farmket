@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Sparkles, BrainCircuit, Activity, Zap } from 'lucide-react';
 
-export const AIMock = ({ className = '', style }: { className?: string, style?: any }) => {
+export const AIMock = ({ className = '', style }: { className?: string, style?: React.CSSProperties }) => {
   return (
     <motion.div
       style={style}

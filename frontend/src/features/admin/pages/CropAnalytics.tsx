@@ -13,7 +13,7 @@ const CropAnalytics: React.FC = () => {
       try {
         const response = await adminAnalyticsService.getCropAnalytics();
         setData(response);
-      } catch (error) {
+      } catch {
         toast.error('Failed to load crop analytics');
       } finally {
         setLoading(false);
@@ -25,18 +25,18 @@ const CropAnalytics: React.FC = () => {
   if (loading || !data) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-green-600"></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-brand"></div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Crop Analytics</h1>
+      <h1 className="text-2xl font-bold text-foreground">Crop Analytics</h1>
       
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-[#111]">
-          <h3 className="mb-6 text-lg font-bold text-gray-900 dark:text-white">Most Listed Crops</h3>
+        <div className="rounded-2xl border border-border-subtle bg-surface p-6 shadow-sm">
+          <h3 className="mb-6 text-lg font-bold text-foreground">Most Listed Crops</h3>
           <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data.top_crops} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -53,16 +53,16 @@ const CropAnalytics: React.FC = () => {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-[#111]">
-          <h3 className="mb-6 text-lg font-bold text-gray-900 dark:text-white">Upcoming Harvests</h3>
+        <div className="rounded-2xl border border-border-subtle bg-surface p-6 shadow-sm">
+          <h3 className="mb-6 text-lg font-bold text-foreground">Upcoming Harvests</h3>
           <div className="overflow-hidden">
             <div className="space-y-4">
               {data.upcoming_harvests.length > 0 ? (
                 data.upcoming_harvests.map((harvest, idx) => (
-                  <div key={idx} className="flex items-center justify-between rounded-lg border border-gray-100 p-4 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+                  <div key={idx} className="flex items-center justify-between rounded-lg border border-border-subtle p-4 bg-surface-elevated">
                     <div>
-                      <p className="font-semibold text-gray-900 dark:text-white">{harvest.product}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Farmer: {harvest.farmer}</p>
+                      <p className="font-semibold text-foreground">{harvest.product}</p>
+                      <p className="text-sm text-muted">Farmer: {harvest.farmer}</p>
                     </div>
                     <div className="flex items-center gap-2 text-sm font-medium text-amber-600 dark:text-amber-500">
                       <Calendar className="h-4 w-4" />
@@ -71,7 +71,7 @@ const CropAnalytics: React.FC = () => {
                   </div>
                 ))
               ) : (
-                <p className="text-gray-500">No upcoming harvests in tracking.</p>
+                <p className="text-muted">No upcoming harvests in tracking.</p>
               )}
             </div>
           </div>

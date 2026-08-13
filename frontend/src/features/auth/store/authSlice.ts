@@ -19,7 +19,7 @@ export const initAuth = createAsyncThunk('auth/init', async (_, { rejectWithValu
   try {
     const profile = await authService.getProfile();
     return profile;
-  } catch (err) {
+  } catch {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('user');
@@ -27,14 +27,14 @@ export const initAuth = createAsyncThunk('auth/init', async (_, { rejectWithValu
   }
 });
 
-export const loginThunk = createAsyncThunk('auth/login', async ({ email, password }: any, { rejectWithValue }) => {
+export const loginThunk = createAsyncThunk('auth/login', async ({ email, password }: Record<string, string>, { rejectWithValue }) => {
   try {
     const { token, refresh_token, user: userData } = await authService.login({ email, password });
     localStorage.setItem('access_token', token);
     localStorage.setItem('refresh_token', refresh_token);
     return userData;
-  } catch (err: any) {
-    return rejectWithValue(err.response?.data || 'Login failed');
+  } catch (err: unknown) {
+    return rejectWithValue((err as { response?: { data?: unknown } }).response?.data || 'Login failed');
   }
 });
 
@@ -44,16 +44,16 @@ export const registerThunk = createAsyncThunk('auth/register', async (data: impo
     localStorage.setItem('access_token', token);
     localStorage.setItem('refresh_token', refresh_token);
     return userData;
-  } catch (err: any) {
-    return rejectWithValue(err.response?.data || 'Registration failed');
+  } catch (err: unknown) {
+    return rejectWithValue((err as { response?: { data?: unknown } }).response?.data || 'Registration failed');
   }
 });
 
-export const logoutThunk = createAsyncThunk('auth/logout', async (_, { rejectWithValue }) => {
+export const logoutThunk = createAsyncThunk('auth/logout', async () => {
   const refreshToken = localStorage.getItem('refresh_token');
   try {
     if (refreshToken) await authService.logout(refreshToken);
-  } catch (err) {
+  } catch {
     // Proceed with local logout even if server call fails
   } finally {
     localStorage.removeItem('access_token');

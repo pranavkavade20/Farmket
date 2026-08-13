@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ChevronRight, Sparkles } from 'lucide-react';
 import { ProductCard } from '@/features/products';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui';
 import type { Product } from '@/types';
 
 interface WeeklyBestSellingProps {
@@ -50,27 +51,21 @@ export const WeeklyBestSelling = ({ products, onAddToCart, activeTab, setActiveT
         </Link>
       </motion.div>
 
-      <motion.div 
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, margin: "-50px" }}
-        transition={{ duration: 0.6, delay: 0.1 }}
-        className="flex items-center gap-3 overflow-x-auto pb-4 custom-scrollbar mb-8 -mx-6 px-6 sm:mx-0 sm:px-0"
-      >
-        {TABS.map((tab) => (
-          <button 
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 border ${
-              activeTab === tab 
-              ? 'bg-foreground text-background border-foreground shadow-md' 
-              : 'bg-surface text-foreground-secondary border-border-strong hover:text-foreground hover:border-foreground/50'
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
-      </motion.div>
+      <div className="mb-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="bg-transparent justify-start overflow-x-auto custom-scrollbar flex p-0 mb-4 h-auto -mx-6 px-6 sm:mx-0 sm:px-0">
+            {TABS.map((tab) => (
+              <TabsTrigger
+                key={tab}
+                value={tab}
+                className="whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 border border-transparent data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=active]:shadow-md data-[state=inactive]:bg-surface data-[state=inactive]:text-foreground-secondary data-[state=inactive]:border-border-strong hover:data-[state=inactive]:text-foreground hover:data-[state=inactive]:border-foreground/50 mr-3 mb-2"
+              >
+                {tab}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      </div>
       
       <AnimatePresence mode="wait">
         <motion.div 

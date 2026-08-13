@@ -47,7 +47,7 @@ const Sidebar = () => {
     { to: '/dashboard/profile', label: 'Profile', icon: <User className="h-4 w-4" /> },
   ];
 
-  const renderNavLink = (link: any) => (
+  const renderNavLink = (link: { to: string; label: string; icon: React.ReactNode; exact?: boolean }) => (
     <NavLink
       key={link.to}
       to={link.to}
