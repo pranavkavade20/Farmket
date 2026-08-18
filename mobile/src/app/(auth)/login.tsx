@@ -5,6 +5,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText, AppInput, AppButton, AppCard } from '../../components/ui';
 import { colors, spacing } from '../../theme';
 import { Mail, Lock } from 'lucide-react-native';
+import { useAuth } from '../../context/AuthContext';
+import { apiClient } from '../../api/client';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -13,15 +15,36 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { login } = useAuth();
 
   const handleLogin = async () => {
-    // TODO: Implement actual login via context/api
+    if (!email || !password) {
+      setError('Please fill in all fields');
+      return;
+    }
+    
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      // Navigate to tabs after successful login
+    setError(null);
+    
+    try {
+      const response = await apiClient.post('token/', {
+        email,
+        password,
+      });
+      
+      await login(response.data.access, response.data.refresh);
       router.replace('/(tabs)');
-    }, 1000);
+    } catch (err: any) {
+      console.error(err);
+      if (err.response && err.response.data && err.response.data.detail) {
+        setError(err.response.data.detail);
+      } else {
+        setError('Invalid credentials or network error.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

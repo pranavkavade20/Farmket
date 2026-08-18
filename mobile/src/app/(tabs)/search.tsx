@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AppText, AppInput } from '../../components/ui';
+import { AppInput, AppEmptyState } from '../../components/ui';
 import { colors, spacing } from '../../theme';
 import { Search as SearchIcon } from 'lucide-react-native';
 
@@ -18,13 +18,19 @@ export default function SearchScreen() {
           onChangeText={setQuery}
           leftIcon={<SearchIcon size={20} color={colors.text.muted} />}
           style={styles.searchInput}
+          returnKeyType="search"
         />
       </View>
-      <View style={styles.content}>
-        <AppText color={colors.text.secondary}>
-          Search results will appear here.
-        </AppText>
-      </View>
+      <ScrollView 
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
+        <AppEmptyState 
+          title="Search Farmket" 
+          description="Find the freshest products, best crops, and local farmers directly from your device."
+          icon={<SearchIcon size={48} color={colors.brand.muted} strokeWidth={1.5} />}
+        />
+      </ScrollView>
     </View>
   );
 }

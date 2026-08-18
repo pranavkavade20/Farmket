@@ -1,14 +1,21 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { AppHeader, AppText } from '../../components/ui';
+import { AppHeader, AppEmptyState } from '../../components/ui';
 import { colors } from '../../theme';
+import { ClipboardList } from 'lucide-react-native';
 
 export default function OrdersScreen() {
   return (
     <View style={styles.container}>
       <AppHeader title="My Orders" />
       <View style={styles.content}>
-        <AppText color={colors.text.secondary}>No recent orders.</AppText>
+        <AppEmptyState 
+          title="No Orders Yet" 
+          description="Looks like you haven't placed any orders. Start browsing the market to find fresh products!"
+          icon={<ClipboardList size={48} color={colors.brand.muted} strokeWidth={1.5} />}
+          actionTitle="Browse Market"
+          onAction={() => {}}
+        />
       </View>
     </View>
   );
