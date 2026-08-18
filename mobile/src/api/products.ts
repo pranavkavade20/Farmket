@@ -35,7 +35,16 @@ export interface ProductsResponse {
   results: Product[];
 }
 
-export const fetchProducts = async (): Promise<ProductsResponse> => {
-  const response = await apiClient.get<ProductsResponse>('products/products/');
+export const fetchProducts = async ({ 
+  pageParam = 'products/products/',
+  search = ''
+}): Promise<ProductsResponse> => {
+  let url = pageParam.startsWith('http') ? new URL(pageParam).pathname + new URL(pageParam).search : pageParam;
+  
+  if (search && !url.includes('search=')) {
+    url += url.includes('?') ? `&search=${search}` : `?search=${search}`;
+  }
+
+  const response = await apiClient.get<ProductsResponse>(url);
   return response.data;
 };

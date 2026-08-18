@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, ActivityIndicator, Image, RefreshControl } from 'react-native';
+import { View, StyleSheet, ScrollView, ActivityIndicator, Image, RefreshControl, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText, AppCard, AppButton, AppSkeleton, AppEmptyState } from '../../components/ui';
 import { colors, spacing, radii } from '../../theme';
@@ -7,13 +7,16 @@ import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { fetchProducts } from '../../api/products';
 import { useAuth } from '../../context/AuthContext';
-import { PackageOpen } from 'lucide-react-native';
+import { useCart } from '../../context/CartContext';
+import { PackageOpen, ShoppingCart } from 'lucide-react-native';
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user, logout } = useAuth();
+  const { addToCart, itemCount } = useCart();
   const [refreshing, setRefreshing] = useState(false);
+  const [addingId, setAddingId] = useState<number | null>(null);
 
   const { data: productsData, isLoading, error, refetch } = useQuery({
     queryKey: ['products'],
@@ -25,6 +28,19 @@ export default function HomeScreen() {
     await refetch();
     setRefreshing(false);
   }, [refetch]);
+
+  const handleAddToCart = async (productId: number) => {
+    if (!user) {
+      router.push('/(auth)/login');
+      return;
+    }
+    setAddingId(productId);
+    try {
+      await addToCart(productId, 1);
+    } finally {
+      setAddingId(null);
+    }
+  };
 
   const renderSkeletons = () => (
     <View style={styles.cardContainer}>
@@ -58,21 +74,36 @@ export default function HomeScreen() {
           <AppText variant="headingLg" weight="bold" color={colors.brand.primary}>
             Farmket
           </AppText>
-          {user ? (
-            <AppButton 
-              title="Logout" 
-              variant="outline" 
-              size="sm" 
-              onPress={logout} 
-            />
-          ) : (
-            <AppButton 
-              title="Login" 
-              variant="outline" 
-              size="sm" 
-              onPress={() => router.push('/(auth)/login')} 
-            />
-          )}
+          <View style={styles.headerActions}>
+            <TouchableOpacity 
+              style={styles.cartBtn} 
+              onPress={() => router.push('/cart')}
+            >
+              <ShoppingCart size={24} color={colors.text.primary} />
+              {itemCount > 0 && (
+                <View style={styles.badge}>
+                  <AppText variant="small" weight="bold" color={colors.text.inverse} style={styles.badgeText}>
+                    {itemCount}
+                  </AppText>
+                </View>
+              )}
+            </TouchableOpacity>
+            {user ? (
+              <AppButton 
+                title="Logout" 
+                variant="outline" 
+                size="sm" 
+                onPress={logout} 
+              />
+            ) : (
+              <AppButton 
+                title="Login" 
+                variant="outline" 
+                size="sm" 
+                onPress={() => router.push('/(auth)/login')} 
+              />
+            )}
+          </View>
         </View>
 
         <View style={styles.welcomeSection}>
@@ -127,12 +158,20 @@ export default function HomeScreen() {
                       By {product.farmer.farm_name || `${product.farmer.first_name} ${product.farmer.last_name}`}
                     </AppText>
                     <View style={styles.priceRow}>
-                      <AppText weight="bold" color={colors.brand.primary}>
-                        ${product.price}
-                      </AppText>
-                      <AppText variant="small" color={colors.text.muted}>
-                        {' '}/ {product.unit}
-                      </AppText>
+                      <View style={{ flex: 1 }}>
+                        <AppText weight="bold" color={colors.brand.primary}>
+                          ${product.price}
+                        </AppText>
+                        <AppText variant="small" color={colors.text.muted}>
+                          {' '}/ {product.unit}
+                        </AppText>
+                      </View>
+                      <AppButton 
+                        title="Add" 
+                        size="sm" 
+                        onPress={() => handleAddToCart(product.id)}
+                        loading={addingId === product.id}
+                      />
                     </View>
                   </View>
                 </AppCard>
@@ -151,21 +190,49 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.main,
   },
   scrollContent: {
-    padding: spacing.md,
+    flexGrow: 1,
+    paddingBottom: spacing.xxxl,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.xl,
+    marginBottom: spacing.xl,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  cartBtn: {
+    padding: spacing.xs,
+    marginRight: spacing.md,
+    position: 'relative',
+  },
+  badge: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    backgroundColor: colors.status.danger,
+    borderRadius: 10,
+    width: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badgeText: {
+    fontSize: 10,
   },
   welcomeSection: {
+    paddingHorizontal: spacing.xl,
     marginBottom: spacing.xl,
   },
   sectionTitle: {
+    paddingHorizontal: spacing.xl,
     marginBottom: spacing.md,
   },
   cardContainer: {
+    paddingHorizontal: spacing.xl,
     gap: spacing.md,
   },
   productCard: {
@@ -193,7 +260,8 @@ const styles = StyleSheet.create({
   },
   priceRow: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginTop: spacing.xs,
   }
 });
