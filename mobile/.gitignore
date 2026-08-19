@@ -49,3 +49,6 @@ AGENTS.md
 
 # vs code settings
 .vscode/
+
+# enviroment varibales
+.env
