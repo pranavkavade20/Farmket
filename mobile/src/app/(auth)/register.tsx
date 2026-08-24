@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 import { useRouter, Link } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText, AppInput, AppButton, AppCard, AppHeader } from '../../components/ui';
@@ -12,64 +14,66 @@ export default function RegisterScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { login } = useAuth();
-  
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [userType, setUserType] = useState<'buyer' | 'farmer'>('buyer');
-  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleRegister = async () => {
-    if (!firstName || !lastName || !email || !password || !confirmPassword) {
-      setError('Please fill in all required fields');
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
+  const formik = useFormik({
+    initialValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phoneNumber: '',
+      password: '',
+      confirmPassword: '',
+    },
+    validationSchema: Yup.object({
+      firstName: Yup.string().required('First name is required'),
+      lastName: Yup.string().required('Last name is required'),
+      email: Yup.string().email('Invalid email address').required('Email is required'),
+      phoneNumber: Yup.string().required('Phone number is required'),
+      password: Yup.string().min(8, 'Password must be at least 8 characters').required('Password is required'),
+      confirmPassword: Yup.string()
+        .oneOf([Yup.ref('password')], 'Passwords must match')
+        .required('Confirm password is required'),
+    }),
+    onSubmit: async (values) => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const username = values.email.split('@')[0];
+        const payload = {
+          first_name: values.firstName,
+          last_name: values.lastName,
+          email: values.email,
+          phone_number: values.phoneNumber,
+          password: values.password,
+          confirm_password: values.confirmPassword,
+          user_type: userType,
+          username,
+          gender: '', // matching web implementation
+        };
 
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const username = email.split('@')[0];
-      const payload = {
-        first_name: firstName,
-        last_name: lastName,
-        email,
-        phone_number: phoneNumber,
-        password,
-        confirm_password: confirmPassword,
-        user_type: userType,
-        username,
-        gender: '', // matching web implementation
-      };
-
-      const response = await apiClient.post('accounts/register/', payload);
-      await login(response.data.token, response.data.refresh_token);
-      router.replace('/(tabs)');
-    } catch (err: any) {
-      console.error(err);
-      if (err.response && err.response.data) {
-        // Just extract the first error message
-        const firstKey = Object.keys(err.response.data)[0];
-        const msg = Array.isArray(err.response.data[firstKey]) 
-          ? err.response.data[firstKey][0] 
-          : err.response.data[firstKey];
-        setError(typeof msg === 'string' ? msg : 'Registration failed');
-      } else {
-        setError('Registration failed. Please try again.');
+        const response = await apiClient.post('accounts/register/', payload);
+        await login(response.data.token, response.data.refresh_token);
+        router.replace('/(tabs)');
+      } catch (err: any) {
+        console.error(err);
+        if (err.response?.data) {
+          const firstKey = Object.keys(err.response.data)[0];
+          const msg = Array.isArray(err.response.data[firstKey]) 
+            ? err.response.data[firstKey][0] 
+            : err.response.data[firstKey];
+          setError(typeof msg === 'string' ? msg : 'Registration failed');
+        } else {
+          setError('Registration failed. Please try again.');
+        }
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+  });
 
   return (
     <KeyboardAvoidingView 
@@ -121,16 +125,20 @@ export default function RegisterScreen() {
               <AppInput
                 label="First Name"
                 placeholder="John"
-                value={firstName}
-                onChangeText={setFirstName}
+                value={formik.values.firstName}
+                onChangeText={formik.handleChange('firstName')}
+                onBlur={formik.handleBlur('firstName')}
+                error={formik.touched.firstName ? formik.errors.firstName : undefined}
               />
             </View>
             <View style={styles.flexHalf}>
               <AppInput
                 label="Last Name"
                 placeholder="Doe"
-                value={lastName}
-                onChangeText={setLastName}
+                value={formik.values.lastName}
+                onChangeText={formik.handleChange('lastName')}
+                onBlur={formik.handleBlur('lastName')}
+                error={formik.touched.lastName ? formik.errors.lastName : undefined}
               />
             </View>
           </View>
@@ -138,8 +146,10 @@ export default function RegisterScreen() {
           <AppInput
             label="Email Address"
             placeholder="you@example.com"
-            value={email}
-            onChangeText={setEmail}
+            value={formik.values.email}
+            onChangeText={formik.handleChange('email')}
+            onBlur={formik.handleBlur('email')}
+            error={formik.touched.email ? formik.errors.email : undefined}
             keyboardType="email-address"
             autoCapitalize="none"
             leftIcon={<Mail size={20} color={colors.text.muted} />}
@@ -148,8 +158,10 @@ export default function RegisterScreen() {
           <AppInput
             label="Phone Number"
             placeholder="+91 9876543210"
-            value={phoneNumber}
-            onChangeText={setPhoneNumber}
+            value={formik.values.phoneNumber}
+            onChangeText={formik.handleChange('phoneNumber')}
+            onBlur={formik.handleBlur('phoneNumber')}
+            error={formik.touched.phoneNumber ? formik.errors.phoneNumber : undefined}
             keyboardType="phone-pad"
             leftIcon={<Phone size={20} color={colors.text.muted} />}
           />
@@ -157,8 +169,10 @@ export default function RegisterScreen() {
           <AppInput
             label="Password"
             placeholder="Create a secure password"
-            value={password}
-            onChangeText={setPassword}
+            value={formik.values.password}
+            onChangeText={formik.handleChange('password')}
+            onBlur={formik.handleBlur('password')}
+            error={formik.touched.password ? formik.errors.password : undefined}
             secureTextEntry
             leftIcon={<Lock size={20} color={colors.text.muted} />}
           />
@@ -166,15 +180,17 @@ export default function RegisterScreen() {
           <AppInput
             label="Confirm Password"
             placeholder="Re-enter password"
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
+            value={formik.values.confirmPassword}
+            onChangeText={formik.handleChange('confirmPassword')}
+            onBlur={formik.handleBlur('confirmPassword')}
+            error={formik.touched.confirmPassword ? formik.errors.confirmPassword : undefined}
             secureTextEntry
             leftIcon={<Lock size={20} color={colors.text.muted} />}
           />
 
           <AppButton 
             title="Sign Up" 
-            onPress={handleRegister} 
+            onPress={() => formik.handleSubmit()} 
             loading={loading}
             fullWidth 
             style={styles.submitButton}

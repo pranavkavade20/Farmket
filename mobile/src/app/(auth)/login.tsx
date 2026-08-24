@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 import { useRouter, Link } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText, AppInput, AppButton, AppCard } from '../../components/ui';
@@ -12,40 +14,40 @@ export default function LoginScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { login } = useAuth();
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      setError('Please fill in all fields');
-      return;
-    }
-    
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const response = await apiClient.post('token/', {
-        email,
-        password,
-      });
+  const formik = useFormik({
+    initialValues: { email: '', password: '' },
+    validationSchema: Yup.object({
+      email: Yup.string().email('Invalid email address').required('Email is required'),
+      password: Yup.string().required('Password is required'),
+    }),
+    onSubmit: async (values) => {
+      setLoading(true);
+      setError(null);
       
-      await login(response.data.access, response.data.refresh);
-      router.replace('/(tabs)');
-    } catch (err: any) {
-      console.error(err);
-      if (err.response && err.response.data && err.response.data.detail) {
-        setError(err.response.data.detail);
-      } else {
-        setError('Invalid credentials or network error.');
+      try {
+        const response = await apiClient.post('token/', {
+          email: values.email,
+          password: values.password,
+        });
+        
+        await login(response.data.access, response.data.refresh);
+        router.replace('/(tabs)');
+      } catch (err: any) {
+        console.error(err);
+        if (err.response?.data?.detail) {
+          setError(err.response.data.detail);
+        } else {
+          setError('Invalid credentials or network error.');
+        }
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+  });
 
   return (
     <KeyboardAvoidingView 
@@ -66,11 +68,19 @@ export default function LoginScreen() {
         </View>
 
         <AppCard padding="xl" elevated>
+          {error && (
+            <View style={styles.errorContainer}>
+              <AppText variant="small" color={colors.status.danger}>{error}</AppText>
+            </View>
+          )}
+
           <AppInput
             label="Email Address"
             placeholder="Enter your email"
-            value={email}
-            onChangeText={setEmail}
+            value={formik.values.email}
+            onChangeText={formik.handleChange('email')}
+            onBlur={formik.handleBlur('email')}
+            error={formik.touched.email ? formik.errors.email : undefined}
             keyboardType="email-address"
             autoCapitalize="none"
             leftIcon={<Mail size={20} color={colors.text.muted} />}
@@ -79,8 +89,10 @@ export default function LoginScreen() {
           <AppInput
             label="Password"
             placeholder="Enter your password"
-            value={password}
-            onChangeText={setPassword}
+            value={formik.values.password}
+            onChangeText={formik.handleChange('password')}
+            onBlur={formik.handleBlur('password')}
+            error={formik.touched.password ? formik.errors.password : undefined}
             secureTextEntry
             leftIcon={<Lock size={20} color={colors.text.muted} />}
           />
@@ -95,7 +107,7 @@ export default function LoginScreen() {
 
           <AppButton 
             title="Sign In" 
-            onPress={handleLogin} 
+            onPress={() => formik.handleSubmit()} 
             loading={loading}
             fullWidth 
             style={styles.submitButton}
@@ -143,6 +155,12 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     marginBottom: spacing.xl,
+  },
+  errorContainer: {
+    marginBottom: spacing.md,
+    padding: spacing.sm,
+    backgroundColor: colors.status.dangerMuted,
+    borderRadius: spacing.sm,
   },
   footer: {
     flexDirection: 'row',
