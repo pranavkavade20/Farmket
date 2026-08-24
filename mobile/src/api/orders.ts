@@ -52,3 +52,8 @@ export const createOrder = async (shippingAddress: string): Promise<Order> => {
   });
   return response.data;
 };
+
+export const fetchOrders = async (): Promise<Order[]> => {
+  const response = await apiClient.get<{ results: Order[] }>('orders/orders/');
+  return response.data.results ?? (response.data as unknown as Order[]);
+};
