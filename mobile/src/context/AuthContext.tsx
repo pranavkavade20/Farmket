@@ -32,13 +32,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const token = await storage.getToken();
       if (token) {
-        // Fetch user profile from the backend
-        const response = await apiClient.get('/accounts/profile/');
+        // Fetch user profile from the backend — endpoint is /api/accounts/me/
+        const response = await apiClient.get('accounts/me/');
         setUser(response.data);
       }
-    } catch (error) {
+    } catch (error: any) {
+      // Only clear tokens on auth errors (401/403), not network failures
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
+        await storage.clearTokens();
+      }
       console.error('Failed to load user:', error);
-      await storage.clearTokens();
     } finally {
       setIsLoading(false);
     }

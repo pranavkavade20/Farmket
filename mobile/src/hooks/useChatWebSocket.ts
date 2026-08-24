@@ -1,9 +1,9 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { storage } from '../utils/storage';
 import { ChatMessage } from '../api/chat';
+import { API_URL } from '../api/client';
 
-// Derive WS URL from API URL
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000/api/';
+// Derive WS URL from the shared API_URL
 const WS_BASE_URL = API_URL.replace('http', 'ws').replace('/api/', '');
 
 type WsEvent = 

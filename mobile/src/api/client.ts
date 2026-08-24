@@ -1,11 +1,44 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 import { storage } from '../utils/storage';
 
-// Base URL: Use 10.0.2.2 for Android emulator, localhost for iOS simulator, or your local IP
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000/api/';
+/**
+ * Resolves the API base URL dynamically:
+ * - Production: uses EXPO_PUBLIC_API_URL from .env
+ * - Dev (physical device / emulator): extracts the host IP from Expo's
+ *   dev server URI (e.g. "10.51.121.145:8081") and swaps the port to 8000.
+ * - Dev (web): uses localhost.
+ */
+const getApiUrl = (): string => {
+  // Production builds always use the env variable
+  const envUrl = process.env.EXPO_PUBLIC_API_URL;
+  if (!__DEV__ && envUrl) return envUrl;
+
+  // In dev, derive the URL from the Expo dev server host
+  if (__DEV__) {
+    if (Platform.OS === 'web') return 'http://localhost:8000/api/';
+
+    // Constants.expoConfig?.hostUri is something like "10.51.121.145:8081"
+    const hostUri = Constants.expoConfig?.hostUri;
+    if (hostUri) {
+      const hostIp = hostUri.split(':')[0]; // "10.51.121.145"
+      return `http://${hostIp}:8000/api/`;
+    }
+
+    // Fallback for Android emulator if hostUri is unavailable
+    if (Platform.OS === 'android') return 'http://10.0.2.2:8000/api/';
+    return 'http://localhost:8000/api/';
+  }
+
+  return envUrl || 'http://localhost:8000/api/';
+};
+
+export const API_URL = getApiUrl();
 
 export const apiClient = axios.create({
   baseURL: API_URL,
+  timeout: 15000, // 15s timeout prevents infinite loading
   headers: {
     'Content-Type': 'application/json',
   },

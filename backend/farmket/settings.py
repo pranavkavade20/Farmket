@@ -177,7 +177,7 @@ FRONTEND_BASE_URL = os.getenv('FRONTEND_BASE_URL', 'http://localhost:5173')
 BACKEND_BASE_URL = os.getenv('BACKEND_BASE_URL', 'http://localhost:8000')
 
 # CORS Settings
-CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', f"{FRONTEND_BASE_URL},http://127.0.0.1:5173,{BACKEND_BASE_URL},http://127.0.0.1:8000").split(',')
+CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', f"{FRONTEND_BASE_URL},http://127.0.0.1:5173,{BACKEND_BASE_URL},http://127.0.0.1:8000,http://localhost:8081,http://127.0.0.1:8081").split(',')
 CORS_ALLOW_CREDENTIALS = True
 
 
