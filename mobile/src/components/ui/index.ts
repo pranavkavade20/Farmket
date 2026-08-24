@@ -7,3 +7,4 @@ export { AppSkeleton } from './AppSkeleton';
 export { AppEmptyState } from './AppEmptyState';
 export { AppProductCard } from './AppProductCard';
 export { AppCropCard } from './AppCropCard';
+export { AppChatBubble } from './AppChatBubble';
