@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, ActivityIndicator, Image, RefreshControl, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AppText, AppCard, AppButton, AppSkeleton, AppEmptyState } from '../../components/ui';
+import { AppText, AppCard, AppButton, AppSkeleton, AppEmptyState, AppProductCard } from '../../components/ui';
 import { colors, spacing, radii } from '../../theme';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -20,7 +20,7 @@ export default function HomeScreen() {
 
   const { data: productsData, isLoading, error, refetch } = useQuery({
     queryKey: ['products'],
-    queryFn: fetchProducts,
+    queryFn: () => fetchProducts({}),
   });
 
   const onRefresh = useCallback(async () => {
@@ -135,48 +135,21 @@ export default function HomeScreen() {
           />
         ) : (
           <View style={styles.cardContainer}>
-            {productsData?.results.map((product) => {
-              const primaryImage = product.images?.find(img => img.is_primary)?.image || product.images?.[0]?.image;
-              
-              return (
-                <AppCard key={product.id} elevated padding="md" style={styles.productCard}>
-                  {primaryImage ? (
-                    <Image 
-                      source={{ uri: primaryImage }} 
-                      style={styles.productImage} 
-                      resizeMode="cover"
-                    />
-                  ) : (
-                    <View style={styles.placeholderImage}>
-                      <AppText variant="small" color={colors.text.muted}>No image</AppText>
-                    </View>
-                  )}
-                  
-                  <View style={styles.productInfo}>
-                    <AppText weight="bold" numberOfLines={1}>{product.name}</AppText>
-                    <AppText variant="small" color={colors.text.secondary} numberOfLines={1}>
-                      By {product.farmer.farm_name || `${product.farmer.first_name} ${product.farmer.last_name}`}
-                    </AppText>
-                    <View style={styles.priceRow}>
-                      <View style={{ flex: 1 }}>
-                        <AppText weight="bold" color={colors.brand.primary}>
-                          ${product.price}
-                        </AppText>
-                        <AppText variant="small" color={colors.text.muted}>
-                          {' '}/ {product.unit}
-                        </AppText>
-                      </View>
-                      <AppButton 
-                        title="Add" 
-                        size="sm" 
-                        onPress={() => handleAddToCart(product.id)}
-                        loading={addingId === product.id}
-                      />
-                    </View>
-                  </View>
-                </AppCard>
-              );
-            })}
+            {productsData?.results.map((product) => (
+              <AppProductCard 
+                key={product.id} 
+                product={product} 
+                onPress={() => router.push(`/marketplace/${product.id}` as any)}
+                action={
+                  <AppButton 
+                    title="Add" 
+                    size="sm" 
+                    onPress={() => handleAddToCart(product.id)}
+                    loading={addingId === product.id}
+                  />
+                }
+              />
+            ))}
           </View>
         )}
       </ScrollView>
@@ -239,29 +212,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  productImage: {
-    width: 80,
-    height: 80,
-    borderRadius: radii.md,
-    backgroundColor: colors.border.subtle,
-  },
-  placeholderImage: {
-    width: 80,
-    height: 80,
-    borderRadius: radii.md,
-    backgroundColor: colors.border.subtle,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   productInfo: {
     flex: 1,
     marginLeft: spacing.md,
     justifyContent: 'center',
   },
-  priceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: spacing.xs,
-  }
 });

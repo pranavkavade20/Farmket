@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet, FlatList, ActivityIndicator, Image, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AppText, AppInput, AppEmptyState, AppCard, AppSkeleton } from '../../components/ui';
+import { AppText, AppInput, AppEmptyState, AppCard, AppSkeleton, AppProductCard, AppCropCard } from '../../components/ui';
 import { colors, spacing, radii } from '../../theme';
 import { Search as SearchIcon, PackageOpen, Sprout } from 'lucide-react-native';
 import { useInfiniteQuery } from '@tanstack/react-query';
@@ -62,47 +62,11 @@ export default function SearchScreen() {
   };
 
   const renderProduct = ({ item }: { item: any }) => {
-    const primaryImage = item.images?.find((img: any) => img.is_primary)?.image || item.images?.[0]?.image;
-    return (
-      <AppCard elevated padding="md" style={styles.card}>
-        {primaryImage ? (
-          <Image source={{ uri: primaryImage }} style={styles.image} resizeMode="cover" />
-        ) : (
-          <View style={styles.placeholderImage}>
-            <AppText variant="small" color={colors.text.muted}>No image</AppText>
-          </View>
-        )}
-        <View style={styles.info}>
-          <AppText weight="bold" numberOfLines={1}>{item.name}</AppText>
-          <AppText variant="small" color={colors.text.secondary} numberOfLines={1}>
-            By {item.farmer?.farm_name || `${item.farmer?.first_name} ${item.farmer?.last_name}`}
-          </AppText>
-          <View style={styles.priceRow}>
-            <AppText weight="bold" color={colors.brand.primary}>${item.price}</AppText>
-            <AppText variant="small" color={colors.text.muted}> / {item.unit}</AppText>
-          </View>
-        </View>
-      </AppCard>
-    );
+    return <AppProductCard product={item} onPress={(product) => console.log('Product clicked:', product.id)} />;
   };
 
   const renderCrop = ({ item }: { item: any }) => {
-    return (
-      <AppCard elevated padding="md" style={styles.card}>
-        <View style={styles.placeholderImage}>
-          <Sprout size={32} color={colors.brand.muted} />
-        </View>
-        <View style={styles.info}>
-          <AppText weight="bold" numberOfLines={1}>{item.name}</AppText>
-          <AppText variant="small" color={colors.text.secondary} numberOfLines={1}>
-            By {item.farmer?.farm_name || `${item.farmer?.first_name} ${item.farmer?.last_name}`}
-          </AppText>
-          <AppText variant="small" color={colors.status.warning} numberOfLines={1}>
-            Status: {item.status}
-          </AppText>
-        </View>
-      </AppCard>
-    );
+    return <AppCropCard crop={item} onPress={(crop) => console.log('Crop clicked:', crop.id)} />;
   };
 
   const renderSkeletons = () => (
@@ -221,28 +185,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.md,
   },
-  image: {
-    width: 80,
-    height: 80,
-    borderRadius: radii.md,
-    backgroundColor: colors.border.subtle,
-  },
-  placeholderImage: {
-    width: 80,
-    height: 80,
-    borderRadius: radii.md,
-    backgroundColor: colors.border.subtle,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   info: {
     flex: 1,
     marginLeft: spacing.md,
     justifyContent: 'center',
   },
-  priceRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    marginTop: spacing.xs,
-  }
 });
