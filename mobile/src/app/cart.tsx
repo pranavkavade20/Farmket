@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { View, StyleSheet, FlatList, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText, AppHeader, AppButton, AppCard, AppEmptyState } from '../components/ui';
 import { colors, spacing, radii } from '../theme';
@@ -13,20 +14,8 @@ export default function CartScreen() {
   const { cart, loading, updateQuantity, removeItem, checkout } = useCart();
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  const handleCheckout = async () => {
-    setCheckoutLoading(true);
-    try {
-      // In a real app, you'd navigate to an address selection screen first.
-      await checkout("Default Shipping Address");
-      // Let it refresh and clear the cart, then we can go back
-      setTimeout(() => {
-        router.back();
-      }, 1000);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setCheckoutLoading(false);
-    }
+  const handleCheckout = () => {
+    router.push('/checkout');
   };
 
   if (loading && !cart) {
@@ -64,50 +53,55 @@ export default function CartScreen() {
         renderItem={({ item }) => {
           const primaryImage = item.product.images?.find((img: any) => img.is_primary)?.image || item.product.images?.[0]?.image;
 
-          return (
-            <AppCard elevated padding="md" style={styles.card}>
-              {primaryImage ? (
-                <Image source={{ uri: primaryImage }} style={styles.image} resizeMode="cover" />
-              ) : (
-                <View style={styles.placeholderImage}>
-                  <AppText variant="small" color={colors.text.muted}>No image</AppText>
-                </View>
-              )}
-              
-              <View style={styles.info}>
-                <View style={styles.headerRow}>
-                  <AppText weight="bold" numberOfLines={1} style={{ flex: 1 }}>{item.product.name}</AppText>
-                  <TouchableOpacity onPress={() => removeItem(item.id)} style={styles.removeBtn}>
-                    <Trash2 size={18} color={colors.status.danger} />
-                  </TouchableOpacity>
-                </View>
-                
-                <AppText variant="small" color={colors.brand.primary} weight="bold">
-                  ${item.product.price} <AppText variant="small" color={colors.text.muted}>/ {item.product.unit}</AppText>
-                </AppText>
+          const renderRightActions = () => (
+            <TouchableOpacity style={styles.deleteAction} onPress={() => removeItem(item.id)}>
+              <Trash2 size={24} color={colors.text.inverse} />
+            </TouchableOpacity>
+          );
 
-                <View style={styles.actionRow}>
-                  <View style={styles.quantityControl}>
-                    <TouchableOpacity 
-                      style={styles.qBtn} 
-                      onPress={() => item.quantity > 1 && updateQuantity(item.id, item.quantity - 1)}
-                    >
-                      <Minus size={16} color={colors.text.primary} />
-                    </TouchableOpacity>
-                    <AppText weight="semibold" style={styles.qText}>{item.quantity}</AppText>
-                    <TouchableOpacity 
-                      style={styles.qBtn} 
-                      onPress={() => updateQuantity(item.id, item.quantity + 1)}
-                    >
-                      <Plus size={16} color={colors.text.primary} />
-                    </TouchableOpacity>
+          return (
+            <Swipeable renderRightActions={renderRightActions} overshootRight={false}>
+              <AppCard elevated padding="md" style={styles.card}>
+                {primaryImage ? (
+                  <Image source={{ uri: primaryImage }} style={styles.image} resizeMode="cover" />
+                ) : (
+                  <View style={styles.placeholderImage}>
+                    <AppText variant="small" color={colors.text.muted}>No image</AppText>
                   </View>
-                  <AppText weight="bold" color={colors.text.primary}>
-                    ${item.total_price}
+                )}
+                
+                <View style={styles.info}>
+                  <View style={styles.headerRow}>
+                    <AppText weight="bold" numberOfLines={1} style={{ flex: 1 }}>{item.product.name}</AppText>
+                  </View>
+                  
+                  <AppText variant="small" color={colors.brand.primary} weight="bold">
+                    ${item.product.price} <AppText variant="small" color={colors.text.muted}>/ {item.product.unit}</AppText>
                   </AppText>
+
+                  <View style={styles.actionRow}>
+                    <View style={styles.quantityControl}>
+                      <TouchableOpacity 
+                        style={styles.qBtn} 
+                        onPress={() => item.quantity > 1 && updateQuantity(item.id, item.quantity - 1)}
+                      >
+                        <Minus size={16} color={colors.text.primary} />
+                      </TouchableOpacity>
+                      <AppText weight="semibold" style={styles.qText}>{item.quantity}</AppText>
+                      <TouchableOpacity 
+                        style={styles.qBtn} 
+                        onPress={() => updateQuantity(item.id, item.quantity + 1)}
+                      >
+                        <Plus size={16} color={colors.text.primary} />
+                      </TouchableOpacity>
+                    </View>
+                    <AppText weight="bold" color={colors.text.primary}>
+                      ${item.total_price}
+                    </AppText>
+                  </View>
                 </View>
-              </View>
-            </AppCard>
+              </AppCard>
+            </Swipeable>
           );
         }}
         ListFooterComponent={
@@ -207,5 +201,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: spacing.lg,
+  },
+  deleteAction: {
+    backgroundColor: colors.status.danger,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 80,
+    marginBottom: spacing.md,
+    borderRadius: radii.md,
+    marginLeft: spacing.sm,
   }
 });
