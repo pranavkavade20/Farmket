@@ -48,3 +48,8 @@ export const fetchProducts = async ({
   const response = await apiClient.get<ProductsResponse>(url);
   return response.data;
 };
+
+export const fetchProductDetail = async (id: number): Promise<Product> => {
+  const response = await apiClient.get<Product>(`products/products/${id}/`);
+  return response.data;
+};

@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, ActivityIndicator, Image, RefreshControl, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, FlatList } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText, AppCard, AppButton, AppSkeleton, AppEmptyState, AppProductCard } from '../../components/ui';
 import { colors, spacing, radii } from '../../theme';
@@ -8,19 +8,20 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchProducts } from '../../api/products';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
-import { PackageOpen, ShoppingCart } from 'lucide-react-native';
+import { MapPin, ShoppingCart, Search, PackageOpen } from 'lucide-react-native';
+import { Image } from 'expo-image';
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { addToCart, itemCount } = useCart();
   const [refreshing, setRefreshing] = useState(false);
   const [addingId, setAddingId] = useState<number | null>(null);
 
   const { data: productsData, isLoading, error, refetch } = useQuery({
-    queryKey: ['products'],
-    queryFn: () => fetchProducts({}),
+    queryKey: ['products', 'featured'],
+    queryFn: () => fetchProducts({ limit: 10 }), 
   });
 
   const onRefresh = useCallback(async () => {
@@ -42,116 +43,160 @@ export default function HomeScreen() {
     }
   };
 
-  const renderSkeletons = () => (
-    <View style={styles.cardContainer}>
-      {[1, 2, 3, 4].map((i) => (
-        <AppCard key={i} elevated padding="md" style={styles.productCard}>
-          <AppSkeleton width={80} height={80} borderRadius={radii.md} />
-          <View style={styles.productInfo}>
-            <AppSkeleton width="80%" height={20} style={{ marginBottom: spacing.xs }} />
-            <AppSkeleton width="50%" height={14} style={{ marginBottom: spacing.xs }} />
-            <AppSkeleton width="30%" height={18} />
-          </View>
-        </AppCard>
-      ))}
-    </View>
-  );
+  const categories = [
+    { id: 1, name: 'Fruits', icon: '🍎' },
+    { id: 2, name: 'Veg', icon: '🥦' },
+    { id: 3, name: 'Dairy', icon: '🥛' },
+    { id: 4, name: 'Grains', icon: '🌾' },
+    { id: 5, name: 'More', icon: '✨' },
+  ];
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.locationContainer}>
+          <AppText variant="small" color={colors.text.secondary}>Deliver to</AppText>
+          <View style={styles.locationRow}>
+            <MapPin size={16} color={colors.brand.primary} style={{ marginRight: 4 }} />
+            <AppText weight="bold" numberOfLines={1}>Bengaluru, KA</AppText>
+          </View>
+        </View>
+        <TouchableOpacity style={styles.cartBtn} onPress={() => router.push('/cart')}>
+          <ShoppingCart size={24} color={colors.text.primary} />
+          {itemCount > 0 && (
+            <View style={styles.badge}>
+              <AppText variant="small" weight="bold" color={colors.text.inverse} style={styles.badgeText}>
+                {itemCount}
+              </AppText>
+            </View>
+          )}
+        </TouchableOpacity>
+      </View>
+
       <ScrollView 
         contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl 
-            refreshing={refreshing} 
-            onRefresh={onRefresh}
-            colors={[colors.brand.primary]} 
-            tintColor={colors.brand.primary}
-          />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.brand.primary]} tintColor={colors.brand.primary} />
         }
       >
-        <View style={styles.header}>
-          <AppText variant="headingLg" weight="bold" color={colors.brand.primary}>
-            Farmket
-          </AppText>
-          <View style={styles.headerActions}>
-            <TouchableOpacity 
-              style={styles.cartBtn} 
-              onPress={() => router.push('/cart')}
-            >
-              <ShoppingCart size={24} color={colors.text.primary} />
-              {itemCount > 0 && (
-                <View style={styles.badge}>
-                  <AppText variant="small" weight="bold" color={colors.text.inverse} style={styles.badgeText}>
-                    {itemCount}
-                  </AppText>
-                </View>
-              )}
-            </TouchableOpacity>
-            {user ? (
+        {/* Fake Search Bar routing to actual search tab */}
+        <View style={styles.searchContainer}>
+          <TouchableOpacity 
+            style={styles.fakeSearchInput} 
+            activeOpacity={0.8}
+            onPress={() => router.push('/(tabs)/search')}
+          >
+            <Search size={20} color={colors.text.muted} />
+            <AppText color={colors.text.muted} style={{ marginLeft: spacing.sm }}>
+              Search products, farmers...
+            </AppText>
+          </TouchableOpacity>
+        </View>
+
+        {/* Hero Banner */}
+        <View style={styles.heroContainer}>
+          <View style={styles.heroBanner}>
+            <Image 
+              source={{ uri: 'https://images.unsplash.com/photo-1595856342625-63451e03bce6?auto=format&fit=crop&q=80&w=600' }} 
+              style={StyleSheet.absoluteFillObject}
+              contentFit="cover"
+            />
+            <View style={styles.heroOverlay} />
+            <View style={styles.heroContent}>
+              <AppText variant="heading" weight="bold" color={colors.text.inverse}>
+                Fresh from Farms
+              </AppText>
+              <AppText variant="body" color={colors.text.inverse} style={{ marginTop: 4, marginBottom: 12 }}>
+                Pure, Organic, Delivered.
+              </AppText>
               <AppButton 
-                title="Logout" 
-                variant="outline" 
+                title="Shop Now" 
                 size="sm" 
-                onPress={logout} 
+                style={styles.heroButton} 
+                onPress={() => router.push('/(tabs)/search')} 
               />
-            ) : (
-              <AppButton 
-                title="Login" 
-                variant="outline" 
-                size="sm" 
-                onPress={() => router.push('/(auth)/login')} 
-              />
-            )}
+            </View>
           </View>
         </View>
 
-        <View style={styles.welcomeSection}>
-          <AppText variant="subheading" weight="semibold">
-            {user ? `Welcome back, ${user.first_name}!` : 'Fresh from farm to you.'}
-          </AppText>
+        {/* Categories */}
+        <View style={styles.categoriesContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesScroll}>
+            {categories.map((cat) => (
+              <TouchableOpacity key={cat.id} style={styles.categoryItem} activeOpacity={0.7} onPress={() => router.push('/(tabs)/search')}>
+                <View style={styles.categoryIconCircle}>
+                  <AppText style={{ fontSize: 24 }}>{cat.icon}</AppText>
+                </View>
+                <AppText variant="small" weight="medium" style={{ marginTop: 8 }}>{cat.name}</AppText>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
 
-        <AppText variant="heading" weight="semibold" style={styles.sectionTitle}>
-          Featured Products
-        </AppText>
+        {/* Featured Products */}
+        <View style={styles.sectionHeader}>
+          <AppText variant="subheading" weight="bold">Featured Products</AppText>
+          <TouchableOpacity onPress={() => router.push('/(tabs)/search')}>
+            <AppText variant="small" weight="semibold" color={colors.brand.primary}>See all</AppText>
+          </TouchableOpacity>
+        </View>
         
         {isLoading && !refreshing ? (
-          renderSkeletons()
-        ) : error ? (
-          <AppEmptyState 
-            title="Failed to Load" 
-            description="We couldn't load the products right now. Please try again."
-            actionTitle="Retry"
-            onAction={refetch}
-          />
-        ) : productsData?.results.length === 0 ? (
-          <AppEmptyState 
-            title="No Products Found" 
-            description="There are currently no products available in the market."
-            icon={<PackageOpen size={48} color={colors.brand.muted} strokeWidth={1.5} />}
-            actionTitle="Refresh"
-            onAction={refetch}
-          />
-        ) : (
-          <View style={styles.cardContainer}>
-            {productsData?.results.map((product) => (
-              <AppProductCard 
-                key={product.id} 
-                product={product} 
-                onPress={() => router.push(`/marketplace/${product.id}` as any)}
-                action={
-                  <AppButton 
-                    title="Add" 
-                    size="sm" 
-                    onPress={() => handleAddToCart(product.id)}
-                    loading={addingId === product.id}
-                  />
-                }
-              />
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalProductsScroll}>
+            {[1, 2, 3].map((i) => (
+              <AppCard key={i} elevated padding={0} style={styles.skeletonVerticalCard}>
+                <AppSkeleton width="100%" height={140} borderRadius={0} />
+                <View style={{ padding: spacing.md }}>
+                  <AppSkeleton width="80%" height={16} style={{ marginBottom: 8 }} />
+                  <AppSkeleton width="50%" height={14} style={{ marginBottom: 8 }} />
+                  <AppSkeleton width="40%" height={18} />
+                </View>
+              </AppCard>
             ))}
+          </ScrollView>
+        ) : error ? (
+          <View style={{ paddingHorizontal: spacing.xl }}>
+            <AppEmptyState 
+              title="Failed to Load" 
+              description="Couldn't load products."
+              actionTitle="Retry"
+              onAction={refetch}
+            />
           </View>
+        ) : productsData?.results.length === 0 ? (
+          <View style={{ paddingHorizontal: spacing.xl }}>
+            <AppEmptyState 
+              title="No Products" 
+              description="No featured products available."
+              icon={<PackageOpen size={48} color={colors.brand.muted} strokeWidth={1.5} />}
+            />
+          </View>
+        ) : (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalProductsScroll}>
+            {productsData?.results.map((product) => (
+              <View key={product.id} style={styles.verticalCardWrapper}>
+                <AppProductCard 
+                  product={product} 
+                  layout="vertical"
+                  onPress={() => router.push(`/product/${product.id}` as any)}
+                  action={
+                    <AppButton 
+                      title="Add" 
+                      size="sm" 
+                      fullWidth
+                      variant="outline"
+                      onPress={() => handleAddToCart(product.id)}
+                      loading={addingId === product.id}
+                    />
+                  }
+                />
+              </View>
+            ))}
+          </ScrollView>
         )}
+
       </ScrollView>
     </View>
   );
@@ -171,15 +216,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: spacing.xl,
-    marginBottom: spacing.xl,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.sm,
   },
-  headerActions: {
+  locationContainer: {
+    flex: 1,
+  },
+  locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 2,
   },
   cartBtn: {
     padding: spacing.xs,
-    marginRight: spacing.md,
     position: 'relative',
   },
   badge: {
@@ -196,25 +245,81 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 10,
   },
-  welcomeSection: {
+  searchContainer: {
     paddingHorizontal: spacing.xl,
-    marginBottom: spacing.xl,
+    paddingVertical: spacing.sm,
   },
-  sectionTitle: {
+  fakeSearchInput: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.background.surface,
+    borderWidth: 1,
+    borderColor: colors.border.subtle,
+    borderRadius: radii.xl,
+    paddingHorizontal: spacing.lg,
+    height: 48,
+  },
+  heroContainer: {
     paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
+  },
+  heroBanner: {
+    height: 160,
+    borderRadius: radii.xl,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  heroOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  heroContent: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.xl,
+    alignItems: 'flex-start',
+  },
+  heroButton: {
+    backgroundColor: colors.background.surface,
+  },
+  categoriesContainer: {
+    paddingVertical: spacing.md,
+  },
+  categoriesScroll: {
+    paddingHorizontal: spacing.xl,
+    gap: spacing.lg,
+  },
+  categoryItem: {
+    alignItems: 'center',
+  },
+  categoryIconCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: colors.background.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.border.subtle,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.xl,
+    marginTop: spacing.lg,
     marginBottom: spacing.md,
   },
-  cardContainer: {
+  horizontalProductsScroll: {
     paddingHorizontal: spacing.xl,
     gap: spacing.md,
   },
-  productCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  verticalCardWrapper: {
+    width: 160,
   },
-  productInfo: {
-    flex: 1,
-    marginLeft: spacing.md,
-    justifyContent: 'center',
-  },
+  skeletonVerticalCard: {
+    width: 160,
+    overflow: 'hidden',
+    borderRadius: radii.lg,
+  }
 });

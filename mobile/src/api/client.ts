@@ -11,9 +11,9 @@ import { storage } from '../utils/storage';
  * - Dev (web): uses localhost.
  */
 const getApiUrl = (): string => {
-  // Production builds always use the env variable
+  // If explicitly set via .env, prioritize it in both Dev and Prod
   const envUrl = process.env.EXPO_PUBLIC_API_URL;
-  if (!__DEV__ && envUrl) return envUrl;
+  if (envUrl) return envUrl;
 
   // In dev, derive the URL from the Expo dev server host
   if (__DEV__) {
@@ -31,7 +31,7 @@ const getApiUrl = (): string => {
     return 'http://localhost:8000/api/';
   }
 
-  return envUrl || 'http://localhost:8000/api/';
+  return 'http://localhost:8000/api/';
 };
 
 export const API_URL = getApiUrl();
