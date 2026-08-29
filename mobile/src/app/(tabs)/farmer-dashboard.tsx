@@ -32,13 +32,36 @@ export default function FarmerDashboardScreen() {
       }>('accounts/dashboard-stats/');
       return res.data;
     },
+    enabled: !!user && user.user_type === 'farmer',
   });
 
   // Fetch Recent Orders
   const { data: ordersData = [], isLoading: loadingOrders, refetch: refetchOrders } = useQuery({
     queryKey: ['farmer-recent-orders'],
     queryFn: fetchOrders,
+    enabled: !!user && user.user_type === 'farmer',
   });
+
+  if (!user || user.user_type !== 'farmer') {
+    return (
+      <View style={[styles.container, { paddingTop: insets.top }]}>
+        <AppHeader title="Farmer Operations" />
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: spacing.xl }}>
+          <Sprout size={56} color={colors.brand.primary} />
+          <AppText variant="heading" weight="bold" style={{ marginTop: spacing.md, textAlign: 'center' }}>
+            Farmer Access Required
+          </AppText>
+          <AppText color={colors.text.secondary} style={{ textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.xl }}>
+            This operations hub is exclusively for verified Farmket producers and farmers.
+          </AppText>
+          <AppButton
+            title={user ? "Go to Home" : "Sign In to Farmket"}
+            onPress={() => user ? router.replace('/(tabs)') : router.push('/(auth)/login')}
+          />
+        </View>
+      </View>
+    );
+  }
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);

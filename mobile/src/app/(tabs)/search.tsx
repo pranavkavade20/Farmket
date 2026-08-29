@@ -11,11 +11,13 @@ import { useRouter } from 'expo-router';
 import { useCart } from '../../context/CartContext';
 import { AppButton } from '../../components/ui/AppButton';
 import { FilterModal } from '../../components/marketplace/FilterModal';
+import { useRequireAuth } from '../../components/auth/AuthGateModal';
 
 export default function SearchScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { addToCart } = useCart();
+  const { requireAuth, AuthGateModalComponent } = useRequireAuth();
   
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 400);
@@ -64,6 +66,9 @@ export default function SearchScreen() {
   };
 
   const handleAddToCart = async (productId: number) => {
+    if (!requireAuth('Add to Cart', 'Sign in to add fresh produce to your cart.')) {
+      return;
+    }
     setAddingId(productId);
     try {
       await addToCart(productId, 1);
@@ -278,6 +283,9 @@ export default function SearchScreen() {
         }}
         activeFilterCount={activeFilterCount}
       />
+
+      {/* Authentication Gate Modal */}
+      {AuthGateModalComponent}
     </View>
   );
 }

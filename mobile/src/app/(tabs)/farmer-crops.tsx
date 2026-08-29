@@ -23,14 +23,32 @@ export default function FarmerCropsScreen() {
   const { data: cropsData, isLoading: loadingCrops, refetch: refetchCrops } = useQuery({
     queryKey: ['farmer-crops'],
     queryFn: () => fetchCrops(),
+    enabled: !!user && user.user_type === 'farmer',
   });
 
   // Fetch Reservations
   const { data: reservations = [], isLoading: loadingReservations, refetch: refetchReservations } = useQuery({
     queryKey: ['farmer-reservations'],
     queryFn: fetchReservations,
-    enabled: activeTab === 'reservations',
+    enabled: !!user && user.user_type === 'farmer' && activeTab === 'reservations',
   });
+
+  if (!user || user.user_type !== 'farmer') {
+    return (
+      <View style={[styles.container, { paddingTop: insets.top }]}>
+        <AppHeader title="Farmer Crops Hub" />
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: spacing.xl }}>
+          <Sprout size={56} color={colors.brand.primary} />
+          <AppText variant="heading" weight="bold" style={{ marginTop: spacing.md, textAlign: 'center' }}>
+            Farmer Access Required
+          </AppText>
+          <AppText color={colors.text.secondary} style={{ textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.xl }}>
+            This crop management hub is exclusively for registered Farmket producers.
+          </AppText>
+        </View>
+      </View>
+    );
+  }
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);

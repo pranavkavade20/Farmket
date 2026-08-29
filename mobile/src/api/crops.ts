@@ -73,7 +73,13 @@ export const fetchCrops = async ({
   search?: string;
   stage?: string;
 } = {}): Promise<CropsResponse> => {
-  let url = pageParam.startsWith('http') ? new URL(pageParam).pathname + new URL(pageParam).search : pageParam;
+  let url = pageParam;
+  if (url.startsWith('http')) {
+    const parsed = new URL(url);
+    url = (parsed.pathname + parsed.search).replace(/^\/?api\//, '');
+  } else if (url.startsWith('/api/')) {
+    url = url.replace(/^\/?api\//, '');
+  }
   const params: string[] = [];
 
   if (search && !url.includes('search=')) {

@@ -11,6 +11,7 @@ import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { formatCurrency, formatDate } from '../../utils/format';
 import { ReservationModal } from '../../components/crops/ReservationModal';
+import { useRequireAuth } from '../../components/auth/AuthGateModal';
 import { 
   ChevronLeft, Star, Heart, CheckCircle2, ShieldCheck, 
   Leaf, MessageSquare, Truck, Clock, Calendar, Sprout 
@@ -24,6 +25,7 @@ export default function ProductDetailScreen() {
   const queryClient = useQueryClient();
   const { addToCart } = useCart();
   const { user } = useAuth();
+  const { requireAuth, AuthGateModalComponent } = useRequireAuth();
   
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -48,8 +50,7 @@ export default function ProductDetailScreen() {
 
   const handleAddToCart = async () => {
     if (!product) return;
-    if (!user) {
-      router.push('/(auth)/login');
+    if (!requireAuth('Add to Cart', 'Sign in to add fresh produce to your cart and complete your order.')) {
       return;
     }
     setAddingToCart(true);
@@ -66,8 +67,7 @@ export default function ProductDetailScreen() {
 
   const handleFollowToggle = async () => {
     if (!product) return;
-    if (!user) {
-      router.push('/(auth)/login');
+    if (!requireAuth('Follow Crop', 'Sign in to follow crops and get real-time harvest updates.')) {
       return;
     }
 
@@ -86,8 +86,7 @@ export default function ProductDetailScreen() {
 
   const handleChatWithFarmer = async () => {
     if (!product) return;
-    if (!user) {
-      router.push('/(auth)/login');
+    if (!requireAuth('Chat with Producer', 'Sign in to send direct messages to the farmer.')) {
       return;
     }
 
@@ -105,8 +104,7 @@ export default function ProductDetailScreen() {
 
   const handleSubmitReview = async () => {
     if (!product || !reviewComment.trim()) return;
-    if (!user) {
-      router.push('/(auth)/login');
+    if (!requireAuth('Write a Review', 'Sign in to share your review for this produce.')) {
       return;
     }
 
@@ -166,7 +164,12 @@ export default function ProductDetailScreen() {
           title="Reserve Harvest 🌱"
           fullWidth
           size="lg"
-          onPress={() => setIsReservationOpen(true)}
+          onPress={() => {
+            if (!requireAuth('Reserve Harvest', 'Sign in to pre-book upcoming crops directly from the producer.')) {
+              return;
+            }
+            setIsReservationOpen(true);
+          }}
         />
       );
     }
@@ -453,6 +456,9 @@ export default function ProductDetailScreen() {
         product={product}
         onSuccess={() => refetch()}
       />
+
+      {/* Authentication Required Modal */}
+      {AuthGateModalComponent}
     </View>
   );
 }

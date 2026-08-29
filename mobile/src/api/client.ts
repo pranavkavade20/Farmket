@@ -6,7 +6,7 @@ export const API_URL = getApiBaseUrl();
 
 export const apiClient = axios.create({
   baseURL: API_URL,
-  timeout: 15000, // 15s timeout prevents hanging requests
+  timeout: 15000, // 15s timeout
   headers: {
     'Content-Type': 'application/json',
   },
@@ -26,13 +26,32 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
-// Request interceptor: Attach JWT token
+// Check if a URL is an unauthenticated public auth route
+const isAuthEndpoint = (url?: string): boolean => {
+  if (!url) return false;
+  return (
+    url.includes('accounts/login') ||
+    url.includes('accounts/register') ||
+    url.includes('token/refresh') ||
+    url.includes('token/')
+  );
+};
+
+// Request interceptor: Attach JWT token only to protected endpoints
 apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    const token = await storage.getToken();
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const isAuthRoute = isAuthEndpoint(config.url);
+    
+    if (!isAuthRoute) {
+      const token = await storage.getToken();
+      if (token && config.headers) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } else if (config.headers && config.headers.Authorization) {
+      // Remove any accidental auth header on login/register endpoints
+      delete config.headers.Authorization;
     }
+
     logApiDiagnostic(`REQ [${config.method?.toUpperCase()}]`, {
       url: `${config.baseURL}${config.url}`,
     });
@@ -41,7 +60,7 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor: Handle 401 token refresh queue
+// Response interceptor: Handle 401 token refresh queue for protected requests ONLY
 apiClient.interceptors.response.use(
   (response) => {
     logApiDiagnostic(`RES [${response.status}]`, { url: response.config.url });
@@ -50,8 +69,10 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    // If 401 Unauthorized and not already retried
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+    // Never attempt token refresh on login/register/refresh endpoints
+    const isAuthRoute = isAuthEndpoint(originalRequest?.url);
+
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry && !isAuthRoute) {
       if (isRefreshing) {
         return new Promise(function (resolve, reject) {
           failedQueue.push({ resolve, reject });
@@ -127,23 +148,21 @@ export const normalizeApiError = (error: unknown, fallbackMessage = 'An unexpect
 
     const status = error.response.status;
     const data = error.response.data as Record<string, any>;
+    const requestUrl = error.config?.url || '';
 
-    if (status === 401) {
-      return 'Session expired. Please log in again.';
-    }
-    if (status === 403) {
-      return data?.detail || data?.error || 'You do not have permission to perform this action.';
-    }
-    if (status === 404) {
-      return data?.detail || data?.error || 'The requested resource was not found.';
-    }
-    if (status >= 500) {
-      return 'Farmket server error. Our team has been notified. Please try again later.';
+    // If 401 on login endpoint
+    if (status === 401 && (requestUrl.includes('login') || requestUrl.includes('token'))) {
+      return 'Incorrect email or password. Please verify your credentials and try again.';
     }
 
     // Handle DRF validation errors dictionary { field: ["error message"] }
     if (typeof data === 'object' && data !== null) {
-      if (data.detail && typeof data.detail === 'string') return data.detail;
+      if (data.detail && typeof data.detail === 'string') {
+        if (data.detail.toLowerCase().includes('no active account')) {
+          return 'No account found with these credentials. Please check your email or create an account.';
+        }
+        return data.detail;
+      }
       if (data.error && typeof data.error === 'string') return data.error;
       if (data.message && typeof data.message === 'string') return data.message;
 
@@ -157,6 +176,19 @@ export const normalizeApiError = (error: unknown, fallbackMessage = 'An unexpect
           return firstValue;
         }
       }
+    }
+
+    if (status === 401) {
+      return 'Session expired. Please log in again.';
+    }
+    if (status === 403) {
+      return data?.detail || data?.error || 'You do not have permission to perform this action.';
+    }
+    if (status === 404) {
+      return data?.detail || data?.error || 'The requested resource was not found.';
+    }
+    if (status >= 500) {
+      return 'Farmket server error. Our team has been notified. Please try again later.';
     }
   }
 

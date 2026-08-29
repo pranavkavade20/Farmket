@@ -9,7 +9,8 @@ import { fetchProducts, fetchCategories } from '../../api/products';
 import { fetchUpcomingHarvests } from '../../api/crops';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
-import { MapPin, ShoppingCart, Search, PackageOpen, Sprout, Tag } from 'lucide-react-native';
+import { useRequireAuth } from '../../components/auth/AuthGateModal';
+import { MapPin, ShoppingCart, Search, PackageOpen, Sprout, Tag, ShieldCheck, Leaf, Truck, ArrowRight, UserPlus } from 'lucide-react-native';
 import { Image } from 'expo-image';
 
 export default function HomeScreen() {
@@ -17,6 +18,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { addToCart, itemCount } = useCart();
+  const { requireAuth, AuthGateModalComponent } = useRequireAuth();
   const [refreshing, setRefreshing] = useState(false);
   const [addingId, setAddingId] = useState<number | null>(null);
 
@@ -27,13 +29,13 @@ export default function HomeScreen() {
   });
 
   // Featured Products
-  const { data: productsData, isLoading: loadingProducts, refetch: refetchProducts } = useQuery({
+  const { data: productsData, isLoading: loadingProducts, isError: isProductsError, refetch: refetchProducts } = useQuery({
     queryKey: ['products', 'featured'],
     queryFn: () => fetchProducts({ limit: 8 }), 
   });
 
   // Upcoming Harvests
-  const { data: upcomingHarvests = [], isLoading: loadingHarvests, refetch: refetchHarvests } = useQuery({
+  const { data: upcomingHarvests = [], isLoading: loadingHarvests, isError: isHarvestsError, refetch: refetchHarvests } = useQuery({
     queryKey: ['upcoming-harvests'],
     queryFn: fetchUpcomingHarvests,
   });
@@ -45,8 +47,7 @@ export default function HomeScreen() {
   }, [refetchCategories, refetchProducts, refetchHarvests]);
 
   const handleAddToCart = async (productId: number) => {
-    if (!user) {
-      router.push('/(auth)/login');
+    if (!requireAuth('Add to Cart', 'Sign in to add fresh produce to your cart and place direct farm orders.')) {
       return;
     }
     setAddingId(productId);
@@ -112,10 +113,10 @@ export default function HomeScreen() {
             <View style={styles.heroOverlay} />
             <View style={styles.heroContent}>
               <AppText variant="heading" weight="bold" color={colors.text.inverse}>
-                Fresh From Local Farms
+                Direct Farm-to-Table
               </AppText>
               <AppText variant="small" color={colors.text.inverse} style={{ marginTop: 4, marginBottom: 12, opacity: 0.9 }}>
-                Pure, Organic produce direct to your doorstep.
+                Pure, fresh harvest direct from local farmers without middlemen.
               </AppText>
               <AppButton 
                 title="Shop Marketplace" 
@@ -124,6 +125,30 @@ export default function HomeScreen() {
                 onPress={() => router.push('/(tabs)/search')} 
               />
             </View>
+          </View>
+        </View>
+
+        {/* Value Propositions Strip */}
+        <View style={styles.valuePropsStrip}>
+          <View style={styles.valuePropItem}>
+            <View style={styles.valuePropIcon}>
+              <Leaf size={16} color={colors.status.success} />
+            </View>
+            <AppText variant="small" weight="bold">100% Organic</AppText>
+          </View>
+
+          <View style={styles.valuePropItem}>
+            <View style={styles.valuePropIcon}>
+              <Sprout size={16} color={colors.brand.primary} />
+            </View>
+            <AppText variant="small" weight="bold">Pre-Book Crops</AppText>
+          </View>
+
+          <View style={styles.valuePropItem}>
+            <View style={styles.valuePropIcon}>
+              <ShieldCheck size={16} color={colors.status.info} />
+            </View>
+            <AppText variant="small" weight="bold">Fair Pricing</AppText>
           </View>
         </View>
 
@@ -178,11 +203,20 @@ export default function HomeScreen() {
               </AppCard>
             ))}
           </ScrollView>
+        ) : isProductsError ? (
+          <View style={{ paddingHorizontal: spacing.xl }}>
+            <AppEmptyState 
+              title="Couldn't Load Products" 
+              description="Unable to connect to the Farmket server. Please check your network."
+              actionTitle="Try Again"
+              onAction={refetchProducts}
+            />
+          </View>
         ) : productsData?.results.length === 0 ? (
           <View style={{ paddingHorizontal: spacing.xl }}>
             <AppEmptyState 
-              title="No Products" 
-              description="No featured products available right now."
+              title="No Products Available" 
+              description="No featured products listed right now."
               icon={<PackageOpen size={48} color={colors.brand.muted} strokeWidth={1.5} />}
             />
           </View>
@@ -238,7 +272,39 @@ export default function HomeScreen() {
             </View>
           </View>
         )}
+
+        {/* Join Farmket Guest Banner */}
+        {!user && (
+          <View style={styles.guestBannerContainer}>
+            <AppCard elevated padding="lg" style={styles.guestBannerCard}>
+              <AppText variant="heading" weight="bold" color={colors.brand.primary}>
+                Join Farmket Today
+              </AppText>
+              <AppText color={colors.text.secondary} style={{ marginTop: 4, marginBottom: spacing.md, lineHeight: 20 }}>
+                Connect directly with farmers, pre-book harvests, or list your own agricultural produce.
+              </AppText>
+              <View style={styles.guestBannerActions}>
+                <AppButton
+                  title="Create Free Account"
+                  size="sm"
+                  onPress={() => router.push('/(auth)/register')}
+                  style={{ flex: 1, marginRight: spacing.sm }}
+                />
+                <AppButton
+                  title="Sign In"
+                  size="sm"
+                  variant="outline"
+                  onPress={() => router.push('/(auth)/login')}
+                  style={{ flex: 1 }}
+                />
+              </View>
+            </AppCard>
+          </View>
+        )}
       </ScrollView>
+
+      {/* Authentication Gate Modal */}
+      {AuthGateModalComponent}
     </View>
   );
 }
@@ -323,6 +389,30 @@ const styles = StyleSheet.create({
   heroButton: {
     backgroundColor: colors.background.surface,
   },
+  valuePropsStrip: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.sm,
+    backgroundColor: colors.background.surface,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: colors.border.subtle,
+    marginVertical: spacing.xs,
+  },
+  valuePropItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  valuePropIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.background.elevated,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   categoriesContainer: {
     paddingVertical: spacing.md,
   },
@@ -371,5 +461,17 @@ const styles = StyleSheet.create({
   },
   cropsListContainer: {
     paddingHorizontal: spacing.xl,
+  },
+  guestBannerContainer: {
+    paddingHorizontal: spacing.xl,
+    marginTop: spacing.xl,
+  },
+  guestBannerCard: {
+    backgroundColor: colors.brand.muted + '25',
+    borderColor: colors.brand.primary + '35',
+    borderWidth: 1,
+  },
+  guestBannerActions: {
+    flexDirection: 'row',
   },
 });

@@ -3,20 +3,26 @@ import { View, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Refres
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppHeader, AppEmptyState, AppText, AppCard, AppButton } from '../../components/ui';
 import { colors, spacing, radii } from '../../theme';
-import { ClipboardList, Package, ChevronRight, Truck, CheckCircle2, Clock } from 'lucide-react-native';
+import { ClipboardList, Package, Truck, CheckCircle2, Clock, LogIn, UserPlus } from 'lucide-react-native';
 import { useQuery } from '@tanstack/react-query';
 import { fetchOrders, Order } from '../../api/orders';
 import { useRouter } from 'expo-router';
+import { useAuth } from '../../context/AuthContext';
+import { formatCurrency, formatDate } from '../../utils/format';
 
 export default function OrdersScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { user } = useAuth();
+  const isFarmer = user?.user_type === 'farmer';
+
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<'all' | 'processing' | 'delivered'>('all');
 
-  const { data: orders, isLoading, isError, refetch } = useQuery({
+  const { data: orders = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['orders'],
     queryFn: fetchOrders,
+    enabled: !!user,
   });
 
   const onRefresh = useCallback(async () => {
@@ -25,12 +31,49 @@ export default function OrdersScreen() {
     setRefreshing(false);
   }, [refetch]);
 
-  const filteredOrders = orders?.filter(order => {
+  if (!user) {
+    return (
+      <View style={[styles.container, { paddingTop: insets.top }]}>
+        <AppHeader title="Orders" />
+        <View style={styles.centerContent}>
+          <View style={styles.guestContainer}>
+            <View style={styles.guestIconBg}>
+              <ClipboardList size={40} color={colors.brand.primary} />
+            </View>
+            <AppText variant="heading" weight="bold" style={{ marginTop: spacing.md, textAlign: 'center' }}>
+              Track Your Farm Purchases
+            </AppText>
+            <AppText color={colors.text.secondary} style={styles.guestSubtitle}>
+              Sign in to view your active orders, real-time dispatch updates, and harvest history.
+            </AppText>
+            <View style={styles.guestBtnGroup}>
+              <AppButton
+                title="Sign In"
+                leftIcon={<LogIn size={18} color={colors.text.inverse} />}
+                onPress={() => router.push('/(auth)/login')}
+                fullWidth
+                style={{ marginBottom: spacing.sm }}
+              />
+              <AppButton
+                title="Create Account"
+                variant="outline"
+                leftIcon={<UserPlus size={18} color={colors.brand.primary} />}
+                onPress={() => router.push('/(auth)/register')}
+                fullWidth
+              />
+            </View>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  const filteredOrders = orders.filter(order => {
     if (activeTab === 'all') return true;
     if (activeTab === 'processing') return ['pending', 'processing', 'shipped'].includes(order.status.toLowerCase());
     if (activeTab === 'delivered') return order.status.toLowerCase() === 'delivered';
     return true;
-  }) || [];
+  });
 
   const getStatusConfig = (status: string) => {
     const s = status.toLowerCase();
@@ -53,11 +96,8 @@ export default function OrdersScreen() {
   const renderOrder = ({ item }: { item: Order }) => {
     const statusConfig = getStatusConfig(item.status);
     const StatusIcon = statusConfig.icon;
+    const totalAmount = Number(item.total_amount || item.total_price || 0);
 
-    // Formatting date
-    const dateObj = new Date(item.created_at);
-    const formattedDate = dateObj.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
-    
     return (
       <TouchableOpacity 
         activeOpacity={0.7} 
@@ -66,8 +106,8 @@ export default function OrdersScreen() {
         <AppCard elevated padding="md" style={styles.orderCard}>
           <View style={styles.orderHeader}>
             <View>
-              <AppText variant="small" color={colors.text.muted}>Order #{item.id}</AppText>
-              <AppText weight="semibold" style={{ marginTop: 2 }}>{formattedDate}</AppText>
+              <AppText variant="small" color={colors.text.muted}>Order #{item.order_number || item.id}</AppText>
+              <AppText weight="semibold" style={{ marginTop: 2 }}>{formatDate(item.created_at)}</AppText>
             </View>
             <View style={[styles.statusBadge, { backgroundColor: statusConfig.bgColor }]}>
               <StatusIcon size={14} color={statusConfig.color} />
@@ -81,13 +121,15 @@ export default function OrdersScreen() {
           
           <View style={styles.orderFooter}>
             <View style={styles.itemPreview}>
-              <Package size={20} color={colors.text.muted} />
-              <AppText color={colors.text.secondary} style={{ marginLeft: spacing.sm }}>View order details</AppText>
+              <Package size={18} color={colors.text.muted} />
+              <AppText color={colors.text.secondary} style={{ marginLeft: spacing.sm }}>
+                {item.items?.length ? `${item.items.length} items` : 'View order details'}
+              </AppText>
             </View>
             
             <View style={styles.priceContainer}>
               <AppText variant="small" color={colors.text.muted}>Total</AppText>
-              <AppText weight="bold" color={colors.text.primary}>₹{Number(item.total_price).toFixed(2)}</AppText>
+              <AppText weight="bold" color={colors.text.primary}>{formatCurrency(totalAmount)}</AppText>
             </View>
           </View>
         </AppCard>
@@ -97,7 +139,7 @@ export default function OrdersScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <AppHeader title="My Orders" />
+      <AppHeader title={isFarmer ? "Store Orders" : "My Orders"} />
       
       {/* Tabs */}
       <View style={styles.tabsContainer}>
@@ -125,8 +167,8 @@ export default function OrdersScreen() {
       ) : isError ? (
         <View style={styles.centerContent}>
           <AppEmptyState 
-            title="Failed to Load" 
-            description="We couldn't load your orders."
+            title="Failed to Load Orders" 
+            description="We couldn't reach the server to fetch your orders."
             actionTitle="Retry"
             onAction={refetch}
           />
@@ -135,10 +177,10 @@ export default function OrdersScreen() {
         <View style={styles.centerContent}>
           <AppEmptyState 
             title="No Orders Found" 
-            description={activeTab === 'all' ? "Looks like you haven't placed any orders yet." : `You have no ${activeTab} orders.`}
+            description={activeTab === 'all' ? "You haven't placed any orders yet." : `You have no ${activeTab} orders.`}
             icon={<ClipboardList size={48} color={colors.brand.muted} strokeWidth={1.5} />}
-            actionTitle={activeTab === 'all' ? "Browse Market" : undefined}
-            onAction={activeTab === 'all' ? () => router.push('/(tabs)/search') : undefined}
+            actionTitle={activeTab === 'all' && !isFarmer ? "Browse Produce" : undefined}
+            onAction={activeTab === 'all' && !isFarmer ? () => router.push('/(tabs)/search') : undefined}
           />
         </View>
       ) : (
@@ -181,6 +223,29 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: spacing.xl,
+  },
+  guestContainer: {
+    alignItems: 'center',
+    maxWidth: 340,
+    width: '100%',
+  },
+  guestIconBg: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: colors.brand.muted,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  guestSubtitle: {
+    textAlign: 'center',
+    lineHeight: 20,
+    marginTop: spacing.xs,
+    marginBottom: spacing.xl,
+  },
+  guestBtnGroup: {
+    width: '100%',
   },
   listContent: {
     padding: spacing.xl,

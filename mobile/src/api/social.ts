@@ -74,7 +74,13 @@ const normalizePostMedia = (post: Post): Post => {
 };
 
 export const fetchFeed = async (pageParam: string = 'posts/feed/'): Promise<FeedResponse> => {
-  const url = pageParam.startsWith('http') ? new URL(pageParam).pathname + new URL(pageParam).search : pageParam;
+  let url = pageParam;
+  if (url.startsWith('http')) {
+    const parsed = new URL(url);
+    url = (parsed.pathname + parsed.search).replace(/^\/?api\//, '');
+  } else if (url.startsWith('/api/')) {
+    url = url.replace(/^\/?api\//, '');
+  }
   const response = await apiClient.get<FeedResponse | Post[]>(url);
   if (Array.isArray(response.data)) {
     return {

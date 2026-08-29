@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AppHeader, AppEmptyState, AppText } from '../../components/ui';
+import { AppHeader, AppEmptyState, AppText, AppButton } from '../../components/ui';
 import { colors, spacing, radii } from '../../theme';
 import { MessageSquare, Search } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
@@ -96,12 +96,38 @@ export default function ChatScreen() {
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <AppHeader title="Messages" />
         <View style={styles.centerContent}>
-          <AppEmptyState 
-            title="Authentication Required" 
-            description="Please log in to view your messages."
-            actionTitle="Log In"
-            onAction={() => router.push('/(auth)/login')}
-          />
+          <View style={{ alignItems: 'center', maxWidth: 340, width: '100%' }}>
+            <View style={{
+              width: 72,
+              height: 72,
+              borderRadius: 36,
+              backgroundColor: colors.brand.muted,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              <MessageSquare size={38} color={colors.brand.primary} />
+            </View>
+            <AppText variant="heading" weight="bold" style={{ marginTop: spacing.md, textAlign: 'center' }}>
+              Connect Directly with Farmers
+            </AppText>
+            <AppText color={colors.text.secondary} style={{ textAlign: 'center', lineHeight: 20, marginTop: spacing.xs, marginBottom: spacing.xl }}>
+              Sign in to chat directly with producers, inquire about upcoming harvests, and coordinate custom orders.
+            </AppText>
+            <View style={{ width: '100%' }}>
+              <AppButton
+                title="Sign In"
+                onPress={() => router.push('/(auth)/login')}
+                fullWidth
+                style={{ marginBottom: spacing.sm }}
+              />
+              <AppButton
+                title="Create Account"
+                variant="outline"
+                onPress={() => router.push('/(auth)/register')}
+                fullWidth
+              />
+            </View>
+          </View>
         </View>
       </View>
     );

@@ -12,6 +12,7 @@ export default function TabLayout() {
 
   return (
     <Tabs
+      initialRouteName="index"
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.brand.primary,
@@ -31,43 +32,25 @@ export default function TabLayout() {
         },
       }}
     >
-      {/* Farmer Specific Tabs */}
-      <Tabs.Screen
-        name="farmer-dashboard"
-        options={{
-          title: 'Dashboard',
-          href: isFarmer ? undefined : null,
-          tabBarIcon: ({ color }) => <LayoutDashboard size={22} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="farmer-crops"
-        options={{
-          title: 'Crops',
-          href: isFarmer ? undefined : null,
-          tabBarIcon: ({ color }) => <Sprout size={22} color={color} />,
-        }}
-      />
-
-      {/* Buyer Specific Tabs */}
+      {/* 1. PUBLIC HOME (ALWAYS DEFAULT INITIAL SCREEN) */}
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
-          href: !isFarmer ? undefined : null,
           tabBarIcon: ({ color }) => <Home size={22} color={color} />,
         }}
       />
+
+      {/* 2. PUBLIC EXPLORE / MARKETPLACE */}
       <Tabs.Screen
         name="search"
         options={{
           title: 'Explore',
-          href: !isFarmer ? undefined : null,
           tabBarIcon: ({ color }) => <Search size={22} color={color} />,
         }}
       />
 
-      {/* Community Feed (Both Roles) */}
+      {/* 3. COMMUNITY FEED */}
       <Tabs.Screen
         name="feed"
         options={{
@@ -76,29 +59,49 @@ export default function TabLayout() {
         }}
       />
 
-      {/* Orders (Both Roles) */}
+      {/* 4. FARMER DASHBOARD (ONLY VISIBLE FOR AUTHENTICATED FARMERS) */}
+      <Tabs.Screen
+        name="farmer-dashboard"
+        options={{
+          title: 'Operations',
+          href: isFarmer ? undefined : null,
+          tabBarIcon: ({ color }) => <LayoutDashboard size={22} color={color} />,
+        }}
+      />
+
+      {/* 5. FARMER CROPS HUB (ONLY VISIBLE FOR AUTHENTICATED FARMERS) */}
+      <Tabs.Screen
+        name="farmer-crops"
+        options={{
+          title: 'Crops Hub',
+          href: isFarmer ? undefined : null,
+          tabBarIcon: ({ color }) => <Sprout size={22} color={color} />,
+        }}
+      />
+
+      {/* 6. ORDERS */}
       <Tabs.Screen
         name="orders"
         options={{
-          title: 'Orders',
+          title: isFarmer ? 'Store Orders' : 'Orders',
           tabBarIcon: ({ color }) => <ShoppingBag size={22} color={color} />,
         }}
       />
 
-      {/* Chat (Both Roles) */}
+      {/* 7. CHAT */}
       <Tabs.Screen
         name="chat"
         options={{
-          title: 'Chat',
+          title: 'Messages',
           tabBarIcon: ({ color }) => <MessageSquare size={22} color={color} />,
         }}
       />
 
-      {/* Profile (Both Roles) */}
+      {/* 8. PROFILE / ACCOUNT */}
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: user ? 'Account' : 'Profile',
           tabBarIcon: ({ color }) => <User size={22} color={color} />,
         }}
       />

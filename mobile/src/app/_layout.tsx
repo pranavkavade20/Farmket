@@ -1,10 +1,12 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { View, ActivityIndicator } from 'react-native';
 import { Stack } from 'expo-router';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from '../context/AuthContext';
+import { AuthProvider, useAuth } from '../context/AuthContext';
 import { CartProvider } from '../context/CartContext';
+import { colors } from '../theme';
 import { 
   Inter_400Regular, 
   Inter_500Medium, 
@@ -18,9 +20,35 @@ import {
 } from '@expo-google-fonts/manrope';
 
 // Prevent auto hiding splash screen
-SplashScreen.preventAutoHideAsync();
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 const queryClient = new QueryClient();
+
+function RootNavigator() {
+  const { authStatus } = useAuth();
+
+  useEffect(() => {
+    if (authStatus !== 'initializing') {
+      SplashScreen.hideAsync().catch(() => {});
+    }
+  }, [authStatus]);
+
+  if (authStatus === 'initializing') {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.background.main, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={colors.brand.primary} />
+      </View>
+    );
+  }
+
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="cart" options={{ presentation: 'modal' }} />
+    </Stack>
+  );
+}
 
 export default function RootLayout() {
   const [fontsLoaded, error] = useFonts({
@@ -33,12 +61,6 @@ export default function RootLayout() {
     Manrope_700Bold,
   });
 
-  useEffect(() => {
-    if (fontsLoaded || error) {
-      SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded, error]);
-
   if (!fontsLoaded && !error) {
     return null;
   }
@@ -47,11 +69,7 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <CartProvider>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="cart" options={{ presentation: 'modal' }} />
-          </Stack>
+          <RootNavigator />
         </CartProvider>
       </AuthProvider>
     </QueryClientProvider>

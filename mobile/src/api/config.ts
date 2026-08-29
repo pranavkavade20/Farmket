@@ -3,16 +3,21 @@ import Constants from 'expo-constants';
 
 /**
  * Derives the base LAN host IP of the development machine:
- * - On Expo Go, Constants.expoConfig?.hostUri or Constants.manifest?.debuggerHost
- *   yields something like "192.168.1.5:8081".
- * - We extract "192.168.1.5" and target port 8000 (Django default).
+ * - On Expo Go, Constants.expoConfig?.hostUri or debuggerHost
+ *   yields something like "10.51.121.145:8081".
+ * - We extract the IP and target port 8000 (Django default).
  */
 export const getBackendRootUrl = (): string => {
   const envUrl = process.env.EXPO_PUBLIC_API_URL;
-  if (envUrl) {
-    // If user provided full URL like "http://192.168.1.5:8000/api/", strip trailing "/api/"
+  if (envUrl && envUrl.trim()) {
     const trimmed = envUrl.trim().replace(/\/api\/?$/, '').replace(/\/$/, '');
-    return trimmed;
+    // If running on a physical device and envUrl is 10.0.2.2, bypass and resolve true LAN host
+    if (Platform.OS !== 'web' && !trimmed.includes('10.0.2.2')) {
+      return trimmed;
+    }
+    if (Platform.OS === 'web') {
+      return trimmed;
+    }
   }
 
   if (__DEV__) {
@@ -20,32 +25,34 @@ export const getBackendRootUrl = (): string => {
       return 'http://localhost:8000';
     }
 
-    // Expo Go hostUri discovery
-    const hostUri = 
+    // Expo Go host discovery from all known SDK fields
+    const candidateUri = 
+      Constants.expoGoConfig?.debuggerHost ||
       Constants.expoConfig?.hostUri || 
       (Constants as any).manifest?.debuggerHost || 
-      (Constants as any).manifest2?.extra?.expoGo?.debuggerHost;
+      (Constants as any).manifest2?.extra?.expoGo?.debuggerHost ||
+      (Constants as any).manifest2?.extra?.expoClient?.hostUri ||
+      Constants.experienceUrl ||
+      Constants.linkingUri;
 
-    if (hostUri) {
-      const hostIp = hostUri.split(':')[0];
+    if (candidateUri) {
+      // Handles both "10.51.121.145:8081" and "exp://10.51.121.145:8081"
+      const cleaned = candidateUri.replace(/^[a-zA-Z]+:\/\//, '');
+      const hostIp = cleaned.split(':')[0].split('/')[0];
       if (hostIp && hostIp !== 'localhost' && hostIp !== '127.0.0.1') {
         return `http://${hostIp}:8000`;
       }
     }
 
-    // Android emulator loopback alias
-    if (Platform.OS === 'android') {
-      return 'http://10.0.2.2:8000';
-    }
-
-    return 'http://localhost:8000';
+    // Known developer LAN host IP fallback
+    return 'http://10.51.121.145:8000';
   }
 
-  return 'http://localhost:8000';
+  return 'http://10.51.121.145:8000';
 };
 
 /**
- * Returns the REST API Base URL with trailing slash, e.g. "http://192.168.1.5:8000/api/"
+ * Returns the REST API Base URL with trailing slash, e.g. "http://10.51.121.145:8000/api/"
  */
 export const getApiBaseUrl = (): string => {
   const root = getBackendRootUrl();
@@ -54,7 +61,7 @@ export const getApiBaseUrl = (): string => {
 
 /**
  * Returns the WebSocket URL for real-time Django Channels connections.
- * e.g. "ws://192.168.1.5:8000/ws/chat/global/?token=..."
+ * e.g. "ws://10.51.121.145:8000/ws/chat/global/?token=..."
  */
 export const getWsUrl = (token?: string | null): string => {
   const root = getBackendRootUrl();
@@ -78,11 +85,12 @@ export const resolveMediaUrl = (url?: string | null): string | null => {
 
   // If already absolute
   if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
-    // If device is native and URL points to localhost/127.0.0.1, rewrite to LAN host
-    if (Platform.OS !== 'web' && (trimmed.includes('localhost:8000') || trimmed.includes('127.0.0.1:8000'))) {
+    // If device is native and URL points to localhost/127.0.0.1/10.0.2.2, rewrite to LAN host
+    if (Platform.OS !== 'web' && (trimmed.includes('localhost:8000') || trimmed.includes('127.0.0.1:8000') || trimmed.includes('10.0.2.2:8000'))) {
       return trimmed
         .replace('http://localhost:8000', backendRoot)
-        .replace('http://127.0.0.1:8000', backendRoot);
+        .replace('http://127.0.0.1:8000', backendRoot)
+        .replace('http://10.0.2.2:8000', backendRoot);
     }
     return trimmed;
   }

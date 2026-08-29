@@ -91,7 +91,13 @@ const normalizeProductMedia = (product: Product): Product => {
 
 export const fetchProducts = async (params: FetchProductsParams = {}): Promise<ProductsResponse> => {
   const { pageParam = 'products/products/', search, category__slug, is_organic, ordering, limit, farmer } = params;
-  let url = pageParam.startsWith('http') ? new URL(pageParam).pathname + new URL(pageParam).search : pageParam;
+  let url = pageParam;
+  if (url.startsWith('http')) {
+    const parsed = new URL(url);
+    url = (parsed.pathname + parsed.search).replace(/^\/?api\//, '');
+  } else if (url.startsWith('/api/')) {
+    url = url.replace(/^\/?api\//, '');
+  }
   
   const queryParams: string[] = [];
 
