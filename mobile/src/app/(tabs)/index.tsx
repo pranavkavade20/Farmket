@@ -1,14 +1,15 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, FlatList } from 'react-native';
+import { View, StyleSheet, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AppText, AppCard, AppButton, AppSkeleton, AppEmptyState, AppProductCard } from '../../components/ui';
+import { AppText, AppCard, AppButton, AppSkeleton, AppEmptyState, AppProductCard, AppCropCard } from '../../components/ui';
 import { colors, spacing, radii } from '../../theme';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { fetchProducts } from '../../api/products';
+import { fetchProducts, fetchCategories } from '../../api/products';
+import { fetchUpcomingHarvests } from '../../api/crops';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
-import { MapPin, ShoppingCart, Search, PackageOpen } from 'lucide-react-native';
+import { MapPin, ShoppingCart, Search, PackageOpen, Sprout, Tag } from 'lucide-react-native';
 import { Image } from 'expo-image';
 
 export default function HomeScreen() {
@@ -19,16 +20,29 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [addingId, setAddingId] = useState<number | null>(null);
 
-  const { data: productsData, isLoading, error, refetch } = useQuery({
+  // Categories from backend
+  const { data: categories = [], refetch: refetchCategories } = useQuery({
+    queryKey: ['categories'],
+    queryFn: fetchCategories,
+  });
+
+  // Featured Products
+  const { data: productsData, isLoading: loadingProducts, refetch: refetchProducts } = useQuery({
     queryKey: ['products', 'featured'],
-    queryFn: () => fetchProducts({ limit: 10 }), 
+    queryFn: () => fetchProducts({ limit: 8 }), 
+  });
+
+  // Upcoming Harvests
+  const { data: upcomingHarvests = [], isLoading: loadingHarvests, refetch: refetchHarvests } = useQuery({
+    queryKey: ['upcoming-harvests'],
+    queryFn: fetchUpcomingHarvests,
   });
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await refetch();
+    await Promise.all([refetchCategories(), refetchProducts(), refetchHarvests()]);
     setRefreshing(false);
-  }, [refetch]);
+  }, [refetchCategories, refetchProducts, refetchHarvests]);
 
   const handleAddToCart = async (productId: number) => {
     if (!user) {
@@ -42,14 +56,6 @@ export default function HomeScreen() {
       setAddingId(null);
     }
   };
-
-  const categories = [
-    { id: 1, name: 'Fruits', icon: '🍎' },
-    { id: 2, name: 'Veg', icon: '🥦' },
-    { id: 3, name: 'Dairy', icon: '🥛' },
-    { id: 4, name: 'Grains', icon: '🌾' },
-    { id: 5, name: 'More', icon: '✨' },
-  ];
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -81,7 +87,7 @@ export default function HomeScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.brand.primary]} tintColor={colors.brand.primary} />
         }
       >
-        {/* Fake Search Bar routing to actual search tab */}
+        {/* Search Bar routing to explore tab */}
         <View style={styles.searchContainer}>
           <TouchableOpacity 
             style={styles.fakeSearchInput} 
@@ -90,7 +96,7 @@ export default function HomeScreen() {
           >
             <Search size={20} color={colors.text.muted} />
             <AppText color={colors.text.muted} style={{ marginLeft: spacing.sm }}>
-              Search products, farmers...
+              Search fresh produce, farmers...
             </AppText>
           </TouchableOpacity>
         </View>
@@ -106,13 +112,13 @@ export default function HomeScreen() {
             <View style={styles.heroOverlay} />
             <View style={styles.heroContent}>
               <AppText variant="heading" weight="bold" color={colors.text.inverse}>
-                Fresh from Farms
+                Fresh From Local Farms
               </AppText>
-              <AppText variant="body" color={colors.text.inverse} style={{ marginTop: 4, marginBottom: 12 }}>
-                Pure, Organic, Delivered.
+              <AppText variant="small" color={colors.text.inverse} style={{ marginTop: 4, marginBottom: 12, opacity: 0.9 }}>
+                Pure, Organic produce direct to your doorstep.
               </AppText>
               <AppButton 
-                title="Shop Now" 
+                title="Shop Marketplace" 
                 size="sm" 
                 style={styles.heroButton} 
                 onPress={() => router.push('/(tabs)/search')} 
@@ -121,29 +127,45 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Categories */}
-        <View style={styles.categoriesContainer}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesScroll}>
-            {categories.map((cat) => (
-              <TouchableOpacity key={cat.id} style={styles.categoryItem} activeOpacity={0.7} onPress={() => router.push('/(tabs)/search')}>
-                <View style={styles.categoryIconCircle}>
-                  <AppText style={{ fontSize: 24 }}>{cat.icon}</AppText>
-                </View>
-                <AppText variant="small" weight="medium" style={{ marginTop: 8 }}>{cat.name}</AppText>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
+        {/* Categories from Backend */}
+        {categories.length > 0 && (
+          <View style={styles.categoriesContainer}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesScroll}>
+              {categories.map((cat) => (
+                <TouchableOpacity 
+                  key={cat.id} 
+                  style={styles.categoryItem} 
+                  activeOpacity={0.7} 
+                  onPress={() => router.push({
+                    pathname: '/(tabs)/search',
+                    params: { category: cat.slug }
+                  } as any)}
+                >
+                  <View style={styles.categoryIconCircle}>
+                    {cat.image ? (
+                      <Image source={{ uri: cat.image }} style={styles.categoryImg} contentFit="cover" />
+                    ) : (
+                      <Tag size={20} color={colors.brand.primary} />
+                    )}
+                  </View>
+                  <AppText variant="small" weight="medium" style={{ marginTop: 6 }} numberOfLines={1}>
+                    {cat.name}
+                  </AppText>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
 
         {/* Featured Products */}
         <View style={styles.sectionHeader}>
-          <AppText variant="subheading" weight="bold">Featured Products</AppText>
+          <AppText variant="subheading" weight="bold">Featured Produce</AppText>
           <TouchableOpacity onPress={() => router.push('/(tabs)/search')}>
-            <AppText variant="small" weight="semibold" color={colors.brand.primary}>See all</AppText>
+            <AppText variant="small" weight="semibold" color={colors.brand.primary}>See all →</AppText>
           </TouchableOpacity>
         </View>
         
-        {isLoading && !refreshing ? (
+        {loadingProducts && !refreshing ? (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalProductsScroll}>
             {[1, 2, 3].map((i) => (
               <AppCard key={i} elevated padding={0} style={styles.skeletonVerticalCard}>
@@ -156,20 +178,11 @@ export default function HomeScreen() {
               </AppCard>
             ))}
           </ScrollView>
-        ) : error ? (
-          <View style={{ paddingHorizontal: spacing.xl }}>
-            <AppEmptyState 
-              title="Failed to Load" 
-              description="Couldn't load products."
-              actionTitle="Retry"
-              onAction={refetch}
-            />
-          </View>
         ) : productsData?.results.length === 0 ? (
           <View style={{ paddingHorizontal: spacing.xl }}>
             <AppEmptyState 
               title="No Products" 
-              description="No featured products available."
+              description="No featured products available right now."
               icon={<PackageOpen size={48} color={colors.brand.muted} strokeWidth={1.5} />}
             />
           </View>
@@ -197,6 +210,34 @@ export default function HomeScreen() {
           </ScrollView>
         )}
 
+        {/* Growing Harvests (Pre-booking Spotlight) */}
+        {upcomingHarvests.length > 0 && (
+          <View style={{ marginTop: spacing.xl }}>
+            <View style={styles.sectionHeader}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Sprout size={18} color={colors.brand.primary} style={{ marginRight: 6 }} />
+                <AppText variant="subheading" weight="bold">Upcoming Harvests</AppText>
+              </View>
+              <TouchableOpacity onPress={() => router.push('/(tabs)/search')}>
+                <AppText variant="small" weight="semibold" color={colors.brand.primary}>Pre-book →</AppText>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.cropsListContainer}>
+              {upcomingHarvests.slice(0, 3).map((crop) => (
+                <AppCropCard
+                  key={crop.id}
+                  crop={crop}
+                  onPress={() => {
+                    if (crop.product) {
+                      router.push(`/product/${crop.product}` as any);
+                    }
+                  }}
+                />
+              ))}
+            </View>
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -271,7 +312,7 @@ const styles = StyleSheet.create({
   },
   heroOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: 'rgba(0,0,0,0.35)',
   },
   heroContent: {
     flex: 1,
@@ -291,16 +332,22 @@ const styles = StyleSheet.create({
   },
   categoryItem: {
     alignItems: 'center',
+    width: 68,
   },
   categoryIconCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: colors.background.surface,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: colors.border.subtle,
+    overflow: 'hidden',
+  },
+  categoryImg: {
+    width: '100%',
+    height: '100%',
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -321,5 +368,8 @@ const styles = StyleSheet.create({
     width: 160,
     overflow: 'hidden',
     borderRadius: radii.lg,
-  }
+  },
+  cropsListContainer: {
+    paddingHorizontal: spacing.xl,
+  },
 });

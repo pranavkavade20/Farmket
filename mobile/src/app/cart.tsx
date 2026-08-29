@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText, AppHeader, AppButton, AppCard, AppEmptyState } from '../components/ui';
 import { colors, spacing, radii } from '../theme';
 import { useCart } from '../context/CartContext';
-import { ShoppingCart, Plus, Minus, Trash2, Tag } from 'lucide-react-native';
+import { ShoppingCart, Plus, Minus, Trash2, Tag, Leaf } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
+import { formatCurrency } from '../utils/format';
 
 export default function CartScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { cart, loading, updateQuantity, removeItem } = useCart();
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const handleCheckout = () => {
     router.push('/checkout');
@@ -37,7 +37,7 @@ export default function CartScreen() {
           description="Looks like you haven't added anything to your cart yet."
           icon={<ShoppingCart size={48} color={colors.brand.muted} strokeWidth={1.5} />}
           actionTitle="Continue Shopping"
-          onAction={() => router.push('/(tabs)/')}
+          onAction={() => router.push('/')}
         />
       </View>
     );
@@ -61,7 +61,10 @@ export default function CartScreen() {
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => {
-            const primaryImage = item.product.images?.find((img: any) => img.is_primary)?.image || item.product.images?.[0]?.image;
+            const prod = item.product_details || item.product;
+            const primaryImage = prod?.images?.find((img: any) => img.is_primary)?.image || prod?.images?.[0]?.image;
+            const itemPrice = prod?.price || 0;
+            const itemSubtotal = item.subtotal || (Number(itemPrice) * item.quantity);
 
             const renderRightActions = () => (
               <TouchableOpacity style={styles.deleteAction} onPress={() => removeItem(item.id)}>
@@ -82,16 +85,16 @@ export default function CartScreen() {
                   
                   <View style={styles.info}>
                     <View style={styles.headerRow}>
-                      <AppText weight="bold" numberOfLines={1} style={{ flex: 1 }}>{item.product.name}</AppText>
+                      <AppText weight="bold" numberOfLines={1} style={{ flex: 1 }}>{prod?.name || 'Produce Item'}</AppText>
                     </View>
                     
                     <AppText variant="small" color={colors.text.secondary}>
-                      ₹{item.product.price} / {item.product.unit}
+                      {formatCurrency(itemPrice)} / {prod?.unit || 'kg'}
                     </AppText>
 
                     <View style={styles.actionRow}>
                       <AppText weight="bold" color={colors.brand.primary} style={{ fontSize: 16 }}>
-                        ₹{item.total_price}
+                        {formatCurrency(itemSubtotal)}
                       </AppText>
                       
                       <View style={styles.quantityControl}>
@@ -137,7 +140,7 @@ export default function CartScreen() {
               
               <View style={styles.summaryRow}>
                 <AppText color={colors.text.secondary}>Subtotal</AppText>
-                <AppText weight="medium">₹{subtotal.toFixed(2)}</AppText>
+                <AppText weight="medium">{formatCurrency(subtotal)}</AppText>
               </View>
               
               <View style={styles.summaryRow}>
@@ -145,13 +148,13 @@ export default function CartScreen() {
                 {deliveryFee === 0 ? (
                   <AppText weight="bold" color={colors.brand.primary}>Free</AppText>
                 ) : (
-                  <AppText weight="medium">₹{deliveryFee.toFixed(2)}</AppText>
+                  <AppText weight="medium">{formatCurrency(deliveryFee)}</AppText>
                 )}
               </View>
               
               {deliveryFee > 0 && (
                 <AppText variant="small" color={colors.status.info} style={{ marginBottom: spacing.md }}>
-                  Add ₹{(500 - subtotal).toFixed(2)} more for free delivery
+                  Add {formatCurrency(500 - subtotal)} more for free delivery
                 </AppText>
               )}
 
@@ -160,7 +163,7 @@ export default function CartScreen() {
               <View style={styles.totalRow}>
                 <AppText variant="heading" weight="bold">Total to Pay</AppText>
                 <AppText variant="heading" weight="bold" color={colors.text.primary}>
-                  ₹{total.toFixed(2)}
+                  {formatCurrency(total)}
                 </AppText>
               </View>
             </View>
@@ -170,9 +173,8 @@ export default function CartScreen() {
 
       <View style={[styles.bottomBar, { paddingBottom: insets.bottom || spacing.md }]}>
         <AppButton
-          title={`Proceed to Checkout • ₹${total.toFixed(2)}`}
+          title={`Proceed to Checkout • ${formatCurrency(total)}`}
           onPress={handleCheckout}
-          loading={checkoutLoading}
           fullWidth
           size="lg"
         />
@@ -287,7 +289,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: spacing.md,
     fontSize: 14,
-    fontFamily: 'Inter-Regular', // matches body font if loaded
     color: colors.text.primary,
   },
   applyBtn: {

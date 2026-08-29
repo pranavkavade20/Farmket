@@ -80,6 +80,24 @@ class ProductViewSet(viewsets.ModelViewSet):
                 
         return qs
 
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        lookup_value = str(self.kwargs[lookup_url_kwarg])
+        
+        if lookup_value.isdigit():
+            obj = queryset.filter(id=int(lookup_value)).first()
+            if obj:
+                self.check_object_permissions(self.request, obj)
+                return obj
+                
+        obj = queryset.filter(slug=lookup_value).first()
+        if not obj:
+            from rest_framework.exceptions import NotFound
+            raise NotFound(f"No Product matches the given query '{lookup_value}'.")
+        self.check_object_permissions(self.request, obj)
+        return obj
+
     def perform_create(self, serializer):
         serializer.save(farmer=self.request.user)
 

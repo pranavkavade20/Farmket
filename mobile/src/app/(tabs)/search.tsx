@@ -1,24 +1,39 @@
-import React, { useState, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, ScrollView, Keyboard } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AppText, AppInput, AppEmptyState, AppCard, AppSkeleton, AppProductCard } from '../../components/ui';
+import { AppText, AppInput, AppEmptyState, AppCard, AppSkeleton, AppProductCard, AppBadge } from '../../components/ui';
 import { colors, spacing, radii } from '../../theme';
-import { Search as SearchIcon, PackageOpen, SlidersHorizontal, ArrowLeft } from 'lucide-react-native';
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { fetchProducts } from '../../api/products';
+import { Search as SearchIcon, PackageOpen, SlidersHorizontal, X } from 'lucide-react-native';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { fetchProducts, fetchCategories, Product } from '../../api/products';
 import { useDebounce } from '../../hooks/useDebounce';
 import { useRouter } from 'expo-router';
 import { useCart } from '../../context/CartContext';
 import { AppButton } from '../../components/ui/AppButton';
+import { FilterModal } from '../../components/marketplace/FilterModal';
 
 export default function SearchScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { addToCart } = useCart();
+  
   const [query, setQuery] = useState('');
-  const debouncedQuery = useDebounce(query, 500);
+  const debouncedQuery = useDebounce(query, 400);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [organicOnly, setOrganicOnly] = useState(false);
+  const [sortBy, setSortBy] = useState('-created_at');
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [addingId, setAddingId] = useState<number | null>(null);
 
+  // Fetch categories
+  const { data: categories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: fetchCategories,
+  });
+
+  const activeFilterCount = (selectedCategory ? 1 : 0) + (organicOnly ? 1 : 0) + (sortBy !== '-created_at' ? 1 : 0);
+
+  // Fetch products with infinite pagination and filters
   const {
     data: productsData,
     fetchNextPage,
@@ -28,17 +43,22 @@ export default function SearchScreen() {
     refetch,
     isError
   } = useInfiniteQuery({
-    queryKey: ['products', 'search', debouncedQuery],
-    queryFn: ({ pageParam }) => fetchProducts({ pageParam: pageParam as string, search: debouncedQuery }),
+    queryKey: ['products', 'search', debouncedQuery, selectedCategory, organicOnly, sortBy],
+    queryFn: ({ pageParam }) => fetchProducts({
+      pageParam: pageParam as string,
+      search: debouncedQuery,
+      category__slug: selectedCategory || undefined,
+      is_organic: organicOnly || undefined,
+      ordering: sortBy,
+    }),
     getNextPageParam: (lastPage) => lastPage.next,
     initialPageParam: 'products/products/',
-    enabled: debouncedQuery.length > 0,
   });
 
-  const data = productsData?.pages.flatMap(page => page.results) || [];
+  const data: Product[] = productsData?.pages.flatMap(page => page.results) || [];
 
   const handleEndReached = () => {
-    if (hasNextPage) {
+    if (hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
   };
@@ -52,7 +72,14 @@ export default function SearchScreen() {
     }
   };
 
-  const renderProduct = ({ item }: { item: any }) => {
+  const clearAllFilters = () => {
+    setSelectedCategory('');
+    setOrganicOnly(false);
+    setSortBy('-created_at');
+    setQuery('');
+  };
+
+  const renderProduct = ({ item }: { item: Product }) => {
     return (
       <AppProductCard 
         product={item} 
@@ -60,7 +87,7 @@ export default function SearchScreen() {
         onPress={(product) => router.push(`/product/${product.id}` as any)} 
         action={
           <AppButton 
-            title="+" 
+            title="Add" 
             size="sm" 
             style={styles.addButton}
             onPress={() => handleAddToCart(item.id)}
@@ -74,12 +101,12 @@ export default function SearchScreen() {
   const renderSkeletons = () => (
     <View style={styles.listContainer}>
       {[1, 2, 3, 4, 5].map((i) => (
-        <AppCard key={i} elevated padding="md" style={styles.card}>
-          <AppSkeleton width={80} height={80} borderRadius={radii.md} />
-          <View style={styles.info}>
-            <AppSkeleton width="80%" height={20} style={{ marginBottom: spacing.xs }} />
+        <AppCard key={i} elevated padding="md" style={styles.skeletonCard}>
+          <AppSkeleton width={80} height={80} borderRadius={radii.lg} />
+          <View style={styles.skeletonInfo}>
+            <AppSkeleton width="80%" height={18} style={{ marginBottom: spacing.xs }} />
             <AppSkeleton width="50%" height={14} style={{ marginBottom: spacing.xs }} />
-            <AppSkeleton width="30%" height={18} />
+            <AppSkeleton width="40%" height={16} />
           </View>
         </AppCard>
       ))}
@@ -88,74 +115,131 @@ export default function SearchScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
+      {/* Header with Search and Filter button */}
       <View style={styles.header}>
         <View style={styles.searchRow}>
           <View style={{ flex: 1 }}>
             <AppInput
-              placeholder="Search tomatoes, rice..."
+              placeholder="Search produce, farmers..."
               value={query}
               onChangeText={setQuery}
               leftIcon={<SearchIcon size={20} color={colors.text.muted} />}
               style={styles.searchInput}
               returnKeyType="search"
-              autoFocus
             />
           </View>
-          <TouchableOpacity style={styles.filterBtn}>
-            <SlidersHorizontal size={20} color={colors.text.primary} />
+          <TouchableOpacity 
+            style={[styles.filterBtn, activeFilterCount > 0 && styles.filterBtnActive]} 
+            onPress={() => setIsFilterModalOpen(true)}
+            activeOpacity={0.8}
+          >
+            <SlidersHorizontal size={20} color={activeFilterCount > 0 ? colors.brand.primary : colors.text.primary} />
+            {activeFilterCount > 0 && (
+              <View style={styles.filterBadge}>
+                <AppText variant="small" weight="bold" color={colors.text.inverse} style={{ fontSize: 10 }}>
+                  {activeFilterCount}
+                </AppText>
+              </View>
+            )}
           </TouchableOpacity>
         </View>
+
+        {/* Category Horizontal Pills */}
+        {categories.length > 0 && (
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false} 
+            contentContainerStyle={styles.categoryPillsScroll}
+          >
+            <TouchableOpacity
+              style={[styles.pill, !selectedCategory && styles.pillActive]}
+              onPress={() => setSelectedCategory('')}
+            >
+              <AppText 
+                variant="small" 
+                weight={!selectedCategory ? 'bold' : 'medium'}
+                color={!selectedCategory ? colors.brand.primary : colors.text.secondary}
+              >
+                All
+              </AppText>
+            </TouchableOpacity>
+            {categories.map((cat) => {
+              const isSelected = selectedCategory === cat.slug;
+              return (
+                <TouchableOpacity
+                  key={cat.id}
+                  style={[styles.pill, isSelected && styles.pillActive]}
+                  onPress={() => setSelectedCategory(isSelected ? '' : cat.slug)}
+                >
+                  <AppText 
+                    variant="small" 
+                    weight={isSelected ? 'bold' : 'medium'}
+                    color={isSelected ? colors.brand.primary : colors.text.secondary}
+                  >
+                    {cat.name}
+                  </AppText>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        )}
+
+        {/* Active Filter Chips */}
+        {(organicOnly || selectedCategory) && (
+          <View style={styles.activeFiltersRow}>
+            {organicOnly && (
+              <TouchableOpacity style={styles.activeTag} onPress={() => setOrganicOnly(false)}>
+                <AppText variant="small" color={colors.brand.primary}>Organic Only</AppText>
+                <X size={12} color={colors.brand.primary} style={{ marginLeft: 4 }} />
+              </TouchableOpacity>
+            )}
+            {selectedCategory && (
+              <TouchableOpacity style={styles.activeTag} onPress={() => setSelectedCategory('')}>
+                <AppText variant="small" color={colors.brand.primary}>
+                  {categories.find(c => c.slug === selectedCategory)?.name || selectedCategory}
+                </AppText>
+                <X size={12} color={colors.brand.primary} style={{ marginLeft: 4 }} />
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
       </View>
 
-      {!debouncedQuery ? (
-        <ScrollView style={styles.idleContainer} keyboardShouldPersistTaps="handled">
-          <AppText variant="subheading" weight="semibold" style={styles.sectionTitle}>Recent Searches</AppText>
-          <View style={styles.chipsContainer}>
-            {['Tomato', 'Basmati rice', 'Milk'].map((term) => (
-              <TouchableOpacity key={term} style={styles.chip} onPress={() => setQuery(term)}>
-                <AppText variant="small">{term}</AppText>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          <View style={styles.popularHeader}>
-            <AppText variant="subheading" weight="semibold">Popular Categories</AppText>
-            <TouchableOpacity>
-              <AppText variant="small" weight="semibold" color={colors.brand.primary}>View all</AppText>
-            </TouchableOpacity>
-          </View>
-          
-          <View style={styles.categoriesGrid}>
-            {[
-              { name: 'Fruits', icon: '🍎' },
-              { name: 'Veggies', icon: '🥦' },
-              { name: 'Dairy', icon: '🥛' },
-              { name: 'Grains', icon: '🌾' },
-              { name: 'Leafy', icon: '🥬' },
-            ].map((cat) => (
-              <TouchableOpacity key={cat.name} style={styles.categoryGridItem} onPress={() => setQuery(cat.name)}>
-                <View style={styles.categoryIconCircle}>
-                  <AppText style={{ fontSize: 24 }}>{cat.icon}</AppText>
-                </View>
-                <AppText variant="small" weight="medium" style={{ marginTop: 4 }}>{cat.name}</AppText>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </ScrollView>
-      ) : isLoading ? (
+      {/* Main Results / Idle State */}
+      {isLoading ? (
         renderSkeletons()
       ) : isError ? (
-        <AppEmptyState 
-          title="Failed to Load" 
-          description="We couldn't load the search results. Please try again."
-          actionTitle="Retry"
-          onAction={refetch}
-        />
+        <View style={styles.centerContent}>
+          <AppEmptyState 
+            title="Failed to Load" 
+            description="We couldn't load the marketplace products. Please try again."
+            actionTitle="Retry"
+            onAction={refetch}
+          />
+        </View>
+      ) : data.length === 0 ? (
+        <View style={styles.centerContent}>
+          <AppEmptyState 
+            title="No Products Found" 
+            description={
+              query || activeFilterCount > 0
+                ? "We couldn't find any products matching your filters. Try clearing some criteria."
+                : "No marketplace products are available right now."
+            }
+            icon={<PackageOpen size={48} color={colors.brand.muted} strokeWidth={1.5} />}
+            actionTitle={activeFilterCount > 0 || query ? "Clear Filters" : undefined}
+            onAction={activeFilterCount > 0 || query ? clearAllFilters : undefined}
+          />
+        </View>
       ) : (
         <View style={styles.resultsContainer}>
           <View style={styles.resultsHeader}>
-            <AppText weight="bold">Results for "{debouncedQuery}"</AppText>
-            <AppText variant="small" color={colors.text.muted}>{data.length} items</AppText>
+            <AppText weight="bold">
+              {query ? `Results for "${query}"` : 'All Products'}
+            </AppText>
+            <AppText variant="small" color={colors.text.muted}>
+              {data.length} items
+            </AppText>
           </View>
           
           <FlatList
@@ -167,13 +251,6 @@ export default function SearchScreen() {
             onEndReached={handleEndReached}
             onEndReachedThreshold={0.5}
             onScrollBeginDrag={Keyboard.dismiss}
-            ListEmptyComponent={
-              <AppEmptyState 
-                title="No Results Found" 
-                description={`We couldn't find anything matching "${debouncedQuery}".`}
-                icon={<PackageOpen size={48} color={colors.brand.muted} />}
-              />
-            }
             ListFooterComponent={
               isFetchingNextPage ? (
                 <ActivityIndicator size="small" color={colors.brand.primary} style={{ padding: spacing.md }} />
@@ -182,6 +259,25 @@ export default function SearchScreen() {
           />
         </View>
       )}
+
+      {/* Filter Modal */}
+      <FilterModal
+        visible={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        categories={categories}
+        selectedCategory={selectedCategory}
+        onSelectCategory={setSelectedCategory}
+        organicOnly={organicOnly}
+        onToggleOrganic={setOrganicOnly}
+        sortBy={sortBy}
+        onSelectSort={setSortBy}
+        onClearFilters={() => {
+          setSelectedCategory('');
+          setOrganicOnly(false);
+          setSortBy('-created_at');
+        }}
+        activeFilterCount={activeFilterCount}
+      />
     </View>
   );
 }
@@ -195,7 +291,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.md,
     paddingBottom: spacing.sm,
-    backgroundColor: colors.background.main,
+    backgroundColor: colors.background.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border.subtle,
   },
   searchRow: {
     flexDirection: 'row',
@@ -203,7 +301,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   searchInput: {
-    backgroundColor: colors.background.surface,
+    backgroundColor: colors.background.main,
     borderWidth: 1,
     borderColor: colors.border.subtle,
     borderRadius: radii.xl,
@@ -213,61 +311,63 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: radii.xl,
-    backgroundColor: colors.background.surface,
+    backgroundColor: colors.background.main,
     borderWidth: 1,
     borderColor: colors.border.subtle,
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
   },
-  idleContainer: {
-    flex: 1,
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.md,
+  filterBtnActive: {
+    borderColor: colors.brand.primary,
+    backgroundColor: colors.brand.muted,
   },
-  sectionTitle: {
-    marginBottom: spacing.md,
+  filterBadge: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    backgroundColor: colors.brand.primary,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  chipsContainer: {
+  categoryPillsScroll: {
+    paddingVertical: spacing.sm,
+    gap: spacing.sm,
+  },
+  pill: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: 6,
+    borderRadius: radii.full,
+    backgroundColor: colors.background.main,
+    borderWidth: 1,
+    borderColor: colors.border.subtle,
+  },
+  pillActive: {
+    backgroundColor: colors.brand.muted,
+    borderColor: colors.brand.primary,
+  },
+  activeFiltersRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
-    marginBottom: spacing.xl,
+    paddingTop: spacing.xs,
   },
-  chip: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.background.surface,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
+  activeTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    paddingVertical: 4,
+    backgroundColor: colors.brand.muted,
     borderRadius: radii.full,
   },
-  popularHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.lg,
-  },
-  categoriesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-  },
-  categoryGridItem: {
-    alignItems: 'center',
-    width: '18%',
-    marginBottom: spacing.md,
-  },
-  categoryIconCircle: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: colors.background.surface,
-    alignItems: 'center',
+  centerContent: {
+    flex: 1,
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-    marginBottom: 4,
+    alignItems: 'center',
+    padding: spacing.xl,
   },
   resultsContainer: {
     flex: 1,
@@ -284,22 +384,20 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxxl,
     flexGrow: 1,
   },
-  card: {
+  skeletonCard: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: spacing.md,
+    backgroundColor: colors.background.surface,
   },
-  info: {
+  skeletonInfo: {
     flex: 1,
     marginLeft: spacing.md,
     justifyContent: 'center',
   },
   addButton: {
-    height: 32,
-    width: 32,
+    height: 36,
+    paddingHorizontal: spacing.md,
     borderRadius: radii.full,
-    paddingHorizontal: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
   }
 });

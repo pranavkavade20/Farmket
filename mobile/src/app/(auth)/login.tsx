@@ -5,10 +5,11 @@ import * as Yup from 'yup';
 import { useRouter, Link } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText, AppInput, AppButton, AppCard } from '../../components/ui';
-import { colors, spacing } from '../../theme';
+import { colors, spacing, radii } from '../../theme';
 import { Mail, Lock } from 'lucide-react-native';
 import { useAuth } from '../../context/AuthContext';
-import { apiClient } from '../../api/client';
+import { loginApi } from '../../api/auth';
+import { normalizeApiError } from '../../api/client';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -29,20 +30,15 @@ export default function LoginScreen() {
       setError(null);
       
       try {
-        const response = await apiClient.post('token/', {
-          email: values.email,
+        const data = await loginApi({
+          email: values.email.trim(),
           password: values.password,
         });
         
-        await login(response.data.access, response.data.refresh);
+        await login(data.access, data.refresh);
         router.replace('/(tabs)');
-      } catch (err: any) {
-        console.error(err);
-        if (err.response?.data?.detail) {
-          setError(err.response.data.detail);
-        } else {
-          setError('Invalid credentials or network error.');
-        }
+      } catch (err: unknown) {
+        setError(normalizeApiError(err, 'Invalid credentials or server unreachable.'));
       } finally {
         setLoading(false);
       }
@@ -160,7 +156,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     padding: spacing.sm,
     backgroundColor: colors.status.dangerMuted,
-    borderRadius: spacing.sm,
+    borderRadius: radii.sm,
   },
   footer: {
     flexDirection: 'row',

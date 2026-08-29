@@ -6,6 +6,8 @@ import { AppHeader, AppText, AppInput, AppButton, AppCard } from '../components/
 import { colors, spacing, radii } from '../theme';
 import { useCart } from '../context/CartContext';
 import { MapPin, CreditCard, Banknote, ShieldCheck } from 'lucide-react-native';
+import { formatCurrency } from '../utils/format';
+import { normalizeApiError } from '../api/client';
 
 type PaymentMethod = 'cod' | 'upi' | 'card';
 
@@ -26,13 +28,16 @@ export default function CheckoutScreen() {
 
     setLoading(true);
     try {
-      await checkout(address);
-      Alert.alert('Success', 'Your order has been placed successfully!', [
-        { text: 'Track Order', onPress: () => router.push('/(tabs)/orders') },
-        { text: 'Back to Home', onPress: () => router.push('/') }
+      await checkout({
+        delivery_address: address.trim(),
+        payment_method: paymentMethod,
+      });
+      Alert.alert('Order Confirmed! 🎉', 'Your order has been placed directly with the farmers.', [
+        { text: 'View Orders', onPress: () => router.push('/(tabs)/orders') },
+        { text: 'Continue Shopping', onPress: () => router.push('/') }
       ]);
-    } catch (error) {
-      Alert.alert('Error', 'Failed to place the order. Please try again.');
+    } catch (error: unknown) {
+      Alert.alert('Checkout Failed', normalizeApiError(error, 'Failed to place the order. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -93,7 +98,7 @@ export default function CheckoutScreen() {
                   <AppText weight="semibold" color={paymentMethod === 'cod' ? colors.brand.primary : colors.text.primary}>
                     Cash on Delivery
                   </AppText>
-                  <AppText variant="small" color={colors.text.muted}>Pay when you receive</AppText>
+                  <AppText variant="small" color={colors.text.muted}>Pay when you receive fresh produce</AppText>
                 </View>
                 <View style={[styles.radio, paymentMethod === 'cod' && styles.radioActive]}>
                   {paymentMethod === 'cod' && <View style={styles.radioInner} />}
@@ -108,7 +113,7 @@ export default function CheckoutScreen() {
                 <ShieldCheck size={24} color={paymentMethod === 'upi' ? colors.brand.primary : colors.text.muted} />
                 <View style={styles.paymentOptionText}>
                   <AppText weight="semibold" color={paymentMethod === 'upi' ? colors.brand.primary : colors.text.primary}>
-                    UPI
+                    UPI / Instant Pay
                   </AppText>
                   <AppText variant="small" color={colors.text.muted}>Google Pay, PhonePe, Paytm</AppText>
                 </View>
@@ -143,20 +148,20 @@ export default function CheckoutScreen() {
             </AppText>
             <View style={styles.summaryRow}>
               <AppText color={colors.text.secondary}>Subtotal ({cart.items.length} items)</AppText>
-              <AppText weight="semibold">₹{subtotal.toFixed(2)}</AppText>
+              <AppText weight="semibold">{formatCurrency(subtotal)}</AppText>
             </View>
             <View style={styles.summaryRow}>
               <AppText color={colors.text.secondary}>Delivery Fee</AppText>
               {deliveryFee === 0 ? (
                 <AppText weight="bold" color={colors.brand.primary}>Free</AppText>
               ) : (
-                <AppText weight="semibold">₹{deliveryFee.toFixed(2)}</AppText>
+                <AppText weight="semibold">{formatCurrency(deliveryFee)}</AppText>
               )}
             </View>
             <View style={[styles.summaryRow, styles.totalRow]}>
-              <AppText variant="heading" weight="bold">Total</AppText>
+              <AppText variant="heading" weight="bold">Total to Pay</AppText>
               <AppText variant="headingLg" weight="bold" color={colors.brand.primary}>
-                ₹{total.toFixed(2)}
+                {formatCurrency(total)}
               </AppText>
             </View>
           </AppCard>
@@ -165,7 +170,7 @@ export default function CheckoutScreen() {
 
       <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
         <AppButton 
-          title={`Place Order • ₹${total.toFixed(2)}`} 
+          title={`Place Order • ${formatCurrency(total)}`} 
           onPress={handlePlaceOrder}
           loading={loading}
           fullWidth
@@ -183,7 +188,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: spacing.xl,
-    paddingBottom: 100, // padding for footer
+    paddingBottom: 100,
     gap: spacing.lg,
   },
   section: {
@@ -215,7 +220,7 @@ const styles = StyleSheet.create({
   },
   paymentOptionActive: {
     borderColor: colors.brand.primary,
-    backgroundColor: colors.brand.muted + '20', // slight tint
+    backgroundColor: colors.brand.muted + '20',
   },
   paymentOptionText: {
     flex: 1,

@@ -2,11 +2,12 @@ import React from 'react';
 import { View, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { AppHeader, AppText, AppCard, AppEmptyState, AppButton } from '../../components/ui';
+import { AppHeader, AppText, AppCard, AppEmptyState, AppButton, AppBadge } from '../../components/ui';
 import { colors, spacing, radii } from '../../theme';
 import { useQuery } from '@tanstack/react-query';
-import { fetchOrderDetail } from '../../api/orders';
-import { CheckCircle2, Truck, Package, Clock, MapPin, PackageOpen, Info } from 'lucide-react-native';
+import { fetchOrderDetail, Order, OrderItem } from '../../api/orders';
+import { formatCurrency, formatDate, formatTime } from '../../utils/format';
+import { CheckCircle2, Truck, Package, Clock, MapPin, Info, ShoppingBag } from 'lucide-react-native';
 
 export default function OrderDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -34,7 +35,7 @@ export default function OrderDetailScreen() {
         <AppHeader title={`Order #${id}`} showBack />
         <AppEmptyState 
           title="Order Not Found"
-          description="We couldn't load this order's details."
+          description="We couldn't load this order's details from the server."
           actionTitle="Go Back"
           onAction={() => router.back()}
         />
@@ -50,34 +51,35 @@ export default function OrderDetailScreen() {
       case 'shipped':
         return { color: colors.status.info, bgColor: colors.status.infoMuted, icon: Truck, label: 'Shipped', msg: 'Your order is on the way.' };
       case 'processing':
-        return { color: colors.accent.orange, bgColor: colors.accent.orange + '20', icon: Package, label: 'Processing', msg: 'We are preparing your order.' };
+        return { color: colors.accent.orange, bgColor: colors.accent.orange + '20', icon: Package, label: 'Processing', msg: 'The farmer is preparing your order.' };
       case 'pending':
-        return { color: colors.status.warning, bgColor: colors.status.warningMuted, icon: Clock, label: 'Pending', msg: 'Awaiting confirmation.' };
+        return { color: colors.status.warning, bgColor: colors.status.warningMuted, icon: Clock, label: 'Pending', msg: 'Order received, awaiting confirmation.' };
       case 'cancelled':
         return { color: colors.status.danger, bgColor: colors.status.dangerMuted, icon: Package, label: 'Cancelled', msg: 'This order was cancelled.' };
       default:
-        return { color: colors.text.secondary, bgColor: colors.border.subtle, icon: Package, label: status, msg: 'Status unknown.' };
+        return { color: colors.text.secondary, bgColor: colors.border.subtle, icon: Package, label: status, msg: 'Order status updated.' };
     }
   };
 
   const statusConfig = getStatusConfig(order.status);
   const StatusIcon = statusConfig.icon;
-
-  const dateObj = new Date(order.created_at);
-  const formattedDate = dateObj.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
-  const formattedTime = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  const totalAmount = Number(order.total_amount || order.total_price || 0);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <AppHeader title={`Order Details`} showBack />
+      <AppHeader title={`Order #${order.order_number || order.id}`} showBack />
       
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Status Card */}
         <AppCard elevated padding="lg" style={styles.section}>
           <View style={styles.statusHeaderRow}>
             <View>
-              <AppText variant="subheading" weight="bold">Order #{order.id}</AppText>
-              <AppText variant="small" color={colors.text.muted}>{formattedDate} at {formattedTime}</AppText>
+              <AppText variant="subheading" weight="bold">
+                Order #{order.order_number || `ORD-${order.id}`}
+              </AppText>
+              <AppText variant="small" color={colors.text.muted}>
+                {formatDate(order.created_at)} at {formatTime(order.created_at)}
+              </AppText>
             </View>
             <View style={[styles.statusBadge, { backgroundColor: statusConfig.bgColor }]}>
               <StatusIcon size={14} color={statusConfig.color} />
@@ -97,60 +99,66 @@ export default function OrderDetailScreen() {
           </View>
         </AppCard>
 
-        {/* Tracking Timeline (Mock) */}
-        {['processing', 'shipped', 'delivered'].includes(order.status.toLowerCase()) && (
+        {/* Real Order Items */}
+        {order.items && order.items.length > 0 && (
           <AppCard elevated padding="lg" style={styles.section}>
-            <AppText variant="heading" weight="semibold" style={styles.sectionTitle}>Track Order</AppText>
+            <AppText variant="heading" weight="semibold" style={styles.sectionTitle}>
+              Ordered Items ({order.items.length})
+            </AppText>
             
-            <View style={styles.timeline}>
-              <View style={styles.timelineItem}>
-                <View style={styles.timelineIconWrapper}>
-                  <View style={[styles.timelineIcon, styles.timelineIconActive]}>
-                    <CheckCircle2 size={16} color={colors.background.surface} />
+            <View style={styles.itemsList}>
+              {order.items.map((item: OrderItem) => (
+                <View key={item.id} style={styles.itemRow}>
+                  <View style={styles.itemIconBg}>
+                    <ShoppingBag size={18} color={colors.brand.primary} />
                   </View>
-                  <View style={[styles.timelineLine, styles.timelineLineActive]} />
-                </View>
-                <View style={styles.timelineContent}>
-                  <AppText weight="semibold">Order Placed</AppText>
-                  <AppText variant="small" color={colors.text.muted}>{formattedDate}</AppText>
-                </View>
-              </View>
-
-              <View style={styles.timelineItem}>
-                <View style={styles.timelineIconWrapper}>
-                  <View style={[styles.timelineIcon, order.status.toLowerCase() !== 'pending' ? styles.timelineIconActive : styles.timelineIconInactive]}>
-                    <Package size={16} color={order.status.toLowerCase() !== 'pending' ? colors.background.surface : colors.text.muted} />
+                  <View style={{ flex: 1, marginLeft: spacing.md }}>
+                    <AppText weight="bold">{item.product_name || `Product #${item.product}`}</AppText>
+                    <AppText variant="small" color={colors.text.muted}>
+                      Quantity: {item.quantity} × {formatCurrency(item.price_at_purchase || item.price || 0)}
+                    </AppText>
                   </View>
-                  <View style={[styles.timelineLine, ['shipped', 'delivered'].includes(order.status.toLowerCase()) ? styles.timelineLineActive : styles.timelineLineInactive]} />
-                </View>
-                <View style={styles.timelineContent}>
-                  <AppText weight="semibold">Processing</AppText>
-                  <AppText variant="small" color={colors.text.muted}>Seller is preparing your items</AppText>
-                </View>
-              </View>
-
-              <View style={styles.timelineItem}>
-                <View style={styles.timelineIconWrapper}>
-                  <View style={[styles.timelineIcon, ['shipped', 'delivered'].includes(order.status.toLowerCase()) ? styles.timelineIconActive : styles.timelineIconInactive]}>
-                    <Truck size={16} color={['shipped', 'delivered'].includes(order.status.toLowerCase()) ? colors.background.surface : colors.text.muted} />
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <AppText weight="bold">
+                      {formatCurrency(item.subtotal || (Number(item.price || 0) * item.quantity))}
+                    </AppText>
+                    <AppBadge status={item.status} size="sm" label={item.status} />
                   </View>
                 </View>
-                <View style={styles.timelineContent}>
-                  <AppText weight="semibold">Out for Delivery</AppText>
-                  <AppText variant="small" color={colors.text.muted}>Your order is on the way</AppText>
-                </View>
-              </View>
+              ))}
             </View>
+          </AppCard>
+        )}
+
+        {/* Delivery Address */}
+        {(order.delivery_address || order.shipping_address) && (
+          <AppCard elevated padding="lg" style={styles.section}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing.xs }}>
+              <MapPin size={18} color={colors.brand.primary} />
+              <AppText variant="subheading" weight="bold" style={{ marginLeft: spacing.xs }}>
+                Delivery Address
+              </AppText>
+            </View>
+            <AppText color={colors.text.secondary} style={{ marginTop: 4 }}>
+              {order.delivery_address || order.shipping_address}
+            </AppText>
+            {order.payment_method && (
+              <AppText variant="small" color={colors.text.muted} style={{ marginTop: spacing.sm }}>
+                Payment Method: <AppText variant="small" weight="bold">{order.payment_method.toUpperCase()}</AppText>
+              </AppText>
+            )}
           </AppCard>
         )}
 
         {/* Order Summary */}
         <AppCard elevated padding="lg" style={styles.section}>
-          <AppText variant="heading" weight="semibold" style={styles.sectionTitle}>Order Summary</AppText>
+          <AppText variant="heading" weight="semibold" style={styles.sectionTitle}>
+            Payment Summary
+          </AppText>
           
           <View style={styles.summaryRow}>
             <AppText color={colors.text.secondary}>Subtotal</AppText>
-            <AppText weight="medium">₹{Number(order.total_price).toFixed(2)}</AppText>
+            <AppText weight="medium">{formatCurrency(totalAmount)}</AppText>
           </View>
           <View style={styles.summaryRow}>
             <AppText color={colors.text.secondary}>Delivery</AppText>
@@ -160,7 +168,7 @@ export default function OrderDetailScreen() {
           <View style={styles.totalRow}>
             <AppText variant="heading" weight="bold">Total Paid</AppText>
             <AppText variant="heading" weight="bold" color={colors.brand.primary}>
-              ₹{Number(order.total_price).toFixed(2)}
+              {formatCurrency(totalAmount)}
             </AppText>
           </View>
         </AppCard>
@@ -169,7 +177,7 @@ export default function OrderDetailScreen() {
       {/* Footer Action */}
       <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
         <AppButton 
-          title="Need Help?" 
+          title="Need Help? Chat Support" 
           variant="outline" 
           fullWidth 
           size="lg"
@@ -198,7 +206,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   sectionTitle: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   statusHeaderRow: {
     flexDirection: 'row',
@@ -221,50 +229,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  timeline: {
-    marginLeft: spacing.sm,
+  itemsList: {
+    gap: spacing.md,
   },
-  timelineItem: {
+  itemRow: {
     flexDirection: 'row',
-    marginBottom: spacing.lg,
-  },
-  timelineIconWrapper: {
     alignItems: 'center',
-    marginRight: spacing.md,
+    paddingVertical: spacing.xs,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border.subtle,
   },
-  timelineIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+  itemIconBg: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.brand.muted,
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 2,
-  },
-  timelineIconActive: {
-    backgroundColor: colors.brand.primary,
-  },
-  timelineIconInactive: {
-    backgroundColor: colors.background.main,
-    borderWidth: 2,
-    borderColor: colors.border.subtle,
-  },
-  timelineLine: {
-    width: 2,
-    flex: 1,
-    position: 'absolute',
-    top: 32,
-    bottom: -24,
-    zIndex: 1,
-  },
-  timelineLineActive: {
-    backgroundColor: colors.brand.primary,
-  },
-  timelineLineInactive: {
-    backgroundColor: colors.border.subtle,
-  },
-  timelineContent: {
-    flex: 1,
-    paddingTop: 4,
   },
   summaryRow: {
     flexDirection: 'row',

@@ -7,8 +7,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText, AppInput, AppButton, AppCard, AppHeader } from '../../components/ui';
 import { colors, spacing, radii } from '../../theme';
 import { User, Mail, Lock, Phone } from 'lucide-react-native';
-import { apiClient } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
+import { registerApi } from '../../api/auth';
+import { normalizeApiError } from '../../api/client';
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -44,31 +45,22 @@ export default function RegisterScreen() {
       try {
         const username = values.email.split('@')[0];
         const payload = {
-          first_name: values.firstName,
-          last_name: values.lastName,
-          email: values.email,
-          phone_number: values.phoneNumber,
+          first_name: values.firstName.trim(),
+          last_name: values.lastName.trim(),
+          email: values.email.trim().toLowerCase(),
+          phone_number: values.phoneNumber.trim(),
           password: values.password,
           confirm_password: values.confirmPassword,
           user_type: userType,
           username,
-          gender: '', // matching web implementation
+          gender: '',
         };
 
-        const response = await apiClient.post('accounts/register/', payload);
-        await login(response.data.token, response.data.refresh_token);
+        const data = await registerApi(payload);
+        await login(data.token, data.refresh_token);
         router.replace('/(tabs)');
-      } catch (err: any) {
-        console.error(err);
-        if (err.response?.data) {
-          const firstKey = Object.keys(err.response.data)[0];
-          const msg = Array.isArray(err.response.data[firstKey]) 
-            ? err.response.data[firstKey][0] 
-            : err.response.data[firstKey];
-          setError(typeof msg === 'string' ? msg : 'Registration failed');
-        } else {
-          setError('Registration failed. Please try again.');
-        }
+      } catch (err: unknown) {
+        setError(normalizeApiError(err, 'Registration failed. Please check your details.'));
       } finally {
         setLoading(false);
       }

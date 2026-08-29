@@ -1,12 +1,29 @@
 import { apiSlice } from '@/app/api/apiSlice';
+import type { Post, PaginatedResponse } from '@/types';
+
+export interface Comment {
+  id: number;
+  post: number;
+  user: {
+    id: number;
+    username: string;
+    first_name: string;
+    last_name: string;
+    profile_picture?: string;
+  };
+  parent?: number | null;
+  content: string;
+  created_at: string;
+  replies_count?: number;
+}
 
 export const socialApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getFeed: builder.query<unknown, string | void>({
+    getFeed: builder.query<PaginatedResponse<Post>, string | void>({
       query: (cursor) => (cursor ? `posts/feed/?cursor=${cursor}` : 'posts/feed/'),
       providesTags: ['Post'] as never[],
     }),
-    createPost: builder.mutation<unknown, FormData>({
+    createPost: builder.mutation<Post, FormData>({
       query: (data) => ({
         url: 'posts/feed/',
         method: 'POST',
@@ -14,7 +31,7 @@ export const socialApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Post'] as never[],
     }),
-    updatePost: builder.mutation<unknown, { id: number; data: FormData }>({
+    updatePost: builder.mutation<Post, { id: number; data: FormData }>({
       query: ({ id, data }) => ({
         url: `posts/feed/${id}/`,
         method: 'PATCH',
@@ -22,43 +39,43 @@ export const socialApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Post'] as never[],
     }),
-    getMyPosts: builder.query<unknown, void>({
+    getMyPosts: builder.query<PaginatedResponse<Post>, void>({
       query: () => 'posts/feed/my_posts/',
       providesTags: ['Post'] as never[],
     }),
-    likePost: builder.mutation<unknown, number>({
+    likePost: builder.mutation<{ is_liked: boolean }, number>({
       query: (postId) => ({
         url: `posts/feed/${postId}/like/`,
         method: 'POST',
       }),
       invalidatesTags: ['Post'] as never[],
     }),
-    unlikePost: builder.mutation<unknown, number>({
+    unlikePost: builder.mutation<void, number>({
       query: (postId) => ({
         url: `posts/feed/${postId}/like/`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Post'] as never[],
     }),
-    savePost: builder.mutation<unknown, number>({
+    savePost: builder.mutation<{ is_saved: boolean }, number>({
       query: (postId) => ({
         url: `posts/feed/${postId}/save_post/`,
         method: 'POST',
       }),
       invalidatesTags: ['Post'] as never[],
     }),
-    unsavePost: builder.mutation<unknown, number>({
+    unsavePost: builder.mutation<void, number>({
       query: (postId) => ({
         url: `posts/feed/${postId}/save_post/`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Post'] as never[],
     }),
-    getComments: builder.query<unknown, number>({
+    getComments: builder.query<Comment[], number>({
       query: (postId) => `posts/comments/?post_id=${postId}`,
       providesTags: (_result, _error, postId) => [{ type: 'Comment', id: postId }] as never[],
     }),
-    addComment: builder.mutation<unknown, { post: number; content: string; parent?: number }>({
+    addComment: builder.mutation<Comment, { post: number; content: string; parent?: number }>({
       query: (data) => ({
         url: 'posts/comments/',
         method: 'POST',

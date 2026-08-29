@@ -62,6 +62,13 @@ export const sendMessage = async (
   return res.data;
 };
 
+export const getOrCreateConversation = async (participantId: number): Promise<Conversation> => {
+  const res = await apiClient.post<Conversation>('chat/conversations/', {
+    participants: [participantId],
+  });
+  return res.data;
+};
+
 export const markAsRead = async (conversationId: number): Promise<void> => {
   await apiClient.post(`chat/conversations/${conversationId}/mark_read/`);
 };

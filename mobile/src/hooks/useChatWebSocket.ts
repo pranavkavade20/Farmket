@@ -1,10 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { storage } from '../utils/storage';
 import { ChatMessage } from '../api/chat';
-import { API_URL } from '../api/client';
-
-// Derive WS URL from the shared API_URL
-const WS_BASE_URL = API_URL.replace('http', 'ws').replace('/api/', '');
+import { getWsUrl } from '../api/config';
 
 type WsEvent = 
   | { type: 'chat_message'; conversation_id: number; message: ChatMessage }
@@ -22,8 +19,13 @@ interface UseChatWebSocketProps {
 
 export function useChatWebSocket({ onEvent, enabled = true }: UseChatWebSocketProps) {
   const wsRef = useRef<WebSocket | null>(null);
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const retryCountRef = useRef(0);
+  const isMountedRef = useRef(true);
 
   const connect = useCallback(async () => {
+    if (!isMountedRef.current || !enabled) return;
+
     if (wsRef.current) {
       wsRef.current.close();
     }
@@ -31,33 +33,59 @@ export function useChatWebSocket({ onEvent, enabled = true }: UseChatWebSocketPr
     const token = await storage.getToken();
     if (!token) return;
 
-    const wsUrl = `${WS_BASE_URL}/ws/chat/global/?token=${token}`;
-    const ws = new WebSocket(wsUrl);
-    wsRef.current = ws;
+    const wsUrl = getWsUrl(token);
+    try {
+      const ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
 
-    ws.onmessage = (e) => {
-      try {
-        const data = JSON.parse(e.data) as WsEvent;
-        onEvent(data);
-      } catch (err) {
-        console.error('WS Parse Error', err);
-      }
-    };
+      ws.onopen = () => {
+        retryCountRef.current = 0;
+        console.log('[WebSocket] Connected to chat gateway');
+      };
 
-    ws.onclose = () => {
-      console.log('WS Disconnected');
-    };
-    
-    ws.onerror = (e) => {
-      console.log('WS Error', e);
-    };
-  }, [onEvent]);
+      ws.onmessage = (e) => {
+        try {
+          const data = JSON.parse(e.data) as WsEvent;
+          onEvent(data);
+        } catch (err) {
+          console.log('[WebSocket] Parse notice:', err);
+        }
+      };
+
+      ws.onclose = () => {
+        if (!isMountedRef.current) return;
+        console.log('[WebSocket] Connection closed');
+
+        // Exponential backoff reconnect: 1s, 2s, 4s, 8s, up to max 15s
+        const delay = Math.min(1000 * Math.pow(2, retryCountRef.current), 15000);
+        retryCountRef.current += 1;
+
+        if (reconnectTimeoutRef.current) {
+          clearTimeout(reconnectTimeoutRef.current);
+        }
+        reconnectTimeoutRef.current = setTimeout(() => {
+          connect();
+        }, delay);
+      };
+      
+      ws.onerror = (e) => {
+        console.log('[WebSocket] Connection notice:', (e as any)?.message || 'Socket state update');
+      };
+    } catch (err) {
+      console.log('[WebSocket] Initialization notice:', err);
+    }
+  }, [onEvent, enabled]);
 
   useEffect(() => {
+    isMountedRef.current = true;
     if (enabled) {
       connect();
     }
     return () => {
+      isMountedRef.current = false;
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
       if (wsRef.current) {
         wsRef.current.close();
       }

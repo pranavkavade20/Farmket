@@ -30,7 +30,7 @@ export const CropCard: React.FC<CropCardProps> = ({ crop, index = 0 }) => {
   };
 
   const status = getStatusConfig(crop.stage);
-  const imageUrl = crop.product_details?.images?.[0]?.image || crop.product_details?.image; 
+  const imageUrl = crop.product_details?.images?.[0]?.image;
   const isActionable = crop.stage !== 'HARVESTED';
 
   return (
