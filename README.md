@@ -82,10 +82,14 @@ Farmket/
 │   ├── farmket/            # Core settings, WSGI, ASGI, and URL routing
 │   ├── accounts/           # Auth views, JWT config, users, and profile serializers
 │   ├── products/           # Product listings, categories, and reviews
+│   ├── crops/              # Crop growth tracking, reservations, and pre-booking
 │   ├── orders/             # Shopping cart, checkout system, and order tracking
 │   ├── chat/               # WebSocket consumers, JWT middleware, routing, messaging
 │   ├── analytics/          # Business intelligence and stats for farmers
-│   ├── requirements.txt    # Python dependencies
+│   ├── notifications/      # Push and in-app notifications
+│   ├── posts/              # Community social feed
+│   ├── requirements.txt    # Production direct dependencies (pinned)
+│   ├── requirements-dev.txt# Development & testing dependencies
 │   └── manage.py           # Django administrative tasks
 │
 ├── frontend/               # React TypeScript SPA Frontend
@@ -101,6 +105,10 @@ Farmket/
 │   │   └── utils/          # Utility functions
 │   ├── package.json        # Frontend scripts and dependencies
 │   └── vite.config.ts      # Vite configuration & path aliases
+│
+├── mobile/                 # Expo React Native App
+│   ├── src/                # Expo Router pages, components, and contexts
+│   └── package.json        # Mobile dependencies
 │
 └── README.md
 ```
@@ -148,6 +156,10 @@ Ensure you have the following installed on your local development machine:
    ```
 3. Install dependencies:
    ```bash
+   # For local development and testing:
+   pip install -r requirements-dev.txt
+
+   # Or for production runtime only:
    pip install -r requirements.txt
    ```
 4. Set up environment variables (see below).
@@ -161,11 +173,14 @@ Ensure you have the following installed on your local development machine:
    ```
 7. Start the backend services (in separate terminals):
    ```bash
-   # Terminal A: ASGI Server
+   # Terminal A: ASGI Server (Daphne HTTP & WebSockets)
    python manage.py runserver
    
    # Terminal B: Celery Worker
    celery -A farmket worker -l info
+
+   # Terminal C: Celery Beat (Periodic scheduler)
+   celery -A farmket beat -l info
    ```
 
 ### Environment Variables
