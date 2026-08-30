@@ -124,7 +124,15 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        qs = Order.objects.prefetch_related('items', 'items__product')
+        qs = Order.objects.select_related('buyer', 'buyer__buyer_profile').prefetch_related(
+            'items', 
+            'items__product', 
+            'items__product__images', 
+            'items__product__category',
+            'items__crop_growth', 
+            'items__status_history',
+            'items__farmer'
+        )
         if user.is_staff:
             return qs.all()
         return (
@@ -176,9 +184,10 @@ class OrderItemViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        qs = OrderItem.objects.select_related('order', 'order__buyer', 'product', 'farmer', 'crop_growth').prefetch_related('product__images', 'status_history')
         if user.is_staff:
-            return OrderItem.objects.all()
-        return OrderItem.objects.filter(farmer=user) | OrderItem.objects.filter(order__buyer=user)
+            return qs.all()
+        return qs.filter(farmer=user) | qs.filter(order__buyer=user)
         
     @action(detail=True, methods=['post'])
     def transition_status(self, request, pk=None):
@@ -196,13 +205,16 @@ class OrderItemViewSet(viewsets.ModelViewSet):
         elif new_status == 'delivered':
             if item.order.buyer != user:
                 return Response({'error': 'Only the buyer who placed the order can confirm delivery.'}, status=status.HTTP_403_FORBIDDEN)
+        elif new_status == 'cancelled':
+            if item.farmer != user and item.order.buyer != user:
+                return Response({'error': 'Only the farmer or buyer can cancel this item.'}, status=status.HTTP_403_FORBIDDEN)
         else:
             return Response({'error': 'Invalid status transition.'}, status=status.HTTP_400_BAD_REQUEST)
             
         # Transition validation
         valid_transitions = {
-            'pending': ['processing'],
-            'processing': ['shipped'],
+            'pending': ['processing', 'cancelled'],
+            'processing': ['shipped', 'cancelled'],
             'shipped': ['delivered']
         }
         

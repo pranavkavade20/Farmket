@@ -128,10 +128,40 @@ export type OrderStatus =
   | 'delivered'
   | 'cancelled';
 
+export interface BuyerDetails {
+  id: number;
+  username: string;
+  full_name: string;
+  email: string;
+  phone_number?: string;
+  profile_picture?: string | null;
+  address?: string;
+  company_name?: string | null;
+}
+
+export interface OrderStatusHistoryItem {
+  id: number;
+  previous_status: string;
+  new_status: string;
+  timestamp: string;
+  updated_by?: number | null;
+  updated_by_name?: string;
+}
+
+export interface OrderItemCropGrowth {
+  id: number;
+  current_stage: string;
+  expected_harvest_date?: string | null;
+  sow_date?: string | null;
+}
+
 export interface OrderItem {
   id: number;
+  order?: number;
   product: number;
   product_name: string;
+  product_details?: Partial<Product>;
+  farmer?: number;
   quantity: number;
   price: string;
   price_at_purchase: string; // alias for price, returned by backend serializer
@@ -139,12 +169,15 @@ export interface OrderItem {
   subtotal: number;
   is_prebooking?: boolean;
   crop_growth?: number | null;
+  crop_growth_details?: OrderItemCropGrowth | null;
+  status_history?: OrderStatusHistoryItem[];
 }
 
 export interface Order {
   id: number;
   order_number?: string;
   buyer: number;
+  buyer_details?: BuyerDetails | null;
   items: OrderItem[];
   status: OrderStatus;
   total_amount: string;
