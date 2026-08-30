@@ -1,0 +1,15 @@
+# ==============================================================================
+# Farmket Backend - Development & Testing Dependencies
+# ==============================================================================
+# Includes all production requirements plus testing, linting, and quality tools.
+# ==============================================================================
+
+-r requirements.txt
+
+# Testing & Coverage
+pytest>=8.0.0
+pytest-django>=4.8.0
+coverage>=7.4.0
+
+# Code Quality & Formatting
+ruff>=0.3.0
