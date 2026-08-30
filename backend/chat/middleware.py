@@ -25,9 +25,15 @@ class JWTAuthMiddleware:
         query_params = parse_qs(query_string)
         token = query_params.get("token", [None])[0]
 
+        if not token:
+            headers = dict(scope.get("headers", []))
+            if b"authorization" in headers:
+                auth_header = headers[b"authorization"].decode()
+                if auth_header.startswith("Bearer "):
+                    token = auth_header.split(" ")[1]
+
         if token:
             try:
-                # This will decode the token and check its validity
                 access_token = AccessToken(token)
                 user_id = access_token.payload.get('user_id')
                 user = await get_user(user_id)
@@ -35,11 +41,11 @@ class JWTAuthMiddleware:
                     scope["user"] = user
                 else:
                     print(f"JWT Auth: User {user_id} not found")
+                    scope["user"] = AnonymousUser()
             except Exception as e:
                 print(f"JWT Auth Error: {str(e)}")
                 scope["user"] = AnonymousUser()
         else:
-            # Only set to Anonymous if not already authenticated by session
             if "user" not in scope or not scope["user"].is_authenticated:
                 scope["user"] = AnonymousUser()
 

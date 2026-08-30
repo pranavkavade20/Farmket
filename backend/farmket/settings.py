@@ -24,6 +24,8 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 # Application definition
 
 INSTALLED_APPS = [
+    # Daphne must be listed before django.contrib.staticfiles for ASGI runserver
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -153,15 +155,37 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'accounts.User'
 
 # Channels
-# Use Redis for production-grade sync
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
-        },
-    },
-}
+# Use Redis for multi-instance sync if available, fallback to InMemoryChannelLayer for dev
+REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
+REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
+USE_REDIS_CHANNEL_LAYER = os.getenv('USE_REDIS_CHANNEL_LAYER', 'True').lower() in ('true', '1', 't')
+
+def _init_channel_layer():
+    if USE_REDIS_CHANNEL_LAYER:
+        try:
+            import socket
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(0.2)
+            result = sock.connect_ex((REDIS_HOST, REDIS_PORT))
+            sock.close()
+            if result == 0:
+                return {
+                    'default': {
+                        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+                        'CONFIG': {
+                            "hosts": [(REDIS_HOST, REDIS_PORT)],
+                        },
+                    },
+                }
+        except Exception:
+            pass
+    return {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer'
+        }
+    }
+
+CHANNEL_LAYERS = _init_channel_layer()
 
 # Security Settings
 SECURE_BROWSER_XSS_FILTER = True
