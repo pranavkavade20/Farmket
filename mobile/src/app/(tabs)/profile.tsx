@@ -1,23 +1,32 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView, Image, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, ScrollView, Image, ActivityIndicator, TouchableOpacity, Alert, Modal } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AppHeader, AppText, AppCard, AppButton, AppBadge, AppEmptyState } from '../../components/ui';
+import { AppHeader, AppText, AppCard, AppButton, AppBadge, AppEmptyState, AppInput } from '../../components/ui';
 import { colors, spacing, radii } from '../../theme';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { fetchOrders, Order } from '../../api/orders';
 import { formatCurrency, formatDate } from '../../utils/format';
+import { resendVerificationApi, changePasswordApi } from '../../api/auth';
+import { normalizeApiError } from '../../api/client';
 import { 
   Package, LogOut, Settings, HelpCircle, Info, 
-  ChevronRight, Sprout, ShoppingBag, ShieldCheck 
+  ChevronRight, Sprout, ShoppingBag, ShieldCheck, CheckCircle2, AlertTriangle, Lock
 } from 'lucide-react-native';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { user, logout } = useAuth();
+  const { user, logout, logoutAll } = useAuth();
   const isFarmer = user?.user_type === 'farmer';
+
+  // Password Modal State
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [changingPass, setChangingPass] = useState(false);
 
   const { data: ordersData = [], isLoading: loadingOrders } = useQuery({
     queryKey: ['orders-profile'],
@@ -43,6 +52,83 @@ export default function ProfileScreen() {
         }
       ]
     );
+  };
+
+  const handleLogoutAll = () => {
+    Alert.alert(
+      'Log Out All Devices',
+      'This will invalidate your sessions on all devices and phones. Continue?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Log Out All',
+          style: 'destructive',
+          onPress: async () => {
+            await logoutAll();
+            router.replace('/(auth)/login');
+          }
+        }
+      ]
+    );
+  };
+
+  const handleResendVerification = async () => {
+    if (!user?.email) return;
+    try {
+      const res = await resendVerificationApi(user.email);
+      Alert.alert('Verification Sent', res.detail || 'Check your inbox for the verification email.');
+    } catch (error) {
+      Alert.alert('Error', normalizeApiError(error, 'Failed to send verification email.'));
+    }
+  };
+
+  const handleChangePasswordSubmit = async () => {
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      Alert.alert('Required', 'Please fill in all password fields.');
+      return;
+    }
+    if (newPassword.length < 8) {
+      Alert.alert('Password Too Short', 'Password must be at least 8 characters.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      Alert.alert('Mismatch', 'New passwords do not match.');
+      return;
+    }
+
+    setChangingPass(true);
+    try {
+      await changePasswordApi(oldPassword, newPassword, confirmPassword);
+      Alert.alert('Success', 'Your password has been changed successfully. Other sessions have been signed out.');
+      setShowPasswordModal(false);
+      setOldPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (error) {
+      Alert.alert('Password Error', normalizeApiError(error, 'Failed to change password.'));
+    } finally {
+      setChangingPass(false);
+    }
+  };
+
+  const handleSecurityMenuPress = () => {
+    if (!user) {
+      router.push('/(auth)/login');
+      return;
+    }
+
+    const options: { text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }[] = [
+      { text: 'Change Password', onPress: () => setShowPasswordModal(true) },
+    ];
+
+    if (!user.is_verified) {
+      options.push({ text: 'Resend Verification Email', onPress: handleResendVerification });
+    }
+
+    options.push({ text: 'Log Out All Devices', onPress: handleLogoutAll, style: 'destructive' });
+    options.push({ text: 'Cancel', style: 'cancel' });
+
+    Alert.alert('Security & Sessions', 'Manage your account security', options);
   };
 
   const displayName = user?.first_name 
@@ -83,6 +169,26 @@ export default function ProfileScreen() {
           <AppText variant="small" color={colors.text.secondary} style={styles.email}>
             {user ? user.email : 'Sign in to access your farm store & orders'}
           </AppText>
+
+          {user && (
+            <TouchableOpacity 
+              style={{ flexDirection: 'row', alignItems: 'center', marginTop: 2, marginBottom: spacing.xs }}
+              onPress={user.is_verified ? undefined : handleResendVerification}
+              disabled={user.is_verified}
+            >
+              {user.is_verified ? (
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <CheckCircle2 size={13} color={colors.status.success} style={{ marginRight: 4 }} />
+                  <AppText variant="caption" color={colors.status.success} weight="semibold">Verified Account</AppText>
+                </View>
+              ) : (
+                <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: colors.status.warning + '15', paddingHorizontal: 8, paddingVertical: 2, borderRadius: radii.full }}>
+                  <AlertTriangle size={13} color={colors.status.warning} style={{ marginRight: 4 }} />
+                  <AppText variant="caption" color={colors.status.warning} weight="semibold">Unverified • Tap to resend email</AppText>
+                </View>
+              )}
+            </TouchableOpacity>
+          )}
           
           {!user ? (
             <AppButton 
@@ -158,7 +264,7 @@ export default function ProfileScreen() {
           </AppText>
 
           <View style={styles.menuGroup}>
-            <TouchableOpacity style={styles.menuRow} activeOpacity={0.7}>
+            <TouchableOpacity style={styles.menuRow} activeOpacity={0.7} onPress={handleSecurityMenuPress}>
               <View style={styles.menuIconBg}>
                 <Settings size={18} color={colors.text.primary} />
               </View>
@@ -195,9 +301,66 @@ export default function ProfileScreen() {
           )}
         </View>
       </ScrollView>
+
+      {/* Change Password Modal */}
+      <Modal visible={showPasswordModal} animationType="slide" transparent>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: spacing.xl }}>
+          <AppCard elevated padding="xl">
+            <AppText variant="subheading" weight="bold" style={{ marginBottom: spacing.sm }}>
+              Change Password
+            </AppText>
+            <AppText variant="small" color={colors.text.secondary} style={{ marginBottom: spacing.lg }}>
+              Update your account password. Other active sessions will be signed out.
+            </AppText>
+
+            <AppInput
+              label="Current Password"
+              placeholder="••••••••"
+              value={oldPassword}
+              onChangeText={setOldPassword}
+              secureTextEntry
+              leftIcon={<Lock size={18} color={colors.text.muted} />}
+            />
+
+            <AppInput
+              label="New Password"
+              placeholder="Min 8 characters"
+              value={newPassword}
+              onChangeText={setNewPassword}
+              secureTextEntry
+              leftIcon={<Lock size={18} color={colors.text.muted} />}
+            />
+
+            <AppInput
+              label="Confirm New Password"
+              placeholder="Re-enter password"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry
+              leftIcon={<Lock size={18} color={colors.text.muted} />}
+            />
+
+            <View style={{ flexDirection: 'row', gap: spacing.md, marginTop: spacing.md }}>
+              <AppButton
+                title="Cancel"
+                variant="outline"
+                style={{ flex: 1 }}
+                onPress={() => setShowPasswordModal(false)}
+              />
+              <AppButton
+                title="Save"
+                style={{ flex: 1 }}
+                loading={changingPass}
+                onPress={handleChangePasswordSubmit}
+              />
+            </View>
+          </AppCard>
+        </View>
+      </Modal>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

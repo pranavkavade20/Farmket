@@ -33,7 +33,12 @@ api.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as typeof error.config & { _retry?: boolean };
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const isAuthRoute =
+      originalRequest?.url?.includes('/accounts/login') ||
+      originalRequest?.url?.includes('/accounts/register') ||
+      originalRequest?.url?.includes('/accounts/password-reset');
+
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthRoute) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -60,12 +65,18 @@ api.interceptors.response.use(
       }
 
       try {
-        const response = await axios.post<{ access: string }>(
+        const response = await axios.post<{ access: string; refresh?: string }>(
           `${API_BASE_URL}/accounts/login/refresh/`,
           { refresh: refreshToken }
         );
         const newAccessToken = response.data.access;
         localStorage.setItem('access_token', newAccessToken);
+
+        // If the backend rotated the refresh token, store the new one
+        if (response.data.refresh) {
+          localStorage.setItem('refresh_token', response.data.refresh);
+        }
+
         api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
         processQueue(null, newAccessToken);
         originalRequest!.headers!['Authorization'] = `Bearer ${newAccessToken}`;
@@ -81,6 +92,7 @@ api.interceptors.response.use(
         isRefreshing = false;
       }
     }
+
 
     return Promise.reject(error);
   }

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText, AppInput, AppButton, AppCard, AppHeader } from '../../components/ui';
 import { colors, spacing } from '../../theme';
-import { Mail } from 'lucide-react-native';
+import { Mail, KeyRound } from 'lucide-react-native';
+import { forgotPasswordApi } from '../../api/auth';
+import { normalizeApiError } from '../../api/client';
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
@@ -15,12 +17,21 @@ export default function ForgotPasswordScreen() {
   const [submitted, setSubmitted] = useState(false);
 
   const handleReset = async () => {
-    // TODO: Implement actual password reset via API
+    if (!email.trim()) {
+      Alert.alert('Required', 'Please enter your email address.');
+      return;
+    }
+
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await forgotPasswordApi(email.trim());
       setSubmitted(true);
-    }, 1000);
+    } catch (error) {
+      const msg = normalizeApiError(error, 'Unable to send password reset link. Please try again.');
+      Alert.alert('Notice', msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -39,7 +50,7 @@ export default function ForgotPasswordScreen() {
             Forgot Password?
           </AppText>
           <AppText variant="body" color={colors.text.secondary} style={styles.subtitle}>
-            Enter your email address and we'll send you a link to reset your password.
+            Enter your email address and we'll send you a secure link to reset your password.
           </AppText>
         </View>
 
@@ -50,8 +61,16 @@ export default function ForgotPasswordScreen() {
                 Check your email
               </AppText>
               <AppText variant="body" color={colors.text.secondary} align="center" style={styles.successSubtitle}>
-                We've sent a password reset link to {email || 'your email'}.
+                We've sent a password reset link to {email || 'your email'}. Check your inbox and spam folder.
               </AppText>
+              <AppButton 
+                title="Enter Reset Code" 
+                variant="primary"
+                leftIcon={<KeyRound size={18} color="#FFFFFF" />}
+                onPress={() => router.push('/(auth)/reset-password')} 
+                fullWidth 
+                style={{ marginBottom: spacing.md }}
+              />
               <AppButton 
                 title="Back to Login" 
                 variant="outline"
@@ -77,6 +96,14 @@ export default function ForgotPasswordScreen() {
                 loading={loading}
                 fullWidth 
                 style={styles.submitButton}
+              />
+
+              <AppButton 
+                title="Already have a reset code?" 
+                variant="ghost"
+                onPress={() => router.push('/(auth)/reset-password')} 
+                fullWidth 
+                style={{ marginTop: spacing.md }}
               />
             </>
           )}

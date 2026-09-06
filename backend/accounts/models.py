@@ -24,6 +24,7 @@ class User(AbstractUser):
     address = models.TextField(blank=True)
     profile_picture = models.ImageField(upload_to='profiles/', blank=True, null=True)
     is_verified = models.BooleanField(default=False)
+    token_version = models.PositiveIntegerField(default=1, help_text="Incremented to invalidate all active sessions/tokens.")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     USERNAME_FIELD = 'email'
@@ -66,3 +67,63 @@ class BuyerProfile(models.Model):
     
     def __str__(self):
         return f"{self.user.username}'s Buyer Profile"
+
+
+class SecurityToken(models.Model):
+    """
+    Stores SHA-256 hashes of cryptographically secure single-use tokens for
+    email verification, password reset, and email change requests.
+    Plaintext tokens are NEVER stored in the database.
+    """
+    TOKEN_TYPE_CHOICES = (
+        ('email_verification', 'Email Verification'),
+        ('password_reset', 'Password Reset'),
+        ('email_change', 'Email Change'),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='security_tokens')
+    token_hash = models.CharField(max_length=64, db_index=True)
+    token_type = models.CharField(max_length=32, choices=TOKEN_TYPE_CHOICES, db_index=True)
+    new_email = models.EmailField(blank=True, null=True, help_text="Target email for email_change type")
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(db_index=True)
+    used_at = models.DateTimeField(null=True, blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['token_hash', 'token_type']),
+            models.Index(fields=['user', 'token_type', 'expires_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.token_type} for {self.user.email} (Used: {bool(self.used_at)})"
+
+    @property
+    def is_expired(self):
+        from django.utils import timezone
+        return timezone.now() >= self.expires_at
+
+    @property
+    def is_valid(self):
+        return self.used_at is None and not self.is_expired
+
+
+class PasswordHistory(models.Model):
+    """
+    Keeps historical password hashes to prevent password reuse across the last N passwords.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='password_history')
+    password_hash = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+        ]
+
+    def __str__(self):
+        return f"Password history for {self.user.email} at {self.created_at}"

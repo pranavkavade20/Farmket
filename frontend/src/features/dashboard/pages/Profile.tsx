@@ -10,7 +10,7 @@ import axios from 'axios';
 
 const Profile = () => {
   useSEO({ title: 'Profile', description: 'Manage your Farmket profile settings.' });
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, logoutAll } = useAuth();
 
   const [form, setForm] = useState({
     first_name: user?.first_name ?? '',
@@ -22,6 +22,13 @@ const Profile = () => {
   const [saving, setSaving] = useState(false);
   const [passwordForm, setPasswordForm] = useState({ current: '', newPass: '', confirm: '' });
   const [changingPass, setChangingPass] = useState(false);
+
+  // Email Change State
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailForm, setEmailForm] = useState({ new_email: '', password: '' });
+  const [requestingEmailChange, setRequestingEmailChange] = useState(false);
+  const [resendingVerification, setResendingVerification] = useState(false);
+  const [loggingOutAll, setLoggingOutAll] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -63,26 +70,80 @@ const Profile = () => {
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
     if (passwordForm.newPass !== passwordForm.confirm) {
-      toast.error('New passwords do not match'); return;
+      toast.error('New passwords do not match');
+      return;
     }
     if (passwordForm.newPass.length < 8) {
-      toast.error('Password must be at least 8 characters'); return;
+      toast.error('Password must be at least 8 characters');
+      return;
     }
     setChangingPass(true);
     try {
-      const { default: api } = await import('@/lib/api');
-      await api.post('/accounts/change-password/', {
+      await authService.changePassword({
         old_password: passwordForm.current,
         new_password: passwordForm.newPass,
+        confirm_password: passwordForm.confirm,
       });
-      toast.success('Password changed successfully!');
+      toast.success('Password changed successfully! Other device sessions have been revoked.');
       setPasswordForm({ current: '', newPass: '', confirm: '' });
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        toast.error(err.response?.data?.old_password?.[0] ?? 'Failed to change password');
+        const data = err.response?.data;
+        const msg = data?.old_password?.[0] || data?.new_password?.[0] || data?.detail || 'Failed to change password';
+        toast.error(msg);
       }
     } finally {
       setChangingPass(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!user?.email) return;
+    setResendingVerification(true);
+    try {
+      const res = await authService.resendVerification(user.email);
+      toast.success(res.detail || 'Verification email sent! Please check your inbox.');
+    } catch {
+      toast.error('Failed to dispatch verification email');
+    } finally {
+      setResendingVerification(false);
+    }
+  };
+
+  const handleEmailChangeRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!emailForm.new_email || !emailForm.password) {
+      toast.error('Please enter new email and your current password');
+      return;
+    }
+    setRequestingEmailChange(true);
+    try {
+      const res = await authService.requestEmailChange(emailForm);
+      toast.success(res.detail || 'Confirmation link sent to your new email.');
+      setShowEmailModal(false);
+      setEmailForm({ new_email: '', password: '' });
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const data = err.response?.data;
+        toast.error(data?.password?.[0] || data?.new_email?.[0] || data?.detail || 'Failed to request email change');
+      }
+    } finally {
+      setRequestingEmailChange(false);
+    }
+  };
+
+  const handleLogoutAllDevices = async () => {
+    if (!window.confirm('Are you sure you want to sign out of all devices? You will need to log in again.')) {
+      return;
+    }
+    setLoggingOutAll(true);
+    try {
+      await logoutAll();
+      toast.success('Successfully logged out from all devices.');
+      window.location.href = '/login';
+    } catch {
+      toast.error('Failed to log out from all devices');
+      setLoggingOutAll(false);
     }
   };
 
@@ -121,12 +182,48 @@ const Profile = () => {
           </div>
           <div>
             <p className="text-2xl font-display font-bold text-foreground">{user?.full_name || user?.username}</p>
-            <p className="text-sm font-medium text-foreground-secondary mt-1">{user?.email}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <p className="text-sm font-medium text-foreground-secondary">{user?.email}</p>
+              {user?.is_verified ? (
+                <span className="inline-flex items-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 text-xs font-semibold">
+                  Verified
+                </span>
+              ) : (
+                <span className="inline-flex items-center rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 text-xs font-semibold">
+                  Unverified
+                </span>
+              )}
+            </div>
             <span className="mt-3 inline-flex items-center rounded-full bg-secondary-muted px-3 py-1 text-xs font-semibold uppercase tracking-wider text-secondary-primary">
               {user?.user_type}
             </span>
           </div>
         </motion.div>
+
+        {/* Email Verification Notice if unverified */}
+        {!user?.is_verified && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+            className="rounded-2xl bg-amber-500/10 border border-amber-500/20 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+          >
+            <div>
+              <h3 className="text-base font-bold text-amber-700 dark:text-amber-300">Your email address is unverified</h3>
+              <p className="text-sm text-foreground-secondary mt-1">
+                Please verify your email to ensure uninterrupted access to crops, chat, and orders.
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="rounded-full shrink-0 border-amber-500/30 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10"
+              isLoading={resendingVerification}
+              onClick={handleResendVerification}
+            >
+              Resend Verification Email
+            </Button>
+          </motion.div>
+        )}
 
         {/* Profile Form */}
         <motion.div
@@ -167,7 +264,16 @@ const Profile = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-xs font-bold text-foreground-secondary uppercase tracking-widest mb-2.5">Email Address</label>
+                <div className="flex items-center justify-between mb-2.5">
+                  <label className="block text-xs font-bold text-foreground-secondary uppercase tracking-widest">Email Address</label>
+                  <button
+                    type="button"
+                    onClick={() => setShowEmailModal(true)}
+                    className="text-xs font-bold text-brand hover:underline"
+                  >
+                    Change Email
+                  </button>
+                </div>
                 <div className="relative flex items-center">
                   <Mail className="absolute left-3.5 h-5 w-5 text-foreground-secondary" />
                   <input
@@ -176,7 +282,6 @@ const Profile = () => {
                     className="w-full rounded-xl border border-border-subtle bg-surface-elevated pl-10 pr-4 py-3 text-sm font-medium text-foreground-secondary cursor-not-allowed shadow-sm focus:outline-none"
                   />
                 </div>
-                <p className="text-[10px] font-semibold text-foreground-secondary uppercase tracking-widest mt-2 ml-1">Email cannot be changed</p>
               </div>
               <div>
                 <label className="block text-xs font-bold text-foreground-secondary uppercase tracking-widest mb-2.5">Phone Number</label>
@@ -228,6 +333,53 @@ const Profile = () => {
             </div>
           </form>
         </motion.div>
+
+        {/* Change Email Modal */}
+        {showEmailModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+              className="w-full max-w-md rounded-2xl bg-surface border border-border-subtle p-6 shadow-2xl space-y-4"
+            >
+              <h3 className="text-xl font-display font-bold text-foreground">Change Email Address</h3>
+              <p className="text-xs text-foreground-secondary">
+                Enter your new email address and current password. We will send a confirmation link to the new address.
+              </p>
+              <form onSubmit={handleEmailChangeRequest} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-foreground-secondary uppercase tracking-widest mb-2">New Email Address</label>
+                  <Input
+                    type="email"
+                    placeholder="new@example.com"
+                    value={emailForm.new_email}
+                    onChange={(e) => setEmailForm((p) => ({ ...p, new_email: e.target.value }))}
+                    className="h-12 bg-surface-elevated"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-foreground-secondary uppercase tracking-widest mb-2">Current Password</label>
+                  <Input
+                    type="password"
+                    placeholder="••••••••"
+                    value={emailForm.password}
+                    onChange={(e) => setEmailForm((p) => ({ ...p, password: e.target.value }))}
+                    className="h-12 bg-surface-elevated"
+                    required
+                  />
+                </div>
+                <div className="flex justify-end gap-3 pt-2">
+                  <Button type="button" variant="outline" onClick={() => setShowEmailModal(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" variant="primary" isLoading={requestingEmailChange}>
+                    Send Confirmation
+                  </Button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
 
         {/* Password Change */}
         <motion.div
@@ -283,9 +435,34 @@ const Profile = () => {
             </div>
           </form>
         </motion.div>
+
+        {/* Active Sessions & Security */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+          className="rounded-2xl bg-surface border border-border-subtle p-8 shadow-sm"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-display font-bold text-foreground tracking-tight">Active Sessions & Security</h2>
+              <p className="text-sm text-foreground-secondary mt-1">
+                Log out of all devices and mobile sessions immediately. This revokes all active authentication tokens.
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-full border-semantic-danger/30 text-semantic-danger hover:bg-semantic-danger/10 shrink-0"
+              isLoading={loggingOutAll}
+              onClick={handleLogoutAllDevices}
+            >
+              Sign Out All Devices
+            </Button>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
 };
 
 export default Profile;
+

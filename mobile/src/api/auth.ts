@@ -33,6 +33,7 @@ export interface RegisterPayload {
 export interface LoginResponse {
   access: string;
   refresh: string;
+  user?: User;
 }
 
 export interface RegisterResponse {
@@ -78,11 +79,48 @@ export const logoutApi = async (refreshToken?: string | null): Promise<void> => 
   }
 };
 
-export const changePasswordApi = async (oldPassword: string, newPassword: string): Promise<void> => {
+export const logoutAllApi = async (): Promise<void> => {
+  await apiClient.post('accounts/logout-all/');
+};
+
+export const changePasswordApi = async (oldPassword: string, newPassword: string, confirmPassword?: string): Promise<void> => {
   await apiClient.post('accounts/change-password/', {
     old_password: oldPassword,
     new_password: newPassword,
+    confirm_password: confirmPassword || newPassword,
   });
+};
+
+export const forgotPasswordApi = async (email: string): Promise<{ detail: string }> => {
+  const response = await apiClient.post<{ detail: string }>('accounts/password-reset/', { email });
+  return response.data;
+};
+
+export const resetPasswordApi = async (payload: {
+  token: string;
+  new_password: string;
+  confirm_password: string;
+}): Promise<{ detail: string }> => {
+  const response = await apiClient.post<{ detail: string }>('accounts/password-reset-confirm/', payload);
+  return response.data;
+};
+
+export const verifyEmailApi = async (token: string): Promise<{ detail: string }> => {
+  const response = await apiClient.post<{ detail: string }>('accounts/verify-email/', { token });
+  return response.data;
+};
+
+export const resendVerificationApi = async (email: string): Promise<{ detail: string }> => {
+  const response = await apiClient.post<{ detail: string }>('accounts/resend-verification/', { email });
+  return response.data;
+};
+
+export const changeEmailApi = async (payload: {
+  new_email: string;
+  password: string;
+}): Promise<{ detail: string }> => {
+  const response = await apiClient.post<{ detail: string }>('accounts/change-email/', payload);
+  return response.data;
 };
 
 export const getDashboardStatsApi = async (): Promise<DashboardStats> => {

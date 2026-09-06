@@ -61,6 +61,17 @@ export const logoutThunk = createAsyncThunk('auth/logout', async () => {
   }
 });
 
+export const logoutAllThunk = createAsyncThunk('auth/logoutAll', async () => {
+  try {
+    await authService.logoutAll();
+  } catch {
+    // Proceed with local logout
+  } finally {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+  }
+});
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -70,6 +81,11 @@ const authSlice = createSlice({
     },
     updateUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
+    },
+    setUserVerified: (state, action: PayloadAction<boolean>) => {
+      if (state.user) {
+        state.user.is_verified = action.payload;
+      }
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
@@ -96,9 +112,13 @@ const authSlice = createSlice({
       })
       .addCase(logoutThunk.fulfilled, (state) => {
         state.user = null;
+      })
+      .addCase(logoutAllThunk.fulfilled, (state) => {
+        state.user = null;
       });
   },
 });
 
-export const { clearAuth, updateUser, setLoading } = authSlice.actions;
+export const { clearAuth, updateUser, setUserVerified, setLoading } = authSlice.actions;
+
 export default authSlice.reducer;

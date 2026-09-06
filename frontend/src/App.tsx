@@ -18,17 +18,20 @@ const Home        = lazy(() => import('@/pages/Home'));
 const About       = lazy(() => import('@/pages/About'));
 const Marketplace = lazy(() => import('@/features/products/pages/Marketplace'));
 const ProductDetails = lazy(() => import('@/features/products/pages/ProductDetails'));
-const Login       = lazy(() => import('@/features/auth/pages/Login'));
-const Register    = lazy(() => import('@/features/auth/pages/Register'));
-const Dashboard   = lazy(() => import('@/features/dashboard/pages/Dashboard'));
-const Cart        = lazy(() => import('@/features/buyer/pages/Cart'));
-const Orders      = lazy(() => import('@/features/orders/pages/Orders'));
-const OrderDetail = lazy(() => import('@/features/orders/pages/OrderDetail'));
-const Chat        = lazy(() => import('@/features/chat/pages/Chat'));
-const Profile     = lazy(() => import('@/features/dashboard/pages/Profile'));
-const Analytics   = lazy(() => import('@/features/farmer/pages/Analytics'));
-const MyProducts  = lazy(() => import('@/features/products/pages/MyProducts'));
-const AddProduct  = lazy(() => import('@/features/products/pages/AddProduct'));
+const Login          = lazy(() => import('@/features/auth/pages/Login'));
+const Register       = lazy(() => import('@/features/auth/pages/Register'));
+const ForgotPassword = lazy(() => import('@/features/auth/pages/ForgotPassword'));
+const ResetPassword  = lazy(() => import('@/features/auth/pages/ResetPassword'));
+const VerifyEmail    = lazy(() => import('@/features/auth/pages/VerifyEmail'));
+const Dashboard      = lazy(() => import('@/features/dashboard/pages/Dashboard'));
+const Cart           = lazy(() => import('@/features/buyer/pages/Cart'));
+const Orders         = lazy(() => import('@/features/orders/pages/Orders'));
+const OrderDetail    = lazy(() => import('@/features/orders/pages/OrderDetail'));
+const Chat           = lazy(() => import('@/features/chat/pages/Chat'));
+const Profile        = lazy(() => import('@/features/dashboard/pages/Profile'));
+const Analytics      = lazy(() => import('@/features/farmer/pages/Analytics'));
+const MyProducts     = lazy(() => import('@/features/products/pages/MyProducts'));
+const AddProduct     = lazy(() => import('@/features/products/pages/AddProduct'));
 
 // New Crop Tracking
 const FarmerCropDashboard = lazy(() => import('@/features/crops/pages/FarmerCropDashboard'));
@@ -72,9 +75,13 @@ function App() {
 
                     {/* ── Auth routes ── */}
                     <Route element={<AuthLayout />}>
-                      <Route path="login"    element={<Login />} />
-                      <Route path="register" element={<Register />} />
+                      <Route path="login"           element={<Login />} />
+                      <Route path="register"        element={<Register />} />
+                      <Route path="forgot-password" element={<ForgotPassword />} />
+                      <Route path="reset-password"  element={<ResetPassword />} />
+                      <Route path="verify-email"    element={<VerifyEmail />} />
                     </Route>
+
 
                     {/* ── Protected routes ── */}
                     <Route element={<PrivateRoute />}>

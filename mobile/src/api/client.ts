@@ -32,10 +32,14 @@ const isAuthEndpoint = (url?: string): boolean => {
   return (
     url.includes('accounts/login') ||
     url.includes('accounts/register') ||
+    url.includes('accounts/password-reset') ||
+    url.includes('accounts/verify-email') ||
+    url.includes('accounts/resend-verification') ||
     url.includes('token/refresh') ||
     url.includes('token/')
   );
 };
+
 
 // Request interceptor: Attach JWT token only to protected endpoints
 apiClient.interceptors.request.use(

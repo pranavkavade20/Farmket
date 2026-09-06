@@ -7,9 +7,11 @@ import {
   loginThunk, 
   registerThunk, 
   logoutThunk, 
+  logoutAllThunk,
   clearAuth, 
   updateUser as updateUserAction 
 } from './authSlice';
+
 
 interface AuthContextType {
   user: User | null;
@@ -17,6 +19,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (data: import('@/types').RegisterData) => Promise<void>;
   logout: () => Promise<void>;
+  logoutAll: () => Promise<void>;
   updateUser: (updated: User) => void;
 }
 
@@ -57,12 +60,17 @@ export const useAuth = (): AuthContextType => {
     await dispatch(logoutThunk()).unwrap();
   }, [dispatch]);
 
+  const logoutAll = useCallback(async () => {
+    await dispatch(logoutAllThunk()).unwrap();
+  }, [dispatch]);
+
   const updateUser = useCallback((updated: User) => {
     dispatch(updateUserAction(updated));
   }, [dispatch]);
 
   return useMemo(
-    () => ({ user, loading, login, register, logout, updateUser }),
-    [user, loading, login, register, logout, updateUser]
+    () => ({ user, loading, login, register, logout, logoutAll, updateUser }),
+    [user, loading, login, register, logout, logoutAll, updateUser]
   );
 };
+

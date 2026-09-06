@@ -10,22 +10,22 @@
     --bg-main: #F9FAFB;
     --bg-surface: #FFFFFF;
     --bg-surface-elevated: #FFFFFF;
-    
+
     /* ── Semantic Text (Slate/Zinc scale) ── */
     --text-primary: #09090B;
     --text-secondary: #52525B;
     --text-muted: #71717A;
-    
+
     /* ── Semantic Borders ── */
     --border-subtle: #E4E4E7;
     --border-strong: #D4D4D8;
 
     /* ── Brand Colors (Refined Farmket Green) ── */
-    --brand-primary: #10B981; 
+    --brand-primary: #10B981;
     --brand-hover: #059669;
     --brand-active: #047857;
     --brand-muted: #D1FAE5;
-    
+
     /* ── Accent Colors ── */
     --accent-yellow: #F59E0B;
     --accent-orange: #F97316;
@@ -51,12 +51,12 @@
     --bg-main: #09090B;
     --bg-surface: #121214;
     --bg-surface-elevated: #18181B;
-    
+
     /* ── Semantic Text ── */
     --text-primary: #FAFAFA;
     --text-secondary: #A1A1AA;
     --text-muted: #71717A;
-    
+
     /* ── Semantic Borders ── */
     --border-subtle: #27272A;
     --border-strong: #3F3F46;
@@ -66,7 +66,7 @@
     --brand-hover: #34D399;
     --brand-active: #6EE7B7;
     --brand-muted: #064E3B;
-    
+
     /* ── Accent Colors ── */
     --accent-yellow: #FBBF24;
     --accent-orange: #FB923C;
@@ -96,22 +96,22 @@
   --color-background: var(--bg-main);
   --color-surface: var(--bg-surface);
   --color-surface-elevated: var(--bg-surface-elevated);
-  
+
   --color-foreground: var(--text-primary);
   --color-foreground-secondary: var(--text-secondary);
   --color-muted: var(--text-muted);
-  
+
   --color-border-subtle: var(--border-subtle);
   --color-border-strong: var(--border-strong);
-  
+
   --color-brand: var(--brand-primary);
   --color-brand-hover: var(--brand-hover);
   --color-brand-active: var(--brand-active);
   --color-brand-muted: var(--brand-muted);
-  
+
   --color-accent-yellow: var(--accent-yellow);
   --color-accent-orange: var(--accent-orange);
-  
+
   --color-success: var(--semantic-success);
   --color-success-muted: var(--semantic-success-muted);
   --color-warning: var(--semantic-warning);
@@ -130,9 +130,12 @@
   --text-heading-lg: 2.5rem;
   --text-heading: 2rem;
   --text-subheading: 1.25rem;
-  --text-body: 0.9375rem; /* 15px */
-  --text-caption: 0.8125rem; /* 13px */
-  --text-small: 0.75rem; /* 12px */
+  --text-body: 0.9375rem;
+  /* 15px */
+  --text-caption: 0.8125rem;
+  /* 13px */
+  --text-small: 0.75rem;
+  /* 12px */
 
   /* Border Radius */
   --radius-sm: 0.375rem;
@@ -146,29 +149,54 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-  --shadow-glow: 0 0 24px rgba(16, 185, 129, 0.15); /* Brand glow */
-  
+  --shadow-glow: 0 0 24px rgba(16, 185, 129, 0.15);
+  /* Brand glow */
+
   /* Custom Animations - Reduced */
   --animate-fade-in: fadeIn 0.3s ease-out;
   --animate-slide-up: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   --animate-scale-in: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  
+
   @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
   }
+
   @keyframes slideUp {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
+
   @keyframes scaleIn {
-    from { opacity: 0; transform: scale(0.98); }
-    to { opacity: 1; transform: scale(1); }
+    from {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
 }
 
 @layer base {
-  *, *::before, *::after {
+
+  *,
+  *::before,
+  *::after {
     box-sizing: border-box;
   }
 
@@ -186,14 +214,30 @@
     @apply transition-colors duration-300;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-display font-semibold tracking-tight text-foreground;
   }
-  
-  h1 { @apply text-[length:var(--text-display)] leading-tight; }
-  h2 { @apply text-[length:var(--text-heading)] leading-snug; }
-  h3 { @apply text-[length:var(--text-subheading)] leading-snug; }
-  p  { @apply text-[length:var(--text-body)] leading-relaxed; }
+
+  h1 {
+    @apply text-[length:var(--text-display)] leading-tight;
+  }
+
+  h2 {
+    @apply text-[length:var(--text-heading)] leading-snug;
+  }
+
+  h3 {
+    @apply text-[length:var(--text-subheading)] leading-snug;
+  }
+
+  p {
+    @apply text-[length:var(--text-body)] leading-relaxed;
+  }
 
   a {
     @apply transition-colors duration-200;
@@ -204,21 +248,24 @@
     width: 6px;
     height: 6px;
   }
+
   ::-webkit-scrollbar-track {
     background: transparent;
   }
+
   ::-webkit-scrollbar-thumb {
     @apply bg-border-strong rounded-full;
   }
+
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-muted;
   }
 
   /* Form Autofill styles for dark mode */
   input:-webkit-autofill,
-  input:-webkit-autofill:hover, 
-  input:-webkit-autofill:focus, 
-  input:-webkit-autofill:active{
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
     -webkit-box-shadow: 0 0 0 30px var(--bg-surface) inset !important;
     -webkit-text-fill-color: var(--text-primary) !important;
     transition: background-color 5000s ease-in-out 0s;
@@ -229,11 +276,11 @@
   .animate-in {
     animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
-  
+
   .glass {
     @apply bg-surface/80 dark:bg-surface/60 backdrop-blur-xl border border-border-subtle;
   }
-  
+
   .glass-card {
     @apply bg-surface border border-border-subtle shadow-sm rounded-xl transition-colors duration-200;
   }
@@ -250,9 +297,9 @@
     mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
     -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
   }
-  
+
   /* Focus utilities */
   .focus-ring {
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-shadow;
   }
-}
+}

@@ -14,6 +14,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (access: string, refresh: string) => Promise<void>;
   logout: () => Promise<void>;
+  logoutAll: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
 
@@ -71,6 +72,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAuthStatus('unauthenticated');
   };
 
+  const logoutAll = async () => {
+    const { logoutAllApi } = await import('../api/auth');
+    try {
+      await logoutAllApi();
+    } catch {
+      // Proceed with local logout
+    }
+    await storage.clearTokens();
+    queryClient.clear();
+    setUser(null);
+    setAuthStatus('unauthenticated');
+  };
+
   const refreshProfile = async () => {
     await loadUser();
   };
@@ -78,11 +92,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isLoading = authStatus === 'initializing';
 
   return (
-    <AuthContext.Provider value={{ user, authStatus, isLoading, login, logout, refreshProfile }}>
+    <AuthContext.Provider value={{ user, authStatus, isLoading, login, logout, logoutAll, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
 }
+
 
 export function useAuth() {
   const context = useContext(AuthContext);
