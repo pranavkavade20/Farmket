@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button, Input } from '@/components/ui';
 import { useSEO } from '@/hooks';
 import { authService } from '@/features/auth/api/authService';
-import { Lock, ArrowLeft, CheckCircle2, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Lock, ArrowLeft, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import axios from 'axios';

@@ -10,11 +10,11 @@ import { useAppDispatch } from '@/app/hooks';
 import { openAddTrackingModal } from '../cropsSlice';
 import { Sprout, Plus, ActivitySquare, LayoutGrid, List, Calendar as CalendarIcon, Search, Filter, Package, TrendingUp, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui';
+import { Button, Alert, EmptyState } from '@/components/ui';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const SkeletonCard = ({ index = 0 }: { index?: number }) => (
-  <motion.div 
+  <motion.div
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.4, delay: index * 0.1 }}
@@ -35,7 +35,7 @@ const SkeletonCard = ({ index = 0 }: { index?: number }) => (
 
 export default function FarmerCropDashboard() {
   const dispatch = useAppDispatch();
-  const { data: crops, isLoading, error } = useGetCropsQuery();
+  const { data: crops, isLoading, error, refetch } = useGetCropsQuery();
 
   const [view, setView] = useState<'grid' | 'table' | 'calendar'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
@@ -61,31 +61,45 @@ export default function FarmerCropDashboard() {
   }, [crops]);
 
   if (error) {
-    return <div className="p-6 text-danger font-medium">Failed to load crops data.</div>;
+    return (
+      <div className="p-6 max-w-2xl mx-auto">
+        <Alert
+          variant="danger"
+          title="Failed to load crops data"
+          action={
+            <Button size="sm" variant="outline" onClick={() => refetch()}>
+              Retry
+            </Button>
+          }
+        >
+          An error occurred while fetching your crop tracking information. Please check your connection and try again.
+        </Alert>
+      </div>
+    );
   }
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="p-6 max-w-[1600px] mx-auto"
+      className="w-full space-y-8"
     >
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-display font-bold text-foreground mb-2 tracking-tight">Crop Tracking</h1>
-          <p className="text-muted font-medium">Monitor your crop growth and manage buyer reservations.</p>
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground tracking-tight">Crop Tracking</h1>
+          <p className="text-sm font-medium text-foreground-secondary mt-1">Monitor your crop growth and manage buyer reservations.</p>
         </div>
-        <div className="flex gap-3">
-          <Button 
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
             variant="outline"
             onClick={() => dispatch(openAddTrackingModal())}
-            className="gap-2 border-border-strong hover:bg-surface-elevated text-foreground shadow-sm hover:shadow active:scale-95 transition-all"
+            className="gap-2"
           >
             <ActivitySquare className="w-4 h-4" />
             Track Existing Product
           </Button>
           <Link to="/dashboard/products/new">
-            <Button variant="primary" className="gap-2 bg-brand hover:bg-brand-hover active:bg-brand-active shadow-sm hover:shadow active:scale-95 transition-all">
+            <Button variant="primary" className="gap-2">
               <Plus className="w-4 h-4" />
               Add New Product
             </Button>
@@ -101,7 +115,7 @@ export default function FarmerCropDashboard() {
           { label: 'Harvest Ready', value: analytics.harvestReady, icon: Sprout, color: 'text-warning', bg: 'bg-warning/10' },
           { label: 'Completed', value: analytics.harvested, icon: CheckCircle2, color: 'text-success', bg: 'bg-success/10' },
         ].map((stat, idx) => (
-          <motion.div 
+          <motion.div
             key={stat.label}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -123,9 +137,9 @@ export default function FarmerCropDashboard() {
         <div className="flex w-full sm:w-auto flex-1 gap-4 items-center">
           <div className="relative max-w-md w-full group">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted group-focus-within:text-brand transition-colors" />
-            <input 
+            <input
               type="text"
-              placeholder="Search crops..." 
+              placeholder="Search crops..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-4 py-2.5 bg-surface border border-border-strong rounded-xl text-sm font-medium text-foreground placeholder-muted focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 shadow-sm transition-all"
@@ -145,27 +159,27 @@ export default function FarmerCropDashboard() {
               <option value="HARVESTED">Harvested</option>
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-muted">
-              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
             </div>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-1 bg-surface border border-border-subtle p-1 rounded-xl shadow-sm">
-          <button 
+          <button
             onClick={() => setView('grid')}
             className={`p-2.5 rounded-lg transition-all duration-200 ${view === 'grid' ? 'bg-surface-elevated shadow-sm text-brand' : 'text-muted hover:text-foreground hover:bg-surface-elevated/50'}`}
             title="Grid View"
           >
             <LayoutGrid className="w-4 h-4" />
           </button>
-          <button 
+          <button
             onClick={() => setView('table')}
             className={`p-2.5 rounded-lg transition-all duration-200 ${view === 'table' ? 'bg-surface-elevated shadow-sm text-brand' : 'text-muted hover:text-foreground hover:bg-surface-elevated/50'}`}
             title="Table View"
           >
             <List className="w-4 h-4" />
           </button>
-          <button 
+          <button
             onClick={() => setView('calendar')}
             className={`p-2.5 rounded-lg transition-all duration-200 ${view === 'calendar' ? 'bg-surface-elevated shadow-sm text-brand' : 'text-muted hover:text-foreground hover:bg-surface-elevated/50'}`}
             title="Calendar View"
@@ -177,7 +191,7 @@ export default function FarmerCropDashboard() {
 
       <AnimatePresence mode="wait">
         {isLoading ? (
-          <motion.div 
+          <motion.div
             key="loading"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -202,24 +216,17 @@ export default function FarmerCropDashboard() {
                   <CropCard key={crop.id} crop={crop} index={index} />
                 ))}
                 {(!filteredCrops || filteredCrops.length === 0) && (
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="col-span-full flex flex-col items-center justify-center py-24 px-4 bg-surface border border-border-subtle rounded-3xl shadow-sm text-center min-h-[400px]"
-                  >
-                    <div className="w-20 h-20 rounded-full bg-surface-elevated flex items-center justify-center mb-6 border border-border-subtle shadow-inner">
-                      <Sprout className="w-10 h-10 text-muted" />
-                    </div>
-                    <h3 className="text-2xl font-display font-bold text-foreground mb-3">No crops match your filters</h3>
-                    <p className="text-muted font-medium mb-8 max-w-md">Try adjusting your search terms or filter criteria to find what you're looking for.</p>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => { setSearchQuery(''); setFilterStage('ALL'); }}
-                      className="border-border-strong hover:bg-surface-elevated shadow-sm hover:shadow"
-                    >
-                      Clear Filters
-                    </Button>
-                  </motion.div>
+                  <div className="col-span-full">
+                    <EmptyState
+                      icon={<Sprout className="w-10 h-10 text-muted" />}
+                      title="No crops match your filters"
+                      description="Try adjusting your search terms or filter criteria to find what you're looking for."
+                      action={{
+                        label: "Clear Filters",
+                        onClick: () => { setSearchQuery(''); setFilterStage('ALL'); }
+                      }}
+                    />
+                  </div>
                 )}
               </div>
             )}

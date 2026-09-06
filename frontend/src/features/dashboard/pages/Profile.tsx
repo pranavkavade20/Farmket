@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSEO } from '@/hooks';
 import { useAuth, authService } from '@/features/auth';
-import { Button, Input } from '@/components/ui';
+import { Button, Input, Modal } from '@/components/ui';
 import { Camera, User, Mail, Phone, MapPin, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from "sonner";
@@ -150,15 +150,17 @@ const Profile = () => {
   const initials = (user?.first_name?.[0] ?? user?.username?.[0] ?? '?').toUpperCase();
 
   return (
-    <div className="mx-auto max-w-4xl w-full">
-      <h1 className="text-3xl font-display font-bold text-foreground mb-8 tracking-tight">Profile Settings</h1>
+    <div className="w-full max-w-4xl mx-auto space-y-8">
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground tracking-tight">Profile Settings</h1>
+        <p className="mt-1 text-sm font-medium text-foreground-secondary">Manage your personal details, account security, and active sessions.</p>
+      </div>
 
-      <div className="space-y-8">
-        {/* Avatar Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl bg-surface border border-border-subtle p-8 flex items-center gap-6 shadow-sm"
-        >
+      {/* Avatar Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+        className="rounded-2xl bg-surface border border-border-subtle p-8 flex items-center gap-6 shadow-sm"
+      >
           <div className="relative">
             {user?.profile_picture ? (
               <img
@@ -327,7 +329,7 @@ const Profile = () => {
             </div>
 
             <div className="flex justify-end pt-2">
-              <Button type="submit" variant="primary" isLoading={saving} className="rounded-full px-6 gap-2">
+              <Button type="submit" variant="brand" isLoading={saving} className="gap-2">
                 Save Changes
               </Button>
             </div>
@@ -335,51 +337,44 @@ const Profile = () => {
         </motion.div>
 
         {/* Change Email Modal */}
-        {showEmailModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-              className="w-full max-w-md rounded-2xl bg-surface border border-border-subtle p-6 shadow-2xl space-y-4"
-            >
-              <h3 className="text-xl font-display font-bold text-foreground">Change Email Address</h3>
-              <p className="text-xs text-foreground-secondary">
-                Enter your new email address and current password. We will send a confirmation link to the new address.
-              </p>
-              <form onSubmit={handleEmailChangeRequest} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-foreground-secondary uppercase tracking-widest mb-2">New Email Address</label>
-                  <Input
-                    type="email"
-                    placeholder="new@example.com"
-                    value={emailForm.new_email}
-                    onChange={(e) => setEmailForm((p) => ({ ...p, new_email: e.target.value }))}
-                    className="h-12 bg-surface-elevated"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-foreground-secondary uppercase tracking-widest mb-2">Current Password</label>
-                  <Input
-                    type="password"
-                    placeholder="••••••••"
-                    value={emailForm.password}
-                    onChange={(e) => setEmailForm((p) => ({ ...p, password: e.target.value }))}
-                    className="h-12 bg-surface-elevated"
-                    required
-                  />
-                </div>
-                <div className="flex justify-end gap-3 pt-2">
-                  <Button type="button" variant="outline" onClick={() => setShowEmailModal(false)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" variant="primary" isLoading={requestingEmailChange}>
-                    Send Confirmation
-                  </Button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
+        <Modal
+          isOpen={showEmailModal}
+          onClose={() => setShowEmailModal(false)}
+          title="Change Email Address"
+          description="Enter your new email address and current password. We will send a confirmation link to the new address."
+          size="sm"
+        >
+          <form onSubmit={handleEmailChangeRequest} className="space-y-4">
+            <div>
+              <Input
+                label="New Email Address"
+                type="email"
+                placeholder="new@example.com"
+                value={emailForm.new_email}
+                onChange={(e) => setEmailForm((p) => ({ ...p, new_email: e.target.value }))}
+                required
+              />
+            </div>
+            <div>
+              <Input
+                label="Current Password"
+                type="password"
+                placeholder="••••••••"
+                value={emailForm.password}
+                onChange={(e) => setEmailForm((p) => ({ ...p, password: e.target.value }))}
+                required
+              />
+            </div>
+            <div className="flex justify-end gap-3 pt-4 border-t border-border-subtle">
+              <Button type="button" variant="outline" onClick={() => setShowEmailModal(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" variant="brand" isLoading={requestingEmailChange}>
+                Send Confirmation
+              </Button>
+            </div>
+          </form>
+        </Modal>
 
         {/* Password Change */}
         <motion.div
@@ -429,7 +424,7 @@ const Profile = () => {
               </div>
             </div>
             <div className="flex justify-end pt-2">
-              <Button type="submit" variant="outline" isLoading={changingPass} className="rounded-full px-6 gap-2">
+              <Button type="submit" variant="outline" isLoading={changingPass} className="gap-2">
                 Update Password
               </Button>
             </div>
@@ -441,7 +436,7 @@ const Profile = () => {
           initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
           className="rounded-2xl bg-surface border border-border-subtle p-8 shadow-sm"
         >
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-xl font-display font-bold text-foreground tracking-tight">Active Sessions & Security</h2>
               <p className="text-sm text-foreground-secondary mt-1">
@@ -450,8 +445,8 @@ const Profile = () => {
             </div>
             <Button
               type="button"
-              variant="outline"
-              className="rounded-full border-semantic-danger/30 text-semantic-danger hover:bg-semantic-danger/10 shrink-0"
+              variant="danger"
+              className="shrink-0"
               isLoading={loggingOutAll}
               onClick={handleLogoutAllDevices}
             >
@@ -459,7 +454,6 @@ const Profile = () => {
             </Button>
           </div>
         </motion.div>
-      </div>
     </div>
   );
 };

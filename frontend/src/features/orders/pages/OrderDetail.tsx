@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useSEO } from '@/hooks';
 import { orderService } from '@/features/orders';
 import { chatService } from '@/features/chat/services/chatService';
-import { OrderStatusBadge, Button, Container, Badge } from '@/components/ui';
+import { OrderStatusBadge, Button, Badge } from '@/components/ui';
 import {
   ArrowLeft,
   MapPin,
@@ -51,18 +51,18 @@ const OrderDetail: React.FC = () => {
   const [cancelling, setCancelling] = useState(false);
   const [updatingItem, setUpdatingItem] = useState<number | null>(null);
 
-  const fetchOrder = () => {
+  const fetchOrder = useCallback(() => {
     if (!id) return;
     orderService
       .getOrder(Number(id))
       .then(setOrder)
       .catch(() => toast.error('Order not found'))
       .finally(() => setLoading(false));
-  };
+  }, [id]);
 
   useEffect(() => {
     fetchOrder();
-  }, [id]);
+  }, [fetchOrder]);
 
   const handleCancel = async () => {
     if (!order) return;
@@ -147,20 +147,20 @@ const OrderDetail: React.FC = () => {
 
   if (loading) {
     return (
-      <Container maxWidth="wide" className="py-12 animate-pulse space-y-6">
+      <div className="w-full space-y-6 animate-pulse">
         <div className="h-8 w-48 rounded-xl bg-surface-elevated" />
         <div className="h-44 rounded-2xl bg-surface-elevated" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="h-56 rounded-2xl bg-surface-elevated" />
           <div className="h-56 rounded-2xl bg-surface-elevated" />
         </div>
-      </Container>
+      </div>
     );
   }
 
   if (!order) {
     return (
-      <Container maxWidth="narrow" className="py-24 text-center">
+      <div className="w-full max-w-md mx-auto py-16 text-center space-y-4">
         <div className="h-16 w-16 rounded-full bg-surface-elevated border border-border-subtle flex items-center justify-center mx-auto mb-4 text-foreground-secondary">
           <AlertTriangle className="h-8 w-8 text-warning" />
         </div>
@@ -169,23 +169,23 @@ const OrderDetail: React.FC = () => {
           The requested order does not exist or you do not have permission to view it.
         </p>
         <Link to={backLink}>
-          <Button variant="outline" className="rounded-full px-6">
+          <Button variant="outline">
             Back to Orders
           </Button>
         </Link>
-      </Container>
+      </div>
     );
   }
 
   return (
-    <Container maxWidth="wide" className="py-8 space-y-8 pb-16">
+    <div className="w-full space-y-8 pb-16">
       {/* Top Header & Breadcrumb */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Link to={backLink}>
-            <button className="h-11 w-11 rounded-full bg-surface border border-border-subtle flex items-center justify-center hover:shadow-md hover:scale-105 transition-all text-foreground shrink-0">
-              <ArrowLeft className="h-5 w-5" />
-            </button>
+            <Button variant="outline" size="icon" className="shrink-0">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
           </Link>
           <div>
             <div className="flex items-center gap-3 flex-wrap">
@@ -211,17 +211,17 @@ const OrderDetail: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={handlePrint}
-            className="rounded-full px-4 gap-2 text-xs shadow-sm"
+            className="gap-2 shadow-sm"
           >
             <Printer className="h-3.5 w-3.5" /> Print Order
           </Button>
 
           {isFarmer && buyer && (
             <Button
-              variant="primary"
+              variant="brand"
               size="sm"
               onClick={() => handleStartChat(buyer.id)}
-              className="rounded-full px-4 gap-2 text-xs shadow-sm"
+              className="gap-2 shadow-sm"
             >
               <MessageSquare className="h-3.5 w-3.5" /> Chat with Buyer
             </Button>
@@ -233,7 +233,6 @@ const OrderDetail: React.FC = () => {
               size="sm"
               isLoading={cancelling}
               onClick={handleCancel}
-              className="rounded-full px-4 text-xs"
             >
               Cancel Order
             </Button>
@@ -578,10 +577,10 @@ const OrderDetail: React.FC = () => {
                     {isFarmer && item.status === 'pending' && (
                       <Button
                         size="sm"
-                        variant="primary"
+                        variant="brand"
                         isLoading={updatingItem === item.id}
                         onClick={() => handleItemTransition(item.id, 'processing')}
-                        className="rounded-full text-xs h-9 px-4 gap-1.5 shadow-sm"
+                        className="gap-1.5 shadow-sm"
                       >
                         <Check className="h-4 w-4" /> Accept Order
                       </Button>
@@ -590,10 +589,10 @@ const OrderDetail: React.FC = () => {
                     {isFarmer && item.status === 'processing' && (
                       <Button
                         size="sm"
-                        variant="primary"
+                        variant="outline"
                         isLoading={updatingItem === item.id}
                         onClick={() => handleItemTransition(item.id, 'shipped')}
-                        className="rounded-full text-xs h-9 px-4 gap-1.5 shadow-sm"
+                        className="gap-1.5 shadow-sm hover:bg-brand hover:text-brand-foreground hover:border-brand"
                       >
                         <Truck className="h-4 w-4" /> Mark as Shipped
                       </Button>
@@ -603,10 +602,10 @@ const OrderDetail: React.FC = () => {
                     {!isFarmer && item.status === 'shipped' && (
                       <Button
                         size="sm"
-                        variant="success"
+                        variant="brand"
                         isLoading={updatingItem === item.id}
                         onClick={() => handleItemTransition(item.id, 'delivered')}
-                        className="rounded-full text-xs h-9 px-4 gap-1.5"
+                        className="gap-1.5 shadow-sm"
                       >
                         <CheckCircle2 className="h-4 w-4" /> Confirm Received
                       </Button>
@@ -661,7 +660,7 @@ const OrderDetail: React.FC = () => {
           </div>
         </motion.div>
       )}
-    </Container>
+    </div>
   );
 };
 

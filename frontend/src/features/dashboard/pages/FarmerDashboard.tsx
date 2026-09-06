@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth, authService } from '@/features/auth';
 import { useSEO } from '@/hooks';
-import { Button, OrderStatusBadge, Stack } from '@/components/ui';
+import { Button, OrderStatusBadge } from '@/components/ui';
 import {
   Package, TrendingUp, Clock, ArrowRight, Sprout, ShoppingBag, Newspaper
 } from 'lucide-react';
@@ -29,13 +29,13 @@ const FarmerDashboard = () => {
   const fmtDate = (s: string) => new Date(s).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
   return (
-    <Stack gap="lg" className="w-full pb-10">
+    <div className="w-full space-y-8">
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-1">
-        <h1 className="text-3xl font-display font-semibold text-foreground tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground tracking-tight">
           Welcome, <span className="text-foreground-secondary">{user?.first_name || user?.username}</span> 👋
         </h1>
-        <p className="text-sm text-foreground-secondary">Manage your farm store, track crops, and fulfill orders.</p>
+        <p className="text-sm font-medium text-foreground-secondary">Manage your farm store, track crops, and fulfill orders.</p>
       </motion.div>
 
       {/* Top Section: Hero + Quick Links */}
@@ -43,7 +43,7 @@ const FarmerDashboard = () => {
         {/* Hero Card */}
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
-          className="lg:col-span-1 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-400 p-8 flex flex-col justify-between text-white shadow-md relative overflow-hidden"
+          className="lg:col-span-1 rounded-2xl bg-gradient-to-br from-brand to-emerald-600 p-8 flex flex-col justify-between text-white shadow-md relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 p-4 opacity-20">
             <Sprout className="w-32 h-32" />
@@ -52,12 +52,12 @@ const FarmerDashboard = () => {
             <h2 className="text-2xl font-display font-bold leading-tight mb-2 max-w-[200px]">
               Expand Your Reach
             </h2>
-            <p className="text-blue-50 text-sm mb-6 max-w-[220px]">
+            <p className="text-emerald-50 text-sm mb-6 max-w-[220px]">
               Add new harvests to the marketplace to attract more buyers today.
             </p>
           </div>
           <Link to="/dashboard/products/new" className="relative z-10 w-fit">
-            <Button variant="primary" className="bg-gray-900 text-white hover:bg-black rounded-lg px-6 font-semibold shadow-sm border-0">
+            <Button variant="primary" className="bg-white text-brand hover:bg-emerald-50 rounded-xl px-6 font-bold shadow-sm border-0">
               Add Product
             </Button>
           </Link>
@@ -146,7 +146,7 @@ const FarmerDashboard = () => {
           </div>
         </div>
       </motion.div>
-    </Stack>
+    </div>
   );
 };
 

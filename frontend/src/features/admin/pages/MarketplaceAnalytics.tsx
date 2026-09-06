@@ -32,8 +32,11 @@ const MarketplaceAnalytics: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-foreground">Marketplace Analytics</h1>
+    <div className="w-full space-y-8">
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground tracking-tight">Marketplace Analytics</h1>
+        <p className="mt-1 text-sm font-medium text-foreground-secondary">Distribution of orders and categories across the platform.</p>
+      </div>
       
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border border-border-subtle bg-surface p-6 shadow-sm">
@@ -56,7 +59,7 @@ const MarketplaceAnalytics: React.FC = () => {
                   ))}
                 </Pie>
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#111827', border: 'none', borderRadius: '8px', color: '#fff' }}
+                  contentStyle={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-subtle)', borderRadius: '0.75rem', color: 'var(--color-foreground)' }}
                   formatter={(value: number, name: string) => [value, name.charAt(0).toUpperCase() + name.slice(1)]}
                 />
                 <Legend formatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)} />
@@ -82,7 +85,7 @@ const MarketplaceAnalytics: React.FC = () => {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={{ backgroundColor: '#111827', border: 'none', borderRadius: '8px', color: '#fff' }} />
+                <Tooltip contentStyle={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-subtle)', borderRadius: '0.75rem', color: 'var(--color-foreground)' }} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>

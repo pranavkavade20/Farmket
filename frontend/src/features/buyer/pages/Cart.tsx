@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '@/features/buyer';
 import { useAuth } from '@/features/auth';
-import { Button, Container } from '@/components/ui';
+import { Container, EmptyState } from '@/components/ui';
 import { useSEO } from '@/hooks';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, ChevronRight, ShieldCheck, Truck,  Lock, Award } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -54,7 +54,7 @@ const Cart = () => {
       <Container maxWidth="narrow" className="py-16 text-center">
         <div className="animate-pulse space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-24 rounded-2xl bg-gray-200 dark:bg-gray-800" />
+            <div key={i} className="h-24 rounded-2xl bg-border-subtle" />
           ))}
         </div>
       </Container>
@@ -67,17 +67,16 @@ const Cart = () => {
 
   if (items.length === 0) {
     return (
-      <Container maxWidth="narrow" className="py-24 text-center">
-        <ShoppingBag className="mx-auto h-16 w-16 text-foreground-secondary mb-4 transition-colors duration-300" />
-        <h1 className="text-2xl font-bold text-foreground mb-2 transition-colors duration-300">Your cart is empty</h1>
-        <p className="text-foreground-secondary mb-6 transition-colors duration-300">
-          Explore the marketplace and add fresh produce to your cart.
-        </p>
-        <Link to="/marketplace">
-          <Button className="gap-2 rounded-full">
-            <ShoppingBag className="h-4 w-4" /> Browse Marketplace
-          </Button>
-        </Link>
+      <Container maxWidth="narrow" className="py-24">
+        <EmptyState
+          icon={<ShoppingBag className="h-12 w-12 text-muted" />}
+          title="Your cart is empty"
+          description="Explore the marketplace and add fresh produce directly from verified farmers."
+          action={{
+            label: "Browse Marketplace",
+            onClick: () => navigate('/marketplace')
+          }}
+        />
       </Container>
     );
   }

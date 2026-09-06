@@ -16,7 +16,11 @@ import {
   LayoutDashboard,
   ShoppingBag,
   Store,
-  Activity
+  Activity,
+  Sprout,
+  MessageSquare,
+  BarChart3,
+  Newspaper
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import logo from "@/assets/images/logo.png";
@@ -25,9 +29,10 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface NavbarProps {
   isDashboard?: boolean;
+  onToggleMobileSidebar?: () => void;
 }
 
-const Navbar = ({ isDashboard = false }: NavbarProps) => {
+const Navbar = ({ isDashboard = false, onToggleMobileSidebar }: NavbarProps) => {
   const { user, logout } = useAuth();
   const { isDark, toggle: toggleDark } = useTheme();
   const { itemCount } = useCart();
@@ -172,6 +177,9 @@ const Navbar = ({ isDashboard = false }: NavbarProps) => {
                           <Link to="/dashboard" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground rounded-lg hover:bg-state-hover transition-colors">
                             <LayoutDashboard className="h-4 w-4 text-foreground-secondary" /> Dashboard
                           </Link>
+                          <Link to="/messages" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground rounded-lg hover:bg-state-hover transition-colors">
+                            <MessageSquare className="h-4 w-4 text-foreground-secondary" /> Messages
+                          </Link>
                           
                           {/* Role Specific Links */}
                           {user.user_type === 'admin' ? (
@@ -226,8 +234,9 @@ const Navbar = ({ isDashboard = false }: NavbarProps) => {
             {/* Mobile menu button */}
             <div className="flex items-center gap-2 lg:hidden pl-2 border-l border-border-subtle ml-2">
               <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                onClick={onToggleMobileSidebar || (() => setIsMobileMenuOpen(!isMobileMenuOpen))}
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-border-strong bg-surface text-foreground transition-colors focus-ring"
+                aria-label="Toggle dashboard sidebar"
               >
                 {isMobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
               </button>
@@ -315,6 +324,9 @@ const Navbar = ({ isDashboard = false }: NavbarProps) => {
                         <div className="p-2 flex flex-col gap-1 bg-surface">
                           <Link to="/dashboard" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground rounded-lg hover:bg-state-hover transition-colors">
                             <LayoutDashboard className="h-4 w-4 text-foreground-secondary" /> Dashboard
+                          </Link>
+                          <Link to="/messages" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground rounded-lg hover:bg-state-hover transition-colors">
+                            <MessageSquare className="h-4 w-4 text-foreground-secondary" /> Messages
                           </Link>
                           
                           {/* Role Specific Links */}
@@ -428,10 +440,19 @@ const Navbar = ({ isDashboard = false }: NavbarProps) => {
                     <LayoutDashboard className="h-4 w-4 text-foreground-secondary" /> Dashboard
                   </Link>
 
+                  <Link to="/messages" onClick={closeMobile} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors">
+                    <MessageSquare className="h-4 w-4 text-foreground-secondary" /> Messages
+                  </Link>
+
                   {user.user_type === 'admin' ? (
-                     <Link to="/dashboard/admin/executive" onClick={closeMobile} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors">
-                       <Activity className="h-4 w-4 text-foreground-secondary" /> Analytics
-                     </Link>
+                    <>
+                      <Link to="/dashboard/admin/executive" onClick={closeMobile} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors">
+                        <Activity className="h-4 w-4 text-foreground-secondary" /> Executive Dashboard
+                      </Link>
+                      <Link to="/dashboard/admin/marketplace" onClick={closeMobile} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors">
+                        <ShoppingBag className="h-4 w-4 text-foreground-secondary" /> Marketplace Analytics
+                      </Link>
+                    </>
                   ) : (
                     <>
                       <Link to="/dashboard/profile" onClick={closeMobile} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors">
@@ -442,8 +463,17 @@ const Navbar = ({ isDashboard = false }: NavbarProps) => {
                           <Link to="/dashboard/products" onClick={closeMobile} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors">
                             <Store className="h-4 w-4 text-foreground-secondary" /> My Products
                           </Link>
+                          <Link to="/farmer/crops" onClick={closeMobile} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors">
+                            <Sprout className="h-4 w-4 text-foreground-secondary" /> Crop Tracking
+                          </Link>
                           <Link to="/farmer/orders" onClick={closeMobile} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors">
-                            <ShoppingBag className="h-4 w-4 text-foreground-secondary" /> Orders
+                            <ShoppingBag className="h-4 w-4 text-foreground-secondary" /> Received Orders
+                          </Link>
+                          <Link to="/farmer/posts" onClick={closeMobile} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors">
+                            <Newspaper className="h-4 w-4 text-foreground-secondary" /> My Posts
+                          </Link>
+                          <Link to="/dashboard/analytics" onClick={closeMobile} className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-state-hover transition-colors">
+                            <BarChart3 className="h-4 w-4 text-foreground-secondary" /> Analytics
                           </Link>
                         </>
                       )}

@@ -4,7 +4,7 @@ import { ProductTable } from '../components/ProductTable';
 import { useSEO } from '@/hooks';
 import { useAuth } from '@/features/auth';
 import { productService } from '@/features/products';
-import { Badge, Button, Container } from '@/components/ui';
+import { Badge, Button } from '@/components/ui';
 import {
   PlusCircle, Package, Trash2, Eye, Search,
   Leaf, TrendingUp, ToggleLeft, ToggleRight,
@@ -54,8 +54,8 @@ const MyProducts = () => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     productService
-      .getProducts({ 
-        ordering: '-created_at', 
+      .getProducts({
+        ordering: '-created_at',
         farmer: user.id,
         page: currentPage,
         ...(debouncedSearch ? { search: debouncedSearch } : {})
@@ -106,16 +106,16 @@ const MyProducts = () => {
     new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(parseFloat(n));
 
   return (
-    <Container>
+    <div className="w-full space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-display font-bold text-foreground">My Products</h1>
-          <p className="text-sm text-foreground-secondary mt-1">
-            {totalCount} product{totalCount !== 1 ? 's' : ''} listed
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground tracking-tight">My Products</h1>
+          <p className="text-sm font-medium text-foreground-secondary mt-1">
+            {totalCount} product{totalCount !== 1 ? 's' : ''} listed in marketplace
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Link to="/dashboard/analytics">
             <Button variant="outline" size="sm" className="gap-2">
               <TrendingUp className="h-4 w-4" /> Analytics
@@ -361,7 +361,7 @@ const MyProducts = () => {
 
       {/* Render the modal so it opens when dispatched */}
       <StageUpdateModal />
-    </Container>
+    </div>
   );
 };
 

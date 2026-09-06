@@ -94,6 +94,7 @@
 
   /* Theme Colors mapped to utilities */
   --color-background: var(--bg-main);
+  --color-main: var(--bg-main);
   --color-surface: var(--bg-surface);
   --color-surface-elevated: var(--bg-surface-elevated);
 

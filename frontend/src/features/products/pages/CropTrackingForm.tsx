@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from "sonner";
 import { cropService, type CropTracking } from '../services/cropService';
 import CropTimeline from '../components/CropTimeline';
-import { Button, Container } from '@/components/ui';
+import { Button } from '@/components/ui';
 import { Leaf } from 'lucide-react';
 
 const schema = z.object({
@@ -66,16 +66,16 @@ export default function CropTrackingForm() {
   };
 
   if (loading) return (
-    <Container maxWidth="narrow" className="mt-8">
+    <div className="w-full max-w-2xl mx-auto">
       <div className="p-6 bg-surface rounded-3xl shadow-sm border border-border-subtle">
         <div className="animate-pulse h-8 w-64 bg-border-strong rounded mb-6"></div>
         <div className="animate-pulse h-48 bg-border-strong rounded-2xl"></div>
       </div>
-    </Container>
+    </div>
   );
 
   return (
-    <Container maxWidth="narrow" className="mt-8">
+    <div className="w-full max-w-2xl mx-auto">
       <div className="p-8 bg-surface rounded-3xl shadow-sm border border-border-subtle">
         <div className="flex items-center gap-3 mb-8 border-b border-border-subtle pb-6">
           <div className="h-12 w-12 rounded-2xl bg-brand-muted/20 flex items-center justify-center">
@@ -113,9 +113,10 @@ export default function CropTrackingForm() {
 
             <Button
               type="submit"
-              variant="primary"
+              variant="brand"
+              size="lg"
               isLoading={isSubmitting}
-              className="w-full h-14 rounded-full font-bold text-base"
+              className="w-full"
             >
               Start Tracking
             </Button>
@@ -174,6 +175,6 @@ export default function CropTrackingForm() {
           </div>
         )}
       </div>
-    </Container>
+    </div>
   );
 }

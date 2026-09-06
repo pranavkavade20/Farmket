@@ -27,13 +27,13 @@ const BuyerDashboard = () => {
   const fmtDate = (s: string) => new Date(s).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
   return (
-    <div className="mx-auto max-w-[1400px] w-full flex flex-col gap-8 pb-10">
+    <div className="w-full space-y-8">
       {/* Header */}
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-1">
-        <h1 className="text-3xl font-display font-semibold text-foreground tracking-tight">
-          Welcome, <span className="text-foreground-secondary">{user?.first_name || user?.username}</span> 👋
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+        <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground tracking-tight">
+          Welcome back, <span className="text-brand">{user?.first_name || user?.username}</span> 👋
         </h1>
-        <p className="text-sm text-foreground-secondary">Discover fresh produce and manage your orders seamlessly.</p>
+        <p className="text-sm font-medium text-foreground-secondary mt-1">Discover fresh produce and manage your orders seamlessly.</p>
       </motion.div>
 
       {/* Top Section: Hero + Quick Links */}
@@ -55,7 +55,7 @@ const BuyerDashboard = () => {
             </p>
           </div>
           <Link to="/marketplace" className="relative z-10 w-fit">
-            <Button variant="primary" className="bg-white text-brand hover:bg-gray-50 rounded-lg px-6 font-semibold shadow-sm border-0">
+            <Button variant="secondary" className="bg-white text-brand hover:bg-emerald-50 rounded-xl px-6 font-bold shadow-sm border-0">
               Go to Marketplace
             </Button>
           </Link>
@@ -93,7 +93,7 @@ const BuyerDashboard = () => {
       </div>
 
       {/* Main Grid: Orders & Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Orders List */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="lg:col-span-2 flex flex-col gap-3">
           <div className="flex items-center justify-between">

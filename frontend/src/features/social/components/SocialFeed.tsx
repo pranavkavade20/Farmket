@@ -4,10 +4,10 @@ import { FeedCard } from './FeedCard';
 import { PostComposer } from './PostComposer';
 import { CommentPanel } from './CommentPanel';
 import { useAppSelector } from '@/app/hooks';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Newspaper } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Container } from '@/components/ui';
+import { Container, EmptyState } from '@/components/ui';
 import type { Post, Product } from '@/types';
 
 export const SocialFeed: React.FC = () => {
@@ -86,7 +86,8 @@ export const SocialFeed: React.FC = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowComposer(true)}
-                className="fixed bottom-6 right-6 md:bottom-10 md:right-10 h-16 w-16 bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-full shadow-2xl flex items-center justify-center z-40 transition-all border-4 border-white dark:border-gray-900"
+                className="fixed bottom-6 right-6 md:bottom-10 md:right-10 h-16 w-16 bg-brand hover:bg-brand-hover text-white rounded-full shadow-xl flex items-center justify-center z-40 transition-all border-4 border-surface focus-ring"
+                aria-label="Create new post"
               >
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -159,14 +160,16 @@ export const SocialFeed: React.FC = () => {
       {/* Loading state */}
       {isFetching && (
         <div className="flex justify-center py-8">
-          <Loader2 className="animate-spin text-orange-500" size={32} />
+          <Loader2 className="animate-spin text-brand" size={32} />
         </div>
       )}
       
       {!isFetching && posts.length === 0 && (
-        <div className="text-center py-20 text-muted">
-          No posts to show right now.
-        </div>
+        <EmptyState
+          icon={<Newspaper className="h-8 w-8" />}
+          title="No farm updates yet"
+          description="Farmers haven't posted any harvest updates yet. Check back soon or follow your favorite producers."
+        />
       )}
 
       {/* Mobile Modal Comment Panel */}

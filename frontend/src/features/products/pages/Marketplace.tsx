@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useSEO } from '@/hooks';
 import { ProductCard, productService } from '@/features/products';
-import { ProductCardSkeleton, Button, Container, Grid } from '@/components/ui';
+import { ProductCardSkeleton, Button, Container, Grid, Checkbox, EmptyState } from '@/components/ui';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search,  X,  Filter, ChevronDown, Check } from 'lucide-react';
 import type { Product, Category } from '@/types';
@@ -85,23 +85,15 @@ const FilterSidebar = ({
     </div>
 
     {/* Quality */}
-    <div>
-      <h3 className="text-xs font-bold text-foreground-secondary mb-4 uppercase tracking-widest">Quality</h3>
-      <label className="flex items-center gap-3 cursor-pointer group px-3 py-2.5 hover:bg-state-hover rounded-xl transition-all">
-        <input
-          type="checkbox"
-          className="hidden"
-          checked={organicOnly}
-          onChange={(e) => setOrganicOnly(e.target.checked)}
-        />
-        <div className={cn(
-          "w-5 h-5 rounded-[6px] border flex items-center justify-center transition-all",
-          organicOnly ? "bg-brand border-brand text-brand-foreground" : "border-border-strong group-hover:border-brand"
-        )}>
-          {organicOnly && <Check className="h-3.5 w-3.5 stroke-[3]" />}
-        </div>
-        <span className="text-sm font-semibold text-foreground">Organic Only</span>
-      </label>
+    <div className="px-1">
+      <h3 className="text-xs font-bold text-foreground-secondary mb-3 uppercase tracking-widest">Quality</h3>
+      <Checkbox
+        id="organic-filter"
+        checked={organicOnly}
+        onChange={(checked) => setOrganicOnly(checked)}
+        label="Organic Only"
+        description="Show only organically certified harvests"
+      />
     </div>
 
     {/* Reset */}
@@ -343,13 +335,16 @@ const Marketplace = () => {
               {Array.from({ length: 12 }).map((_, i) => <ProductCardSkeleton key={i} />)}
             </Grid>
           ) : products.length === 0 ? (
-            <div className="flex-1 w-full flex flex-col items-center justify-center py-24 px-4 text-center rounded-3xl border border-dashed border-border-strong bg-surface">
-              <div className="h-20 w-20 rounded-2xl bg-surface-elevated flex items-center justify-center mb-6">
-                <Search className="h-8 w-8 text-foreground-secondary" />
-              </div>
-              <h3 className="text-xl font-display font-bold text-foreground mb-2">No products found</h3>
-              <p className="text-sm text-foreground-secondary max-w-md mb-6">We couldn't find any products matching your current filters. Try adjusting your search criteria.</p>
-              <Button onClick={clearFilters} variant="outline" className="px-6 rounded-full">Clear All Filters</Button>
+            <div className="flex-1 w-full flex items-center justify-center py-16 px-4 rounded-3xl border border-dashed border-border-strong bg-surface">
+              <EmptyState
+                icon={<Search className="h-8 w-8 text-muted" />}
+                title="No products found"
+                description="We couldn't find any products matching your current filters. Try adjusting your search criteria."
+                action={{
+                  label: "Clear All Filters",
+                  onClick: clearFilters
+                }}
+              />
             </div>
           ) : (
             <Grid cols="auto-fit" gap="md">

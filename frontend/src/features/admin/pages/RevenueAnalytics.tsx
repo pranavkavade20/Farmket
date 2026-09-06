@@ -34,8 +34,11 @@ const RevenueAnalytics: React.FC = () => {
   const kpis = data.kpis;
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-foreground">Revenue Analytics</h1>
+    <div className="w-full space-y-8">
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground tracking-tight">Revenue Analytics</h1>
+        <p className="mt-1 text-sm font-medium text-foreground-secondary">Detailed revenue, average order value, and financial performance.</p>
+      </div>
       
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <KPICard
@@ -65,19 +68,19 @@ const RevenueAnalytics: React.FC = () => {
             <AreaChart data={data.revenue_trend} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorRevenueAnalytics" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#16a34a" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#16a34a" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.2} />
-              <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} dy={10} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} tickFormatter={(val) => `₹${val}`} />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(150,150,150,0.15)" />
+              <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#888' }} dy={10} />
+              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#888' }} tickFormatter={(val) => `₹${val}`} />
               <Tooltip 
-                contentStyle={{ backgroundColor: '#111827', border: 'none', borderRadius: '8px', color: '#fff' }}
-                itemStyle={{ color: '#4ade80' }}
+                contentStyle={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-subtle)', borderRadius: '0.75rem', color: 'var(--color-foreground)' }}
+                itemStyle={{ color: '#10B981' }}
                 formatter={(value: number) => [`₹${value}`, 'Revenue']}
               />
-              <Area type="monotone" dataKey="revenue" stroke="#16a34a" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenueAnalytics)" />
+              <Area type="monotone" dataKey="revenue" stroke="#10B981" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenueAnalytics)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>

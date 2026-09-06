@@ -24,29 +24,34 @@ const VerifyEmail = () => {
   const [resendSent, setResendSent] = useState(false);
 
   useEffect(() => {
-    if (token) {
-      handleVerification(token);
-    }
-  }, [token]);
+    if (!token) return;
+    let isMounted = true;
 
-  const handleVerification = async (verifyToken: string) => {
-    setStatus('verifying');
-    try {
-      await authService.verifyEmail(verifyToken);
-      setStatus('success');
-      if (user) {
-        updateUser({ ...user, is_verified: true });
-      }
-      toast.success('Email successfully verified! 🎉');
-    } catch (err: unknown) {
-      setStatus('error');
-      if (axios.isAxiosError(err)) {
-        setErrorMessage(err.response?.data?.detail || 'This verification link is invalid or has expired.');
-      } else {
-        setErrorMessage('Verification failed. Please try again or request a new link.');
-      }
-    }
-  };
+    authService.verifyEmail(token)
+      .then(() => {
+        if (isMounted) {
+          setStatus('success');
+          if (user) {
+            updateUser({ ...user, is_verified: true });
+          }
+          toast.success('Email successfully verified! 🎉');
+        }
+      })
+      .catch((err: unknown) => {
+        if (isMounted) {
+          setStatus('error');
+          if (axios.isAxiosError(err)) {
+            setErrorMessage(err.response?.data?.detail || 'This verification link is invalid or has expired.');
+          } else {
+            setErrorMessage('Verification failed. Please try again or request a new link.');
+          }
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [token, user, updateUser]);
 
   const handleResend = async (e: React.FormEvent) => {
     e.preventDefault();

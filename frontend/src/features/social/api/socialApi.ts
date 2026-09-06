@@ -83,6 +83,13 @@ export const socialApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: (_result, _error, { post }) => [{ type: 'Comment', id: post }] as never[],
     }),
+    deletePost: builder.mutation<void, number>({
+      query: (postId) => ({
+        url: `posts/feed/${postId}/`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Post'] as never[],
+    }),
   }),
 });
 
@@ -97,4 +104,5 @@ export const {
   useAddCommentMutation,
   useGetMyPostsQuery,
   useUpdatePostMutation,
+  useDeletePostMutation,
 } = socialApi;

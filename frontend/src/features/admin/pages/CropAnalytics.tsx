@@ -31,8 +31,11 @@ const CropAnalytics: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-foreground">Crop Analytics</h1>
+    <div className="w-full space-y-8">
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground tracking-tight">Crop Analytics</h1>
+        <p className="mt-1 text-sm font-medium text-foreground-secondary">Monitor platform crop listings and upcoming harvests.</p>
+      </div>
       
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border border-border-subtle bg-surface p-6 shadow-sm">
@@ -40,14 +43,14 @@ const CropAnalytics: React.FC = () => {
           <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data.top_crops} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#374151" opacity={0.2} />
-                <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#6B7280' }} />
-                <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: '#6B7280' }} width={80} />
+                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="rgba(150,150,150,0.15)" />
+                <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#888' }} />
+                <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#888' }} width={80} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#111827', border: 'none', borderRadius: '8px', color: '#fff' }}
-                  cursor={{ fill: '#f3f4f6', opacity: 0.1 }}
+                  contentStyle={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-subtle)', borderRadius: '0.75rem', color: 'var(--color-foreground)' }}
+                  cursor={{ fill: 'rgba(0,0,0,0.04)' }}
                 />
-                <Bar dataKey="count" name="Listings" fill="#16a34a" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="count" name="Listings" fill="#10B981" radius={[0, 6, 6, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

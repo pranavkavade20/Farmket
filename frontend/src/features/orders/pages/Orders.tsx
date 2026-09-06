@@ -4,7 +4,7 @@ import { useSEO } from '@/hooks';
 import { useAuth } from '@/features/auth';
 import { orderService } from '@/features/orders';
 import { chatService } from '@/features/chat/services/chatService';
-import { OrderStatusBadge, Button, Container, Badge } from '@/components/ui';
+import { OrderStatusBadge, Button, Badge } from '@/components/ui';
 import {
   ShoppingBag,
   Package,
@@ -45,20 +45,38 @@ const Orders: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [updatingItemId, setUpdatingItemId] = useState<number | null>(null);
 
-  const fetchOrders = useCallback(async () => {
+  const [currentTime] = useState(() => Date.now());
+
+  const reloadOrders = useCallback(async () => {
     try {
       const res = await orderService.getOrders();
       setOrders(res.results || []);
     } catch {
       toast.error('Failed to load orders');
-    } finally {
-      setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders]);
+    let isMounted = true;
+    orderService.getOrders()
+      .then((res) => {
+        if (isMounted) {
+          setOrders(res.results || []);
+        }
+      })
+      .catch(() => {
+        toast.error('Failed to load orders');
+      })
+      .finally(() => {
+        if (isMounted) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const fmt = (n: string | number) =>
     new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(
@@ -69,7 +87,7 @@ const Orders: React.FC = () => {
     new Date(s).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
   const getRelativeTime = (s: string) => {
-    const diff = Date.now() - new Date(s).getTime();
+    const diff = Math.max(0, currentTime - new Date(s).getTime());
     const hours = Math.floor(diff / (1000 * 60 * 60));
     if (hours < 1) return 'Just now';
     if (hours < 24) return `${hours}h ago`;
@@ -90,7 +108,7 @@ const Orders: React.FC = () => {
     try {
       await orderService.updateItemStatus(itemId, newStatus);
       toast.success(newStatus === 'processing' ? 'Order accepted and in processing!' : `Status updated to ${newStatus}`);
-      fetchOrders();
+      reloadOrders();
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: string } } };
       toast.error(error.response?.data?.error || 'Failed to update status');
@@ -159,7 +177,7 @@ const Orders: React.FC = () => {
   const detailUrlPrefix = isFarmer ? '/farmer/orders' : '/dashboard/orders';
 
   return (
-    <Container maxWidth="wide" className="py-8 space-y-8">
+    <div className="w-full space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
@@ -168,7 +186,7 @@ const Orders: React.FC = () => {
               {isFarmer ? 'Farmer Portal' : 'Buyer Account'}
             </span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-display font-bold text-foreground tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground tracking-tight">
             {isFarmer ? 'Received Orders' : 'My Orders'}
           </h1>
           <p className="text-sm text-foreground-secondary mt-1 max-w-xl">
@@ -180,13 +198,13 @@ const Orders: React.FC = () => {
         <div className="flex items-center gap-3">
           {isFarmer ? (
             <Link to="/farmer/crops">
-              <Button variant="outline" className="rounded-full px-5 gap-2 shadow-sm">
+              <Button variant="outline" size="sm" className="gap-2 shadow-sm">
                 <Sprout className="h-4 w-4 text-brand" /> Crop Tracking
               </Button>
             </Link>
           ) : (
             <Link to="/marketplace">
-              <Button variant="primary" className="rounded-full px-6 gap-2 shadow-sm">
+              <Button variant="brand" size="sm" className="gap-2 shadow-sm">
                 <ShoppingBag className="h-4 w-4" /> Browse Market
               </Button>
             </Link>
@@ -266,7 +284,7 @@ const Orders: React.FC = () => {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === tab
+              className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === tab
                 ? 'bg-foreground text-background shadow-sm scale-[1.02]'
                 : 'bg-surface hover:bg-surface-elevated text-foreground-secondary hover:text-foreground border border-border-subtle'
                 }`}
@@ -290,7 +308,7 @@ const Orders: React.FC = () => {
             placeholder={isFarmer ? "Search by Buyer, Order #, Product..." : "Search by Order # or Product..."}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 text-sm bg-surface border border-border-subtle rounded-full focus:outline-none focus:border-brand transition-colors text-foreground placeholder:text-foreground-secondary/70 shadow-sm"
+            className="w-full pl-10 pr-4 py-2 text-sm bg-surface border border-border-subtle rounded-xl focus:outline-none focus:border-brand transition-colors text-foreground placeholder:text-foreground-secondary/70 shadow-sm"
           />
         </div>
       </div>
@@ -323,13 +341,13 @@ const Orders: React.FC = () => {
           </p>
           {isFarmer ? (
             <Link to="/dashboard/products/new">
-              <Button variant="primary" className="rounded-full px-6">
+              <Button variant="primary">
                 Add Products to Sell
               </Button>
             </Link>
           ) : (
             <Link to="/marketplace">
-              <Button variant="primary" className="rounded-full px-6 gap-2">
+              <Button variant="brand" className="gap-2">
                 <ShoppingBag className="h-4 w-4" /> Start Shopping
               </Button>
             </Link>
@@ -513,10 +531,10 @@ const Orders: React.FC = () => {
                                   {isFarmer && item.status === 'pending' && (
                                     <Button
                                       size="sm"
-                                      variant="primary"
+                                      variant="brand"
                                       isLoading={updatingItemId === item.id}
                                       onClick={(e) => handleItemTransition(item.id, 'processing', e)}
-                                      className="rounded-full text-xs h-8 px-3 gap-1.5 shadow-sm"
+                                      className="gap-1.5 shadow-sm"
                                     >
                                       <Check className="h-3.5 w-3.5" /> Accept
                                     </Button>
@@ -528,7 +546,7 @@ const Orders: React.FC = () => {
                                       variant="outline"
                                       isLoading={updatingItemId === item.id}
                                       onClick={(e) => handleItemTransition(item.id, 'shipped', e)}
-                                      className="rounded-full text-xs h-8 px-3 gap-1.5 hover:bg-brand hover:text-brand-foreground hover:border-brand"
+                                      className="gap-1.5 hover:bg-brand hover:text-brand-foreground hover:border-brand"
                                     >
                                       <Truck className="h-3.5 w-3.5" /> Ship
                                     </Button>
@@ -564,7 +582,8 @@ const Orders: React.FC = () => {
                       <Link to={`${detailUrlPrefix}/${order.id}`} className="w-full sm:w-auto">
                         <Button
                           variant="outline"
-                          className="w-full sm:w-auto rounded-full px-5 gap-2 group-hover:border-brand group-hover:text-brand transition-colors"
+                          size="sm"
+                          className="w-full sm:w-auto gap-2 group-hover:border-brand group-hover:text-brand transition-colors"
                         >
                           View Full Details <ArrowRight className="h-4 w-4" />
                         </Button>
@@ -577,7 +596,7 @@ const Orders: React.FC = () => {
           </AnimatePresence>
         </div>
       )}
-    </Container>
+    </div>
   );
 };
 

@@ -51,7 +51,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
       onClick={() => onCommentClick(post.id)}
-      className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 text-foreground-secondary hover:text-orange-500 transition-colors`}
+      className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 text-foreground-secondary hover:text-brand transition-colors`}
       title="Comment"
     >
       <div className={`p-2 rounded-full ${isDesktop ? 'bg-surface-elevated' : ''}`}>
@@ -76,7 +76,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
       onClick={handleSave}
-      className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 transition-colors ${isSaved ? 'text-orange-600 dark:text-orange-400' : 'text-foreground-secondary hover:text-orange-500'}`}
+      className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 transition-colors ${isSaved ? 'text-brand' : 'text-foreground-secondary hover:text-brand'}`}
       title="Bookmark"
     >
       <div className={`p-2 rounded-full ${isDesktop ? 'bg-surface-elevated' : ''}`}>
@@ -188,13 +188,13 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
           {/* Header */}
           <div className="p-4 md:p-5 flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="h-11 w-11 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold text-lg shadow-inner ring-2 ring-white dark:ring-gray-900">
+              <div className="h-11 w-11 rounded-full bg-brand flex items-center justify-center text-white font-bold text-lg shadow-inner ring-2 ring-background">
                 {post.farmer?.first_name?.[0] || post.farmer?.username?.[0] || 'F'}
               </div>
               <div>
                 <h3 className="font-bold text-foreground flex items-center gap-1.5 text-base">
                   {post.farmer?.first_name} {post.farmer?.last_name}
-                  {post.is_pinned && <Pin size={14} className="text-orange-500 rotate-45" />}
+                  {post.is_pinned && <Pin size={14} className="text-brand rotate-45" />}
                 </h3>
                 <p className="text-xs font-medium text-muted flex items-center gap-1">
                   {post.location && <><MapPin size={12} /> {post.location} • </>}
@@ -215,7 +215,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
               {isLongCaption && (
                 <button 
                   onClick={() => setIsCaptionExpanded(!isCaptionExpanded)}
-                  className="ml-1 text-orange-500 hover:text-orange-600 font-semibold text-sm focus:outline-none"
+                  className="ml-1 text-brand hover:text-brand-hover font-semibold text-sm focus:outline-none"
                 >
                   {isCaptionExpanded ? 'Show less' : 'Read more'}
                 </button>
@@ -226,7 +226,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
             {post.hashtags && post.hashtags.length > 0 && (
               <div className="flex flex-wrap gap-2 pt-3">
                 {post.hashtags.map((tag: string, i: number) => (
-                  <span key={i} className="text-xs text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/30 px-2.5 py-1 rounded-full font-semibold border border-orange-100 dark:border-orange-800/50">
+                  <span key={i} className="text-xs text-brand bg-brand-muted px-2.5 py-1 rounded-full font-semibold border border-brand/20">
                     #{tag}
                   </span>
                 ))}
@@ -310,7 +310,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
 
           {/* Commerce Section (Pinned Product) */}
           {post.product && (
-            <div className="m-4 md:m-5 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/10 dark:to-amber-900/10 border border-orange-100 dark:border-orange-800/50 p-4 rounded-2xl">
+            <div className="m-4 md:m-5 bg-surface-elevated border border-border-subtle p-4 rounded-2xl">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-bold text-foreground flex items-center gap-2">
@@ -321,7 +321,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
                       </span>
                     )}
                   </p>
-                  <p className="text-xl font-black text-orange-600 dark:text-orange-400 mt-0.5">
+                  <p className="text-xl font-black text-brand mt-0.5">
                     ₹{post.product.price}
                   </p>
                   <p className="text-xs text-foreground-secondary font-medium mt-0.5">
@@ -333,7 +333,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => onBuyNowClick(post.product!)}
-                    className="bg-orange-600 hover:bg-orange-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-orange-200 dark:shadow-none transition-colors whitespace-nowrap"
+                    className="bg-brand hover:bg-brand-hover text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-sm transition-colors whitespace-nowrap"
                   >
                     {post.product.is_prebookable ? (
                       <><Calendar size={18} /> Pre-book</>
@@ -346,18 +346,18 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
 
               {/* Upcoming Harvest Progress */}
               {post.product.crop_stage && (
-                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-3 rounded-xl border border-white dark:border-gray-700 shadow-sm mt-3">
+                <div className="bg-surface/80 backdrop-blur-sm p-3 rounded-xl border border-border-subtle shadow-sm mt-3">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-bold text-orange-700 dark:text-orange-400 flex items-center gap-1.5 uppercase tracking-wide">
+                    <span className="text-xs font-bold text-brand flex items-center gap-1.5 uppercase tracking-wide">
                       <Sprout size={14} /> {post.product.crop_stage.replace(/_/g, ' ')}
                     </span>
                     <span className="text-xs text-foreground-secondary flex items-center gap-1 font-semibold">
                       <Calendar size={12} className="text-muted" /> {post.product.harvest_countdown} days to harvest
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200/50 dark:bg-gray-700/50 rounded-full h-2 overflow-hidden shadow-inner">
+                  <div className="w-full bg-border-subtle rounded-full h-2 overflow-hidden shadow-inner">
                     <div 
-                      className="bg-gradient-to-r from-orange-400 to-orange-600 h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden" 
+                      className="bg-gradient-to-r from-brand to-emerald-400 h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden" 
                       style={{ width: `${post.product.progress_percentage || 0}%` }}
                     >
                       <div className="absolute inset-0 bg-white/20 w-full animate-pulse"></div>

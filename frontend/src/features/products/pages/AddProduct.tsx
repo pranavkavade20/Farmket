@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useSEO } from '@/hooks';
 import { useAuth } from '@/features/auth';
 import { productService } from '@/features/products';
-import { Button, Input, Container } from '@/components/ui';
+import { Button, Input } from '@/components/ui';
 import { ArrowLeft, Package, Leaf, Image as ImageIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from "sonner";
@@ -62,11 +62,11 @@ const AddProduct = () => {
 
   if (user?.user_type !== 'farmer') {
     return (
-      <Container maxWidth="narrow" className="py-24 text-center">
+      <div className="w-full max-w-md mx-auto py-24 text-center">
         <Package className="mx-auto h-12 w-12 text-foreground-secondary mb-4" />
         <h2 className="text-xl font-display font-bold text-foreground mb-2">Farmers Only</h2>
         <p className="text-foreground-secondary">Only farmer accounts can list products.</p>
-      </Container>
+      </div>
     );
   }
 
@@ -149,14 +149,14 @@ const AddProduct = () => {
   };
 
   return (
-    <Container maxWidth="narrow">
+    <div className="w-full max-w-3xl mx-auto space-y-6">
       {/* Back link */}
-      <Link to="/dashboard/products" className="inline-flex items-center gap-2 text-sm font-semibold text-foreground-secondary hover:text-foreground transition-colors mb-6">
+      <Link to="/dashboard/products" className="inline-flex items-center gap-2 text-sm font-semibold text-foreground-secondary hover:text-foreground transition-colors">
         <ArrowLeft className="h-4 w-4" /> Back to My Products
       </Link>
 
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl font-display font-bold text-foreground mb-1">Add New Product</h1>
+        <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground mb-1 tracking-tight">Add New Product</h1>
         <p className="text-sm font-medium text-foreground-secondary mb-8">List a fresh product for buyers to discover.</p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -335,17 +335,17 @@ const AddProduct = () => {
             </label>
           </div>
 
-          <div className="flex gap-4 justify-end pt-4">
+          <div className="flex gap-3 justify-end pt-4">
             <Link to="/dashboard/products">
-              <Button type="button" variant="outline" className="h-12 px-6 rounded-full font-bold">Cancel</Button>
+              <Button type="button" variant="outline" size="lg">Cancel</Button>
             </Link>
-            <Button type="submit" variant="primary" isLoading={saving} className="h-12 px-6 rounded-full font-bold gap-2">
+            <Button type="submit" variant="brand" size="lg" isLoading={saving} className="gap-2">
               <Package className="h-5 w-5" /> List Product
             </Button>
           </div>
         </form>
       </motion.div>
-    </Container>
+    </div>
   );
 };
 

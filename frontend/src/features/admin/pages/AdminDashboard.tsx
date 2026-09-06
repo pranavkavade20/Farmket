@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Users, ShoppingBag, Package, DollarSign, Download} from 'lucide-react';
+import { Users, ShoppingBag, Package, DollarSign, Download } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Button } from '@/components/ui';
 import KPICard from '../components/KPICard';
 import { adminAnalyticsService, type AdminExecutiveData } from '../services/adminAnalyticsService';
 import { toast } from "sonner";
@@ -44,29 +45,33 @@ const AdminDashboard: React.FC = () => {
   const kpis = data.kpis;
 
   return (
-    <div className="space-y-6">
+    <div className="w-full space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Executive Overview</h1>
-          <p className="mt-1 text-sm text-muted">
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground tracking-tight">Executive Overview</h1>
+          <p className="mt-1 text-sm font-medium text-foreground-secondary">
             Monitor platform health, marketplace performance, and business growth.
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => handleExport('users')}
-            className="flex items-center gap-2 rounded-lg bg-surface px-4 py-2 text-sm font-medium text-foreground-secondary border border-border-subtle hover:bg-state-hover transition-colors"
+            className="gap-2"
           >
             <Download className="h-4 w-4" />
             Users Report
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
             onClick={() => handleExport('orders')}
-            className="flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-brand-foreground hover:bg-brand-hover transition-colors"
+            className="gap-2"
           >
             <Download className="h-4 w-4" />
             Orders Report
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -118,7 +123,7 @@ const AdminDashboard: React.FC = () => {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.2} />
                 <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} dy={10} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} tickFormatter={(val) => `₹${val}`} />
-                <Tooltip 
+                <Tooltip
                   contentStyle={{ backgroundColor: '#111827', border: 'none', borderRadius: '8px', color: '#fff' }}
                   itemStyle={{ color: '#4ade80' }}
                   formatter={(value: number) => [`₹${value}`, 'Revenue']}
@@ -148,7 +153,7 @@ const AdminDashboard: React.FC = () => {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.2} />
                 <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} dy={10} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} />
-                <Tooltip 
+                <Tooltip
                   contentStyle={{ backgroundColor: '#111827', border: 'none', borderRadius: '8px', color: '#fff' }}
                 />
                 <Area type="monotone" dataKey="farmers" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorFarmers)" name="Farmers" />
