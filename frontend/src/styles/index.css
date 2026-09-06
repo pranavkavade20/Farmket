@@ -1,6 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700&display=swap');
+/* 1. Update Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400..700;1,14..32,400..700&family=Plus+Jakarta+Sans:ital,wght@0,500..800;1,500..800&display=swap');
 @import "tailwindcss";
+
+@theme {
+  /* 2. Map Font Families */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* ... rest of your design tokens ... */
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    /* Enable contextual alternates & tabular figures for clean numbers */
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* Force tabular numbers in pricing, counters, and data tables */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
 
 @custom-variant dark (&:where(.dark, .dark *));
 

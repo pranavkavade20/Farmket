@@ -95,18 +95,16 @@ const ForgotPassword = () => {
       ) : (
         <form onSubmit={handleSubmit} className="space-y-6 text-left" noValidate>
           <div>
-            <label className="block text-xs font-black text-foreground-secondary uppercase tracking-widest mb-3" htmlFor="email">
-              Email Address
-            </label>
             <Input
               id="email"
+              label="Email Address"
               type="email"
               autoComplete="email"
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              icon={<Mail className="h-5 w-5" />}
-              className="h-16 text-base shadow-inner bg-surface-elevated/50 backdrop-blur-md border-border-subtle"
+              icon={<Mail className="h-4 w-4" />}
+              inputSize="lg"
               required
             />
           </div>
@@ -114,7 +112,9 @@ const ForgotPassword = () => {
           <div className="pt-2">
             <Button
               type="submit"
-              className="w-full h-16 rounded-full font-black text-lg tracking-wide shadow-xl"
+              variant="primary"
+              size="lg"
+              className="w-full shadow-md shadow-brand/20 font-bold"
               isLoading={loading}
             >
               Send Reset Link

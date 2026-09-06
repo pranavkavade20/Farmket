@@ -204,7 +204,7 @@ const Orders: React.FC = () => {
             </Link>
           ) : (
             <Link to="/marketplace">
-              <Button variant="brand" size="sm" className="gap-2 shadow-sm">
+              <Button variant="primary" size="sm" className="gap-2 shadow-sm">
                 <ShoppingBag className="h-4 w-4" /> Browse Market
               </Button>
             </Link>

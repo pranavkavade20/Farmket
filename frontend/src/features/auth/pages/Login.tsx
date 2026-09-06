@@ -57,43 +57,43 @@ const Login = () => {
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       className="text-center"
     >
-      <h1 className="text-3xl font-display font-black text-foreground mb-3 tracking-tight transition-colors duration-300">Welcome Back</h1>
-      <p className="text-base font-bold text-foreground-secondary transition-colors duration-300">
+      <h1 className="text-3xl font-display font-bold text-foreground mb-2 tracking-tight transition-colors duration-300">Welcome Back</h1>
+      <p className="text-sm font-medium text-foreground-secondary transition-colors duration-300">
         Not a member?{' '}
         <Link
           to="/register"
-          className="text-foreground hover:underline transition-colors"
+          className="font-semibold text-brand hover:underline transition-colors"
         >
           Create a free account
         </Link>
       </p>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="mt-10 space-y-6 text-left" noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5 text-left" noValidate>
         <div>
-          <label className="block text-xs font-black text-foreground-secondary uppercase tracking-widest mb-3 transition-colors duration-300" htmlFor="email">Email Address</label>
           <Input
             id="email"
+            label="Email Address"
             type="email"
             autoComplete="email"
             placeholder="you@example.com"
             {...register('email')}
             error={errors.email?.message}
-            icon={<Mail className="h-5 w-5" />}
-            className="h-16 text-base shadow-inner bg-surface-elevated/50 backdrop-blur-md border-border-subtle"
+            icon={<Mail className="h-4 w-4" />}
+            inputSize="lg"
           />
         </div>
 
         <div>
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-1.5">
             <label
               htmlFor="password"
-              className="block text-xs font-black text-foreground-secondary uppercase tracking-widest transition-colors duration-300"
+              className="text-xs font-bold uppercase tracking-wider text-foreground-secondary"
             >
               Password
             </label>
             <Link
               to="/forgot-password"
-              className="text-xs font-bold text-foreground-secondary hover:text-foreground transition-colors"
+              className="text-xs font-semibold text-brand hover:underline transition-colors"
             >
               Forgot password?
             </Link>
@@ -105,13 +105,19 @@ const Login = () => {
             placeholder="••••••••"
             {...register('password')}
             error={errors.password?.message}
-            icon={<Lock className="h-5 w-5" />}
-            className="h-16 text-base shadow-inner bg-surface-elevated/50 backdrop-blur-md border-border-subtle"
+            icon={<Lock className="h-4 w-4" />}
+            inputSize="lg"
           />
         </div>
 
-        <div className="pt-4">
-          <Button type="submit" className="w-full h-16 rounded-full font-black text-lg tracking-wide shadow-xl" isLoading={isSubmitting}>
+        <div className="pt-2">
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            className="w-full shadow-md shadow-brand/20 font-bold"
+            isLoading={isSubmitting}
+          >
             Sign In
           </Button>
         </div>

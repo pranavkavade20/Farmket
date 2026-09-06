@@ -111,52 +111,50 @@ const ResetPassword = () => {
 
           <Button
             type="button"
-            className="w-full h-16 rounded-full font-black text-lg tracking-wide shadow-xl"
+            variant="brand"
+            size="lg"
+            className="w-full shadow-md shadow-brand/20 font-bold"
             onClick={() => navigate('/login')}
           >
             Sign In Now
           </Button>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-6 text-left" noValidate>
+        <form onSubmit={handleSubmit} className="space-y-5 text-left" noValidate>
           {!urlToken && (
             <div>
-              <label className="block text-xs font-black text-foreground-secondary uppercase tracking-widest mb-3" htmlFor="token">
-                Reset Token
-              </label>
               <Input
                 id="token"
+                label="Reset Token"
                 type="text"
                 placeholder="Paste token from email link"
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
-                className="h-14 text-sm font-mono shadow-inner bg-surface-elevated/50 backdrop-blur-md border-border-subtle"
+                inputSize="lg"
+                className="font-mono text-sm"
                 required
               />
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-black text-foreground-secondary uppercase tracking-widest mb-3" htmlFor="newPassword">
-              New Password
-            </label>
             <Input
               id="newPassword"
+              label="New Password"
               type="password"
               placeholder="Min 8 characters"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              icon={<Lock className="h-5 w-5" />}
-              className="h-16 text-base shadow-inner bg-surface-elevated/50 backdrop-blur-md border-border-subtle"
+              icon={<Lock className="h-4 w-4" />}
+              inputSize="lg"
               required
             />
             {newPassword && (
               <div className="mt-2 space-y-1">
                 <div className="flex gap-1 h-1.5 w-full bg-border-subtle rounded-full overflow-hidden">
                   <div
-                    className={`h-full transition-all duration-300 ${
-                      strength <= 1 ? 'w-1/4 bg-semantic-danger' : strength <= 3 ? 'w-3/4 bg-semantic-warning' : 'w-full bg-brand'
-                    }`}
+                    className={`h-full transition-all duration-300 ${strength <= 1 ? 'w-1/4 bg-semantic-danger' : strength <= 3 ? 'w-3/4 bg-semantic-warning' : 'w-full bg-brand'
+                      }`}
                   />
                 </div>
                 <p className="text-[11px] font-bold text-foreground-secondary flex items-center gap-1">
@@ -168,17 +166,15 @@ const ResetPassword = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-black text-foreground-secondary uppercase tracking-widest mb-3" htmlFor="confirmPassword">
-              Confirm New Password
-            </label>
             <Input
               id="confirmPassword"
+              label="Confirm New Password"
               type="password"
               placeholder="Re-enter password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              icon={<Lock className="h-5 w-5" />}
-              className="h-16 text-base shadow-inner bg-surface-elevated/50 backdrop-blur-md border-border-subtle"
+              icon={<Lock className="h-4 w-4" />}
+              inputSize="lg"
               required
             />
           </div>
@@ -186,7 +182,9 @@ const ResetPassword = () => {
           <div className="pt-2">
             <Button
               type="submit"
-              className="w-full h-16 rounded-full font-black text-lg tracking-wide shadow-xl"
+              variant="primary"
+              size="lg"
+              className="w-full shadow-md shadow-brand/20 font-bold"
               isLoading={loading}
             >
               Update Password
