@@ -18,36 +18,55 @@
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Key Features](#key-features)
-  - [Frontend (Web SPA)](#frontend-web-spa)
-  - [Mobile (Expo React Native)](#mobile-expo-react-native)
-  - [Backend & Infrastructure](#backend--infrastructure)
-  - [Domain Capabilities (Buyer, Farmer, Admin)](#domain-capabilities)
-- [Technology Stack](#technology-stack)
-- [System Architecture](#system-architecture)
-- [Project Structure](#project-structure)
-- [Prerequisites](#prerequisites)
-- [Installation & Setup](#installation--setup)
-  - [1. Backend Setup](#1-backend-setup)
-  - [2. Frontend Setup](#2-frontend-setup)
-  - [3. Mobile Setup](#3-mobile-setup)
-- [Environment Variables](#environment-variables)
-- [Database Setup & Management](#database-setup--management)
-- [Development Run Commands](#development-run-commands)
-- [Available Scripts](#available-scripts)
-- [API & Authentication Overview](#api--authentication-overview)
-  - [Authentication Flow](#authentication-flow)
-  - [Primary API Routes](#primary-api-routes)
-  - [Real-Time WebSocket Protocol](#real-time-websocket-protocol)
-  - [Interactive API Documentation](#interactive-api-documentation)
-- [Testing & Quality Assurance](#testing--quality-assurance)
-- [Build & Deployment](#build--deployment)
-- [Documentation Index](#documentation-index)
-- [Implementation vs. Documentation Notes](#implementation-vs-documentation-notes)
-- [Known Limitations & Roadmap](#known-limitations--roadmap)
-- [Screenshots](#screenshots)
-- [Author & License](#author--license)
+- [ Farmket](#-farmket)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Key Features](#key-features)
+    - [Frontend (Web SPA)](#frontend-web-spa)
+    - [Mobile (Expo React Native)](#mobile-expo-react-native)
+    - [Backend \& Infrastructure](#backend--infrastructure)
+    - [Domain Capabilities](#domain-capabilities)
+  - [Technology Stack](#technology-stack)
+    - [Backend](#backend)
+    - [Web Frontend](#web-frontend)
+    - [Mobile](#mobile)
+  - [System Architecture](#system-architecture)
+  - [Project Structure](#project-structure)
+  - [Prerequisites](#prerequisites)
+  - [Installation \& Setup](#installation--setup)
+    - [1. Backend Setup](#1-backend-setup)
+    - [2. Frontend Setup](#2-frontend-setup)
+    - [3. Mobile Setup](#3-mobile-setup)
+  - [Environment Variables](#environment-variables)
+    - [Backend (`backend/.env`)](#backend-backendenv)
+    - [Frontend (`frontend/.env`)](#frontend-frontendenv)
+    - [Mobile (`mobile/.env`)](#mobile-mobileenv)
+  - [Database Setup \& Management](#database-setup--management)
+  - [Development Run Commands](#development-run-commands)
+    - [1. Backend Server (Daphne ASGI)](#1-backend-server-daphne-asgi)
+    - [2. Celery Worker (Async Tasks)](#2-celery-worker-async-tasks)
+    - [3. Celery Beat (Periodic Scheduler)](#3-celery-beat-periodic-scheduler)
+    - [4. React Web Frontend](#4-react-web-frontend)
+    - [5. Expo Mobile Client](#5-expo-mobile-client)
+  - [Available Scripts](#available-scripts)
+    - [Backend (`backend/`)](#backend-backend)
+    - [Frontend (`frontend/`)](#frontend-frontend)
+    - [Mobile (`mobile/`)](#mobile-mobile)
+  - [API \& Authentication Overview](#api--authentication-overview)
+    - [Authentication Flow](#authentication-flow)
+    - [Primary API Routes](#primary-api-routes)
+    - [Real-Time WebSocket Protocol](#real-time-websocket-protocol)
+    - [Interactive API Documentation](#interactive-api-documentation)
+  - [Testing \& Quality Assurance](#testing--quality-assurance)
+    - [Development Tooling](#development-tooling)
+    - [Running Quality Checks](#running-quality-checks)
+  - [Build \& Deployment](#build--deployment)
+    - [Production Builds](#production-builds)
+    - [Target Deployment Topology](#target-deployment-topology)
+  - [Documentation Index](#documentation-index)
+  - [Implementation vs. Documentation Notes](#implementation-vs-documentation-notes)
+  - [Known Limitations \& Roadmap](#known-limitations--roadmap)
+  - [Author \& License](#author--license)
 
 ---
 
@@ -671,18 +690,6 @@ When comparing the live codebase against earlier documentation in `docs/`, note 
 * **Media Storage**: Uploaded files currently save to the local filesystem (`backend/media/`). Phase 3 will migrate media handling to cloud object storage (AWS S3 / GCS).
 * **Push Notifications**: Real-time notifications operate in-app and via WebSockets. Native Expo Push API integration is planned for Phase 2.
 * **Geospatial Discovery**: Current product search uses SQL text and category filtering. Location-based radius queries via PostGIS are scheduled for Phase 4.
-
----
-
-## Screenshots
-
-### Dashboards
-
-#### Farmer Dashboard
-<img width="1597" height="896" alt="Farmer Dashboard" src="https://github.com/user-attachments/assets/05e70370-3396-47c0-8623-5503c6a3d030" />
-
-#### Buyer Dashboard
-<img width="1646" height="925" alt="Buyer Dashboard" src="https://github.com/user-attachments/assets/8b2bbd1a-196a-464e-91fc-f990350f20fd" />
 
 ---
 
