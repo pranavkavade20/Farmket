@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Image, ActivityIndicator, TouchableOpacity, Alert, Modal } from 'react-native';
+import { View, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, Alert, Modal } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AppHeader, AppText, AppCard, AppButton, AppBadge, AppEmptyState, AppInput } from '../../components/ui';
-import { colors, spacing, radii } from '../../theme';
+import { Image } from 'expo-image';
+import { AppHeader, AppText, AppCard, AppButton, AppBadge, AppEmptyState, AppInput, SectionHeader } from '../../components/ui';
+import { TopBarActions } from '../../components/navigation/TopBarActions';
+import { colors, spacing, radii, shadows } from '../../theme';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
 import { useQuery } from '@tanstack/react-query';
@@ -11,8 +13,8 @@ import { formatCurrency, formatDate } from '../../utils/format';
 import { resendVerificationApi, changePasswordApi } from '../../api/auth';
 import { normalizeApiError } from '../../api/client';
 import { 
-  Package, LogOut, Settings, HelpCircle, Info, 
-  ChevronRight, Sprout, ShoppingBag, ShieldCheck, CheckCircle2, AlertTriangle, Lock
+  Package, LogOut, Settings, HelpCircle, 
+  ChevronRight, Sprout, ShoppingBag, ShieldCheck, CheckCircle2, AlertTriangle, Lock, MapPin
 } from 'lucide-react-native';
 
 export default function ProfileScreen() {
@@ -57,7 +59,7 @@ export default function ProfileScreen() {
   const handleLogoutAll = () => {
     Alert.alert(
       'Log Out All Devices',
-      'This will invalidate your sessions on all devices and phones. Continue?',
+      'This will invalidate your sessions on all devices. Continue?',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -137,17 +139,20 @@ export default function ProfileScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <AppHeader title="Account Profile" />
+      <AppHeader 
+        title="My Profile" 
+        rightActions={<TopBarActions showCart={true} showNotifications={true} />}
+      />
 
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xxxl }]} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* User Card */}
-        <AppCard elevated padding="xl" style={styles.userCard}>
+        <AppCard variant="elevated" padding="xl" borderRadius={radii.xxl} style={styles.userCard}>
           <View style={styles.avatarWrapper}>
             {user?.profile_picture ? (
-              <Image source={{ uri: user.profile_picture }} style={styles.avatar} />
+              <Image source={{ uri: user.profile_picture }} style={styles.avatar} contentFit="cover" />
             ) : (
               <View style={styles.avatarPlaceholder}>
-                <AppText variant="heading" weight="bold" color={colors.brand.primary}>
+                <AppText variant="display" weight="bold" color={colors.brand.primary} style={{ fontSize: 32 }}>
                   {user ? displayName.charAt(0).toUpperCase() : '?'}
                 </AppText>
               </View>
@@ -157,34 +162,35 @@ export default function ProfileScreen() {
                 <AppBadge 
                   label={isFarmer ? 'Farmer' : 'Buyer'} 
                   variant={isFarmer ? 'warning' : 'brand'} 
-                  size="sm" 
+                  size="xs" 
                 />
               </View>
             )}
           </View>
           
-          <AppText variant="heading" weight="bold" style={styles.name}>
+          <AppText variant="h2" weight="bold" style={styles.name}>
             {displayName}
           </AppText>
-          <AppText variant="small" color={colors.text.secondary} style={styles.email}>
+          <AppText variant="caption" color={colors.text.secondary} style={styles.email}>
             {user ? user.email : 'Sign in to access your farm store & orders'}
           </AppText>
 
           {user && (
             <TouchableOpacity 
-              style={{ flexDirection: 'row', alignItems: 'center', marginTop: 2, marginBottom: spacing.xs }}
+              style={styles.verificationRow}
               onPress={user.is_verified ? undefined : handleResendVerification}
               disabled={user.is_verified}
+              activeOpacity={0.7}
             >
               {user.is_verified ? (
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={styles.verifiedChip}>
                   <CheckCircle2 size={13} color={colors.status.success} style={{ marginRight: 4 }} />
-                  <AppText variant="caption" color={colors.status.success} weight="semibold">Verified Account</AppText>
+                  <AppText variant="label" color={colors.status.success} weight="bold">Verified Account</AppText>
                 </View>
               ) : (
-                <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: colors.status.warning + '15', paddingHorizontal: 8, paddingVertical: 2, borderRadius: radii.full }}>
+                <View style={styles.unverifiedChip}>
                   <AlertTriangle size={13} color={colors.status.warning} style={{ marginRight: 4 }} />
-                  <AppText variant="caption" color={colors.status.warning} weight="semibold">Unverified • Tap to resend email</AppText>
+                  <AppText variant="label" color={colors.status.warning} weight="bold">Unverified • Tap to resend email</AppText>
                 </View>
               )}
             </TouchableOpacity>
@@ -194,13 +200,14 @@ export default function ProfileScreen() {
             <AppButton 
               title="Sign In / Register" 
               fullWidth 
+              shape="pill"
               onPress={() => router.push('/(auth)/login')}
               style={styles.loginBtn}
             />
           ) : isFarmer ? (
             <View style={styles.farmerPill}>
               <Sprout size={14} color={colors.brand.primary} />
-              <AppText variant="small" weight="bold" color={colors.brand.primary} style={{ marginLeft: 4 }}>
+              <AppText variant="caption" weight="bold" color={colors.brand.primary} style={{ marginLeft: 4 }}>
                 {user.farm_name || `${displayName}'s Farm`} • Verified Producer
               </AppText>
             </View>
@@ -210,14 +217,11 @@ export default function ProfileScreen() {
         {/* Recent Orders Section */}
         {user && (
           <View style={styles.section}>
-            <View style={styles.sectionHeaderRow}>
-              <AppText variant="subheading" weight="bold">
-                {isFarmer ? 'Recent Store Orders' : 'My Recent Orders'}
-              </AppText>
-              <TouchableOpacity onPress={() => router.push('/(tabs)/orders' as any)}>
-                <AppText variant="small" weight="bold" color={colors.brand.primary}>View All →</AppText>
-              </TouchableOpacity>
-            </View>
+            <SectionHeader 
+              title={isFarmer ? "Recent Store Orders" : "Recent Orders"} 
+              actionTitle="View all" 
+              onAction={() => router.push('/(tabs)/orders' as any)} 
+            />
 
             {loadingOrders ? (
               <ActivityIndicator size="small" color={colors.brand.primary} style={{ marginVertical: spacing.lg }} />
@@ -228,18 +232,18 @@ export default function ProfileScreen() {
                     key={order.id} 
                     style={styles.orderItem}
                     onPress={() => router.push(`/order/${order.id}` as any)}
-                    activeOpacity={0.7}
+                    activeOpacity={0.75}
                   >
                     <View style={styles.orderIconBg}>
                       <ShoppingBag size={18} color={colors.brand.primary} />
                     </View>
                     <View style={{ flex: 1, marginLeft: spacing.md }}>
-                      <AppText weight="bold">#{order.order_number || `ORD-${order.id}`}</AppText>
-                      <AppText variant="small" color={colors.text.muted}>{formatDate(order.created_at)}</AppText>
+                      <AppText variant="bodySmall" weight="bold">#{order.order_number || `ORD-${order.id}`}</AppText>
+                      <AppText variant="caption" color={colors.text.muted}>{formatDate(order.created_at)}</AppText>
                     </View>
                     <View style={{ alignItems: 'flex-end', marginRight: spacing.sm }}>
-                      <AppBadge status={order.status} size="sm" label={order.status} />
-                      <AppText weight="bold" style={{ marginTop: 2 }}>
+                      <AppBadge status={order.status} size="xs" label={order.status} />
+                      <AppText variant="bodySmall" weight="bold" color={colors.brand.primary} style={{ marginTop: 2 }}>
                         {formatCurrency(order.total_amount || order.total_price)}
                       </AppText>
                     </View>
@@ -248,52 +252,53 @@ export default function ProfileScreen() {
                 ))}
               </View>
             ) : (
-              <AppEmptyState 
-                title="No Orders Yet" 
-                description="When transactions occur, they will be listed here."
-                icon={<Package size={32} color={colors.text.muted} />}
-              />
+              <AppCard variant="elevated" padding="lg" borderRadius={radii.xl}>
+                <AppEmptyState 
+                  title="No Orders Yet" 
+                  description="When farm transactions occur, they will be listed here."
+                  icon={<Package size={36} color={colors.text.muted} />}
+                />
+              </AppCard>
             )}
           </View>
         )}
         
         {/* Settings & Support Menu */}
         <View style={styles.section}>
-          <AppText variant="subheading" weight="bold" style={styles.sectionTitle}>
-            Account & Support
-          </AppText>
+          <SectionHeader title="Account & Settings" />
 
           <View style={styles.menuGroup}>
             <TouchableOpacity style={styles.menuRow} activeOpacity={0.7} onPress={handleSecurityMenuPress}>
               <View style={styles.menuIconBg}>
                 <Settings size={18} color={colors.text.primary} />
               </View>
-              <AppText weight="medium" style={{ flex: 1 }}>Settings & Security</AppText>
-              <ChevronRight size={18} color={colors.text.muted} />
+              <AppText variant="bodySmall" weight="medium" style={{ flex: 1 }}>Settings & Security</AppText>
+              <ChevronRight size={16} color={colors.text.muted} />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuRow} activeOpacity={0.7}>
+            <TouchableOpacity style={styles.menuRow} activeOpacity={0.7} onPress={() => router.push('/(tabs)/chat')}>
               <View style={styles.menuIconBg}>
                 <HelpCircle size={18} color={colors.text.primary} />
               </View>
-              <AppText weight="medium" style={{ flex: 1 }}>Help & Support</AppText>
-              <ChevronRight size={18} color={colors.text.muted} />
+              <AppText variant="bodySmall" weight="medium" style={{ flex: 1 }}>Help & Direct Support</AppText>
+              <ChevronRight size={16} color={colors.text.muted} />
             </TouchableOpacity>
 
             <TouchableOpacity style={[styles.menuRow, { borderBottomWidth: 0 }]} activeOpacity={0.7}>
               <View style={styles.menuIconBg}>
                 <ShieldCheck size={18} color={colors.text.primary} />
               </View>
-              <AppText weight="medium" style={{ flex: 1 }}>About Farmket Standards</AppText>
-              <ChevronRight size={18} color={colors.text.muted} />
+              <AppText variant="bodySmall" weight="medium" style={{ flex: 1 }}>Farmket Quality Standards</AppText>
+              <ChevronRight size={16} color={colors.text.muted} />
             </TouchableOpacity>
           </View>
           
           {user && (
             <AppButton 
-              title="Log Out" 
+              title="Sign Out" 
               variant="outline"
-              leftIcon={<LogOut size={18} color={colors.status.danger} />}
+              shape="pill"
+              leftIcon={<LogOut size={16} color={colors.status.danger} />}
               fullWidth 
               onPress={handleLogout}
               style={styles.logoutBtn}
@@ -304,13 +309,13 @@ export default function ProfileScreen() {
 
       {/* Change Password Modal */}
       <Modal visible={showPasswordModal} animationType="slide" transparent>
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: spacing.xl }}>
-          <AppCard elevated padding="xl">
-            <AppText variant="subheading" weight="bold" style={{ marginBottom: spacing.sm }}>
-              Change Password
+        <View style={styles.modalBackdrop}>
+          <AppCard variant="elevated" padding="xl" borderRadius={radii.xxl} style={styles.modalCard}>
+            <AppText variant="h2" weight="bold" style={{ marginBottom: spacing.xs }}>
+              Update Password
             </AppText>
-            <AppText variant="small" color={colors.text.secondary} style={{ marginBottom: spacing.lg }}>
-              Update your account password. Other active sessions will be signed out.
+            <AppText variant="caption" color={colors.text.secondary} style={{ marginBottom: spacing.lg }}>
+              Update your password. Other active device sessions will be terminated for security.
             </AppText>
 
             <AppInput
@@ -333,7 +338,7 @@ export default function ProfileScreen() {
 
             <AppInput
               label="Confirm New Password"
-              placeholder="Re-enter password"
+              placeholder="Re-enter new password"
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               secureTextEntry
@@ -344,11 +349,13 @@ export default function ProfileScreen() {
               <AppButton
                 title="Cancel"
                 variant="outline"
+                shape="pill"
                 style={{ flex: 1 }}
                 onPress={() => setShowPasswordModal(false)}
               />
               <AppButton
-                title="Save"
+                title="Update"
+                shape="pill"
                 style={{ flex: 1 }}
                 loading={changingPass}
                 onPress={handleChangePasswordSubmit}
@@ -361,22 +368,19 @@ export default function ProfileScreen() {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background.main,
   },
   content: {
-    padding: spacing.xl,
+    padding: spacing.lg,
+    paddingBottom: spacing.huge,
     gap: spacing.lg,
   },
   userCard: {
     alignItems: 'center',
-    borderRadius: radii.xxl,
     backgroundColor: colors.background.surface,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
   },
   avatarWrapper: {
     position: 'relative',
@@ -391,29 +395,47 @@ const styles = StyleSheet.create({
     width: 84,
     height: 84,
     borderRadius: 42,
-    backgroundColor: colors.brand.muted,
+    backgroundColor: colors.brand.tint,
     justifyContent: 'center',
     alignItems: 'center',
   },
   roleBadgeContainer: {
     position: 'absolute',
-    bottom: -4,
-    right: -8,
+    bottom: -2,
+    right: -4,
   },
   name: {
     marginBottom: 2,
-    fontSize: 20,
   },
   email: {
     marginBottom: spacing.sm,
   },
+  verificationRow: {
+    marginBottom: spacing.xs,
+  },
+  verifiedChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.status.successMuted,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radii.pill,
+  },
+  unverifiedChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.status.warningMuted,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radii.pill,
+  },
   farmerPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.brand.muted + '40',
+    backgroundColor: colors.brand.tint,
     paddingHorizontal: spacing.md,
-    paddingVertical: 4,
-    borderRadius: radii.full,
+    paddingVertical: 5,
+    borderRadius: radii.pill,
     marginTop: spacing.xs,
   },
   loginBtn: {
@@ -422,21 +444,13 @@ const styles = StyleSheet.create({
   section: {
     marginTop: spacing.xs,
   },
-  sectionHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  sectionTitle: {
-    marginBottom: spacing.md,
-  },
   ordersCardGroup: {
     backgroundColor: colors.background.surface,
     borderRadius: radii.xl,
     borderWidth: 1,
     borderColor: colors.border.subtle,
     overflow: 'hidden',
+    ...shadows.xs,
   },
   orderItem: {
     flexDirection: 'row',
@@ -449,7 +463,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: colors.brand.muted,
+    backgroundColor: colors.brand.tint,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -459,6 +473,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border.subtle,
     overflow: 'hidden',
+    ...shadows.xs,
   },
   menuRow: {
     flexDirection: 'row',
@@ -480,4 +495,13 @@ const styles = StyleSheet.create({
     marginTop: spacing.xl,
     borderColor: colors.status.dangerMuted,
   },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    padding: spacing.xl,
+  },
+  modalCard: {
+    backgroundColor: colors.background.surface,
+  }
 });

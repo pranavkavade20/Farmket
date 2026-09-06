@@ -1,9 +1,10 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AppHeader, AppEmptyState, AppText, AppCard, AppButton } from '../../components/ui';
-import { colors, spacing, radii } from '../../theme';
-import { ClipboardList, Package, Truck, CheckCircle2, Clock, LogIn, UserPlus } from 'lucide-react-native';
+import { AppHeader, AppEmptyState, AppText, AppCard, AppButton, AppBadge, SegmentedControl } from '../../components/ui';
+import { TopBarActions } from '../../components/navigation/TopBarActions';
+import { colors, spacing, radii, shadows } from '../../theme';
+import { ClipboardList, Package, Truck, CheckCircle2, Clock, LogIn, UserPlus, ChevronRight } from 'lucide-react-native';
 import { useQuery } from '@tanstack/react-query';
 import { fetchOrders, Order } from '../../api/orders';
 import { useRouter } from 'expo-router';
@@ -36,33 +37,33 @@ export default function OrdersScreen() {
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <AppHeader title="Orders" />
         <View style={styles.centerContent}>
-          <View style={styles.guestContainer}>
+          <AppCard variant="tinted" padding="xl" borderRadius={radii.xxl} style={styles.guestContainer}>
             <View style={styles.guestIconBg}>
-              <ClipboardList size={40} color={colors.brand.primary} />
+              <ClipboardList size={36} color={colors.brand.primary} />
             </View>
-            <AppText variant="heading" weight="bold" style={{ marginTop: spacing.md, textAlign: 'center' }}>
-              Track Your Farm Purchases
+            <AppText variant="h2" weight="bold" align="center" style={{ marginTop: spacing.md }}>
+              Track Farm Deliveries
             </AppText>
-            <AppText color={colors.text.secondary} style={styles.guestSubtitle}>
-              Sign in to view your active orders, real-time dispatch updates, and harvest history.
+            <AppText variant="bodySmall" color={colors.text.secondary} align="center" style={styles.guestSubtitle}>
+              Sign in to view real-time harvest fulfillment, order statuses, and shipment receipts.
             </AppText>
             <View style={styles.guestBtnGroup}>
               <AppButton
                 title="Sign In"
-                leftIcon={<LogIn size={18} color={colors.text.inverse} />}
                 onPress={() => router.push('/(auth)/login')}
                 fullWidth
+                shape="pill"
                 style={{ marginBottom: spacing.sm }}
               />
               <AppButton
-                title="Create Account"
+                title="Create Free Account"
                 variant="outline"
-                leftIcon={<UserPlus size={18} color={colors.brand.primary} />}
                 onPress={() => router.push('/(auth)/register')}
                 fullWidth
+                shape="pill"
               />
             </View>
-          </View>
+          </AppCard>
         </View>
       </View>
     );
@@ -75,61 +76,44 @@ export default function OrdersScreen() {
     return true;
   });
 
-  const getStatusConfig = (status: string) => {
-    const s = status.toLowerCase();
-    switch (s) {
-      case 'delivered':
-        return { color: colors.status.success, bgColor: colors.status.successMuted, icon: CheckCircle2, label: 'Delivered' };
-      case 'shipped':
-        return { color: colors.status.info, bgColor: colors.status.infoMuted, icon: Truck, label: 'Shipped' };
-      case 'processing':
-        return { color: colors.accent.orange, bgColor: colors.accent.orange + '20', icon: Package, label: 'Processing' };
-      case 'pending':
-        return { color: colors.status.warning, bgColor: colors.status.warningMuted, icon: Clock, label: 'Pending' };
-      case 'cancelled':
-        return { color: colors.status.danger, bgColor: colors.status.dangerMuted, icon: Package, label: 'Cancelled' };
-      default:
-        return { color: colors.text.secondary, bgColor: colors.border.subtle, icon: Package, label: status };
-    }
-  };
-
   const renderOrder = ({ item }: { item: Order }) => {
-    const statusConfig = getStatusConfig(item.status);
-    const StatusIcon = statusConfig.icon;
     const totalAmount = Number(item.total_amount || item.total_price || 0);
 
     return (
       <TouchableOpacity 
-        activeOpacity={0.7} 
+        activeOpacity={0.8} 
         onPress={() => router.push(`/order/${item.id}` as any)}
       >
-        <AppCard elevated padding="md" style={styles.orderCard}>
+        <AppCard variant="elevated" padding="lg" borderRadius={radii.xl} style={styles.orderCard}>
           <View style={styles.orderHeader}>
             <View>
-              <AppText variant="small" color={colors.text.muted}>Order #{item.order_number || item.id}</AppText>
-              <AppText weight="semibold" style={{ marginTop: 2 }}>{formatDate(item.created_at)}</AppText>
-            </View>
-            <View style={[styles.statusBadge, { backgroundColor: statusConfig.bgColor }]}>
-              <StatusIcon size={14} color={statusConfig.color} />
-              <AppText variant="small" weight="semibold" color={statusConfig.color} style={{ marginLeft: 4 }}>
-                {statusConfig.label}
+              <AppText variant="label" color={colors.text.muted}>
+                ORDER #{item.order_number || item.id}
+              </AppText>
+              <AppText variant="bodySmall" weight="bold" style={{ marginTop: 2 }}>
+                {formatDate(item.created_at)}
               </AppText>
             </View>
+            <AppBadge status={item.status} size="sm" label={item.status} />
           </View>
           
           <View style={styles.orderDivider} />
           
           <View style={styles.orderFooter}>
             <View style={styles.itemPreview}>
-              <Package size={18} color={colors.text.muted} />
-              <AppText color={colors.text.secondary} style={{ marginLeft: spacing.sm }}>
-                {item.items?.length ? `${item.items.length} items` : 'View order details'}
+              <View style={styles.iconCircle}>
+                <Package size={16} color={colors.brand.primary} />
+              </View>
+              <AppText variant="caption" color={colors.text.secondary} style={{ marginLeft: spacing.xs }}>
+                {item.items?.length ? `${item.items.length} produce ${item.items.length === 1 ? 'item' : 'items'}` : 'View details'}
               </AppText>
             </View>
             
             <View style={styles.priceContainer}>
-              <AppText variant="small" color={colors.text.muted}>Total</AppText>
-              <AppText weight="bold" color={colors.text.primary}>{formatCurrency(totalAmount)}</AppText>
+              <AppText variant="h3" weight="bold" color={colors.brand.primary}>
+                {formatCurrency(totalAmount)}
+              </AppText>
+              <ChevronRight size={16} color={colors.text.muted} style={{ marginLeft: 4 }} />
             </View>
           </View>
         </AppCard>
@@ -139,25 +123,22 @@ export default function OrdersScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <AppHeader title={isFarmer ? "Store Orders" : "My Orders"} />
+      <AppHeader 
+        title={isFarmer ? "Farm Store Orders" : "My Orders"} 
+        rightActions={<TopBarActions showCart={true} showNotifications={true} />}
+      />
       
-      {/* Tabs */}
+      {/* Tab Segmented Control */}
       <View style={styles.tabsContainer}>
-        {(['all', 'processing', 'delivered'] as const).map(tab => (
-          <TouchableOpacity 
-            key={tab}
-            style={[styles.tab, activeTab === tab && styles.activeTab]}
-            onPress={() => setActiveTab(tab)}
-          >
-            <AppText 
-              weight="semibold" 
-              color={activeTab === tab ? colors.brand.primary : colors.text.secondary}
-              style={{ textTransform: 'capitalize' }}
-            >
-              {tab}
-            </AppText>
-          </TouchableOpacity>
-        ))}
+        <SegmentedControl
+          tabs={[
+            { id: 'all', label: 'All Orders' },
+            { id: 'processing', label: 'In Progress' },
+            { id: 'delivered', label: 'Delivered' },
+          ]}
+          activeTab={activeTab}
+          onTabChange={(id) => setActiveTab(id as any)}
+        />
       </View>
 
       {isLoading ? (
@@ -168,7 +149,7 @@ export default function OrdersScreen() {
         <View style={styles.centerContent}>
           <AppEmptyState 
             title="Failed to Load Orders" 
-            description="We couldn't reach the server to fetch your orders."
+            description="We couldn't connect to retrieve your order history."
             actionTitle="Retry"
             onAction={refetch}
           />
@@ -177,9 +158,9 @@ export default function OrdersScreen() {
         <View style={styles.centerContent}>
           <AppEmptyState 
             title="No Orders Found" 
-            description={activeTab === 'all' ? "You haven't placed any orders yet." : `You have no ${activeTab} orders.`}
-            icon={<ClipboardList size={48} color={colors.brand.muted} strokeWidth={1.5} />}
-            actionTitle={activeTab === 'all' && !isFarmer ? "Browse Produce" : undefined}
+            description={activeTab === 'all' ? "You haven't placed any harvest orders yet." : `No ${activeTab} orders at this moment.`}
+            icon={<ClipboardList size={44} color={colors.brand.muted} />}
+            actionTitle={activeTab === 'all' && !isFarmer ? "Explore Produce" : undefined}
             onAction={activeTab === 'all' && !isFarmer ? () => router.push('/(tabs)/search') : undefined}
           />
         </View>
@@ -189,6 +170,7 @@ export default function OrdersScreen() {
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderOrder}
           contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.brand.primary]} />
           }
@@ -204,20 +186,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.main,
   },
   tabsContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
     backgroundColor: colors.background.surface,
     borderBottomWidth: 1,
     borderBottomColor: colors.border.subtle,
-  },
-  tab: {
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-  },
-  activeTab: {
-    borderBottomColor: colors.brand.primary,
   },
   centerContent: {
     flex: 1,
@@ -227,51 +200,42 @@ const styles = StyleSheet.create({
   },
   guestContainer: {
     alignItems: 'center',
-    maxWidth: 340,
     width: '100%',
+    maxWidth: 340,
   },
   guestIconBg: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: colors.brand.muted,
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    backgroundColor: colors.brand.tint,
     alignItems: 'center',
     justifyContent: 'center',
   },
   guestSubtitle: {
-    textAlign: 'center',
     lineHeight: 20,
     marginTop: spacing.xs,
-    marginBottom: spacing.xl,
+    marginBottom: spacing.lg,
   },
   guestBtnGroup: {
     width: '100%',
   },
   listContent: {
-    padding: spacing.xl,
-    gap: spacing.md,
+    padding: spacing.lg,
+    paddingBottom: spacing.huge,
+    gap: spacing.sm,
   },
   orderCard: {
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
+    backgroundColor: colors.background.surface,
   },
   orderHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
-  statusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    borderRadius: radii.full,
-  },
   orderDivider: {
     height: 1,
     backgroundColor: colors.border.subtle,
     marginVertical: spacing.md,
-    borderStyle: 'dashed',
   },
   orderFooter: {
     flexDirection: 'row',
@@ -282,7 +246,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  iconCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.brand.tint,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   priceContainer: {
-    alignItems: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
   }
 });

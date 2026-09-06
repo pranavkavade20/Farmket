@@ -2,15 +2,16 @@ import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppHeader, AppText, AppCard, AppButton, AppEmptyState } from '../../components/ui';
-import { colors, spacing, radii } from '../../theme';
-import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchFeed, likePost, savePost, Post } from '../../api/social';
+import { TopBarActions } from '../../components/navigation/TopBarActions';
+import { colors, spacing, radii, shadows } from '../../theme';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import { fetchFeed, likePost, Post } from '../../api/social';
 import { useAuth } from '../../context/AuthContext';
 import { useRouter } from 'expo-router';
 import { formatDate } from '../../utils/format';
 import { CommentsModal } from '../../components/social/CommentsModal';
 import { PostComposerModal } from '../../components/social/PostComposerModal';
-import { Heart, MessageSquare, Share2, Plus, ShoppingBag, Leaf, Sparkles } from 'lucide-react-native';
+import { Heart, MessageSquare, Share2, Plus, ShoppingBag, Sparkles, Sprout, ShieldCheck } from 'lucide-react-native';
 import { Image } from 'expo-image';
 
 export default function SocialFeedScreen() {
@@ -76,62 +77,67 @@ export default function SocialFeedScreen() {
       : (item.farmer?.username || 'Farm Producer');
 
     return (
-      <AppCard elevated padding="md" style={styles.postCard}>
+      <AppCard variant="elevated" padding="lg" borderRadius={radii.xl} style={styles.postCard}>
         {/* Author Header */}
         <View style={styles.authorRow}>
           <View style={styles.avatar}>
-            <AppText weight="bold" color={colors.brand.primary}>
+            <AppText variant="h3" weight="bold" color={colors.brand.primary}>
               {authorName.charAt(0).toUpperCase()}
             </AppText>
           </View>
           <View style={styles.authorInfo}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <AppText weight="bold">{authorName}</AppText>
+              <AppText variant="bodySmall" weight="bold" color={colors.text.primary}>
+                {authorName}
+              </AppText>
               <View style={styles.farmerBadge}>
-                <AppText variant="small" weight="bold" color={colors.brand.primary} style={{ fontSize: 10 }}>
-                  FARMER
+                <ShieldCheck size={10} color={colors.brand.primary} />
+                <AppText variant="label" weight="bold" color={colors.brand.primary} style={{ marginLeft: 2, fontSize: 9 }}>
+                  PRODUCER
                 </AppText>
               </View>
             </View>
-            <AppText variant="small" color={colors.text.muted}>
-              {item.location || 'Local Farm'} • {formatDate(item.created_at)}
+            <AppText variant="caption" color={colors.text.muted}>
+              {item.location || 'Karnataka'} • {formatDate(item.created_at)}
             </AppText>
           </View>
         </View>
 
         {/* Post Description */}
-        <AppText color={colors.text.primary} style={styles.postDescription}>
+        <AppText variant="body" color={colors.text.primary} style={styles.postDescription}>
           {item.description}
         </AppText>
 
         {/* Media Image */}
         {mediaImage && (
           <View style={styles.mediaContainer}>
-            <Image source={{ uri: mediaImage }} style={styles.mediaImage} contentFit="cover" />
+            <Image source={{ uri: mediaImage }} style={styles.mediaImage} contentFit="cover" transition={200} />
           </View>
         )}
 
-        {/* Linked Product Banner */}
+        {/* Linked Harvest Produce Banner */}
         {item.product && (
           <TouchableOpacity
             style={styles.linkedProductBanner}
             onPress={() => router.push(`/product/${item.product!.id}` as any)}
             activeOpacity={0.8}
           >
-            <ShoppingBag size={16} color={colors.brand.primary} />
-            <View style={{ flex: 1, marginLeft: 8 }}>
-              <AppText variant="small" weight="bold" color={colors.brand.primary}>
+            <View style={styles.productIconWrapper}>
+              <ShoppingBag size={16} color={colors.brand.primary} />
+            </View>
+            <View style={{ flex: 1, marginLeft: spacing.sm }}>
+              <AppText variant="caption" weight="bold" color={colors.brand.primary}>
                 Harvest Available: {item.product.name}
               </AppText>
-              <AppText variant="small" color={colors.text.secondary}>
+              <AppText variant="caption" color={colors.text.secondary}>
                 ₹{item.product.price} / {item.product.unit}
               </AppText>
             </View>
-            <AppButton title="Shop" size="sm" variant="primary" />
+            <AppButton title="Shop" size="xs" shape="pill" variant="primary" />
           </TouchableOpacity>
         )}
 
-        {/* Action Row */}
+        {/* Engagement Action Bar */}
         <View style={styles.actionsRow}>
           <TouchableOpacity
             style={styles.actionBtn}
@@ -139,12 +145,12 @@ export default function SocialFeedScreen() {
             activeOpacity={0.7}
           >
             <Heart
-              size={20}
-              color={likeState.isLiked ? colors.status.danger : colors.text.secondary}
+              size={18}
+              color={likeState.isLiked ? colors.status.danger : colors.text.muted}
               fill={likeState.isLiked ? colors.status.danger : 'none'}
             />
             <AppText
-              variant="small"
+              variant="caption"
               weight={likeState.isLiked ? 'bold' : 'medium'}
               color={likeState.isLiked ? colors.status.danger : colors.text.secondary}
               style={{ marginLeft: 6 }}
@@ -158,14 +164,14 @@ export default function SocialFeedScreen() {
             onPress={() => setActiveCommentsPostId(item.id)}
             activeOpacity={0.7}
           >
-            <MessageSquare size={20} color={colors.text.secondary} />
-            <AppText variant="small" color={colors.text.secondary} style={{ marginLeft: 6 }}>
+            <MessageSquare size={18} color={colors.text.muted} />
+            <AppText variant="caption" color={colors.text.secondary} style={{ marginLeft: 6 }}>
               {item.comments_count || 0}
             </AppText>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionBtn} activeOpacity={0.7}>
-            <Share2 size={20} color={colors.text.secondary} />
+            <Share2 size={18} color={colors.text.muted} />
           </TouchableOpacity>
         </View>
       </AppCard>
@@ -174,7 +180,10 @@ export default function SocialFeedScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <AppHeader title="Community Feed" />
+      <AppHeader 
+        title="Field Feed" 
+        rightActions={<TopBarActions showCart={true} showNotifications={true} />}
+      />
 
       {isLoading && !refreshing ? (
         <View style={styles.centerContent}>
@@ -184,7 +193,7 @@ export default function SocialFeedScreen() {
         <View style={styles.centerContent}>
           <AppEmptyState
             title="Failed to Load Feed"
-            description="We could not retrieve community posts. Please try again."
+            description="We could not retrieve field updates. Please try again."
             actionTitle="Retry"
             onAction={refetch}
           />
@@ -192,9 +201,9 @@ export default function SocialFeedScreen() {
       ) : posts.length === 0 ? (
         <View style={styles.centerContent}>
           <AppEmptyState
-            title="No Posts Yet"
-            description="Follow farmers and explore community updates from local farms."
-            icon={<Sparkles size={48} color={colors.brand.muted} strokeWidth={1.5} />}
+            title="No Field Updates Yet"
+            description="Follow producers and discover fresh harvest updates from local farms."
+            icon={<Sparkles size={44} color={colors.brand.muted} />}
           />
         </View>
       ) : (
@@ -203,6 +212,7 @@ export default function SocialFeedScreen() {
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderPost}
           contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.brand.primary]} />
           }
@@ -218,14 +228,14 @@ export default function SocialFeedScreen() {
         />
       )}
 
-      {/* Floating Action Button for Farmers */}
+      {/* Floating Action Button for Producers */}
       {user?.user_type === 'farmer' && (
         <TouchableOpacity
           style={[styles.fab, { bottom: insets.bottom + spacing.lg }]}
           onPress={() => setIsComposerOpen(true)}
           activeOpacity={0.85}
         >
-          <Plus size={24} color="#FFFFFF" />
+          <Plus size={24} color="#FFFFFF" strokeWidth={2.4} />
         </TouchableOpacity>
       )}
 
@@ -260,15 +270,12 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
   },
   listContent: {
-    padding: spacing.xl,
-    paddingBottom: spacing.xxxl + 40,
+    padding: spacing.lg,
+    paddingBottom: spacing.huge + 40,
+    gap: spacing.sm,
   },
   postCard: {
-    marginBottom: spacing.lg,
-    borderRadius: radii.xl,
     backgroundColor: colors.background.surface,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
   },
   authorRow: {
     flexDirection: 'row',
@@ -279,7 +286,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: colors.brand.muted,
+    backgroundColor: colors.brand.tint,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing.md,
@@ -288,14 +295,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   farmerBadge: {
-    backgroundColor: colors.brand.muted,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.brand.tint,
     paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: radii.sm,
+    borderRadius: radii.pill,
     marginLeft: 6,
   },
   postDescription: {
-    fontSize: 15,
     lineHeight: 22,
     marginBottom: spacing.md,
   },
@@ -314,12 +322,20 @@ const styles = StyleSheet.create({
   linkedProductBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.brand.muted + '40',
-    borderColor: colors.brand.primary + '30',
+    backgroundColor: colors.brand.tint,
+    borderColor: colors.brand.muted,
     borderWidth: 1,
-    padding: spacing.md,
+    padding: spacing.sm,
     borderRadius: radii.lg,
     marginBottom: spacing.md,
+  },
+  productIconWrapper: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   actionsRow: {
     flexDirection: 'row',
@@ -336,17 +352,13 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    right: spacing.xl,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    right: spacing.lg,
+    width: 54,
+    height: 54,
+    borderRadius: 27,
     backgroundColor: colors.brand.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 8,
+    ...shadows.card,
   },
 });

@@ -3,9 +3,9 @@ import { View, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, TextIn
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText, AppHeader, AppButton, AppCard, AppEmptyState } from '../components/ui';
-import { colors, spacing, radii } from '../theme';
+import { colors, spacing, radii, shadows } from '../theme';
 import { useCart } from '../context/CartContext';
-import { ShoppingCart, Plus, Minus, Trash2, Tag, ArrowLeft, ShieldCheck, Truck, Award } from 'lucide-react-native';
+import { ShoppingBag, Plus, Minus, Trash2, Tag, ShieldCheck, Truck, Award, Check } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { formatCurrency } from '../utils/format';
@@ -16,6 +16,8 @@ export default function CartScreen() {
   const { cart, loading, updateQuantity, removeItem } = useCart();
   const [removingId, setRemovingId] = useState<number | null>(null);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [couponCode, setCouponCode] = useState('');
+  const [couponApplied, setCouponApplied] = useState(false);
 
   const handleCheckout = () => {
     router.push('/checkout');
@@ -37,7 +39,7 @@ export default function CartScreen() {
     if (newQty <= 0) {
       Alert.alert(
         'Remove Item',
-        `Remove "${itemName || 'this item'}" from your cart?`,
+        `Remove "${itemName || 'this produce'}" from your cart?`,
         [
           { text: 'Cancel', style: 'cancel' },
           { text: 'Remove', style: 'destructive', onPress: () => handleDeleteItem(itemId) }
@@ -57,7 +59,7 @@ export default function CartScreen() {
   if (loading && !cart) {
     return (
       <View style={[styles.container, styles.centered, { paddingTop: insets.top }]}>
-        <AppHeader title="Your Cart" showBack />
+        <AppHeader title="Shopping Cart" showBack />
         <ActivityIndicator size="large" color={colors.brand.primary} />
       </View>
     );
@@ -66,12 +68,12 @@ export default function CartScreen() {
   if (!cart || !cart.items || cart.items.length === 0) {
     return (
       <View style={[styles.container, { paddingTop: insets.top }]}>
-        <AppHeader title="Your Cart" showBack />
+        <AppHeader title="Shopping Cart" showBack />
         <AppEmptyState
           title="Your Cart is Empty"
-          description="Explore the marketplace and add fresh produce directly from local farms."
-          icon={<ShoppingCart size={48} color={colors.brand.muted} strokeWidth={1.5} />}
-          actionTitle="Browse Marketplace"
+          description="Explore fresh harvests and add direct produce to your basket."
+          icon={<ShoppingBag size={44} color={colors.brand.primary} strokeWidth={1.8} />}
+          actionTitle="Explore Marketplace"
           onAction={() => router.push('/(tabs)/search')}
         />
       </View>
@@ -79,13 +81,16 @@ export default function CartScreen() {
   }
 
   const subtotal = Number(cart.total_price || 0);
-  const deliveryFee = subtotal > 500 ? 0 : 50; // Free delivery above 500
-  const total = subtotal + deliveryFee;
+  const freeDeliveryThreshold = 500;
+  const deliveryFee = subtotal >= freeDeliveryThreshold ? 0 : 50;
+  const discount = couponApplied ? Math.round(subtotal * 0.1) : 0;
+  const total = Math.max(0, subtotal + deliveryFee - discount);
   const itemCount = cart.items.length;
+  const freeDeliveryProgress = Math.min(100, (subtotal / freeDeliveryThreshold) * 100);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <AppHeader title={`Cart (${itemCount} ${itemCount === 1 ? 'item' : 'items'})`} showBack />
+      <AppHeader title={`Shopping Cart (${itemCount})`} showBack />
       
       <KeyboardAvoidingView 
         style={{ flex: 1 }} 
@@ -96,6 +101,24 @@ export default function CartScreen() {
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          ListHeaderComponent={
+            /* Free Delivery Progress Strip */
+            <View style={styles.deliveryProgressCard}>
+              <View style={styles.deliveryProgressHeader}>
+                <Truck size={16} color={colors.brand.primary} />
+                <AppText variant="caption" weight="medium" color={colors.text.primary} style={{ flex: 1, marginLeft: 6 }}>
+                  {deliveryFee === 0 ? (
+                    'Unlocked FREE Direct Farm Delivery! 🎉'
+                  ) : (
+                    `Add ${formatCurrency(freeDeliveryThreshold - subtotal)} more for FREE delivery`
+                  )}
+                </AppText>
+              </View>
+              <View style={styles.progressBarTrack}>
+                <View style={[styles.progressBarFill, { width: `${freeDeliveryProgress}%` }]} />
+              </View>
+            </View>
+          }
           renderItem={({ item }) => {
             const prod = item.product_details || (item as any).product;
             const primaryImage = prod?.images?.find((img: any) => img.is_primary)?.image || prod?.images?.[0]?.image;
@@ -111,61 +134,58 @@ export default function CartScreen() {
                 disabled={isItemRemoving}
               >
                 {isItemRemoving ? (
-                  <ActivityIndicator size="small" color={colors.text.inverse} />
+                  <ActivityIndicator size="small" color="#FFFFFF" />
                 ) : (
-                  <Trash2 size={22} color={colors.text.inverse} />
+                  <Trash2 size={20} color="#FFFFFF" />
                 )}
               </TouchableOpacity>
             );
 
             return (
               <Swipeable renderRightActions={renderRightActions} overshootRight={false}>
-                <AppCard elevated padding="md" style={styles.card}>
+                <AppCard variant="elevated" padding="md" borderRadius={radii.xl} style={styles.card}>
                   {primaryImage ? (
-                    <Image source={{ uri: primaryImage }} style={styles.image} contentFit="cover" />
+                    <Image source={{ uri: primaryImage }} style={styles.image} contentFit="cover" transition={200} />
                   ) : (
                     <View style={styles.placeholderImage}>
-                      <AppText variant="small" color={colors.text.muted}>No image</AppText>
+                      <ShoppingBag size={24} color={colors.brand.primary} />
                     </View>
                   )}
                   
                   <View style={styles.info}>
-                    {/* Header Row with Product Name, Farmer & Delete Button */}
                     <View style={styles.headerRow}>
                       <View style={{ flex: 1, paddingRight: spacing.xs }}>
-                        <AppText weight="bold" numberOfLines={1} style={styles.productName}>
-                          {prod?.name || 'Produce Item'}
+                        <AppText variant="bodySmall" weight="bold" numberOfLines={1} color={colors.text.primary}>
+                          {prod?.name || 'Farm Produce'}
                         </AppText>
                         {prod?.farmer_name ? (
-                          <AppText variant="small" color={colors.text.secondary} numberOfLines={1}>
+                          <AppText variant="label" color={colors.text.muted} numberOfLines={1}>
                             by {prod.farmer_name}
                           </AppText>
                         ) : null}
                       </View>
 
-                      {/* Explicit Web-styled Delete/Trash Button */}
                       <TouchableOpacity
                         style={styles.deleteBtn}
                         onPress={() => handleDeleteItem(item.id, prod?.name)}
                         disabled={isItemRemoving}
                         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                        accessibilityLabel="Remove item"
                       >
                         {isItemRemoving ? (
                           <ActivityIndicator size="small" color={colors.status.danger} />
                         ) : (
-                          <Trash2 size={18} color={colors.status.danger} />
+                          <Trash2 size={16} color={colors.text.muted} />
                         )}
                       </TouchableOpacity>
                     </View>
                     
-                    <AppText variant="small" color={colors.text.muted} style={{ marginTop: 2 }}>
+                    <AppText variant="caption" color={colors.text.muted} style={{ marginTop: 2 }}>
                       {formatCurrency(itemPrice)} / {prod?.unit || 'kg'}
                     </AppText>
 
-                    {/* Action Row: Price & Quantity Controls */}
+                    {/* Price & Stepper Row */}
                     <View style={styles.actionRow}>
-                      <AppText weight="bold" color={colors.brand.primary} style={styles.subtotalText}>
+                      <AppText variant="h3" weight="bold" color={colors.brand.primary}>
                         {formatCurrency(itemSubtotal)}
                       </AppText>
                       
@@ -174,15 +194,16 @@ export default function CartScreen() {
                           style={styles.qBtn} 
                           onPress={() => handleUpdateQuantity(item.id, item.quantity, -1, prod?.name)}
                           disabled={isItemUpdating || isItemRemoving}
+                          activeOpacity={0.7}
                         >
-                          <Minus size={14} color={colors.text.primary} />
+                          <Minus size={13} color={colors.text.primary} strokeWidth={2.4} />
                         </TouchableOpacity>
                         
                         <View style={styles.qTextWrapper}>
                           {isItemUpdating ? (
                             <ActivityIndicator size="small" color={colors.brand.primary} />
                           ) : (
-                            <AppText weight="bold" style={styles.qText}>{item.quantity}</AppText>
+                            <AppText variant="caption" weight="bold" style={styles.qText}>{item.quantity}</AppText>
                           )}
                         </View>
 
@@ -190,8 +211,9 @@ export default function CartScreen() {
                           style={styles.qBtn} 
                           onPress={() => handleUpdateQuantity(item.id, item.quantity, 1, prod?.name)}
                           disabled={isItemUpdating || isItemRemoving}
+                          activeOpacity={0.7}
                         >
-                          <Plus size={14} color={colors.text.primary} />
+                          <Plus size={13} color={colors.text.primary} strokeWidth={2.4} />
                         </TouchableOpacity>
                       </View>
                     </View>
@@ -205,52 +227,66 @@ export default function CartScreen() {
               {/* Coupon Section */}
               <View style={styles.couponContainer}>
                 <View style={styles.couponInputWrapper}>
-                  <Tag size={18} color={colors.text.muted} style={{ marginLeft: spacing.md }} />
+                  <Tag size={18} color={colors.brand.primary} style={{ marginLeft: spacing.md }} />
                   <TextInput 
-                    placeholder="Enter Coupon Code"
+                    placeholder="Enter Coupon Code (e.g. ORGANIC10)"
+                    value={couponCode}
+                    onChangeText={setCouponCode}
                     style={styles.couponInput}
                     placeholderTextColor={colors.text.muted}
+                    autoCapitalize="characters"
+                    editable={!couponApplied}
                   />
-                  <TouchableOpacity style={styles.applyBtn}>
-                    <AppText weight="bold" color={colors.brand.primary}>Apply</AppText>
+                  <TouchableOpacity 
+                    style={[styles.applyBtn, couponApplied && styles.appliedBtn]}
+                    onPress={() => {
+                      if (couponApplied) {
+                        setCouponApplied(false);
+                        setCouponCode('');
+                      } else if (couponCode.trim()) {
+                        setCouponApplied(true);
+                      }
+                    }}
+                  >
+                    <AppText variant="caption" weight="bold" color={couponApplied ? colors.status.success : colors.brand.primary}>
+                      {couponApplied ? 'Applied ✓' : 'Apply'}
+                    </AppText>
                   </TouchableOpacity>
                 </View>
               </View>
 
               {/* Bill Details */}
-              <AppCard elevated padding="lg" style={styles.billCard}>
-                <AppText variant="subheading" weight="bold" style={{ marginBottom: spacing.md }}>
-                  Bill Details
+              <AppCard variant="elevated" padding="lg" borderRadius={radii.xl} style={styles.billCard}>
+                <AppText variant="h3" weight="bold" style={{ marginBottom: spacing.md }}>
+                  Order Breakdown
                 </AppText>
                 
                 <View style={styles.summaryRow}>
-                  <AppText color={colors.text.secondary}>Subtotal</AppText>
-                  <AppText weight="semibold">{formatCurrency(subtotal)}</AppText>
+                  <AppText variant="bodySmall" color={colors.text.secondary}>Produce Subtotal</AppText>
+                  <AppText variant="bodySmall" weight="semibold">{formatCurrency(subtotal)}</AppText>
                 </View>
                 
                 <View style={styles.summaryRow}>
-                  <AppText color={colors.text.secondary}>Delivery Fee</AppText>
+                  <AppText variant="bodySmall" color={colors.text.secondary}>Direct Farm Delivery</AppText>
                   {deliveryFee === 0 ? (
-                    <AppText weight="bold" color={colors.brand.primary}>Free</AppText>
+                    <AppText variant="bodySmall" weight="bold" color={colors.status.success}>FREE</AppText>
                   ) : (
-                    <AppText weight="semibold">{formatCurrency(deliveryFee)}</AppText>
+                    <AppText variant="bodySmall" weight="semibold">{formatCurrency(deliveryFee)}</AppText>
                   )}
                 </View>
-                
-                {deliveryFee > 0 && (
-                  <View style={styles.deliveryNotice}>
-                    <Truck size={14} color={colors.status.info} style={{ marginRight: 6 }} />
-                    <AppText variant="small" color={colors.status.info}>
-                      Add {formatCurrency(500 - subtotal)} more for free delivery
-                    </AppText>
+
+                {couponApplied && (
+                  <View style={styles.summaryRow}>
+                    <AppText variant="bodySmall" color={colors.status.success}>Special Discount (10%)</AppText>
+                    <AppText variant="bodySmall" weight="bold" color={colors.status.success}>-{formatCurrency(discount)}</AppText>
                   </View>
                 )}
 
                 <View style={styles.divider} />
                 
                 <View style={styles.totalRow}>
-                  <AppText variant="subheading" weight="bold">Total to Pay</AppText>
-                  <AppText variant="heading" weight="bold" color={colors.brand.primary}>
+                  <AppText variant="h3" weight="bold">Total Amount</AppText>
+                  <AppText variant="display" weight="bold" color={colors.brand.primary} style={{ fontSize: 24 }}>
                     {formatCurrency(total)}
                   </AppText>
                 </View>
@@ -262,21 +298,21 @@ export default function CartScreen() {
                   <View style={styles.badgeIconWrapper}>
                     <ShieldCheck size={18} color={colors.brand.primary} />
                   </View>
-                  <AppText variant="small" weight="semibold" style={styles.badgeText}>100% Direct</AppText>
+                  <AppText variant="label" weight="semibold" style={styles.badgeText}>Direct From Farm</AppText>
                 </View>
 
                 <View style={styles.badgeItem}>
                   <View style={styles.badgeIconWrapper}>
                     <Truck size={18} color={colors.status.info} />
                   </View>
-                  <AppText variant="small" weight="semibold" style={styles.badgeText}>Fast Delivery</AppText>
+                  <AppText variant="label" weight="semibold" style={styles.badgeText}>Carefully Dispatched</AppText>
                 </View>
 
                 <View style={styles.badgeItem}>
                   <View style={styles.badgeIconWrapper}>
-                    <Award size={18} color={colors.accent.orange} />
+                    <Award size={18} color={colors.accent.amber} />
                   </View>
-                  <AppText variant="small" weight="semibold" style={styles.badgeText}>Quality Checked</AppText>
+                  <AppText variant="label" weight="semibold" style={styles.badgeText}>100% Guaranteed</AppText>
                 </View>
               </View>
             </View>
@@ -291,6 +327,7 @@ export default function CartScreen() {
           onPress={handleCheckout}
           fullWidth
           size="lg"
+          shape="pill"
         />
       </View>
     </View>
@@ -307,30 +344,51 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   listContent: {
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.sm,
-    paddingBottom: 110,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xs,
+    paddingBottom: 120,
+  },
+  deliveryProgressCard: {
+    backgroundColor: colors.brand.tint,
+    borderWidth: 1,
+    borderColor: colors.brand.muted,
+    borderRadius: radii.lg,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+  },
+  deliveryProgressHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  progressBarTrack: {
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: colors.brand.muted,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: colors.brand.primary,
+    borderRadius: 2.5,
   },
   card: {
     flexDirection: 'row',
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
     padding: spacing.md,
     backgroundColor: colors.background.surface,
-    borderRadius: radii.xl,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
   },
   image: {
-    width: 88,
-    height: 88,
+    width: 82,
+    height: 82,
     borderRadius: radii.lg,
     backgroundColor: colors.background.elevated,
   },
   placeholderImage: {
-    width: 88,
-    height: 88,
+    width: 82,
+    height: 82,
     borderRadius: radii.lg,
-    backgroundColor: colors.background.elevated,
+    backgroundColor: colors.brand.tint,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -344,15 +402,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
-  productName: {
-    fontSize: 16,
-    color: colors.text.primary,
-  },
   deleteBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: colors.status.dangerMuted,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.background.elevated,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -360,52 +414,43 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: spacing.sm,
-  },
-  subtotalText: {
-    fontSize: 16,
+    marginTop: spacing.xs,
   },
   quantityControl: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.background.elevated,
-    borderRadius: radii.full,
+    borderRadius: radii.pill,
     paddingHorizontal: 4,
     paddingVertical: 3,
     borderWidth: 1,
     borderColor: colors.border.subtle,
   },
   qBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     backgroundColor: colors.background.surface,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
-    elevation: 1,
+    ...shadows.xs,
   },
   qTextWrapper: {
-    width: 32,
+    width: 28,
     alignItems: 'center',
     justifyContent: 'center',
   },
   qText: {
-    textAlign: 'center',
-    fontSize: 14,
-    color: colors.text.primary,
+    fontSize: 13,
   },
   deleteAction: {
     backgroundColor: colors.status.danger,
     justifyContent: 'center',
     alignItems: 'center',
-    width: 70,
-    marginBottom: spacing.md,
+    width: 68,
+    marginBottom: spacing.sm,
     borderRadius: radii.xl,
-    marginLeft: spacing.sm,
+    marginLeft: spacing.xs,
   },
   footer: {
     marginTop: spacing.sm,
@@ -421,26 +466,26 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border.subtle,
     borderRadius: radii.xl,
-    height: 48,
+    height: 46,
     overflow: 'hidden',
   },
   couponInput: {
     flex: 1,
-    paddingHorizontal: spacing.md,
-    fontSize: 14,
+    paddingHorizontal: spacing.sm,
+    fontSize: 13,
     color: colors.text.primary,
   },
   applyBtn: {
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.md,
     height: '100%',
     justifyContent: 'center',
     borderLeftWidth: 1,
     borderLeftColor: colors.border.subtle,
   },
+  appliedBtn: {
+    backgroundColor: colors.status.successMuted,
+  },
   billCard: {
-    borderRadius: radii.xl,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
     backgroundColor: colors.background.surface,
   },
   summaryRow: {
@@ -449,17 +494,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.sm,
   },
-  deliveryNotice: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 2,
-    marginBottom: spacing.sm,
-  },
   divider: {
     height: 1,
     backgroundColor: colors.border.subtle,
     marginVertical: spacing.md,
-    borderStyle: 'dashed',
   },
   totalRow: {
     flexDirection: 'row',
@@ -468,9 +506,9 @@ const styles = StyleSheet.create({
   },
   trustBadges: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     marginTop: spacing.lg,
-    paddingHorizontal: spacing.sm,
+    paddingHorizontal: spacing.xs,
   },
   badgeItem: {
     alignItems: 'center',
@@ -486,9 +524,9 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     borderWidth: 1,
     borderColor: colors.border.subtle,
+    ...shadows.xs,
   },
   badgeText: {
-    fontSize: 11,
     color: colors.text.secondary,
     textAlign: 'center',
   },
@@ -499,13 +537,9 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: colors.background.surface,
     paddingTop: spacing.md,
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.lg,
     borderTopWidth: 1,
     borderTopColor: colors.border.subtle,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 10,
+    ...shadows.card,
   }
 });

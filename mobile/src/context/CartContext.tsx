@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { 
   Cart, 
   fetchCart, 
@@ -28,7 +28,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
 
-  const refreshCart = async () => {
+  const refreshCart = useCallback(async () => {
     if (!user || user.user_type !== 'buyer') {
       setCart(null);
       return;
@@ -42,10 +42,26 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
-    refreshCart();
+    if (!user || user.user_type !== 'buyer') {
+      return;
+    }
+    let isCancelled = false;
+    fetchCart()
+      .then((data) => {
+        if (!isCancelled) {
+          setCart(data);
+        }
+      })
+      .catch((error) => {
+        console.log('[Cart] Fetch cart notice:', error);
+      });
+
+    return () => {
+      isCancelled = true;
+    };
   }, [user]);
 
   const addToCart = async (productId: number, quantity = 1, isPrebooking = false) => {
@@ -88,19 +104,20 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const itemCount = cart?.items?.reduce((total, item) => total + (item.quantity || 0), 0) || 0;
+  const activeCart = (!user || user.user_type !== 'buyer') ? null : cart;
+  const itemCount = activeCart?.items?.reduce((total, item) => total + (item.quantity || 0), 0) || 0;
 
   return (
     <CartContext.Provider 
       value={{ 
-        cart, 
+        cart: activeCart, 
         loading, 
         itemCount, 
         refreshCart, 
         addToCart, 
         updateQuantity, 
-        removeItem,
-        checkout
+        removeItem, 
+        checkout 
       }}
     >
       {children}

@@ -1,8 +1,19 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AppText, AppCard, AppButton, AppSkeleton, AppEmptyState, AppProductCard, AppCropCard } from '../../components/ui';
-import { colors, spacing, radii } from '../../theme';
+import { 
+  AppText, 
+  AppCard, 
+  AppButton, 
+  AppProductCard, 
+  AppCropCard, 
+  SectionHeader, 
+  ProductCardSkeleton, 
+  CropCardSkeleton, 
+  AppEmptyState 
+} from '../../components/ui';
+import { TopBarActions } from '../../components/navigation/TopBarActions';
+import { colors, spacing, radii, shadows } from '../../theme';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { fetchProducts, fetchCategories } from '../../api/products';
@@ -10,14 +21,26 @@ import { fetchUpcomingHarvests } from '../../api/crops';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useRequireAuth } from '../../components/auth/AuthGateModal';
-import { MapPin, ShoppingCart, Search, PackageOpen, Sprout, Tag, ShieldCheck, Leaf, Truck, ArrowRight, UserPlus } from 'lucide-react-native';
+import { 
+  MapPin, 
+  Search, 
+  PackageOpen, 
+  Sprout, 
+  Tag, 
+  ShieldCheck, 
+  Leaf, 
+  Truck, 
+  ChevronDown, 
+  Sparkles,
+  ArrowRight
+} from 'lucide-react-native';
 import { Image } from 'expo-image';
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user } = useAuth();
-  const { addToCart, itemCount } = useCart();
+  const { addToCart } = useCart();
   const { requireAuth, AuthGateModalComponent } = useRequireAuth();
   const [refreshing, setRefreshing] = useState(false);
   const [addingId, setAddingId] = useState<number | null>(null);
@@ -60,45 +83,52 @@ export default function HomeScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Header */}
-      <View style={styles.header}>
+      {/* Top Bar with Location & Unified TopBarActions */}
+      <View style={styles.topBar}>
         <View style={styles.locationContainer}>
-          <AppText variant="small" color={colors.text.secondary}>Deliver to</AppText>
-          <View style={styles.locationRow}>
-            <MapPin size={16} color={colors.brand.primary} style={{ marginRight: 4 }} />
-            <AppText weight="bold" numberOfLines={1}>Bengaluru, KA</AppText>
-          </View>
+          <AppText variant="label" color={colors.text.muted}>
+            DELIVER TO
+          </AppText>
+          <TouchableOpacity style={styles.locationRow} activeOpacity={0.7}>
+            <MapPin size={15} color={colors.brand.primary} />
+            <AppText variant="bodySmall" weight="bold" color={colors.text.primary} numberOfLines={1} style={{ marginLeft: 4 }}>
+              Bengaluru, Karnataka
+            </AppText>
+            <ChevronDown size={14} color={colors.text.muted} style={{ marginLeft: 2 }} />
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.cartBtn} onPress={() => router.push('/cart')}>
-          <ShoppingCart size={24} color={colors.text.primary} />
-          {itemCount > 0 && (
-            <View style={styles.badge}>
-              <AppText variant="small" weight="bold" color={colors.text.inverse} style={styles.badgeText}>
-                {itemCount}
-              </AppText>
-            </View>
-          )}
-        </TouchableOpacity>
+
+        <TopBarActions showCart={true} showNotifications={true} />
       </View>
 
       <ScrollView 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.brand.primary]} tintColor={colors.brand.primary} />
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh} 
+            colors={[colors.brand.primary]} 
+            tintColor={colors.brand.primary} 
+          />
         }
       >
-        {/* Search Bar routing to explore tab */}
+        {/* Search Bar Banner */}
         <View style={styles.searchContainer}>
           <TouchableOpacity 
-            style={styles.fakeSearchInput} 
-            activeOpacity={0.8}
+            style={styles.searchBar} 
+            activeOpacity={0.85}
             onPress={() => router.push('/(tabs)/search')}
           >
-            <Search size={20} color={colors.text.muted} />
-            <AppText color={colors.text.muted} style={{ marginLeft: spacing.sm }}>
-              Search fresh produce, farmers...
+            <Search size={18} color={colors.brand.primary} />
+            <AppText variant="bodySmall" color={colors.text.muted} style={{ marginLeft: spacing.sm, flex: 1 }}>
+              Search organic veggies, fruits, crops...
             </AppText>
+            <View style={styles.searchTag}>
+              <AppText variant="label" weight="semibold" color={colors.brand.primary}>
+                Explore
+              </AppText>
+            </View>
           </TouchableOpacity>
         </View>
 
@@ -106,21 +136,30 @@ export default function HomeScreen() {
         <View style={styles.heroContainer}>
           <View style={styles.heroBanner}>
             <Image 
-              source={{ uri: 'https://images.unsplash.com/photo-1595856342625-63451e03bce6?auto=format&fit=crop&q=80&w=600' }} 
-              style={StyleSheet.absoluteFillObject}
+              source={{ uri: 'https://images.unsplash.com/photo-1595856342625-63451e03bce6?auto=format&fit=crop&q=80&w=800' }} 
+              style={StyleSheet.absoluteFill}
               contentFit="cover"
             />
             <View style={styles.heroOverlay} />
             <View style={styles.heroContent}>
-              <AppText variant="heading" weight="bold" color={colors.text.inverse}>
-                Direct Farm-to-Table
+              <View style={styles.heroPill}>
+                <Sparkles size={11} color="#FFFFFF" />
+                <AppText variant="label" color="#FFFFFF" weight="bold" style={{ marginLeft: 4 }}>
+                  DIRECT HARVEST
+                </AppText>
+              </View>
+              <AppText variant="h1" weight="bold" color="#FFFFFF" style={styles.heroHeading}>
+                Pure Farm-to-Table
               </AppText>
-              <AppText variant="small" color={colors.text.inverse} style={{ marginTop: 4, marginBottom: 12, opacity: 0.9 }}>
-                Pure, fresh harvest direct from local farmers without middlemen.
+              <AppText variant="bodySmall" color="rgba(255,255,255,0.9)" style={styles.heroSubtitle}>
+                Taste produce picked hours before delivery, directly supporting local growers.
               </AppText>
               <AppButton 
                 title="Shop Marketplace" 
                 size="sm" 
+                shape="pill"
+                variant="accent"
+                rightIcon={<ArrowRight size={14} color="#FFFFFF" strokeWidth={2.4} />}
                 style={styles.heroButton} 
                 onPress={() => router.push('/(tabs)/search')} 
               />
@@ -128,39 +167,49 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Value Propositions Strip */}
-        <View style={styles.valuePropsStrip}>
-          <View style={styles.valuePropItem}>
-            <View style={styles.valuePropIcon}>
-              <Leaf size={16} color={colors.status.success} />
+        {/* Value Proposition Strip */}
+        <View style={styles.valueStrip}>
+          <View style={styles.valueItem}>
+            <View style={[styles.valueIconWrapper, { backgroundColor: '#ECFDF5' }]}>
+              <Leaf size={14} color={colors.status.success} />
             </View>
-            <AppText variant="small" weight="bold">100% Organic</AppText>
+            <AppText variant="label" weight="bold" color={colors.text.primary}>100% Organic</AppText>
           </View>
 
-          <View style={styles.valuePropItem}>
-            <View style={styles.valuePropIcon}>
-              <Sprout size={16} color={colors.brand.primary} />
+          <View style={styles.valueItem}>
+            <View style={[styles.valueIconWrapper, { backgroundColor: '#F0FDFA' }]}>
+              <Sprout size={14} color={colors.brand.primary} />
             </View>
-            <AppText variant="small" weight="bold">Pre-Book Crops</AppText>
+            <AppText variant="label" weight="bold" color={colors.text.primary}>Pre-Book Crops</AppText>
           </View>
 
-          <View style={styles.valuePropItem}>
-            <View style={styles.valuePropIcon}>
-              <ShieldCheck size={16} color={colors.status.info} />
+          <View style={styles.valueItem}>
+            <View style={[styles.valueIconWrapper, { backgroundColor: '#EFF6FF' }]}>
+              <ShieldCheck size={14} color={colors.status.info} />
             </View>
-            <AppText variant="small" weight="bold">Fair Pricing</AppText>
+            <AppText variant="label" weight="bold" color={colors.text.primary}>Direct Pricing</AppText>
           </View>
         </View>
 
-        {/* Categories from Backend */}
+        {/* Categories Rail */}
         {categories.length > 0 && (
-          <View style={styles.categoriesContainer}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesScroll}>
+          <View style={styles.sectionWrapper}>
+            <SectionHeader 
+              title="Shop by Category" 
+              actionTitle="View all" 
+              onAction={() => router.push('/(tabs)/search')} 
+              style={styles.sectionHeader}
+            />
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false} 
+              contentContainerStyle={styles.categoriesScroll}
+            >
               {categories.map((cat) => (
                 <TouchableOpacity 
                   key={cat.id} 
                   style={styles.categoryItem} 
-                  activeOpacity={0.7} 
+                  activeOpacity={0.75} 
                   onPress={() => router.push({
                     pathname: '/(tabs)/search',
                     params: { category: cat.slug }
@@ -168,12 +217,12 @@ export default function HomeScreen() {
                 >
                   <View style={styles.categoryIconCircle}>
                     {cat.image ? (
-                      <Image source={{ uri: cat.image }} style={styles.categoryImg} contentFit="cover" />
+                      <Image source={{ uri: cat.image }} style={styles.categoryImg} contentFit="cover" transition={200} />
                     ) : (
-                      <Tag size={20} color={colors.brand.primary} />
+                      <Tag size={22} color={colors.brand.primary} />
                     )}
                   </View>
-                  <AppText variant="small" weight="medium" style={{ marginTop: 6 }} numberOfLines={1}>
+                  <AppText variant="label" weight="semibold" align="center" numberOfLines={1} style={styles.categoryLabel}>
                     {cat.name}
                   </AppText>
                 </TouchableOpacity>
@@ -182,82 +231,78 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* Featured Products */}
-        <View style={styles.sectionHeader}>
-          <AppText variant="subheading" weight="bold">Featured Produce</AppText>
-          <TouchableOpacity onPress={() => router.push('/(tabs)/search')}>
-            <AppText variant="small" weight="semibold" color={colors.brand.primary}>See all →</AppText>
-          </TouchableOpacity>
-        </View>
-        
-        {loadingProducts && !refreshing ? (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalProductsScroll}>
-            {[1, 2, 3].map((i) => (
-              <AppCard key={i} elevated padding={0} style={styles.skeletonVerticalCard}>
-                <AppSkeleton width="100%" height={140} borderRadius={0} />
-                <View style={{ padding: spacing.md }}>
-                  <AppSkeleton width="80%" height={16} style={{ marginBottom: 8 }} />
-                  <AppSkeleton width="50%" height={14} style={{ marginBottom: 8 }} />
-                  <AppSkeleton width="40%" height={18} />
+        {/* Featured Products Carousel */}
+        <View style={styles.sectionWrapper}>
+          <SectionHeader 
+            title="Fresh In Season" 
+            subtitle="Hand-picked daily by verified farmers"
+            actionTitle="See all" 
+            onAction={() => router.push('/(tabs)/search')} 
+            style={styles.sectionHeader}
+          />
+          
+          {loadingProducts && !refreshing ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalProductsScroll}>
+              {[1, 2, 3].map((i) => (
+                <View key={i} style={styles.productCardWrapper}>
+                  <ProductCardSkeleton layout="vertical" />
                 </View>
-              </AppCard>
-            ))}
-          </ScrollView>
-        ) : isProductsError ? (
-          <View style={{ paddingHorizontal: spacing.xl }}>
-            <AppEmptyState 
-              title="Couldn't Load Products" 
-              description="Unable to connect to the Farmket server. Please check your network."
-              actionTitle="Try Again"
-              onAction={refetchProducts}
-            />
-          </View>
-        ) : productsData?.results.length === 0 ? (
-          <View style={{ paddingHorizontal: spacing.xl }}>
-            <AppEmptyState 
-              title="No Products Available" 
-              description="No featured products listed right now."
-              icon={<PackageOpen size={48} color={colors.brand.muted} strokeWidth={1.5} />}
-            />
-          </View>
-        ) : (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalProductsScroll}>
-            {productsData?.results.map((product) => (
-              <View key={product.id} style={styles.verticalCardWrapper}>
-                <AppProductCard 
-                  product={product} 
-                  layout="vertical"
-                  onPress={() => router.push(`/product/${product.id}` as any)}
-                  action={
-                    <AppButton 
-                      title="Add" 
-                      size="sm" 
-                      fullWidth
-                      variant="outline"
-                      onPress={() => handleAddToCart(product.id)}
-                      loading={addingId === product.id}
-                    />
-                  }
-                />
-              </View>
-            ))}
-          </ScrollView>
-        )}
-
-        {/* Growing Harvests (Pre-booking Spotlight) */}
-        {upcomingHarvests.length > 0 && (
-          <View style={{ marginTop: spacing.xl }}>
-            <View style={styles.sectionHeader}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Sprout size={18} color={colors.brand.primary} style={{ marginRight: 6 }} />
-                <AppText variant="subheading" weight="bold">Upcoming Harvests</AppText>
-              </View>
-              <TouchableOpacity onPress={() => router.push('/(tabs)/search')}>
-                <AppText variant="small" weight="semibold" color={colors.brand.primary}>Pre-book →</AppText>
-              </TouchableOpacity>
+              ))}
+            </ScrollView>
+          ) : isProductsError ? (
+            <View style={{ paddingHorizontal: spacing.lg }}>
+              <AppEmptyState 
+                title="Couldn't Load Products" 
+                description="Unable to connect to the server. Please check your connection."
+                actionTitle="Try Again"
+                onAction={refetchProducts}
+              />
             </View>
+          ) : productsData?.results.length === 0 ? (
+            <View style={{ paddingHorizontal: spacing.lg }}>
+              <AppEmptyState 
+                title="No Products Available" 
+                description="No products in this section at the moment."
+                icon={<PackageOpen size={40} color={colors.brand.muted} />}
+              />
+            </View>
+          ) : (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalProductsScroll}>
+              {productsData?.results.map((product) => (
+                <View key={product.id} style={styles.productCardWrapper}>
+                  <AppProductCard 
+                    product={product} 
+                    layout="vertical"
+                    onPress={() => router.push(`/product/${product.id}` as any)}
+                    action={
+                      <AppButton 
+                        title="Add" 
+                        size="xs" 
+                        variant="primary"
+                        shape="pill"
+                        onPress={() => handleAddToCart(product.id)}
+                        loading={addingId === product.id}
+                      />
+                    }
+                  />
+                </View>
+              ))}
+            </ScrollView>
+          )}
+        </View>
 
-            <View style={styles.cropsListContainer}>
+        {/* Upcoming Harvests (Crop Lifecycle Showcase) */}
+        {upcomingHarvests.length > 0 && (
+          <View style={[styles.sectionWrapper, { marginTop: spacing.md }]}>
+            <SectionHeader 
+              title="Pre-Book Upcoming Harvests" 
+              subtitle="Lock in harvest quota before field harvesting begins"
+              actionTitle="Explore all" 
+              onAction={() => router.push('/(tabs)/search')} 
+              style={styles.sectionHeader}
+            />
+
+            <View style={styles.cropsList}>
               {upcomingHarvests.slice(0, 3).map((crop) => (
                 <AppCropCard
                   key={crop.id}
@@ -267,33 +312,53 @@ export default function HomeScreen() {
                       router.push(`/product/${crop.product}` as any);
                     }
                   }}
+                  action={
+                    crop.product ? (
+                      <AppButton
+                        title="Pre-Book Produce"
+                        size="sm"
+                        variant="secondary"
+                        shape="rounded"
+                        fullWidth
+                        onPress={() => router.push(`/product/${crop.product}` as any)}
+                      />
+                    ) : undefined
+                  }
                 />
               ))}
             </View>
           </View>
         )}
 
-        {/* Join Farmket Guest Banner */}
+        {/* Guest Onboarding Banner */}
         {!user && (
           <View style={styles.guestBannerContainer}>
-            <AppCard elevated padding="lg" style={styles.guestBannerCard}>
-              <AppText variant="heading" weight="bold" color={colors.brand.primary}>
-                Join Farmket Today
+            <AppCard variant="tinted" padding="xl" borderRadius={radii.xxl} style={styles.guestCard}>
+              <View style={styles.guestBadge}>
+                <Sprout size={16} color={colors.brand.primary} />
+                <AppText variant="label" weight="bold" color={colors.brand.primary} style={{ marginLeft: 4 }}>
+                  FARMKET COMMUNITY
+                </AppText>
+              </View>
+              <AppText variant="h2" weight="bold" color={colors.text.primary} style={{ marginTop: spacing.xs }}>
+                Grow or Buy with Farmket
               </AppText>
-              <AppText color={colors.text.secondary} style={{ marginTop: 4, marginBottom: spacing.md, lineHeight: 20 }}>
-                Connect directly with farmers, pre-book harvests, or list your own agricultural produce.
+              <AppText variant="bodySmall" color={colors.text.secondary} style={styles.guestSubtitle}>
+                Pre-book harvests with guaranteed pricing, or list crops directly to thousands of fresh buyers.
               </AppText>
-              <View style={styles.guestBannerActions}>
+              <View style={styles.guestActions}>
                 <AppButton
                   title="Create Free Account"
                   size="sm"
+                  shape="pill"
                   onPress={() => router.push('/(auth)/register')}
-                  style={{ flex: 1, marginRight: spacing.sm }}
+                  style={{ flex: 1.2, marginRight: spacing.sm }}
                 />
                 <AppButton
                   title="Sign In"
                   size="sm"
                   variant="outline"
+                  shape="pill"
                   onPress={() => router.push('/(auth)/login')}
                   style={{ flex: 1 }}
                 />
@@ -314,17 +379,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background.main,
   },
-  scrollContent: {
-    flexGrow: 1,
-    paddingBottom: spacing.xxxl,
-  },
-  header: {
+  topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xs,
     paddingBottom: spacing.sm,
+    backgroundColor: colors.background.surface,
   },
   locationContainer: {
     flex: 1,
@@ -334,144 +396,159 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 2,
   },
-  cartBtn: {
-    padding: spacing.xs,
-    position: 'relative',
-  },
-  badge: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    backgroundColor: colors.status.danger,
-    borderRadius: 10,
-    width: 18,
-    height: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  badgeText: {
-    fontSize: 10,
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: spacing.huge,
   },
   searchContainer: {
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.background.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border.subtle,
   },
-  fakeSearchInput: {
+  searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.background.surface,
+    backgroundColor: colors.background.elevated,
+    borderRadius: radii.pill,
+    paddingHorizontal: spacing.md,
+    height: 44,
     borderWidth: 1,
     borderColor: colors.border.subtle,
-    borderRadius: radii.xl,
-    paddingHorizontal: spacing.lg,
-    height: 48,
+  },
+  searchTag: {
+    backgroundColor: colors.brand.tint,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radii.pill,
   },
   heroContainer: {
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
   },
   heroBanner: {
-    height: 160,
-    borderRadius: radii.xl,
+    height: 180,
+    borderRadius: radii.xxl,
     overflow: 'hidden',
     position: 'relative',
+    ...shadows.card,
   },
   heroOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.35)',
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(4, 47, 46, 0.62)',
   },
   heroContent: {
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: spacing.xl,
+    padding: spacing.xl,
     alignItems: 'flex-start',
   },
-  heroButton: {
-    backgroundColor: colors.background.surface,
+  heroPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radii.pill,
+    marginBottom: spacing.xs,
   },
-  valuePropsStrip: {
+  heroHeading: {
+    marginBottom: 4,
+    letterSpacing: -0.3,
+  },
+  heroSubtitle: {
+    marginBottom: spacing.md,
+    maxWidth: 240,
+    lineHeight: 18,
+  },
+  heroButton: {
+    paddingHorizontal: spacing.lg,
+  },
+  valueStrip: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
     backgroundColor: colors.background.surface,
     borderTopWidth: 1,
     borderBottomWidth: 1,
     borderColor: colors.border.subtle,
-    marginVertical: spacing.xs,
+    marginTop: spacing.lg,
   },
-  valuePropItem: {
+  valueItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
   },
-  valuePropIcon: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: colors.background.elevated,
+  valueIconWrapper: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  categoriesContainer: {
-    paddingVertical: spacing.md,
+  sectionWrapper: {
+    marginTop: spacing.xs,
+  },
+  sectionHeader: {
+    paddingHorizontal: spacing.lg,
   },
   categoriesScroll: {
-    paddingHorizontal: spacing.xl,
-    gap: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    gap: spacing.md,
   },
   categoryItem: {
     alignItems: 'center',
-    width: 68,
+    width: 72,
   },
   categoryIconCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
     backgroundColor: colors.background.surface,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: colors.border.subtle,
     overflow: 'hidden',
+    ...shadows.xs,
   },
   categoryImg: {
     width: '100%',
     height: '100%',
   },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: spacing.xl,
-    marginTop: spacing.lg,
-    marginBottom: spacing.md,
+  categoryLabel: {
+    marginTop: 6,
+    fontSize: 11,
   },
   horizontalProductsScroll: {
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.lg,
     gap: spacing.md,
   },
-  verticalCardWrapper: {
-    width: 160,
+  productCardWrapper: {
+    width: 172,
   },
-  skeletonVerticalCard: {
-    width: 160,
-    overflow: 'hidden',
-    borderRadius: radii.lg,
-  },
-  cropsListContainer: {
-    paddingHorizontal: spacing.xl,
+  cropsList: {
+    paddingHorizontal: spacing.lg,
   },
   guestBannerContainer: {
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.lg,
     marginTop: spacing.xl,
   },
-  guestBannerCard: {
-    backgroundColor: colors.brand.muted + '25',
-    borderColor: colors.brand.primary + '35',
-    borderWidth: 1,
+  guestCard: {
+    backgroundColor: colors.brand.tint,
   },
-  guestBannerActions: {
+  guestBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  guestSubtitle: {
+    marginTop: 4,
+    marginBottom: spacing.lg,
+    lineHeight: 20,
+  },
+  guestActions: {
     flexDirection: 'row',
   },
 });

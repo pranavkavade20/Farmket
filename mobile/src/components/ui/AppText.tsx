@@ -1,14 +1,20 @@
 import React from 'react';
-import { Text, TextProps, StyleSheet } from 'react-native';
+import { Text, TextProps, StyleSheet, TextStyle } from 'react-native';
 import { colors, typography } from '../../theme';
 
-type TextVariant = 
-  | 'display' 
-  | 'headingLg' 
-  | 'heading' 
-  | 'subheading' 
-  | 'body' 
-  | 'caption' 
+export type TextVariant = 
+  | 'display'
+  | 'h1'
+  | 'h2'
+  | 'h3'
+  | 'body'
+  | 'bodySmall'
+  | 'caption'
+  | 'label'
+  // Backward compatibility:
+  | 'headingLg'
+  | 'heading'
+  | 'subheading'
   | 'small';
 
 export interface AppTextProps extends TextProps {
@@ -16,7 +22,7 @@ export interface AppTextProps extends TextProps {
   color?: string;
   align?: 'auto' | 'left' | 'right' | 'center' | 'justify';
   weight?: 'normal' | 'medium' | 'semibold' | 'bold';
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 export function AppText({ 
@@ -29,58 +35,78 @@ export function AppText({
   ...props 
 }: AppTextProps) {
   
-  // Base variant styles
-  const variantStyles = {
-    display: {
-      fontFamily: typography.family.displayBold,
-      fontSize: typography.size.xxl,
-      lineHeight: typography.size.xxl * typography.lineHeight.tight,
-    },
-    headingLg: {
-      fontFamily: typography.family.displayBold,
-      fontSize: typography.size.xl,
-      lineHeight: typography.size.xl * typography.lineHeight.tight,
-    },
-    heading: {
-      fontFamily: typography.family.displaySemiBold,
-      fontSize: typography.size.lg,
-      lineHeight: typography.size.lg * typography.lineHeight.tight,
-    },
-    subheading: {
-      fontFamily: typography.family.displayMedium,
-      fontSize: typography.size.lg,
-      lineHeight: typography.size.lg * typography.lineHeight.tight,
-    },
-    body: {
-      fontFamily: typography.family.sans,
-      fontSize: typography.size.md,
-      lineHeight: typography.size.md * typography.lineHeight.normal,
-    },
-    caption: {
-      fontFamily: typography.family.sansMedium,
-      fontSize: typography.size.sm,
-      lineHeight: typography.size.sm * typography.lineHeight.normal,
-    },
-    small: {
-      fontFamily: typography.family.sans,
-      fontSize: typography.size.xs,
-      lineHeight: typography.size.xs * typography.lineHeight.normal,
-    },
+  const getVariantStyle = (): TextStyle => {
+    switch (variant) {
+      case 'display':
+        return {
+          fontFamily: typography.presets.display.fontFamily,
+          fontSize: typography.presets.display.fontSize,
+          lineHeight: typography.presets.display.lineHeight,
+        };
+      case 'h1':
+      case 'headingLg':
+        return {
+          fontFamily: typography.presets.h1.fontFamily,
+          fontSize: typography.presets.h1.fontSize,
+          lineHeight: typography.presets.h1.lineHeight,
+        };
+      case 'h2':
+      case 'heading':
+        return {
+          fontFamily: typography.presets.h2.fontFamily,
+          fontSize: typography.presets.h2.fontSize,
+          lineHeight: typography.presets.h2.lineHeight,
+        };
+      case 'h3':
+      case 'subheading':
+        return {
+          fontFamily: typography.presets.h3.fontFamily,
+          fontSize: typography.presets.h3.fontSize,
+          lineHeight: typography.presets.h3.lineHeight,
+        };
+      case 'bodySmall':
+        return {
+          fontFamily: typography.presets.bodySmall.fontFamily,
+          fontSize: typography.presets.bodySmall.fontSize,
+          lineHeight: typography.presets.bodySmall.lineHeight,
+        };
+      case 'caption':
+        return {
+          fontFamily: typography.presets.caption.fontFamily,
+          fontSize: typography.presets.caption.fontSize,
+          lineHeight: typography.presets.caption.lineHeight,
+        };
+      case 'label':
+      case 'small':
+        return {
+          fontFamily: typography.presets.label.fontFamily,
+          fontSize: typography.presets.label.fontSize,
+          lineHeight: typography.presets.label.lineHeight,
+          letterSpacing: 0.4,
+        };
+      case 'body':
+      default:
+        return {
+          fontFamily: typography.presets.body.fontFamily,
+          fontSize: typography.presets.body.fontSize,
+          lineHeight: typography.presets.body.lineHeight,
+        };
+    }
   };
 
-  const getFontFamily = () => {
-    const isDisplay = ['display', 'headingLg', 'heading', 'subheading'].includes(variant);
-    if (!weight) return variantStyles[variant].fontFamily;
-    
-    if (isDisplay) {
-      switch(weight) {
+  const isHeadingVariant = ['display', 'h1', 'h2', 'h3', 'headingLg', 'heading', 'subheading'].includes(variant);
+
+  const getFontFamily = (baseFont?: string) => {
+    if (!weight) return baseFont;
+    if (isHeadingVariant) {
+      switch (weight) {
         case 'medium': return typography.family.displayMedium;
         case 'semibold': return typography.family.displaySemiBold;
         case 'bold': return typography.family.displayBold;
         default: return typography.family.displayMedium;
       }
     } else {
-      switch(weight) {
+      switch (weight) {
         case 'normal': return typography.family.sans;
         case 'medium': return typography.family.sansMedium;
         case 'semibold': return typography.family.sansSemiBold;
@@ -90,11 +116,17 @@ export function AppText({
     }
   };
 
+  const baseStyle = getVariantStyle();
+
   return (
     <Text 
       style={[
-        variantStyles[variant],
-        { color, textAlign: align, fontFamily: getFontFamily() },
+        baseStyle,
+        { 
+          color, 
+          textAlign: align, 
+          fontFamily: getFontFamily(baseStyle.fontFamily) 
+        },
         style
       ]} 
       {...props}

@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { View, StyleSheet, FlatList, ActivityIndicator, KeyboardAvoidingView, Platform, TouchableOpacity, Keyboard } from 'react-native';
+import { View, StyleSheet, FlatList, ActivityIndicator, KeyboardAvoidingView, Platform, TouchableOpacity, TextInput } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { AppText, AppChatBubble, AppInput } from '../../components/ui';
-import { colors, spacing, radii } from '../../theme';
+import { AppText, AppChatBubble } from '../../components/ui';
+import { colors, spacing, radii, shadows } from '../../theme';
 import { useAuth } from '../../context/AuthContext';
 import { fetchMessages, sendMessage, markAsRead, ChatMessage } from '../../api/chat';
 import { useChatWebSocket } from '../../hooks/useChatWebSocket';
-import { Send, ChevronLeft, Phone, Video } from 'lucide-react-native';
+import { Send, ChevronLeft, ShieldCheck } from 'lucide-react-native';
 
 export default function ChatThreadScreen() {
   const { id } = useLocalSearchParams();
@@ -39,9 +39,6 @@ export default function ChatThreadScreen() {
     const loadMessages = async () => {
       try {
         const data = await fetchMessages(conversationId);
-        // data usually ordered by created_at. Since FlatList is inverted, we want newest first.
-        // Assuming fetchMessages returns oldest first or newest first, let's reverse if needed.
-        // The API sorts by ordering=created_at (oldest first). So we reverse it.
         setMessages([...data].reverse());
         await markAsRead(conversationId);
       } catch (error) {
@@ -58,7 +55,7 @@ export default function ChatThreadScreen() {
     
     setSending(true);
     try {
-      const sentMsg = await sendMessage(conversationId, inputText);
+      const sentMsg = await sendMessage(conversationId, inputText.trim());
       setInputText('');
       setMessages(prev => [sentMsg, ...prev]);
     } catch (error) {
@@ -73,36 +70,39 @@ export default function ChatThreadScreen() {
     return <AppChatBubble message={item} isMe={isMe} />;
   };
 
-  // Safe area handling for Android KeyboardAvoidingView
-  const keyboardVerticalOffset = Platform.OS === 'ios' ? 0 : 0;
-
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Custom Header */}
+      {/* Modern Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <ChevronLeft size={24} color={colors.text.primary} />
         </TouchableOpacity>
         
-        <View style={styles.headerTitleContainer}>
-          <AppText variant="heading" weight="bold">Farmer</AppText>
-          <AppText variant="small" color={colors.status.success}>Online</AppText>
+        <View style={styles.avatar}>
+          <AppText variant="bodySmall" weight="bold" color={colors.brand.primary}>
+            F
+          </AppText>
         </View>
 
-        <View style={styles.headerActions}>
-          <TouchableOpacity style={styles.headerActionBtn}>
-            <Phone size={20} color={colors.brand.primary} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.headerActionBtn}>
-            <Video size={20} color={colors.brand.primary} />
-          </TouchableOpacity>
+        <View style={styles.headerTitleContainer}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <AppText variant="bodySmall" weight="bold" color={colors.text.primary}>
+              Direct Conversation
+            </AppText>
+            <ShieldCheck size={14} color={colors.brand.primary} style={{ marginLeft: 4 }} />
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 1 }}>
+            <View style={styles.onlineIndicator} />
+            <AppText variant="label" color={colors.status.success} style={{ marginLeft: 4 }}>
+              Active on Farmket
+            </AppText>
+          </View>
         </View>
       </View>
       
       <KeyboardAvoidingView 
         style={styles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={keyboardVerticalOffset}
       >
         {loading ? (
           <View style={styles.loadingContainer}>
@@ -120,17 +120,17 @@ export default function ChatThreadScreen() {
           />
         )}
 
-        <View style={[styles.inputContainer, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
+        {/* Input Bar */}
+        <View style={[styles.inputContainer, { paddingBottom: Math.max(insets.bottom, spacing.sm) }]}>
           <View style={styles.inputWrapper}>
-            <AppInput
-              placeholder="Message..."
+            <TextInput
+              placeholder="Type your harvest query or message..."
               value={inputText}
               onChangeText={setInputText}
               style={styles.input}
-              returnKeyType="send"
-              onSubmitEditing={handleSend}
+              placeholderTextColor={colors.text.muted}
               multiline
-              blurOnSubmit={false}
+              maxLength={1000}
             />
             <TouchableOpacity 
               style={[
@@ -139,11 +139,12 @@ export default function ChatThreadScreen() {
               ]} 
               onPress={handleSend}
               disabled={!inputText.trim() || sending}
+              activeOpacity={0.8}
             >
               {sending ? (
                 <ActivityIndicator size="small" color={colors.text.inverse} />
               ) : (
-                <Send size={18} color={colors.text.inverse} style={{ marginLeft: 2 }} />
+                <Send size={18} color={colors.text.inverse} />
               )}
             </TouchableOpacity>
           </View>
@@ -162,25 +163,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.sm,
     backgroundColor: colors.background.surface,
     borderBottomWidth: 1,
     borderBottomColor: colors.border.subtle,
+    ...shadows.xs,
   },
   backButton: {
     padding: spacing.xs,
+    marginRight: spacing.xs,
+  },
+  avatar: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: colors.brand.tint,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: spacing.sm,
   },
   headerTitleContainer: {
     flex: 1,
   },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  headerActionBtn: {
-    padding: spacing.xs,
+  onlineIndicator: {
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
+    backgroundColor: colors.status.success,
   },
   keyboardView: {
     flex: 1,
@@ -199,34 +208,36 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
     borderTopWidth: 1,
     borderTopColor: colors.border.subtle,
+    ...shadows.xs,
   },
   inputWrapper: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: spacing.sm,
+    alignItems: 'center',
+    backgroundColor: colors.background.elevated,
+    borderRadius: radii.pill,
+    paddingLeft: spacing.md,
+    paddingRight: 4,
+    paddingVertical: 3,
+    borderWidth: 1,
+    borderColor: colors.border.subtle,
   },
   input: {
     flex: 1,
-    backgroundColor: colors.background.main,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-    borderRadius: radii.xl,
-    paddingHorizontal: spacing.md,
-    paddingTop: 12,
-    paddingBottom: 12,
-    maxHeight: 120,
-    minHeight: 48,
+    fontSize: 14,
+    color: colors.text.primary,
+    maxHeight: 100,
+    paddingTop: Platform.OS === 'ios' ? 8 : 4,
+    paddingBottom: Platform.OS === 'ios' ? 8 : 4,
   },
   sendBtn: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     backgroundColor: colors.brand.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: spacing.xs, // aligns with bottom of input
   },
   sendBtnDisabled: {
-    backgroundColor: colors.brand.muted,
+    backgroundColor: colors.border.subtle,
   }
 });

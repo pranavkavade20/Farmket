@@ -1,17 +1,19 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, RefreshControl, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AppHeader, AppText, AppCard, AppButton, AppBadge, AppEmptyState, AppCropCard } from '../../components/ui';
-import { colors, spacing, radii } from '../../theme';
+import { AppHeader, AppText, AppCard, AppButton, AppBadge, AppEmptyState, AppCropCard, SegmentedControl } from '../../components/ui';
+import { colors, spacing, radii, shadows } from '../../theme';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchCrops, fetchReservations, approveReservation, rejectReservation, CropGrowth, CropReservation } from '../../api/crops';
 import { useAuth } from '../../context/AuthContext';
 import { StageUpdateModal } from '../../components/crops/StageUpdateModal';
 import { formatDate } from '../../utils/format';
-import { Sprout, CheckCircle2, XCircle, ArrowUpRight, Plus, Package } from 'lucide-react-native';
+import { Sprout, CheckCircle2, XCircle, Plus, Package } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 
 export default function FarmerCropsScreen() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { user } = useAuth();
   
@@ -33,28 +35,36 @@ export default function FarmerCropsScreen() {
     enabled: !!user && user.user_type === 'farmer' && activeTab === 'reservations',
   });
 
-  if (!user || user.user_type !== 'farmer') {
-    return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
-        <AppHeader title="Farmer Crops Hub" />
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: spacing.xl }}>
-          <Sprout size={56} color={colors.brand.primary} />
-          <AppText variant="heading" weight="bold" style={{ marginTop: spacing.md, textAlign: 'center' }}>
-            Farmer Access Required
-          </AppText>
-          <AppText color={colors.text.secondary} style={{ textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.xl }}>
-            This crop management hub is exclusively for registered Farmket producers.
-          </AppText>
-        </View>
-      </View>
-    );
-  }
-
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await Promise.all([refetchCrops(), refetchReservations()]);
     setRefreshing(false);
   }, [refetchCrops, refetchReservations]);
+
+  if (!user || user.user_type !== 'farmer') {
+    return (
+      <View style={[styles.container, { paddingTop: insets.top }]}>
+        <AppHeader title="Crop Lifecycle" />
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: spacing.xl }}>
+          <AppCard variant="tinted" padding="xl" borderRadius={radii.xxl} style={{ alignItems: 'center', maxWidth: 340 }}>
+            <Sprout size={48} color={colors.brand.primary} />
+            <AppText variant="h2" weight="bold" align="center" style={{ marginTop: spacing.md }}>
+              Producer Access Required
+            </AppText>
+            <AppText variant="bodySmall" color={colors.text.secondary} align="center" style={{ marginTop: spacing.xs, marginBottom: spacing.xl, lineHeight: 20 }}>
+              This crop management hub is exclusively for registered Farmket producers.
+            </AppText>
+            <AppButton
+              title="Return to Home"
+              shape="pill"
+              fullWidth
+              onPress={() => router.replace('/(tabs)')}
+            />
+          </AppCard>
+        </View>
+      </View>
+    );
+  }
 
   const handleApproveReservation = async (id: number) => {
     try {
@@ -70,7 +80,7 @@ export default function FarmerCropsScreen() {
   const handleRejectReservation = async (id: number) => {
     try {
       await rejectReservation(id);
-      Alert.alert('Rejected', 'Crop reservation has been declined.');
+      Alert.alert('Declined', 'Crop reservation has been declined.');
       refetchReservations();
       refetchCrops();
     } catch {
@@ -82,26 +92,32 @@ export default function FarmerCropsScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <AppHeader title="Crop Lifecycle" />
+      <AppHeader 
+        title="Crop Lifecycle" 
+        rightActions={
+          <TouchableOpacity 
+            style={styles.addCropBtn} 
+            onPress={() => router.push('/crops/add' as any)}
+            activeOpacity={0.8}
+          >
+            <Plus size={16} color="#FFFFFF" strokeWidth={2.4} />
+            <AppText variant="label" weight="bold" color="#FFFFFF" style={{ marginLeft: 4 }}>
+              New Crop
+            </AppText>
+          </TouchableOpacity>
+        }
+      />
 
-      {/* Tabs */}
+      {/* Segmented Control */}
       <View style={styles.tabsContainer}>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'crops' && styles.tabActive]}
-          onPress={() => setActiveTab('crops')}
-        >
-          <AppText weight="bold" color={activeTab === 'crops' ? colors.brand.primary : colors.text.secondary}>
-            Active Crops ({crops.length})
-          </AppText>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'reservations' && styles.tabActive]}
-          onPress={() => setActiveTab('reservations')}
-        >
-          <AppText weight="bold" color={activeTab === 'reservations' ? colors.brand.primary : colors.text.secondary}>
-            Reservations ({reservations.length})
-          </AppText>
-        </TouchableOpacity>
+        <SegmentedControl
+          tabs={[
+            { id: 'crops', label: `Active Crops (${crops.length})` },
+            { id: 'reservations', label: `Pre-Bookings (${reservations.length})` },
+          ]}
+          activeTab={activeTab}
+          onTabChange={(id) => setActiveTab(id as any)}
+        />
       </View>
 
       {/* Content */}
@@ -114,8 +130,10 @@ export default function FarmerCropsScreen() {
           <View style={styles.centerContent}>
             <AppEmptyState
               title="No Active Crops"
-              description="You don't have any crops in a growth tracking cycle."
+              description="You haven't logged any active crop cultivation cycles yet."
               icon={<Sprout size={48} color={colors.brand.muted} strokeWidth={1.5} />}
+              actionTitle="Log Your First Crop"
+              onAction={() => router.push('/crops/add' as any)}
             />
           </View>
         ) : (
@@ -123,6 +141,7 @@ export default function FarmerCropsScreen() {
             data={crops}
             keyExtractor={(item) => item.id.toString()}
             contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator={false}
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.brand.primary]} />
             }
@@ -132,8 +151,8 @@ export default function FarmerCropsScreen() {
                 action={
                   <View style={styles.cropActionsRow}>
                     <View style={styles.reservationsBadge}>
-                      <Package size={14} color={colors.text.secondary} />
-                      <AppText variant="small" weight="bold" color={colors.text.secondary} style={{ marginLeft: 4 }}>
+                      <Package size={14} color={colors.brand.primary} />
+                      <AppText variant="caption" weight="bold" color={colors.brand.primary} style={{ marginLeft: 4 }}>
                         {item.reservations?.length || 0} Reserved
                       </AppText>
                     </View>
@@ -142,6 +161,7 @@ export default function FarmerCropsScreen() {
                       title="Update Stage"
                       size="sm"
                       variant="primary"
+                      shape="pill"
                       onPress={() => setSelectedCropForStage(item)}
                     />
                   </View>
@@ -158,8 +178,8 @@ export default function FarmerCropsScreen() {
         ) : reservations.length === 0 ? (
           <View style={styles.centerContent}>
             <AppEmptyState
-              title="No Reservations"
-              description="No buyer pre-booking requests are pending."
+              title="No Pre-Bookings Yet"
+              description="When buyers pre-reserve upcoming harvest quotas, their requests will appear here."
               icon={<Package size={48} color={colors.brand.muted} strokeWidth={1.5} />}
             />
           </View>
@@ -168,23 +188,24 @@ export default function FarmerCropsScreen() {
             data={reservations}
             keyExtractor={(item) => item.id.toString()}
             contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator={false}
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.brand.primary]} />
             }
             renderItem={({ item }) => (
-              <AppCard elevated padding="md" style={styles.reservationCard}>
+              <AppCard variant="elevated" padding="lg" borderRadius={radii.xl} style={styles.reservationCard}>
                 <View style={styles.resHeader}>
                   <View>
-                    <AppText weight="bold" style={{ fontSize: 16 }}>{item.crop_name}</AppText>
-                    <AppText variant="small" color={colors.text.secondary}>
-                      Buyer: <AppText variant="small" weight="bold">{item.buyer_name}</AppText>
+                    <AppText variant="bodySmall" weight="bold">{item.crop_name}</AppText>
+                    <AppText variant="caption" color={colors.text.secondary} style={{ marginTop: 2 }}>
+                      Buyer: <AppText variant="caption" weight="bold" color={colors.text.primary}>{item.buyer_name}</AppText>
                     </AppText>
                   </View>
-                  <AppBadge status={item.reservation_status.toLowerCase()} size="sm" label={item.reservation_status} />
+                  <AppBadge status={item.reservation_status.toLowerCase()} size="xs" label={item.reservation_status} />
                 </View>
 
                 <View style={styles.resMeta}>
-                  <AppText variant="small" color={colors.text.muted}>
+                  <AppText variant="caption" color={colors.text.muted}>
                     Requested: {item.quantity_reserved} kg • {formatDate(item.reserved_at)}
                   </AppText>
                 </View>
@@ -192,9 +213,10 @@ export default function FarmerCropsScreen() {
                 {item.reservation_status === 'PENDING' && (
                   <View style={styles.resActionsRow}>
                     <AppButton
-                      title="Reject"
+                      title="Decline"
                       size="sm"
                       variant="outline"
+                      shape="pill"
                       onPress={() => handleRejectReservation(item.id)}
                       style={{ flex: 1, marginRight: spacing.sm }}
                     />
@@ -202,6 +224,7 @@ export default function FarmerCropsScreen() {
                       title="Approve"
                       size="sm"
                       variant="primary"
+                      shape="pill"
                       onPress={() => handleApproveReservation(item.id)}
                       style={{ flex: 1 }}
                     />
@@ -234,21 +257,21 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background.main,
   },
-  tabsContainer: {
+  addCropBtn: {
     flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.brand.primary,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 6,
+    borderRadius: radii.pill,
+    ...shadows.xs,
+  },
+  tabsContainer: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
     backgroundColor: colors.background.surface,
     borderBottomWidth: 1,
     borderBottomColor: colors.border.subtle,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: spacing.md,
-    alignItems: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-  },
-  tabActive: {
-    borderBottomColor: colors.brand.primary,
   },
   centerContent: {
     flex: 1,
@@ -257,8 +280,9 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
   },
   listContent: {
-    padding: spacing.xl,
-    paddingBottom: spacing.xxxl,
+    padding: spacing.lg,
+    paddingBottom: spacing.huge,
+    gap: spacing.sm,
   },
   cropActionsRow: {
     flexDirection: 'row',
@@ -269,20 +293,20 @@ const styles = StyleSheet.create({
   reservationsBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.background.elevated,
+    backgroundColor: colors.brand.tint,
     paddingHorizontal: spacing.md,
     paddingVertical: 6,
-    borderRadius: radii.full,
+    borderRadius: radii.pill,
   },
   reservationCard: {
-    marginBottom: spacing.md,
-    borderRadius: radii.xl,
+    backgroundColor: colors.background.surface,
+    marginBottom: spacing.xs,
   },
   resHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: spacing.xs,
+    marginBottom: spacing.xxs,
   },
   resMeta: {
     marginTop: 2,

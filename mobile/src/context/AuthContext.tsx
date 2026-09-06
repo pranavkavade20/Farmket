@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { storage } from '../utils/storage';
 import { getCurrentUserApi, logoutApi, User } from '../api/auth';
 import { resolveMediaUrl } from '../api/config';
@@ -25,11 +25,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authStatus, setAuthStatus] = useState<AuthStatus>('initializing');
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    loadUser();
-  }, []);
-
-  const loadUser = async () => {
+  const loadUser = useCallback(async () => {
     try {
       const token = await storage.getToken();
       if (token) {
@@ -55,7 +51,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       console.log('[Auth] Load user notice:', error?.message || error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    let isCancelled = false;
+    Promise.resolve().then(() => {
+      if (!isCancelled) {
+        loadUser();
+      }
+    });
+    return () => {
+      isCancelled = true;
+    };
+  }, [loadUser]);
 
   const login = async (access: string, refresh: string) => {
     await storage.setToken(access);

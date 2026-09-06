@@ -22,6 +22,7 @@ export function useChatWebSocket({ onEvent, enabled = true }: UseChatWebSocketPr
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retryCountRef = useRef(0);
   const isMountedRef = useRef(true);
+  const connectRef = useRef<() => void>(() => {});
 
   const connect = useCallback(async () => {
     if (!isMountedRef.current || !enabled) return;
@@ -64,7 +65,7 @@ export function useChatWebSocket({ onEvent, enabled = true }: UseChatWebSocketPr
           clearTimeout(reconnectTimeoutRef.current);
         }
         reconnectTimeoutRef.current = setTimeout(() => {
-          connect();
+          connectRef.current();
         }, delay);
       };
       
@@ -75,6 +76,10 @@ export function useChatWebSocket({ onEvent, enabled = true }: UseChatWebSocketPr
       console.log('[WebSocket] Initialization notice:', err);
     }
   }, [onEvent, enabled]);
+
+  useEffect(() => {
+    connectRef.current = connect;
+  }, [connect]);
 
   useEffect(() => {
     isMountedRef.current = true;

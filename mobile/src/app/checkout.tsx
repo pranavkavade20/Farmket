@@ -3,9 +3,9 @@ import { View, StyleSheet, ScrollView, Alert, KeyboardAvoidingView, Platform, To
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { AppHeader, AppText, AppInput, AppButton, AppCard } from '../components/ui';
-import { colors, spacing, radii } from '../theme';
+import { colors, spacing, radii, shadows } from '../theme';
 import { useCart } from '../context/CartContext';
-import { MapPin, CreditCard, Banknote, ShieldCheck } from 'lucide-react-native';
+import { MapPin, CreditCard, Banknote, ShieldCheck, CheckCircle2 } from 'lucide-react-native';
 import { formatCurrency } from '../utils/format';
 import { normalizeApiError } from '../api/client';
 
@@ -22,7 +22,7 @@ export default function CheckoutScreen() {
 
   const handlePlaceOrder = async () => {
     if (!address.trim()) {
-      Alert.alert('Missing Info', 'Please provide a shipping address.');
+      Alert.alert('Address Required', 'Please enter your delivery address to proceed.');
       return;
     }
 
@@ -32,9 +32,9 @@ export default function CheckoutScreen() {
         delivery_address: address.trim(),
         payment_method: paymentMethod,
       });
-      Alert.alert('Order Confirmed! 🎉', 'Your order has been placed directly with the farmers.', [
-        { text: 'View Orders', onPress: () => router.push('/(tabs)/orders') },
-        { text: 'Continue Shopping', onPress: () => router.push('/') }
+      Alert.alert('Order Confirmed! 🎉', 'Your direct farm order has been placed. You will receive dispatch updates shortly.', [
+        { text: 'View My Orders', onPress: () => router.push('/(tabs)/orders') },
+        { text: 'Back to Home', onPress: () => router.push('/(tabs)') }
       ]);
     } catch (error: unknown) {
       Alert.alert('Checkout Failed', normalizeApiError(error, 'Failed to place the order. Please try again.'));
@@ -48,57 +48,66 @@ export default function CheckoutScreen() {
   }
 
   const subtotal = Number(cart.total_price || 0);
-  const deliveryFee = subtotal > 500 ? 0 : 50; 
+  const deliveryFee = subtotal >= 500 ? 0 : 50; 
   const total = subtotal + deliveryFee;
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <AppHeader title="Checkout" showBack />
+      <AppHeader title="Secure Checkout" showBack />
       
       <KeyboardAvoidingView 
         style={{ flex: 1 }} 
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           {/* Shipping Address */}
-          <AppCard elevated padding="lg" style={styles.section}>
+          <AppCard variant="elevated" padding="lg" borderRadius={radii.xl} style={styles.section}>
             <View style={styles.sectionHeader}>
-              <MapPin size={20} color={colors.brand.primary} />
-              <AppText variant="heading" weight="semibold" style={styles.sectionTitle}>
-                Delivery Address
-              </AppText>
+              <View style={styles.sectionIcon}>
+                <MapPin size={18} color={colors.brand.primary} />
+              </View>
+              <View style={{ marginLeft: spacing.sm, flex: 1 }}>
+                <AppText variant="bodySmall" weight="bold">Delivery Destination</AppText>
+                <AppText variant="label" color={colors.text.muted}>Direct doorstep delivery</AppText>
+              </View>
             </View>
             <AppInput
-              placeholder="e.g. Flat 401, Harmony Apartments, MG Road, Bengaluru"
+              placeholder="Flat / House No., Apartment Name, Street, Landmark, City & PIN Code"
               value={address}
               onChangeText={setAddress}
               multiline
               numberOfLines={3}
               style={styles.addressInput}
+              containerStyle={{ marginBottom: 0 }}
             />
           </AppCard>
 
           {/* Payment Method */}
-          <AppCard elevated padding="lg" style={styles.section}>
+          <AppCard variant="elevated" padding="lg" borderRadius={radii.xl} style={styles.section}>
             <View style={styles.sectionHeader}>
-              <CreditCard size={20} color={colors.brand.primary} />
-              <AppText variant="heading" weight="semibold" style={styles.sectionTitle}>
-                Payment Method
-              </AppText>
+              <View style={styles.sectionIcon}>
+                <CreditCard size={18} color={colors.brand.primary} />
+              </View>
+              <View style={{ marginLeft: spacing.sm, flex: 1 }}>
+                <AppText variant="bodySmall" weight="bold">Payment Method</AppText>
+                <AppText variant="label" color={colors.text.muted}>Encrypted & secure settlement</AppText>
+              </View>
             </View>
             
             <View style={styles.paymentOptions}>
               <TouchableOpacity 
                 style={[styles.paymentOption, paymentMethod === 'cod' && styles.paymentOptionActive]} 
                 onPress={() => setPaymentMethod('cod')}
-                activeOpacity={0.7}
+                activeOpacity={0.75}
               >
-                <Banknote size={24} color={paymentMethod === 'cod' ? colors.brand.primary : colors.text.muted} />
+                <View style={[styles.optionIcon, paymentMethod === 'cod' && styles.optionIconActive]}>
+                  <Banknote size={20} color={paymentMethod === 'cod' ? colors.brand.primary : colors.text.muted} />
+                </View>
                 <View style={styles.paymentOptionText}>
-                  <AppText weight="semibold" color={paymentMethod === 'cod' ? colors.brand.primary : colors.text.primary}>
+                  <AppText variant="bodySmall" weight="bold" color={colors.text.primary}>
                     Cash on Delivery
                   </AppText>
-                  <AppText variant="small" color={colors.text.muted}>Pay when you receive fresh produce</AppText>
+                  <AppText variant="label" color={colors.text.muted}>Pay upon receiving fresh harvest</AppText>
                 </View>
                 <View style={[styles.radio, paymentMethod === 'cod' && styles.radioActive]}>
                   {paymentMethod === 'cod' && <View style={styles.radioInner} />}
@@ -108,14 +117,16 @@ export default function CheckoutScreen() {
               <TouchableOpacity 
                 style={[styles.paymentOption, paymentMethod === 'upi' && styles.paymentOptionActive]} 
                 onPress={() => setPaymentMethod('upi')}
-                activeOpacity={0.7}
+                activeOpacity={0.75}
               >
-                <ShieldCheck size={24} color={paymentMethod === 'upi' ? colors.brand.primary : colors.text.muted} />
+                <View style={[styles.optionIcon, paymentMethod === 'upi' && styles.optionIconActive]}>
+                  <ShieldCheck size={20} color={paymentMethod === 'upi' ? colors.brand.primary : colors.text.muted} />
+                </View>
                 <View style={styles.paymentOptionText}>
-                  <AppText weight="semibold" color={paymentMethod === 'upi' ? colors.brand.primary : colors.text.primary}>
-                    UPI / Instant Pay
+                  <AppText variant="bodySmall" weight="bold" color={colors.text.primary}>
+                    Instant UPI
                   </AppText>
-                  <AppText variant="small" color={colors.text.muted}>Google Pay, PhonePe, Paytm</AppText>
+                  <AppText variant="label" color={colors.text.muted}>GPay, PhonePe, Paytm, BHIM</AppText>
                 </View>
                 <View style={[styles.radio, paymentMethod === 'upi' && styles.radioActive]}>
                   {paymentMethod === 'upi' && <View style={styles.radioInner} />}
@@ -125,14 +136,16 @@ export default function CheckoutScreen() {
               <TouchableOpacity 
                 style={[styles.paymentOption, paymentMethod === 'card' && styles.paymentOptionActive]} 
                 onPress={() => setPaymentMethod('card')}
-                activeOpacity={0.7}
+                activeOpacity={0.75}
               >
-                <CreditCard size={24} color={paymentMethod === 'card' ? colors.brand.primary : colors.text.muted} />
+                <View style={[styles.optionIcon, paymentMethod === 'card' && styles.optionIconActive]}>
+                  <CreditCard size={20} color={paymentMethod === 'card' ? colors.brand.primary : colors.text.muted} />
+                </View>
                 <View style={styles.paymentOptionText}>
-                  <AppText weight="semibold" color={paymentMethod === 'card' ? colors.brand.primary : colors.text.primary}>
+                  <AppText variant="bodySmall" weight="bold" color={colors.text.primary}>
                     Credit / Debit Card
                   </AppText>
-                  <AppText variant="small" color={colors.text.muted}>Visa, Mastercard, RuPay</AppText>
+                  <AppText variant="label" color={colors.text.muted}>Visa, Mastercard, RuPay</AppText>
                 </View>
                 <View style={[styles.radio, paymentMethod === 'card' && styles.radioActive]}>
                   {paymentMethod === 'card' && <View style={styles.radioInner} />}
@@ -142,25 +155,25 @@ export default function CheckoutScreen() {
           </AppCard>
 
           {/* Order Summary */}
-          <AppCard elevated padding="lg" style={styles.section}>
-            <AppText variant="heading" weight="semibold" style={{ marginBottom: spacing.md }}>
-              Order Summary
+          <AppCard variant="elevated" padding="lg" borderRadius={radii.xl} style={styles.section}>
+            <AppText variant="bodySmall" weight="bold" style={{ marginBottom: spacing.md }}>
+              Payment Summary
             </AppText>
             <View style={styles.summaryRow}>
-              <AppText color={colors.text.secondary}>Subtotal ({cart.items.length} items)</AppText>
-              <AppText weight="semibold">{formatCurrency(subtotal)}</AppText>
+              <AppText variant="bodySmall" color={colors.text.secondary}>Items ({cart.items.length})</AppText>
+              <AppText variant="bodySmall" weight="semibold">{formatCurrency(subtotal)}</AppText>
             </View>
             <View style={styles.summaryRow}>
-              <AppText color={colors.text.secondary}>Delivery Fee</AppText>
+              <AppText variant="bodySmall" color={colors.text.secondary}>Direct Delivery</AppText>
               {deliveryFee === 0 ? (
-                <AppText weight="bold" color={colors.brand.primary}>Free</AppText>
+                <AppText variant="bodySmall" weight="bold" color={colors.status.success}>FREE</AppText>
               ) : (
-                <AppText weight="semibold">{formatCurrency(deliveryFee)}</AppText>
+                <AppText variant="bodySmall" weight="semibold">{formatCurrency(deliveryFee)}</AppText>
               )}
             </View>
             <View style={[styles.summaryRow, styles.totalRow]}>
-              <AppText variant="heading" weight="bold">Total to Pay</AppText>
-              <AppText variant="headingLg" weight="bold" color={colors.brand.primary}>
+              <AppText variant="h3" weight="bold">Total to Pay</AppText>
+              <AppText variant="display" weight="bold" color={colors.brand.primary} style={{ fontSize: 22 }}>
                 {formatCurrency(total)}
               </AppText>
             </View>
@@ -170,11 +183,12 @@ export default function CheckoutScreen() {
 
       <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
         <AppButton 
-          title={`Place Order • ${formatCurrency(total)}`} 
+          title={`Confirm Order • ${formatCurrency(total)}`} 
           onPress={handlePlaceOrder}
           loading={loading}
           fullWidth
           size="lg"
+          shape="pill"
         />
       </View>
     </View>
@@ -187,40 +201,56 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.main,
   },
   content: {
-    padding: spacing.xl,
-    paddingBottom: 100,
-    gap: spacing.lg,
+    padding: spacing.lg,
+    paddingBottom: 110,
+    gap: spacing.md,
   },
   section: {
-    marginBottom: spacing.xs,
+    backgroundColor: colors.background.surface,
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: spacing.md,
   },
-  sectionTitle: {
-    marginLeft: spacing.sm,
+  sectionIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.brand.tint,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   addressInput: {
     minHeight: 80,
     textAlignVertical: 'top',
   },
   paymentOptions: {
-    gap: spacing.md,
+    gap: spacing.sm,
   },
   paymentOption: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: spacing.md,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: colors.border.subtle,
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     backgroundColor: colors.background.surface,
   },
   paymentOptionActive: {
     borderColor: colors.brand.primary,
-    backgroundColor: colors.brand.muted + '20',
+    backgroundColor: colors.brand.tint,
+  },
+  optionIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: colors.background.elevated,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  optionIconActive: {
+    backgroundColor: '#FFFFFF',
   },
   paymentOptionText: {
     flex: 1,
@@ -247,7 +277,7 @@ const styles = StyleSheet.create({
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
   totalRow: {
     marginTop: spacing.sm,
@@ -262,14 +292,10 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: spacing.md,
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.lg,
     backgroundColor: colors.background.surface,
     borderTopWidth: 1,
     borderTopColor: colors.border.subtle,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 10,
+    ...shadows.card,
   },
 });

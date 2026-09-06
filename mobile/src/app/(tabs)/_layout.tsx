@@ -1,7 +1,18 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { colors, typography, spacing } from '../../theme';
-import { Home, Search, ShoppingBag, MessageSquare, User, Sprout, LayoutDashboard, Newspaper } from 'lucide-react-native';
+import { View, StyleSheet } from 'react-native';
+import { colors, typography, spacing, radii } from '../../theme';
+import { 
+  Home, 
+  Search, 
+  ShoppingBag, 
+  MessageSquare, 
+  User, 
+  Sprout, 
+  LayoutDashboard, 
+  Compass, 
+  Users 
+} from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 
@@ -12,7 +23,7 @@ export default function TabLayout() {
 
   return (
     <Tabs
-      initialRouteName="index"
+      initialRouteName={isFarmer ? 'farmer-dashboard' : 'index'}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.brand.primary,
@@ -21,90 +32,141 @@ export default function TabLayout() {
           backgroundColor: colors.background.surface,
           borderTopColor: colors.border.subtle,
           borderTopWidth: 1,
-          height: 60 + insets.bottom,
+          height: 64 + insets.bottom,
           paddingBottom: insets.bottom + spacing.xs,
-          paddingTop: spacing.xs,
+          paddingTop: spacing.sm,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.03,
+          shadowRadius: 6,
+          elevation: 4,
         },
         tabBarLabelStyle: {
           fontFamily: typography.family.sansMedium,
-          fontSize: typography.size.xs,
-          marginTop: spacing.xxs,
+          fontSize: 11,
+          marginTop: 2,
         },
       }}
     >
-      {/* 1. PUBLIC HOME (ALWAYS DEFAULT INITIAL SCREEN) */}
+      {/* 1. BUYER: HOME */}
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <Home size={22} color={color} />,
+          href: isFarmer ? null : undefined,
+          tabBarIcon: ({ color, focused }) => (
+            <View style={[styles.iconWrapper, focused && styles.activeIconWrapper]}>
+              <Home size={22} color={color} strokeWidth={focused ? 2.4 : 1.8} />
+            </View>
+          ),
         }}
       />
 
-      {/* 2. PUBLIC EXPLORE / MARKETPLACE */}
+      {/* 2. BUYER: EXPLORE */}
       <Tabs.Screen
         name="search"
         options={{
           title: 'Explore',
-          tabBarIcon: ({ color }) => <Search size={22} color={color} />,
+          href: isFarmer ? null : undefined,
+          tabBarIcon: ({ color, focused }) => (
+            <View style={[styles.iconWrapper, focused && styles.activeIconWrapper]}>
+              <Compass size={22} color={color} strokeWidth={focused ? 2.4 : 1.8} />
+            </View>
+          ),
         }}
       />
 
-      {/* 3. COMMUNITY FEED */}
-      <Tabs.Screen
-        name="feed"
-        options={{
-          title: 'Feed',
-          tabBarIcon: ({ color }) => <Newspaper size={22} color={color} />,
-        }}
-      />
-
-      {/* 4. FARMER DASHBOARD (ONLY VISIBLE FOR AUTHENTICATED FARMERS) */}
+      {/* 3. FARMER: OPERATIONS DASHBOARD */}
       <Tabs.Screen
         name="farmer-dashboard"
         options={{
           title: 'Operations',
           href: isFarmer ? undefined : null,
-          tabBarIcon: ({ color }) => <LayoutDashboard size={22} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <View style={[styles.iconWrapper, focused && styles.activeIconWrapper]}>
+              <LayoutDashboard size={22} color={color} strokeWidth={focused ? 2.4 : 1.8} />
+            </View>
+          ),
         }}
       />
 
-      {/* 5. FARMER CROPS HUB (ONLY VISIBLE FOR AUTHENTICATED FARMERS) */}
+      {/* 4. FARMER: CROPS HUB */}
       <Tabs.Screen
         name="farmer-crops"
         options={{
           title: 'Crops Hub',
           href: isFarmer ? undefined : null,
-          tabBarIcon: ({ color }) => <Sprout size={22} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <View style={[styles.iconWrapper, focused && styles.activeIconWrapper]}>
+              <Sprout size={22} color={color} strokeWidth={focused ? 2.4 : 1.8} />
+            </View>
+          ),
         }}
       />
 
-      {/* 6. ORDERS */}
+      {/* 5. ORDERS (BOTH BUYER & FARMER) */}
       <Tabs.Screen
         name="orders"
         options={{
-          title: isFarmer ? 'Store Orders' : 'Orders',
-          tabBarIcon: ({ color }) => <ShoppingBag size={22} color={color} />,
+          title: isFarmer ? 'Fulfillment' : 'Orders',
+          tabBarIcon: ({ color, focused }) => (
+            <View style={[styles.iconWrapper, focused && styles.activeIconWrapper]}>
+              <ShoppingBag size={22} color={color} strokeWidth={focused ? 2.4 : 1.8} />
+            </View>
+          ),
         }}
       />
 
-      {/* 7. CHAT */}
+      {/* 6. COMMUNITY FEED (BOTH BUYER & FARMER) */}
+      <Tabs.Screen
+        name="feed"
+        options={{
+          title: 'Community',
+          tabBarIcon: ({ color, focused }) => (
+            <View style={[styles.iconWrapper, focused && styles.activeIconWrapper]}>
+              <Users size={22} color={color} strokeWidth={focused ? 2.4 : 1.8} />
+            </View>
+          ),
+        }}
+      />
+
+      {/* 7. CHAT (Hidden from tab bar; accessed via TopBarActions / Product Cards / Order Details) */}
       <Tabs.Screen
         name="chat"
         options={{
           title: 'Messages',
-          tabBarIcon: ({ color }) => <MessageSquare size={22} color={color} />,
+          href: null,
+          tabBarIcon: ({ color, focused }) => (
+            <MessageSquare size={22} color={color} strokeWidth={focused ? 2.4 : 1.8} />
+          ),
         }}
       />
 
-      {/* 8. PROFILE / ACCOUNT */}
+      {/* 8. PROFILE / ACCOUNT (BOTH BUYER & FARMER) */}
       <Tabs.Screen
         name="profile"
         options={{
-          title: user ? 'Account' : 'Profile',
-          tabBarIcon: ({ color }) => <User size={22} color={color} />,
+          title: isFarmer ? 'Farm Studio' : user ? 'Account' : 'Profile',
+          tabBarIcon: ({ color, focused }) => (
+            <View style={[styles.iconWrapper, focused && styles.activeIconWrapper]}>
+              <User size={22} color={color} strokeWidth={focused ? 2.4 : 1.8} />
+            </View>
+          ),
         }}
       />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  iconWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 2,
+    paddingHorizontal: 8,
+    borderRadius: radii.pill,
+  },
+  activeIconWrapper: {
+    backgroundColor: colors.brand.tint,
+  },
+});

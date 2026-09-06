@@ -1,8 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AppHeader, AppText, AppCard, AppButton, AppBadge } from '../../components/ui';
-import { colors, spacing, radii } from '../../theme';
+import { AppHeader, AppText, AppCard, AppButton, AppBadge, SectionHeader } from '../../components/ui';
+import { TopBarActions } from '../../components/navigation/TopBarActions';
+import { colors, spacing, radii, shadows } from '../../theme';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../../api/client';
 import { fetchOrders, Order } from '../../api/orders';
@@ -11,7 +12,7 @@ import { useRouter } from 'expo-router';
 import { formatCurrency, formatDate } from '../../utils/format';
 import { 
   TrendingUp, ShoppingBag, Sprout, Package, Clock, 
-  ArrowRight, Newspaper, ChevronRight 
+  ArrowRight, Newspaper, ChevronRight, PlusCircle, ShieldCheck 
 } from 'lucide-react-native';
 
 export default function FarmerDashboardScreen() {
@@ -42,39 +43,48 @@ export default function FarmerDashboardScreen() {
     enabled: !!user && user.user_type === 'farmer',
   });
 
-  if (!user || user.user_type !== 'farmer') {
-    return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
-        <AppHeader title="Farmer Operations" />
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: spacing.xl }}>
-          <Sprout size={56} color={colors.brand.primary} />
-          <AppText variant="heading" weight="bold" style={{ marginTop: spacing.md, textAlign: 'center' }}>
-            Farmer Access Required
-          </AppText>
-          <AppText color={colors.text.secondary} style={{ textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.xl }}>
-            This operations hub is exclusively for verified Farmket producers and farmers.
-          </AppText>
-          <AppButton
-            title={user ? "Go to Home" : "Sign In to Farmket"}
-            onPress={() => user ? router.replace('/(tabs)') : router.push('/(auth)/login')}
-          />
-        </View>
-      </View>
-    );
-  }
-
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await Promise.all([refetchStats(), refetchOrders()]);
     setRefreshing(false);
   }, [refetchStats, refetchOrders]);
 
+  if (!user || user.user_type !== 'farmer') {
+    return (
+      <View style={[styles.container, { paddingTop: insets.top }]}>
+        <AppHeader title="Farmer Operations" />
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: spacing.xl }}>
+          <AppCard variant="tinted" padding="xl" borderRadius={radii.xxl} style={{ alignItems: 'center', maxWidth: 340 }}>
+            <View style={styles.heroIconBg}>
+              <Sprout size={36} color={colors.brand.primary} />
+            </View>
+            <AppText variant="h2" weight="bold" align="center" style={{ marginTop: spacing.md }}>
+              Farmer Access Required
+            </AppText>
+            <AppText variant="bodySmall" color={colors.text.secondary} align="center" style={{ marginTop: spacing.xs, marginBottom: spacing.xl, lineHeight: 20 }}>
+              This operations hub is exclusively for registered and verified Farmket agricultural producers.
+            </AppText>
+            <AppButton
+              title={user ? "Return to Buyer Home" : "Sign In to Farmket"}
+              shape="pill"
+              fullWidth
+              onPress={() => user ? router.replace('/(tabs)') : router.push('/(auth)/login')}
+            />
+          </AppCard>
+        </View>
+      </View>
+    );
+  }
+
   const recentOrders = ordersData.slice(0, 4);
   const farmerName = user?.first_name || user?.username || 'Farmer';
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <AppHeader title="Farmer Operations" />
+      <AppHeader 
+        title="Producer Hub" 
+        rightActions={<TopBarActions showCart={false} showNotifications={true} />}
+      />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -86,77 +96,79 @@ export default function FarmerDashboardScreen() {
         {/* Welcome Hero Banner */}
         <View style={styles.heroCard}>
           <View style={styles.heroContent}>
-            <AppText variant="subheading" weight="bold" color="#FFFFFF">
-              Welcome back, {farmerName} 👋
+            <View style={styles.verifiedBadge}>
+              <ShieldCheck size={12} color="#FFFFFF" />
+              <AppText variant="label" color="#FFFFFF" weight="bold" style={{ marginLeft: 4 }}>
+                VERIFIED PRODUCER
+              </AppText>
+            </View>
+            <AppText variant="h2" weight="bold" color="#FFFFFF" style={{ marginTop: 6 }}>
+              Welcome back, {farmerName}
             </AppText>
-            <AppText variant="small" color="rgba(255,255,255,0.85)" style={{ marginTop: 4 }}>
-              Track farm cultivation, fulfill buyer orders, and view earnings in real-time.
+            <AppText variant="caption" color="rgba(255,255,255,0.9)" style={{ marginTop: 4, lineHeight: 18 }}>
+              Monitor live field cycles, fulfill direct customer orders, and manage sales revenue.
             </AppText>
           </View>
           <View style={styles.heroIconBg}>
-            <Sprout size={36} color="#FFFFFF" />
+            <Sprout size={32} color="#FFFFFF" />
           </View>
         </View>
 
         {/* Store Overview KPI Grid */}
-        <AppText variant="subheading" weight="bold" style={styles.sectionTitle}>
-          Store Overview
-        </AppText>
+        <SectionHeader title="Store Overview" subtitle="Real-time commercial performance" />
 
         <View style={styles.kpiGrid}>
-          <AppCard elevated padding="md" style={styles.kpiCard}>
+          <AppCard variant="elevated" padding="md" borderRadius={radii.xl} style={styles.kpiCard}>
             <View style={styles.kpiHeader}>
-              <AppText variant="small" weight="bold" color={colors.text.secondary}>REVENUE</AppText>
-              <View style={[styles.kpiIcon, { backgroundColor: colors.brand.muted }]}>
-                <TrendingUp size={16} color={colors.brand.primary} />
+              <AppText variant="label" color={colors.text.muted}>REVENUE</AppText>
+              <View style={[styles.kpiIcon, { backgroundColor: colors.brand.tint }]}>
+                <TrendingUp size={15} color={colors.brand.primary} />
               </View>
             </View>
-            <AppText variant="heading" weight="bold" color={colors.text.primary} style={styles.kpiValue}>
+            <AppText variant="h2" weight="bold" color={colors.brand.primary} style={styles.kpiValue}>
               {loadingStats ? '—' : formatCurrency(stats?.total_revenue || 0)}
             </AppText>
           </AppCard>
 
-          <AppCard elevated padding="md" style={styles.kpiCard}>
+          <AppCard variant="elevated" padding="md" borderRadius={radii.xl} style={styles.kpiCard}>
             <View style={styles.kpiHeader}>
-              <AppText variant="small" weight="bold" color={colors.text.secondary}>TOTAL ORDERS</AppText>
+              <AppText variant="label" color={colors.text.muted}>TOTAL ORDERS</AppText>
               <View style={[styles.kpiIcon, { backgroundColor: colors.status.infoMuted }]}>
-                <ShoppingBag size={16} color={colors.status.info} />
+                <ShoppingBag size={15} color={colors.status.info} />
               </View>
             </View>
-            <AppText variant="heading" weight="bold" color={colors.text.primary} style={styles.kpiValue}>
+            <AppText variant="h2" weight="bold" color={colors.text.primary} style={styles.kpiValue}>
               {loadingStats ? '—' : stats?.total_orders || 0}
             </AppText>
           </AppCard>
 
-          <AppCard elevated padding="md" style={styles.kpiCard}>
+          <AppCard variant="elevated" padding="md" borderRadius={radii.xl} style={styles.kpiCard}>
             <View style={styles.kpiHeader}>
-              <AppText variant="small" weight="bold" color={colors.text.secondary}>PRODUCTS</AppText>
-              <View style={[styles.kpiIcon, { backgroundColor: colors.accent.yellow + '33' }]}>
-                <Package size={16} color={colors.accent.yellow} />
+              <AppText variant="label" color={colors.text.muted}>ACTIVE LISTINGS</AppText>
+              <View style={[styles.kpiIcon, { backgroundColor: colors.accent.amber + '22' }]}>
+                <Package size={15} color={colors.accent.amber} />
               </View>
             </View>
-            <AppText variant="heading" weight="bold" color={colors.text.primary} style={styles.kpiValue}>
+            <AppText variant="h2" weight="bold" color={colors.text.primary} style={styles.kpiValue}>
               {loadingStats ? '—' : stats?.total_products || 0}
             </AppText>
           </AppCard>
 
-          <AppCard elevated padding="md" style={styles.kpiCard}>
+          <AppCard variant="elevated" padding="md" borderRadius={radii.xl} style={styles.kpiCard}>
             <View style={styles.kpiHeader}>
-              <AppText variant="small" weight="bold" color={colors.text.secondary}>PENDING</AppText>
+              <AppText variant="label" color={colors.text.muted}>PENDING ORDERS</AppText>
               <View style={[styles.kpiIcon, { backgroundColor: colors.status.warningMuted }]}>
-                <Clock size={16} color={colors.status.warning} />
+                <Clock size={15} color={colors.status.warning} />
               </View>
             </View>
-            <AppText variant="heading" weight="bold" color={colors.status.warning} style={styles.kpiValue}>
+            <AppText variant="h2" weight="bold" color={colors.status.warning} style={styles.kpiValue}>
               {loadingStats ? '—' : stats?.pending_orders || 0}
             </AppText>
           </AppCard>
         </View>
 
         {/* Quick Operations Shortcuts */}
-        <AppText variant="subheading" weight="bold" style={styles.sectionTitle}>
-          Quick Services
-        </AppText>
+        <SectionHeader title="Farm Operations" subtitle="Manage crops and orders" />
 
         <View style={styles.shortcutsRow}>
           <TouchableOpacity 
@@ -164,11 +176,11 @@ export default function FarmerDashboardScreen() {
             onPress={() => router.push('/(tabs)/farmer-crops' as any)}
             activeOpacity={0.8}
           >
-            <View style={[styles.shortcutIcon, { backgroundColor: colors.brand.muted }]}>
-              <Sprout size={24} color={colors.brand.primary} />
+            <View style={[styles.shortcutIcon, { backgroundColor: colors.brand.tint }]}>
+              <Sprout size={22} color={colors.brand.primary} />
             </View>
-            <AppText weight="bold" style={{ fontSize: 13, marginTop: 8 }}>Crop Tracking</AppText>
-            <AppText variant="small" color={colors.text.muted}>Stage Lifecycle</AppText>
+            <AppText variant="bodySmall" weight="bold" style={{ marginTop: 8 }}>Crop Hub</AppText>
+            <AppText variant="label" color={colors.text.muted}>Lifecycle Stages</AppText>
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -177,10 +189,10 @@ export default function FarmerDashboardScreen() {
             activeOpacity={0.8}
           >
             <View style={[styles.shortcutIcon, { backgroundColor: colors.status.infoMuted }]}>
-              <Newspaper size={24} color={colors.status.info} />
+              <Newspaper size={22} color={colors.status.info} />
             </View>
-            <AppText weight="bold" style={{ fontSize: 13, marginTop: 8 }}>Community</AppText>
-            <AppText variant="small" color={colors.text.muted}>Share Updates</AppText>
+            <AppText variant="bodySmall" weight="bold" style={{ marginTop: 8 }}>Field Feed</AppText>
+            <AppText variant="label" color={colors.text.muted}>Post Updates</AppText>
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -188,28 +200,27 @@ export default function FarmerDashboardScreen() {
             onPress={() => router.push('/(tabs)/orders' as any)}
             activeOpacity={0.8}
           >
-            <View style={[styles.shortcutIcon, { backgroundColor: colors.accent.orange + '22' }]}>
-              <ShoppingBag size={24} color={colors.accent.orange} />
+            <View style={[styles.shortcutIcon, { backgroundColor: colors.accent.amber + '22' }]}>
+              <ShoppingBag size={22} color={colors.accent.amber} />
             </View>
-            <AppText weight="bold" style={{ fontSize: 13, marginTop: 8 }}>Fulfill Orders</AppText>
-            <AppText variant="small" color={colors.text.muted}>Shipments</AppText>
+            <AppText variant="bodySmall" weight="bold" style={{ marginTop: 8 }}>Fulfillment</AppText>
+            <AppText variant="label" color={colors.text.muted}>Shipments</AppText>
           </TouchableOpacity>
         </View>
 
         {/* Recent Orders List */}
-        <View style={styles.recentOrdersHeader}>
-          <AppText variant="subheading" weight="bold">Recent Orders</AppText>
-          <TouchableOpacity onPress={() => router.push('/(tabs)/orders' as any)}>
-            <AppText variant="small" weight="bold" color={colors.brand.primary}>View All →</AppText>
-          </TouchableOpacity>
-        </View>
+        <SectionHeader 
+          title="Recent Orders" 
+          actionTitle="View all" 
+          onAction={() => router.push('/(tabs)/orders' as any)} 
+        />
 
         {loadingOrders ? (
           <ActivityIndicator size="small" color={colors.brand.primary} style={{ marginVertical: spacing.lg }} />
         ) : recentOrders.length === 0 ? (
-          <AppCard elevated padding="lg" style={styles.emptyOrdersCard}>
-            <AppText color={colors.text.muted} style={{ textAlign: 'center' }}>
-              No orders received yet. Once buyers purchase your harvest, they will appear here.
+          <AppCard variant="elevated" padding="lg" borderRadius={radii.xl} style={styles.emptyOrdersCard}>
+            <AppText variant="bodySmall" color={colors.text.muted} align="center">
+              No orders received yet. Once buyers order your produce, they will be listed here.
             </AppText>
           </AppCard>
         ) : (
@@ -219,22 +230,22 @@ export default function FarmerDashboardScreen() {
                 key={ord.id}
                 style={styles.orderRow}
                 onPress={() => router.push(`/order/${ord.id}` as any)}
-                activeOpacity={0.7}
+                activeOpacity={0.75}
               >
                 <View style={styles.orderIcon}>
                   <ShoppingBag size={18} color={colors.brand.primary} />
                 </View>
                 <View style={styles.orderInfo}>
-                  <AppText weight="bold">#{ord.order_number || `ORD-${ord.id}`}</AppText>
-                  <AppText variant="small" color={colors.text.muted}>{formatDate(ord.created_at)}</AppText>
+                  <AppText variant="bodySmall" weight="bold">#{ord.order_number || `ORD-${ord.id}`}</AppText>
+                  <AppText variant="caption" color={colors.text.muted}>{formatDate(ord.created_at)}</AppText>
                 </View>
                 <View style={styles.orderStatusCol}>
-                  <AppBadge status={ord.status} size="sm" label={ord.status} />
-                  <AppText weight="bold" style={{ marginTop: 4 }}>
+                  <AppBadge status={ord.status} size="xs" label={ord.status} />
+                  <AppText variant="bodySmall" weight="bold" color={colors.text.primary} style={{ marginTop: 4 }}>
                     {formatCurrency(ord.total_amount || ord.total_price)}
                   </AppText>
                 </View>
-                <ChevronRight size={18} color={colors.text.muted} />
+                <ChevronRight size={16} color={colors.text.muted} />
               </TouchableOpacity>
             ))}
           </View>
@@ -250,8 +261,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.main,
   },
   scrollContent: {
-    padding: spacing.xl,
-    paddingBottom: spacing.xxxl,
+    padding: spacing.lg,
+    paddingBottom: spacing.huge,
   },
   heroCard: {
     flexDirection: 'row',
@@ -261,45 +272,44 @@ const styles = StyleSheet.create({
     borderRadius: radii.xxl,
     padding: spacing.xl,
     marginBottom: spacing.xl,
-    shadowColor: colors.brand.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 6,
+    ...shadows.card,
   },
   heroContent: {
     flex: 1,
     marginRight: spacing.md,
   },
+  verifiedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radii.pill,
+    alignSelf: 'flex-start',
+  },
   heroIconBg: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: 'rgba(255,255,255,0.2)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  sectionTitle: {
-    marginBottom: spacing.md,
-  },
   kpiGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.md,
+    gap: spacing.sm,
     marginBottom: spacing.xl,
   },
   kpiCard: {
-    width: '47%',
-    borderRadius: radii.xl,
+    width: '48.5%',
     backgroundColor: colors.background.surface,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
   },
   kpiHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.xs,
+    marginBottom: spacing.xxs,
   },
   kpiIcon: {
     width: 28,
@@ -309,12 +319,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   kpiValue: {
-    fontSize: 20,
     marginTop: 2,
   },
   shortcutsRow: {
     flexDirection: 'row',
-    gap: spacing.md,
+    gap: spacing.sm,
     marginBottom: spacing.xl,
   },
   shortcutCard: {
@@ -325,22 +334,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: colors.border.subtle,
+    ...shadows.xs,
   },
   shortcutIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  recentOrdersHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
   emptyOrdersCard: {
-    borderRadius: radii.xl,
     backgroundColor: colors.background.surface,
   },
   ordersList: {
@@ -349,6 +352,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border.subtle,
     overflow: 'hidden',
+    ...shadows.xs,
   },
   orderRow: {
     flexDirection: 'row',
@@ -361,7 +365,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: colors.brand.muted,
+    backgroundColor: colors.brand.tint,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing.md,

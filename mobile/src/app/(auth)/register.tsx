@@ -5,8 +5,8 @@ import * as Yup from 'yup';
 import { useRouter, Link } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText, AppInput, AppButton, AppCard, AppHeader } from '../../components/ui';
-import { colors, spacing, radii } from '../../theme';
-import { User, Mail, Lock, Phone } from 'lucide-react-native';
+import { colors, spacing, radii, shadows } from '../../theme';
+import { Mail, Lock, Phone, User, ShoppingBag, Sprout, Check } from 'lucide-react-native';
 import { useAuth } from '../../context/AuthContext';
 import { registerApi } from '../../api/auth';
 import { normalizeApiError } from '../../api/client';
@@ -75,58 +75,106 @@ export default function RegisterScreen() {
       <AppHeader title="Create Account" showBack />
       
       <ScrollView 
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + spacing.xl }]}
+        contentContainerStyle={[
+          styles.scrollContent, 
+          { paddingBottom: insets.bottom + spacing.xxl }
+        ]}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <AppText variant="heading" weight="bold" style={styles.title}>
-            Join Farmket Today
+          <AppText variant="h1" weight="bold" color={colors.text.primary} style={styles.title}>
+            Join Farmket
           </AppText>
           <AppText variant="body" color={colors.text.secondary} style={styles.subtitle}>
-            Buy and sell directly with the agricultural community.
+            Connect directly with verified farmers and community buyers.
           </AppText>
         </View>
 
-        <AppCard padding="xl" elevated>
+        <AppCard variant="elevated" padding="xl" borderRadius={radii.xxl} style={styles.card}>
           {error && (
             <View style={styles.errorContainer}>
-              <AppText variant="small" color={colors.status.danger}>{error}</AppText>
+              <AppText variant="caption" weight="medium" color={colors.status.danger}>
+                {error}
+              </AppText>
             </View>
           )}
 
-          <View style={styles.roleContainer}>
-            <AppText variant="small" weight="bold" color={colors.text.secondary} style={styles.roleLabel}>I AM A...</AppText>
+          {/* Role Selection Tabs */}
+          <View style={styles.roleSection}>
+            <AppText variant="label" weight="bold" color={colors.text.secondary} style={styles.roleLabel}>
+              CHOOSE YOUR ACCOUNT TYPE
+            </AppText>
             <View style={styles.roleRow}>
+              {/* Buyer Option */}
               <TouchableOpacity
-                style={[styles.roleButton, userType === 'buyer' && styles.roleButtonActive]}
+                style={[
+                  styles.roleCard, 
+                  userType === 'buyer' && styles.roleCardActive
+                ]}
                 onPress={() => setUserType('buyer')}
+                activeOpacity={0.8}
               >
-                <AppText weight="bold" color={userType === 'buyer' ? colors.brand.primary : colors.text.secondary}>Buyer</AppText>
+                <View style={[styles.roleIconWrapper, userType === 'buyer' && styles.roleIconActive]}>
+                  <ShoppingBag size={20} color={userType === 'buyer' ? colors.brand.primary : colors.text.muted} />
+                </View>
+                <AppText variant="bodySmall" weight="bold" color={userType === 'buyer' ? colors.brand.primary : colors.text.primary}>
+                  Produce Buyer
+                </AppText>
+                <AppText variant="label" color={colors.text.muted} align="center" style={{ marginTop: 2 }}>
+                  Pre-book & shop fresh
+                </AppText>
+                {userType === 'buyer' && (
+                  <View style={styles.roleCheckBadge}>
+                    <Check size={10} color="#FFFFFF" strokeWidth={3} />
+                  </View>
+                )}
               </TouchableOpacity>
+
+              {/* Farmer Option */}
               <TouchableOpacity
-                style={[styles.roleButton, userType === 'farmer' && styles.roleButtonActive]}
+                style={[
+                  styles.roleCard, 
+                  userType === 'farmer' && styles.roleCardActive
+                ]}
                 onPress={() => setUserType('farmer')}
+                activeOpacity={0.8}
               >
-                <AppText weight="bold" color={userType === 'farmer' ? colors.brand.primary : colors.text.secondary}>Farmer</AppText>
+                <View style={[styles.roleIconWrapper, userType === 'farmer' && styles.roleIconActive]}>
+                  <Sprout size={20} color={userType === 'farmer' ? colors.brand.primary : colors.text.muted} />
+                </View>
+                <AppText variant="bodySmall" weight="bold" color={userType === 'farmer' ? colors.brand.primary : colors.text.primary}>
+                  Grower / Farmer
+                </AppText>
+                <AppText variant="label" color={colors.text.muted} align="center" style={{ marginTop: 2 }}>
+                  List crops & sell direct
+                </AppText>
+                {userType === 'farmer' && (
+                  <View style={styles.roleCheckBadge}>
+                    <Check size={10} color="#FFFFFF" strokeWidth={3} />
+                  </View>
+                )}
               </TouchableOpacity>
             </View>
           </View>
 
+          {/* Form Fields */}
           <View style={styles.row}>
             <View style={styles.flexHalf}>
               <AppInput
-                label="First Name"
-                placeholder="John"
+                label="FIRST NAME"
+                placeholder="Ananya"
                 value={formik.values.firstName}
                 onChangeText={formik.handleChange('firstName')}
                 onBlur={formik.handleBlur('firstName')}
                 error={formik.touched.firstName ? formik.errors.firstName : undefined}
+                leftIcon={<User size={16} color={colors.text.muted} />}
               />
             </View>
             <View style={styles.flexHalf}>
               <AppInput
-                label="Last Name"
-                placeholder="Doe"
+                label="LAST NAME"
+                placeholder="Rao"
                 value={formik.values.lastName}
                 onChangeText={formik.handleChange('lastName')}
                 onBlur={formik.handleBlur('lastName')}
@@ -136,66 +184,69 @@ export default function RegisterScreen() {
           </View>
 
           <AppInput
-            label="Email Address"
-            placeholder="you@example.com"
+            label="EMAIL ADDRESS"
+            placeholder="ananya@example.com"
             value={formik.values.email}
             onChangeText={formik.handleChange('email')}
             onBlur={formik.handleBlur('email')}
             error={formik.touched.email ? formik.errors.email : undefined}
             keyboardType="email-address"
             autoCapitalize="none"
-            leftIcon={<Mail size={20} color={colors.text.muted} />}
+            leftIcon={<Mail size={16} color={colors.text.muted} />}
           />
 
           <AppInput
-            label="Phone Number"
+            label="PHONE NUMBER"
             placeholder="+91 9876543210"
             value={formik.values.phoneNumber}
             onChangeText={formik.handleChange('phoneNumber')}
             onBlur={formik.handleBlur('phoneNumber')}
             error={formik.touched.phoneNumber ? formik.errors.phoneNumber : undefined}
             keyboardType="phone-pad"
-            leftIcon={<Phone size={20} color={colors.text.muted} />}
+            leftIcon={<Phone size={16} color={colors.text.muted} />}
           />
           
           <AppInput
-            label="Password"
-            placeholder="Create a secure password"
+            label="PASSWORD"
+            placeholder="Min. 8 characters"
             value={formik.values.password}
             onChangeText={formik.handleChange('password')}
             onBlur={formik.handleBlur('password')}
             error={formik.touched.password ? formik.errors.password : undefined}
             secureTextEntry
-            leftIcon={<Lock size={20} color={colors.text.muted} />}
+            leftIcon={<Lock size={16} color={colors.text.muted} />}
           />
 
           <AppInput
-            label="Confirm Password"
-            placeholder="Re-enter password"
+            label="CONFIRM PASSWORD"
+            placeholder="Repeat password"
             value={formik.values.confirmPassword}
             onChangeText={formik.handleChange('confirmPassword')}
             onBlur={formik.handleBlur('confirmPassword')}
             error={formik.touched.confirmPassword ? formik.errors.confirmPassword : undefined}
             secureTextEntry
-            leftIcon={<Lock size={20} color={colors.text.muted} />}
+            leftIcon={<Lock size={16} color={colors.text.muted} />}
           />
 
           <AppButton 
-            title="Sign Up" 
+            title={`Sign Up as ${userType === 'farmer' ? 'Farmer' : 'Buyer'}`}
             onPress={() => formik.handleSubmit()} 
             loading={loading}
             fullWidth 
+            shape="rounded"
             style={styles.submitButton}
           />
 
           <View style={styles.footer}>
-            <AppText variant="small" color={colors.text.secondary}>
+            <AppText variant="bodySmall" color={colors.text.secondary}>
               Already have an account?{' '}
             </AppText>
             <Link href="/(auth)/login" asChild>
-              <AppText variant="small" weight="semibold" color={colors.brand.primary}>
-                Sign in
-              </AppText>
+              <TouchableOpacity activeOpacity={0.7}>
+                <AppText variant="bodySmall" weight="bold" color={colors.brand.primary}>
+                  Sign in
+                </AppText>
+              </TouchableOpacity>
             </Link>
           </View>
         </AppCard>
@@ -211,17 +262,20 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xl,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
   },
   header: {
-    marginBottom: spacing.xl,
+    marginBottom: spacing.lg,
   },
   title: {
-    marginBottom: spacing.xs,
+    marginBottom: spacing.xxs,
   },
   subtitle: {
-    marginBottom: spacing.sm,
+    lineHeight: 20,
+  },
+  card: {
+    backgroundColor: colors.background.surface,
   },
   row: {
     flexDirection: 'row',
@@ -230,38 +284,64 @@ const styles = StyleSheet.create({
   flexHalf: {
     flex: 1,
   },
-  roleContainer: {
-    marginBottom: spacing.md,
+  roleSection: {
+    marginBottom: spacing.lg,
   },
   roleLabel: {
-    marginBottom: spacing.xs,
+    marginBottom: spacing.sm,
   },
   roleRow: {
     flexDirection: 'row',
     gap: spacing.md,
   },
-  roleButton: {
+  roleCard: {
     flex: 1,
-    borderWidth: 2,
+    position: 'relative',
+    borderWidth: 1.5,
     borderColor: colors.border.subtle,
-    borderRadius: radii.md,
-    paddingVertical: spacing.md,
+    borderRadius: radii.xl,
+    padding: spacing.md,
     alignItems: 'center',
     backgroundColor: colors.background.surface,
   },
-  roleButtonActive: {
+  roleCardActive: {
     borderColor: colors.brand.primary,
+    backgroundColor: colors.brand.tint,
+  },
+  roleIconWrapper: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.background.elevated,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xs,
+  },
+  roleIconActive: {
     backgroundColor: colors.brand.muted,
+  },
+  roleCheckBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: colors.brand.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   errorContainer: {
     marginBottom: spacing.md,
-    padding: spacing.sm,
-    backgroundColor: colors.status.dangerMuted,
-    borderRadius: radii.sm,
+    padding: spacing.md,
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FCA5A5',
+    borderRadius: radii.md,
   },
   submitButton: {
-    marginTop: spacing.sm,
-    marginBottom: spacing.xl,
+    marginTop: spacing.xs,
+    marginBottom: spacing.lg,
   },
   footer: {
     flexDirection: 'row',

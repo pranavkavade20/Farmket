@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, Aler
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { AppText, AppButton, AppCard, AppBadge, AppEmptyState } from '../../components/ui';
-import { colors, spacing, radii } from '../../theme';
+import { colors, spacing, radii, shadows } from '../../theme';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchProductDetail, followProduct, unfollowProduct, createProductReview, Product } from '../../api/products';
 import { getOrCreateConversation } from '../../api/chat';
@@ -14,7 +14,7 @@ import { ReservationModal } from '../../components/crops/ReservationModal';
 import { useRequireAuth } from '../../components/auth/AuthGateModal';
 import { 
   ChevronLeft, Star, Heart, CheckCircle2, ShieldCheck, 
-  Leaf, MessageSquare, Truck, Clock, Calendar, Sprout 
+  Leaf, MessageSquare, Truck, Clock, Calendar, Sprout, Plus, Minus 
 } from 'lucide-react-native';
 import { Image } from 'expo-image';
 
@@ -138,8 +138,8 @@ export default function ProductDetailScreen() {
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <AppEmptyState 
           title="Product Not Found"
-          description="We couldn't load this product's details."
-          actionTitle="Go Back"
+          description="We couldn't load this produce details."
+          actionTitle="Back to Marketplace"
           onAction={() => router.back()}
         />
       </View>
@@ -155,15 +155,16 @@ export default function ProductDetailScreen() {
   const isSoldOut = product.market_state === 'SOLD_OUT' || (!product.is_available && product.stock_quantity === 0);
   
   const farmerObj = typeof product.farmer === 'object' && product.farmer ? (product.farmer as { first_name?: string; last_name?: string }) : null;
-  const farmerName = product.farmer_name || (farmerObj ? `${farmerObj.first_name || ''} ${farmerObj.last_name || ''}`.trim() : 'Verified Farmer');
+  const farmerName = product.farmer_name || (farmerObj ? `${farmerObj.first_name || ''} ${farmerObj.last_name || ''}`.trim() : 'Verified Grower');
 
   const renderCTA = () => {
     if (isPrebooking) {
       return (
         <AppButton
-          title="Reserve Harvest 🌱"
+          title="Pre-Book Harvest 🌱"
           fullWidth
           size="lg"
+          shape="pill"
           onPress={() => {
             if (!requireAuth('Reserve Harvest', 'Sign in to pre-book upcoming crops directly from the producer.')) {
               return;
@@ -177,9 +178,10 @@ export default function ProductDetailScreen() {
     if (isSoldOut) {
       return (
         <AppButton
-          title="Sold Out"
+          title="Currently Sold Out"
           fullWidth
           size="lg"
+          shape="pill"
           disabled
           variant="secondary"
         />
@@ -191,6 +193,7 @@ export default function ProductDetailScreen() {
         title={`Add to Cart • ${formatCurrency(Number(product.price) * quantity)}`}
         fullWidth
         size="lg"
+        shape="pill"
         onPress={handleAddToCart}
         loading={addingToCart}
       />
@@ -199,30 +202,41 @@ export default function ProductDetailScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
-        {/* Image Gallery */}
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 130 }}>
+        {/* Image Gallery Hero */}
         <View style={styles.imageContainer}>
           {primaryImage ? (
             <Image 
               source={{ uri: primaryImage }} 
               style={styles.image} 
               contentFit="cover" 
+              transition={200}
             />
           ) : (
             <View style={[styles.image, styles.noImage]}>
-              <AppText color={colors.text.muted}>No Image Available</AppText>
+              <Leaf size={48} color={colors.brand.primary} />
+              <AppText color={colors.text.muted} style={{ marginTop: 8 }}>Pure Fresh Farm Produce</AppText>
             </View>
           )}
           
-          <TouchableOpacity style={[styles.floatingBackBtn, { top: insets.top + spacing.sm }]} onPress={() => router.back()}>
-            <ChevronLeft size={24} color={colors.text.primary} />
+          <TouchableOpacity 
+            style={[styles.floatingBackBtn, { top: insets.top + spacing.sm }]} 
+            onPress={() => router.back()}
+            activeOpacity={0.8}
+          >
+            <ChevronLeft size={22} color={colors.text.primary} strokeWidth={2.4} />
           </TouchableOpacity>
 
           <TouchableOpacity 
             style={[styles.floatingWishlistBtn, { top: insets.top + spacing.sm }]}
             onPress={handleFollowToggle}
+            activeOpacity={0.8}
           >
-            <Heart size={20} color={isFollowing ? colors.status.danger : colors.text.primary} fill={isFollowing ? colors.status.danger : 'none'} />
+            <Heart 
+              size={20} 
+              color={isFollowing ? colors.status.danger : colors.text.primary} 
+              fill={isFollowing ? colors.status.danger : 'none'} 
+            />
           </TouchableOpacity>
         </View>
 
@@ -234,6 +248,7 @@ export default function ProductDetailScreen() {
                 key={idx}
                 style={[styles.thumbBtn, activeImageIndex === idx && styles.thumbBtnActive]}
                 onPress={() => setActiveImageIndex(idx)}
+                activeOpacity={0.8}
               >
                 <Image source={{ uri: img }} style={styles.thumbImage} contentFit="cover" />
               </TouchableOpacity>
@@ -245,164 +260,176 @@ export default function ProductDetailScreen() {
           {/* Status & Organic Badges */}
           <View style={styles.tagsRow}>
             {product.market_state && (
-              <AppBadge marketState={product.market_state} size="md" label="" />
+              <AppBadge marketState={product.market_state} size="sm" label="" />
             )}
             {product.is_organic && (
-              <AppBadge label="100% Organic" variant="success" size="md" icon={<Leaf size={12} color={colors.status.success} />} />
+              <AppBadge label="100% Certified Organic" variant="organic" size="sm" />
             )}
           </View>
 
-          <AppText variant="headingLg" weight="bold" style={styles.title}>{product.name}</AppText>
+          <AppText variant="display" weight="bold" color={colors.text.primary} style={styles.title}>
+            {product.name}
+          </AppText>
           
-          {/* Ratings & Farmer Name */}
+          {/* Ratings & Producer Info */}
           <View style={styles.metaHeader}>
             <View style={styles.ratingBadge}>
-              <Star size={14} color={colors.accent.yellow} fill={colors.accent.yellow} />
-              <AppText variant="small" weight="bold" style={{ marginLeft: 4 }}>
-                {product.average_rating ? Number(product.average_rating).toFixed(1) : '4.8'}
+              <Star size={14} color={colors.accent.amber} fill={colors.accent.amber} />
+              <AppText variant="caption" weight="bold" style={{ marginLeft: 4 }}>
+                {product.average_rating ? Number(product.average_rating).toFixed(1) : '4.9'}
               </AppText>
-              <AppText variant="small" color={colors.text.secondary} style={{ marginLeft: 4 }}>
+              <AppText variant="caption" color={colors.text.muted} style={{ marginLeft: 4 }}>
                 ({product.reviews?.length || product.reviews_count || 12} reviews)
               </AppText>
             </View>
 
-            <AppText variant="small" color={colors.text.secondary}>
-              by <AppText variant="small" weight="bold" color={colors.text.primary}>{farmerName}</AppText>
+            <AppText variant="caption" color={colors.text.secondary}>
+              Cultivated by <AppText variant="caption" weight="bold" color={colors.text.primary}>{farmerName}</AppText>
             </AppText>
           </View>
 
           {/* Price Header */}
           <View style={styles.priceRow}>
-            <AppText variant="display" weight="bold" color={colors.text.primary} style={styles.priceText}>
+            <AppText variant="display" weight="bold" color={colors.brand.primary} style={styles.priceText}>
               {formatCurrency(product.price)}
             </AppText>
-            <AppText variant="subheading" color={colors.text.secondary} style={{ marginLeft: 4, marginBottom: 4 }}>
+            <AppText variant="h3" color={colors.text.muted} style={{ marginLeft: 4 }}>
               / {product.unit}
             </AppText>
           </View>
 
           {/* Description */}
-          <AppText color={colors.text.secondary} style={styles.description}>
-            {product.description || 'Freshly harvested produce delivered directly from the farm to your table with 100% quality guarantee.'}
+          <AppText variant="body" color={colors.text.secondary} style={styles.description}>
+            {product.description || 'Grown with organic farming principles and harvested fresh to ensure maximum nutrient density and exceptional flavor.'}
           </AppText>
 
-          {/* Live Crop Harvest Info Card (if crop growth exists) */}
+          {/* Live Crop Harvest Lifecycle (if connected to active crop) */}
           {product.active_crop_growth_id && (
-            <AppCard elevated padding="lg" style={styles.harvestCard}>
+            <AppCard variant="tinted" padding="lg" borderRadius={radii.xl} style={styles.harvestCard}>
               <View style={styles.harvestHeader}>
                 <View>
-                  <AppText variant="subheading" weight="bold">Live Harvest Progress</AppText>
-                  <AppText variant="small" color={colors.text.secondary}>Direct from farm cultivation</AppText>
+                  <AppText variant="h3" weight="bold" color={colors.brand.forest}>
+                    Active Crop Growth
+                  </AppText>
+                  <AppText variant="caption" color={colors.text.secondary}>
+                    Live tracking directly from grower&apos;s field
+                  </AppText>
                 </View>
                 {product.crop_stage && (
-                  <AppBadge stage={product.crop_stage} size="sm" label="" />
+                  <AppBadge stage={product.crop_stage} size="xs" label="" />
                 )}
               </View>
 
               {/* Progress bar */}
               <View style={styles.cropProgressSection}>
                 <View style={styles.cropProgressLabelRow}>
-                  <AppText variant="small" weight="semibold" color={colors.text.secondary}>Lifecycle Stage</AppText>
-                  <AppText variant="small" weight="bold" color={colors.brand.primary}>
-                    {product.progress_percentage || 50}%
+                  <AppText variant="caption" weight="medium" color={colors.text.secondary}>Growth Progress</AppText>
+                  <AppText variant="caption" weight="bold" color={colors.brand.primary}>
+                    {product.progress_percentage || 60}% Complete
                   </AppText>
                 </View>
                 <View style={styles.progressBarTrack}>
-                  <View style={[styles.progressBarFill, { width: `${product.progress_percentage || 50}%` }]} />
+                  <View style={[styles.progressBarFill, { width: `${product.progress_percentage || 60}%` }]} />
                 </View>
               </View>
 
               {/* Harvest Metrics */}
               <View style={styles.harvestMetricsGrid}>
                 <View style={styles.harvestMetricBox}>
-                  <Clock size={16} color={colors.accent.orange} />
-                  <AppText variant="small" color={colors.text.muted} style={{ marginTop: 4 }}>Days to Harvest</AppText>
-                  <AppText weight="bold">{product.harvest_countdown ? `${product.harvest_countdown} days` : 'Soon'}</AppText>
+                  <Clock size={16} color={colors.accent.amber} />
+                  <AppText variant="label" color={colors.text.muted} style={{ marginTop: 4 }}>DAYS TO HARVEST</AppText>
+                  <AppText variant="bodySmall" weight="bold">
+                    {product.harvest_countdown ? `${product.harvest_countdown} days` : 'Est. 12 days'}
+                  </AppText>
                 </View>
                 <View style={styles.harvestMetricBox}>
                   <Sprout size={16} color={colors.brand.primary} />
-                  <AppText variant="small" color={colors.text.muted} style={{ marginTop: 4 }}>Available Yield</AppText>
-                  <AppText weight="bold">{product.available_quantity || product.stock_quantity} {product.unit}</AppText>
+                  <AppText variant="label" color={colors.text.muted} style={{ marginTop: 4 }}>RESERVE QUOTA</AppText>
+                  <AppText variant="bodySmall" weight="bold">
+                    {product.available_quantity || product.stock_quantity} {product.unit} left
+                  </AppText>
                 </View>
               </View>
             </AppCard>
           )}
 
           {/* Farmer Card with Chat CTA */}
-          <AppCard elevated padding="md" style={styles.farmerCard}>
+          <AppCard variant="elevated" padding="md" borderRadius={radii.xl} style={styles.farmerCard}>
             <View style={styles.farmerAvatar}>
-              <AppText variant="heading" weight="bold" color={colors.brand.primary}>
+              <AppText variant="h3" weight="bold" color={colors.brand.primary}>
                 {farmerName.charAt(0).toUpperCase()}
               </AppText>
             </View>
             <View style={styles.farmerInfo}>
-              <AppText weight="bold">{farmerName}</AppText>
-              <AppText variant="small" color={colors.text.muted}>Verified Farm Producer</AppText>
+              <AppText variant="bodySmall" weight="bold" color={colors.text.primary}>{farmerName}</AppText>
+              <AppText variant="caption" color={colors.text.muted}>Verified Farm Producer • Karnataka</AppText>
             </View>
-            <TouchableOpacity style={styles.chatButton} onPress={handleChatWithFarmer}>
-              <MessageSquare size={16} color={colors.brand.primary} />
-              <AppText variant="small" weight="bold" color={colors.brand.primary} style={{ marginLeft: 4 }}>
-                Chat
+            <TouchableOpacity style={styles.chatButton} onPress={handleChatWithFarmer} activeOpacity={0.75}>
+              <MessageSquare size={15} color={colors.brand.primary} />
+              <AppText variant="caption" weight="bold" color={colors.brand.primary} style={{ marginLeft: 4 }}>
+                Message
               </AppText>
             </TouchableOpacity>
           </AppCard>
 
-          {/* Guarantees */}
+          {/* Quality Guarantees */}
           <View style={styles.guaranteesRow}>
             <View style={styles.guaranteeItem}>
-              <Truck size={18} color={colors.status.info} />
-              <AppText variant="small" weight="semibold" style={{ marginLeft: 6 }}>Fast Delivery</AppText>
+              <Truck size={16} color={colors.status.info} />
+              <AppText variant="caption" weight="semibold" style={{ marginLeft: 6 }}>Fast Direct Dispatch</AppText>
             </View>
             <View style={styles.guaranteeItem}>
-              <ShieldCheck size={18} color={colors.status.success} />
-              <AppText variant="small" weight="semibold" style={{ marginLeft: 6 }}>Quality Assured</AppText>
+              <ShieldCheck size={16} color={colors.status.success} />
+              <AppText variant="caption" weight="semibold" style={{ marginLeft: 6 }}>Verified Quality</AppText>
             </View>
           </View>
 
           {/* Reviews Section */}
           <View style={styles.reviewsSection}>
-            <AppText variant="heading" weight="bold" style={styles.sectionTitle}>
+            <AppText variant="h2" weight="bold" style={styles.sectionTitle}>
               Customer Reviews ({product.reviews?.length || 0})
             </AppText>
 
             {product.reviews && product.reviews.length > 0 ? (
               product.reviews.map((rev) => (
-                <AppCard key={rev.id} elevated padding="md" style={styles.reviewCard}>
+                <AppCard key={rev.id} variant="elevated" padding="md" borderRadius={radii.lg} style={styles.reviewCard}>
                   <View style={styles.reviewHeader}>
-                    <AppText weight="bold">{rev.buyer_name}</AppText>
+                    <AppText variant="bodySmall" weight="bold">{rev.buyer_name}</AppText>
                     <View style={styles.starsRow}>
                       {[1, 2, 3, 4, 5].map((s) => (
-                        <Star key={s} size={12} color={colors.accent.yellow} fill={s <= rev.rating ? colors.accent.yellow : 'none'} />
+                        <Star key={s} size={12} color={colors.accent.amber} fill={s <= rev.rating ? colors.accent.amber : 'none'} />
                       ))}
                     </View>
                   </View>
-                  <AppText variant="small" color={colors.text.secondary} style={{ marginTop: 4 }}>
+                  <AppText variant="caption" color={colors.text.secondary} style={{ marginTop: 4, lineHeight: 18 }}>
                     {rev.comment}
                   </AppText>
-                  <AppText variant="small" color={colors.text.muted} style={{ marginTop: 6, fontSize: 10 }}>
+                  <AppText variant="label" color={colors.text.muted} style={{ marginTop: 6 }}>
                     {formatDate(rev.created_at)}
                   </AppText>
                 </AppCard>
               ))
             ) : (
-              <AppText variant="small" color={colors.text.muted} style={{ marginBottom: spacing.md }}>
-                No reviews yet. Be the first to review this farm produce!
+              <AppText variant="caption" color={colors.text.muted} style={{ marginBottom: spacing.md }}>
+                No reviews yet. Be the first to share your experience with this harvest!
               </AppText>
             )}
 
             {/* Write Review Input */}
             {user && (
-              <AppCard elevated padding="md" style={styles.writeReviewCard}>
-                <AppText weight="bold" style={{ marginBottom: spacing.xs }}>Leave a Review</AppText>
+              <AppCard variant="elevated" padding="lg" borderRadius={radii.xl} style={styles.writeReviewCard}>
+                <AppText variant="bodySmall" weight="bold" style={{ marginBottom: spacing.xs }}>
+                  Rate this Produce
+                </AppText>
                 <View style={styles.starsSelectRow}>
                   {[1, 2, 3, 4, 5].map((s) => (
                     <TouchableOpacity key={s} onPress={() => setReviewRating(s)} style={{ padding: 4 }}>
-                      <Star size={22} color={colors.accent.yellow} fill={s <= reviewRating ? colors.accent.yellow : 'none'} />
+                      <Star size={24} color={colors.accent.amber} fill={s <= reviewRating ? colors.accent.amber : 'none'} />
                     </TouchableOpacity>
                   ))}
                 </View>
                 <TextInput
-                  placeholder="Share your experience with this harvest..."
+                  placeholder="Share details about the freshness, flavor, or delivery..."
                   placeholderTextColor={colors.text.muted}
                   value={reviewComment}
                   onChangeText={setReviewComment}
@@ -413,6 +440,7 @@ export default function ProductDetailScreen() {
                 <AppButton
                   title="Submit Review"
                   size="sm"
+                  shape="pill"
                   onPress={handleSubmitReview}
                   loading={submittingReview}
                   disabled={!reviewComment.trim() || submittingReview}
@@ -431,15 +459,19 @@ export default function ProductDetailScreen() {
             <TouchableOpacity 
               style={styles.qtyBtn} 
               onPress={() => setQuantity(q => Math.max(1, q - 1))}
+              activeOpacity={0.7}
             >
-              <AppText weight="bold" style={{ fontSize: 18 }}>-</AppText>
+              <Minus size={16} color={colors.text.primary} strokeWidth={2.4} />
             </TouchableOpacity>
-            <AppText weight="bold" style={{ marginHorizontal: spacing.md, fontSize: 16 }}>{quantity}</AppText>
+            <AppText variant="bodySmall" weight="bold" style={{ marginHorizontal: spacing.md }}>
+              {quantity}
+            </AppText>
             <TouchableOpacity 
               style={styles.qtyBtn} 
               onPress={() => setQuantity(q => Math.min(product.stock_quantity || 99, q + 1))}
+              activeOpacity={0.7}
             >
-              <AppText weight="bold" style={{ fontSize: 18 }}>+</AppText>
+              <Plus size={16} color={colors.text.primary} strokeWidth={2.4} />
             </TouchableOpacity>
           </View>
         )}
@@ -476,50 +508,42 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: '100%',
-    height: 320,
+    height: 330,
     position: 'relative',
     backgroundColor: colors.background.surface,
   },
   image: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
   noImage: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.background.elevated,
+    backgroundColor: colors.brand.tint,
   },
   floatingBackBtn: {
     position: 'absolute',
-    left: spacing.md,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.background.surface,
+    left: spacing.lg,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
+    ...shadows.card,
   },
   floatingWishlistBtn: {
     position: 'absolute',
-    right: spacing.md,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.background.surface,
+    right: spacing.lg,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
+    ...shadows.card,
   },
   thumbnailStrip: {
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     gap: spacing.sm,
     backgroundColor: colors.background.surface,
@@ -540,16 +564,17 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   content: {
-    padding: spacing.xl,
+    padding: spacing.lg,
     backgroundColor: colors.background.main,
   },
   tagsRow: {
     flexDirection: 'row',
     gap: spacing.sm,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
   title: {
-    marginBottom: spacing.xs,
+    fontSize: 24,
+    marginBottom: spacing.xxs,
   },
   metaHeader: {
     flexDirection: 'row',
@@ -574,11 +599,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   harvestCard: {
-    backgroundColor: colors.brand.muted + '30',
-    borderColor: colors.brand.primary + '30',
-    borderWidth: 1,
     marginBottom: spacing.xl,
-    borderRadius: radii.xl,
   },
   harvestHeader: {
     flexDirection: 'row',
@@ -595,15 +616,15 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   progressBarTrack: {
-    height: 8,
-    borderRadius: 4,
+    height: 6,
+    borderRadius: 3,
     backgroundColor: colors.background.elevated,
     overflow: 'hidden',
   },
   progressBarFill: {
     height: '100%',
     backgroundColor: colors.brand.primary,
-    borderRadius: 4,
+    borderRadius: 3,
   },
   harvestMetricsGrid: {
     flexDirection: 'row',
@@ -615,18 +636,19 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     borderRadius: radii.lg,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border.subtle,
   },
   farmerCard: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: spacing.lg,
-    borderRadius: radii.xl,
   },
   farmerAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: colors.brand.muted,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.brand.tint,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing.md,
@@ -638,9 +660,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: radii.full,
-    backgroundColor: colors.brand.muted,
+    paddingVertical: 6,
+    borderRadius: radii.pill,
+    backgroundColor: colors.brand.tint,
   },
   guaranteesRow: {
     flexDirection: 'row',
@@ -656,14 +678,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   reviewsSection: {
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
   },
   sectionTitle: {
     marginBottom: spacing.md,
   },
   reviewCard: {
     marginBottom: spacing.md,
-    borderRadius: radii.lg,
   },
   reviewHeader: {
     flexDirection: 'row',
@@ -676,22 +697,21 @@ const styles = StyleSheet.create({
   },
   writeReviewCard: {
     marginTop: spacing.md,
-    borderRadius: radii.lg,
   },
   starsSelectRow: {
     flexDirection: 'row',
     marginBottom: spacing.sm,
   },
   reviewInput: {
-    backgroundColor: colors.background.main,
+    backgroundColor: colors.background.surface,
     borderWidth: 1,
     borderColor: colors.border.subtle,
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     padding: spacing.md,
     fontSize: 14,
     color: colors.text.primary,
     textAlignVertical: 'top',
-    minHeight: 70,
+    minHeight: 74,
   },
   bottomBar: {
     position: 'absolute',
@@ -700,14 +720,10 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: colors.background.surface,
     paddingTop: spacing.md,
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.lg,
     borderTopWidth: 1,
     borderTopColor: colors.border.subtle,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 10,
+    ...shadows.card,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
@@ -716,14 +732,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.background.elevated,
-    borderRadius: radii.full,
-    paddingHorizontal: spacing.sm,
+    borderRadius: radii.pill,
+    paddingHorizontal: spacing.xs,
     paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: colors.border.subtle,
   },
   qtyBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     alignItems: 'center',
     justifyContent: 'center',
   },

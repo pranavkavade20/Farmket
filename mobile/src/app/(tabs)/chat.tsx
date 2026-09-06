@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, TextInput } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AppHeader, AppEmptyState, AppText, AppButton } from '../../components/ui';
-import { colors, spacing, radii } from '../../theme';
-import { MessageSquare, Search } from 'lucide-react-native';
+import { AppHeader, AppEmptyState, AppText, AppButton, AppCard } from '../../components/ui';
+import { TopBarActions } from '../../components/navigation/TopBarActions';
+import { colors, spacing, radii, shadows } from '../../theme';
+import { MessageSquare, Search, ChevronRight, X } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { fetchConversations, Conversation } from '../../api/chat';
 import { useAuth } from '../../context/AuthContext';
@@ -13,74 +14,102 @@ export default function ChatScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const loadData = useCallback(async () => {
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
     try {
       const data = await fetchConversations();
       setConversations(data);
     } catch (error) {
-      console.error('Failed to load conversations', error);
+      console.error('Failed to refresh conversations', error);
     } finally {
-      setLoading(false);
       setRefreshing(false);
     }
   }, []);
 
   useEffect(() => {
-    if (user) {
-      loadData();
-    } else {
-      setLoading(false);
-    }
-  }, [user, loadData]);
+    if (!user) return;
+    let isCancelled = false;
 
-  const onRefresh = () => {
-    setRefreshing(true);
-    loadData();
-  };
+    fetchConversations()
+      .then((data) => {
+        if (!isCancelled) {
+          setConversations(data);
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to load conversations', error);
+      })
+      .finally(() => {
+        if (!isCancelled) {
+          setLoading(false);
+          setRefreshing(false);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [user]);
+
+  const filteredConversations = conversations.filter((item) => {
+    if (!searchQuery.trim()) return true;
+    const other = item.participants_details?.find((p) => p.id !== user?.id);
+    const name = item.is_group ? item.group_name : (other?.full_name || other?.username || '');
+    return name.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   const renderItem = ({ item }: { item: Conversation }) => {
-    const other = item.participants_details.find(p => p.id !== user?.id);
-    const name = item.is_group ? item.group_name : (other?.full_name || other?.username || 'Unknown User');
-    const lastMessage = item.last_message?.content || 'No messages yet.';
+    const other = item.participants_details?.find((p) => p.id !== user?.id);
+    const name = item.is_group ? item.group_name : (other?.full_name || other?.username || 'Producer / Customer');
+    const lastMessage = item.last_message?.content || 'Started conversation';
+    const isUnread = item.unread_count > 0;
     
-    // Formatting date
+    // Formatting timestamp
     const dateObj = item.last_message ? new Date(item.last_message.created_at) : new Date();
-    const timeString = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    const timeString = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     return (
       <TouchableOpacity 
         style={styles.convItem} 
-        activeOpacity={0.7}
+        activeOpacity={0.75}
         onPress={() => router.push(`/chat/${item.id}` as any)}
       >
-        <View style={styles.avatar}>
-          <AppText variant="heading" weight="bold" color={colors.brand.primary}>
-            {name.charAt(0).toUpperCase()}
-          </AppText>
+        <View style={styles.avatarWrapper}>
+          <View style={styles.avatar}>
+            <AppText variant="body" weight="bold" color={colors.brand.primary}>
+              {name.charAt(0).toUpperCase()}
+            </AppText>
+          </View>
+          <View style={styles.onlineDot} />
         </View>
+
         <View style={styles.convInfo}>
           <View style={styles.convHeader}>
-            <AppText weight="bold" style={{ flex: 1 }} numberOfLines={1}>{name}</AppText>
-            <AppText variant="small" color={item.unread_count > 0 ? colors.brand.primary : colors.text.muted}>
+            <AppText variant="bodySmall" weight={isUnread ? 'bold' : 'semibold'} style={{ flex: 1 }} numberOfLines={1}>
+              {name}
+            </AppText>
+            <AppText variant="label" color={isUnread ? colors.brand.primary : colors.text.muted}>
               {timeString}
             </AppText>
           </View>
+
           <View style={styles.convPreviewRow}>
             <AppText 
-              variant="small" 
-              color={item.unread_count > 0 ? colors.text.primary : colors.text.secondary} 
-              weight={item.unread_count > 0 ? 'semibold' : 'normal'}
+              variant="caption" 
+              color={isUnread ? colors.text.primary : colors.text.muted} 
+              weight={isUnread ? 'bold' : 'normal'}
               numberOfLines={1} 
-              style={{ flex: 1 }}
+              style={{ flex: 1, marginRight: spacing.sm }}
             >
               {lastMessage}
             </AppText>
-            {item.unread_count > 0 && (
+            {isUnread && (
               <View style={styles.badge}>
-                <AppText variant="small" weight="bold" color={colors.text.inverse} style={styles.badgeText}>
+                <AppText variant="label" weight="bold" color={colors.text.inverse} style={styles.badgeText}>
                   {item.unread_count}
                 </AppText>
               </View>
@@ -94,40 +123,35 @@ export default function ChatScreen() {
   if (!user) {
     return (
       <View style={[styles.container, { paddingTop: insets.top }]}>
-        <AppHeader title="Messages" />
+        <AppHeader title="Direct Messages" />
         <View style={styles.centerContent}>
-          <View style={{ alignItems: 'center', maxWidth: 340, width: '100%' }}>
-            <View style={{
-              width: 72,
-              height: 72,
-              borderRadius: 36,
-              backgroundColor: colors.brand.muted,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-              <MessageSquare size={38} color={colors.brand.primary} />
+          <AppCard variant="tinted" padding="xl" borderRadius={radii.xxl} style={{ alignItems: 'center', maxWidth: 340, width: '100%' }}>
+            <View style={styles.guestIconBg}>
+              <MessageSquare size={36} color={colors.brand.primary} />
             </View>
-            <AppText variant="heading" weight="bold" style={{ marginTop: spacing.md, textAlign: 'center' }}>
-              Connect Directly with Farmers
+            <AppText variant="h2" weight="bold" align="center" style={{ marginTop: spacing.md }}>
+              Farmer & Buyer Chat
             </AppText>
-            <AppText color={colors.text.secondary} style={{ textAlign: 'center', lineHeight: 20, marginTop: spacing.xs, marginBottom: spacing.xl }}>
-              Sign in to chat directly with producers, inquire about upcoming harvests, and coordinate custom orders.
+            <AppText variant="bodySmall" color={colors.text.secondary} align="center" style={{ lineHeight: 20, marginTop: spacing.xs, marginBottom: spacing.xl }}>
+              Sign in to chat directly with farmers, discuss custom harvest batch requests, and ask produce questions.
             </AppText>
             <View style={{ width: '100%' }}>
               <AppButton
                 title="Sign In"
+                shape="pill"
                 onPress={() => router.push('/(auth)/login')}
                 fullWidth
                 style={{ marginBottom: spacing.sm }}
               />
               <AppButton
                 title="Create Account"
+                shape="pill"
                 variant="outline"
                 onPress={() => router.push('/(auth)/register')}
                 fullWidth
               />
             </View>
-          </View>
+          </AppCard>
         </View>
       </View>
     );
@@ -135,15 +159,27 @@ export default function ChatScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <AppHeader title="Messages" />
+      <AppHeader 
+        title="Direct Messages" 
+        rightActions={<TopBarActions showCart={true} showNotifications={true} />}
+      />
       
-      {/* Fake Search Bar for UI polish */}
+      {/* Search Bar */}
       <View style={styles.searchContainer}>
-        <View style={styles.fakeSearchInput}>
-          <Search size={20} color={colors.text.muted} />
-          <AppText color={colors.text.muted} style={{ marginLeft: spacing.sm }}>
-            Search messages...
-          </AppText>
+        <View style={styles.searchBarWrapper}>
+          <Search size={18} color={colors.text.muted} />
+          <TextInput
+            placeholder="Search conversations..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            style={styles.searchInput}
+            placeholderTextColor={colors.text.muted}
+          />
+          {searchQuery ? (
+            <TouchableOpacity onPress={() => setSearchQuery('')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+              <X size={16} color={colors.text.muted} />
+            </TouchableOpacity>
+          ) : null}
         </View>
       </View>
 
@@ -151,20 +187,23 @@ export default function ChatScreen() {
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={colors.brand.primary} />
         </View>
-      ) : conversations.length === 0 ? (
+      ) : filteredConversations.length === 0 ? (
         <View style={styles.centerContent}>
           <AppEmptyState 
-            title="No Messages Yet" 
-            description="When you contact farmers or buyers, your conversations will appear here."
-            icon={<MessageSquare size={48} color={colors.brand.muted} strokeWidth={1.5} />}
+            title={searchQuery ? "No Matches Found" : "No Conversations Yet"} 
+            description={searchQuery ? "No conversations match your query." : "When you reach out to producers or customers, chats will appear here."}
+            icon={<MessageSquare size={44} color={colors.brand.muted} strokeWidth={1.5} />}
+            actionTitle={searchQuery ? "Clear Search" : "Explore Marketplace"}
+            onAction={searchQuery ? () => setSearchQuery('') : () => router.push('/(tabs)/search')}
           />
         </View>
       ) : (
         <FlatList
-          data={conversations}
+          data={filteredConversations}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderItem}
           contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.brand.primary]} />
           }
@@ -180,19 +219,27 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.main,
   },
   searchContainer: {
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
     backgroundColor: colors.background.surface,
     borderBottomWidth: 1,
     borderBottomColor: colors.border.subtle,
   },
-  fakeSearchInput: {
+  searchBarWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.background.main,
-    borderRadius: radii.lg,
+    backgroundColor: colors.background.elevated,
+    borderRadius: radii.pill,
     paddingHorizontal: spacing.md,
-    height: 40,
+    height: 42,
+    borderWidth: 1,
+    borderColor: colors.border.subtle,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: spacing.sm,
+    fontSize: 13,
+    color: colors.text.primary,
   },
   centerContent: {
     flex: 1,
@@ -200,26 +247,49 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: spacing.xl,
   },
+  guestIconBg: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    backgroundColor: colors.brand.tint,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   list: {
     paddingTop: spacing.xs,
+    paddingBottom: spacing.huge,
   },
   convItem: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.background.surface,
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: colors.border.subtle,
   },
+  avatarWrapper: {
+    position: 'relative',
+    marginRight: spacing.md,
+  },
   avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: colors.brand.muted,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.brand.tint,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: spacing.md,
+  },
+  onlineDot: {
+    position: 'absolute',
+    bottom: 2,
+    right: 2,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: colors.status.success,
+    borderWidth: 1.5,
+    borderColor: colors.background.surface,
   },
   convInfo: {
     flex: 1,
@@ -238,13 +308,12 @@ const styles = StyleSheet.create({
   },
   badge: {
     backgroundColor: colors.brand.primary,
-    minWidth: 20,
-    height: 20,
-    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 6,
-    marginLeft: spacing.sm,
+    paddingHorizontal: 5,
   },
   badgeText: {
     fontSize: 10,

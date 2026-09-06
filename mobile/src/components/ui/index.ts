@@ -9,3 +9,6 @@ export * from './AppProductCard';
 export * from './AppCropCard';
 export * from './AppChatBubble';
 export * from './AppBadge';
+export * from './SectionHeader';
+export * from './SegmentedControl';
+export * from './NotificationsModal';

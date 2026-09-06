@@ -3,7 +3,7 @@ import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert } f
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText, AppInput, AppButton, AppCard, AppHeader } from '../../components/ui';
-import { colors, spacing } from '../../theme';
+import { colors, spacing, radii } from '../../theme';
 import { Lock, KeyRound, CheckCircle2 } from 'lucide-react-native';
 import { resetPasswordApi } from '../../api/auth';
 import { normalizeApiError } from '../../api/client';
@@ -21,7 +21,7 @@ export default function ResetPasswordScreen() {
 
   const handleReset = async () => {
     if (!token.trim()) {
-      Alert.alert('Required', 'Please paste the reset token/code from your email.');
+      Alert.alert('Required', 'Please paste the reset code or token from your email.');
       return;
     }
     if (newPassword.length < 8) {
@@ -54,66 +54,73 @@ export default function ResetPasswordScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <AppHeader title="Set New Password" showBack />
+      <AppHeader title="New Password" showBack />
 
       <ScrollView
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + spacing.xl }]}
+        contentContainerStyle={[
+          styles.scrollContent, 
+          { paddingBottom: insets.bottom + spacing.xxl }
+        ]}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <AppText variant="heading" weight="bold" style={styles.title}>
-            {success ? 'Password Reset!' : 'Create New Password'}
+          <AppText variant="h1" weight="bold" style={styles.title}>
+            {success ? 'All Done!' : 'Create New Password'}
           </AppText>
           <AppText variant="body" color={colors.text.secondary} style={styles.subtitle}>
             {success
-              ? 'Your password has been changed. You can now log in with your updated credentials.'
-              : 'Enter the reset code sent to your email and your new password.'}
+              ? 'Your password has been changed. You can now sign in with your updated credentials.'
+              : 'Enter the reset code sent to your email and your desired new password.'}
           </AppText>
         </View>
 
-        <AppCard padding="xl" elevated>
+        <AppCard variant="elevated" padding="xl" borderRadius={radii.xxl} style={styles.card}>
           {success ? (
             <View style={styles.successContainer}>
-              <CheckCircle2 size={48} color={colors.status.success} style={{ marginBottom: spacing.md }} />
-              <AppText variant="subheading" weight="semibold" color={colors.status.success} style={styles.successTitle}>
-                Success
+              <View style={styles.successIconWrapper}>
+                <CheckCircle2 size={36} color={colors.status.success} />
+              </View>
+              <AppText variant="h2" weight="bold" color={colors.text.primary} style={styles.successTitle}>
+                Password Reset Successfully
               </AppText>
-              <AppText variant="body" color={colors.text.secondary} align="center" style={styles.successSubtitle}>
-                All previous sessions have been signed out for security.
+              <AppText variant="bodySmall" color={colors.text.secondary} align="center" style={styles.successSubtitle}>
+                All other active sessions have been safely terminated.
               </AppText>
               <AppButton
                 title="Sign In with New Password"
                 onPress={() => router.replace('/(auth)/login')}
                 fullWidth
+                shape="rounded"
               />
             </View>
           ) : (
             <>
               <AppInput
-                label="Reset Code / Token"
-                placeholder="Paste token from email"
+                label="RESET CODE / TOKEN"
+                placeholder="Paste code from email"
                 value={token}
                 onChangeText={setToken}
                 autoCapitalize="none"
-                leftIcon={<KeyRound size={20} color={colors.text.muted} />}
+                leftIcon={<KeyRound size={18} color={colors.text.muted} />}
               />
 
               <AppInput
-                label="New Password"
+                label="NEW PASSWORD"
                 placeholder="Minimum 8 characters"
                 value={newPassword}
                 onChangeText={setNewPassword}
                 secureTextEntry
-                leftIcon={<Lock size={20} color={colors.text.muted} />}
+                leftIcon={<Lock size={18} color={colors.text.muted} />}
               />
 
               <AppInput
-                label="Confirm New Password"
+                label="CONFIRM NEW PASSWORD"
                 placeholder="Re-enter password"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 secureTextEntry
-                leftIcon={<Lock size={20} color={colors.text.muted} />}
+                leftIcon={<Lock size={18} color={colors.text.muted} />}
               />
 
               <AppButton
@@ -121,6 +128,7 @@ export default function ResetPasswordScreen() {
                 onPress={handleReset}
                 loading={loading}
                 fullWidth
+                shape="rounded"
                 style={styles.submitButton}
               />
             </>
@@ -138,29 +146,42 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xl,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
   },
   header: {
     marginBottom: spacing.xl,
   },
   title: {
-    marginBottom: spacing.xs,
+    marginBottom: spacing.xxs,
   },
   subtitle: {
-    marginBottom: spacing.sm,
+    lineHeight: 20,
+  },
+  card: {
+    backgroundColor: colors.background.surface,
   },
   submitButton: {
-    marginTop: spacing.sm,
+    marginTop: spacing.xs,
   },
   successContainer: {
     alignItems: 'center',
     paddingVertical: spacing.md,
   },
+  successIconWrapper: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.status.successMuted,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.md,
+  },
   successTitle: {
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
   successSubtitle: {
     marginBottom: spacing.xl,
+    lineHeight: 20,
   },
 });

@@ -1,15 +1,22 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, ScrollView, Keyboard } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AppText, AppInput, AppEmptyState, AppCard, AppSkeleton, AppProductCard, AppBadge } from '../../components/ui';
-import { colors, spacing, radii } from '../../theme';
-import { Search as SearchIcon, PackageOpen, SlidersHorizontal, X } from 'lucide-react-native';
+import { 
+  AppText, 
+  AppInput, 
+  AppEmptyState, 
+  AppProductCard, 
+  ProductCardSkeleton, 
+  AppButton 
+} from '../../components/ui';
+import { TopBarActions } from '../../components/navigation/TopBarActions';
+import { colors, spacing, radii, shadows } from '../../theme';
+import { Search as SearchIcon, PackageOpen, SlidersHorizontal, X, Leaf } from 'lucide-react-native';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { fetchProducts, fetchCategories, Product } from '../../api/products';
 import { useDebounce } from '../../hooks/useDebounce';
 import { useRouter } from 'expo-router';
 import { useCart } from '../../context/CartContext';
-import { AppButton } from '../../components/ui/AppButton';
 import { FilterModal } from '../../components/marketplace/FilterModal';
 import { useRequireAuth } from '../../components/auth/AuthGateModal';
 
@@ -20,7 +27,7 @@ export default function SearchScreen() {
   const { requireAuth, AuthGateModalComponent } = useRequireAuth();
   
   const [query, setQuery] = useState('');
-  const debouncedQuery = useDebounce(query, 400);
+  const debouncedQuery = useDebounce(query, 350);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [organicOnly, setOrganicOnly] = useState(false);
   const [sortBy, setSortBy] = useState('-created_at');
@@ -66,7 +73,7 @@ export default function SearchScreen() {
   };
 
   const handleAddToCart = async (productId: number) => {
-    if (!requireAuth('Add to Cart', 'Sign in to add fresh produce to your cart.')) {
+    if (!requireAuth('Add to Cart', 'Sign in to add fresh produce to your cart and place direct farm orders.')) {
       return;
     }
     setAddingId(productId);
@@ -93,7 +100,8 @@ export default function SearchScreen() {
         action={
           <AppButton 
             title="Add" 
-            size="sm" 
+            size="xs" 
+            shape="pill"
             style={styles.addButton}
             onPress={() => handleAddToCart(item.id)}
             loading={addingId === item.id}
@@ -103,45 +111,46 @@ export default function SearchScreen() {
     );
   };
 
-  const renderSkeletons = () => (
-    <View style={styles.listContainer}>
-      {[1, 2, 3, 4, 5].map((i) => (
-        <AppCard key={i} elevated padding="md" style={styles.skeletonCard}>
-          <AppSkeleton width={80} height={80} borderRadius={radii.lg} />
-          <View style={styles.skeletonInfo}>
-            <AppSkeleton width="80%" height={18} style={{ marginBottom: spacing.xs }} />
-            <AppSkeleton width="50%" height={14} style={{ marginBottom: spacing.xs }} />
-            <AppSkeleton width="40%" height={16} />
-          </View>
-        </AppCard>
-      ))}
-    </View>
-  );
-
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Header with Search and Filter button */}
+      {/* Top Header Bar */}
       <View style={styles.header}>
+        <View style={styles.topRow}>
+          <View>
+            <AppText variant="h2" weight="bold" color={colors.text.primary}>
+              Marketplace
+            </AppText>
+            <AppText variant="caption" color={colors.text.muted}>
+              Direct harvest from verified farms
+            </AppText>
+          </View>
+
+          <TopBarActions showCart={true} showNotifications={true} />
+        </View>
+
+        {/* Search input + Filter action button */}
         <View style={styles.searchRow}>
           <View style={{ flex: 1 }}>
             <AppInput
-              placeholder="Search produce, farmers..."
+              placeholder="Search produce, crops, farmers..."
               value={query}
               onChangeText={setQuery}
-              leftIcon={<SearchIcon size={20} color={colors.text.muted} />}
-              style={styles.searchInput}
+              leftIcon={<SearchIcon size={18} color={colors.text.muted} />}
+              clearable
+              onClear={() => setQuery('')}
               returnKeyType="search"
+              containerStyle={{ marginBottom: 0 }}
             />
           </View>
           <TouchableOpacity 
             style={[styles.filterBtn, activeFilterCount > 0 && styles.filterBtnActive]} 
             onPress={() => setIsFilterModalOpen(true)}
-            activeOpacity={0.8}
+            activeOpacity={0.75}
           >
-            <SlidersHorizontal size={20} color={activeFilterCount > 0 ? colors.brand.primary : colors.text.primary} />
+            <SlidersHorizontal size={18} color={activeFilterCount > 0 ? colors.brand.primary : colors.text.primary} />
             {activeFilterCount > 0 && (
               <View style={styles.filterBadge}>
-                <AppText variant="small" weight="bold" color={colors.text.inverse} style={{ fontSize: 10 }}>
+                <AppText variant="label" weight="bold" color="#FFFFFF" style={{ fontSize: 9 }}>
                   {activeFilterCount}
                 </AppText>
               </View>
@@ -150,57 +159,73 @@ export default function SearchScreen() {
         </View>
 
         {/* Category Horizontal Pills */}
-        {categories.length > 0 && (
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false} 
-            contentContainerStyle={styles.categoryPillsScroll}
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false} 
+          contentContainerStyle={styles.categoryPillsScroll}
+        >
+          <TouchableOpacity
+            style={[styles.pill, !selectedCategory && styles.pillActive]}
+            onPress={() => setSelectedCategory('')}
+            activeOpacity={0.75}
           >
-            <TouchableOpacity
-              style={[styles.pill, !selectedCategory && styles.pillActive]}
-              onPress={() => setSelectedCategory('')}
+            <AppText 
+              variant="caption" 
+              weight={!selectedCategory ? 'bold' : 'medium'}
+              color={!selectedCategory ? colors.brand.primary : colors.text.secondary}
             >
-              <AppText 
-                variant="small" 
-                weight={!selectedCategory ? 'bold' : 'medium'}
-                color={!selectedCategory ? colors.brand.primary : colors.text.secondary}
+              All Produce
+            </AppText>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.pill, organicOnly && styles.pillActive]}
+            onPress={() => setOrganicOnly(!organicOnly)}
+            activeOpacity={0.75}
+          >
+            <Leaf size={12} color={organicOnly ? colors.brand.primary : colors.status.success} style={{ marginRight: 4 }} />
+            <AppText 
+              variant="caption" 
+              weight={organicOnly ? 'bold' : 'medium'}
+              color={organicOnly ? colors.brand.primary : colors.text.secondary}
+            >
+              Organic Only
+            </AppText>
+          </TouchableOpacity>
+
+          {categories.map((cat) => {
+            const isSelected = selectedCategory === cat.slug;
+            return (
+              <TouchableOpacity
+                key={cat.id}
+                style={[styles.pill, isSelected && styles.pillActive]}
+                onPress={() => setSelectedCategory(isSelected ? '' : cat.slug)}
+                activeOpacity={0.75}
               >
-                All
-              </AppText>
-            </TouchableOpacity>
-            {categories.map((cat) => {
-              const isSelected = selectedCategory === cat.slug;
-              return (
-                <TouchableOpacity
-                  key={cat.id}
-                  style={[styles.pill, isSelected && styles.pillActive]}
-                  onPress={() => setSelectedCategory(isSelected ? '' : cat.slug)}
+                <AppText 
+                  variant="caption" 
+                  weight={isSelected ? 'bold' : 'medium'}
+                  color={isSelected ? colors.brand.primary : colors.text.secondary}
                 >
-                  <AppText 
-                    variant="small" 
-                    weight={isSelected ? 'bold' : 'medium'}
-                    color={isSelected ? colors.brand.primary : colors.text.secondary}
-                  >
-                    {cat.name}
-                  </AppText>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        )}
+                  {cat.name}
+                </AppText>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
 
         {/* Active Filter Chips */}
         {(organicOnly || selectedCategory) && (
           <View style={styles.activeFiltersRow}>
             {organicOnly && (
               <TouchableOpacity style={styles.activeTag} onPress={() => setOrganicOnly(false)}>
-                <AppText variant="small" color={colors.brand.primary}>Organic Only</AppText>
+                <AppText variant="label" weight="medium" color={colors.brand.primary}>Organic Only</AppText>
                 <X size={12} color={colors.brand.primary} style={{ marginLeft: 4 }} />
               </TouchableOpacity>
             )}
             {selectedCategory && (
               <TouchableOpacity style={styles.activeTag} onPress={() => setSelectedCategory('')}>
-                <AppText variant="small" color={colors.brand.primary}>
+                <AppText variant="label" weight="medium" color={colors.brand.primary}>
                   {categories.find(c => c.slug === selectedCategory)?.name || selectedCategory}
                 </AppText>
                 <X size={12} color={colors.brand.primary} style={{ marginLeft: 4 }} />
@@ -210,14 +235,18 @@ export default function SearchScreen() {
         )}
       </View>
 
-      {/* Main Results / Idle State */}
+      {/* Main Results / State */}
       {isLoading ? (
-        renderSkeletons()
+        <View style={styles.listContainer}>
+          {[1, 2, 3, 4, 5].map((i) => (
+            <ProductCardSkeleton key={i} layout="horizontal" />
+          ))}
+        </View>
       ) : isError ? (
         <View style={styles.centerContent}>
           <AppEmptyState 
             title="Failed to Load" 
-            description="We couldn't load the marketplace products. Please try again."
+            description="We couldn't connect to the marketplace. Please check your connection."
             actionTitle="Retry"
             onAction={refetch}
           />
@@ -225,13 +254,13 @@ export default function SearchScreen() {
       ) : data.length === 0 ? (
         <View style={styles.centerContent}>
           <AppEmptyState 
-            title="No Products Found" 
+            title="No Produce Found" 
             description={
               query || activeFilterCount > 0
-                ? "We couldn't find any products matching your filters. Try clearing some criteria."
-                : "No marketplace products are available right now."
+                ? "We couldn't find items matching your filters. Try clearing your search or filter tags."
+                : "No marketplace products available right now."
             }
-            icon={<PackageOpen size={48} color={colors.brand.muted} strokeWidth={1.5} />}
+            icon={<PackageOpen size={48} color={colors.brand.muted} />}
             actionTitle={activeFilterCount > 0 || query ? "Clear Filters" : undefined}
             onAction={activeFilterCount > 0 || query ? clearAllFilters : undefined}
           />
@@ -239,11 +268,11 @@ export default function SearchScreen() {
       ) : (
         <View style={styles.resultsContainer}>
           <View style={styles.resultsHeader}>
-            <AppText weight="bold">
-              {query ? `Results for "${query}"` : 'All Products'}
+            <AppText variant="bodySmall" weight="bold" color={colors.text.primary}>
+              {query ? `Results for "${query}"` : 'Direct Farm Produce'}
             </AppText>
-            <AppText variant="small" color={colors.text.muted}>
-              {data.length} items
+            <AppText variant="caption" color={colors.text.muted}>
+              {data.length} {data.length === 1 ? 'item' : 'items'}
             </AppText>
           </View>
           
@@ -296,30 +325,30 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.main,
   },
   header: {
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xs,
     paddingBottom: spacing.sm,
     backgroundColor: colors.background.surface,
     borderBottomWidth: 1,
     borderBottomColor: colors.border.subtle,
   },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
-  },
-  searchInput: {
-    backgroundColor: colors.background.main,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-    borderRadius: radii.xl,
-    height: 48,
+    gap: spacing.sm,
+    marginBottom: spacing.xs,
   },
   filterBtn: {
-    width: 48,
-    height: 48,
-    borderRadius: radii.xl,
-    backgroundColor: colors.background.main,
+    width: 46,
+    height: 46,
+    borderRadius: radii.lg,
+    backgroundColor: colors.background.elevated,
     borderWidth: 1,
     borderColor: colors.border.subtle,
     alignItems: 'center',
@@ -328,12 +357,12 @@ const styles = StyleSheet.create({
   },
   filterBtnActive: {
     borderColor: colors.brand.primary,
-    backgroundColor: colors.brand.muted,
+    backgroundColor: colors.brand.tint,
   },
   filterBadge: {
     position: 'absolute',
-    top: 4,
-    right: 4,
+    top: -2,
+    right: -2,
     backgroundColor: colors.brand.primary,
     width: 16,
     height: 16,
@@ -342,34 +371,38 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   categoryPillsScroll: {
-    paddingVertical: spacing.sm,
-    gap: spacing.sm,
+    paddingVertical: spacing.xs,
+    gap: spacing.xs,
   },
   pill: {
-    paddingHorizontal: spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
     paddingVertical: 6,
-    borderRadius: radii.full,
-    backgroundColor: colors.background.main,
+    borderRadius: radii.pill,
+    backgroundColor: colors.background.elevated,
     borderWidth: 1,
     borderColor: colors.border.subtle,
   },
   pillActive: {
-    backgroundColor: colors.brand.muted,
+    backgroundColor: colors.brand.tint,
     borderColor: colors.brand.primary,
   },
   activeFiltersRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.sm,
+    gap: spacing.xs,
     paddingTop: spacing.xs,
   },
   activeTag: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: 4,
-    backgroundColor: colors.brand.muted,
-    borderRadius: radii.full,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+    backgroundColor: colors.brand.tint,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    borderColor: colors.brand.muted,
   },
   centerContent: {
     flex: 1,
@@ -384,28 +417,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
   listContainer: {
-    paddingHorizontal: spacing.xl,
-    paddingBottom: spacing.xxxl,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.huge,
     flexGrow: 1,
   },
-  skeletonCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-    backgroundColor: colors.background.surface,
-  },
-  skeletonInfo: {
-    flex: 1,
-    marginLeft: spacing.md,
-    justifyContent: 'center',
-  },
   addButton: {
-    height: 36,
-    paddingHorizontal: spacing.md,
-    borderRadius: radii.full,
+    minWidth: 54,
   }
 });

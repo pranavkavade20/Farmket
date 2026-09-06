@@ -3,17 +3,17 @@ import {
   TouchableOpacity, 
   StyleSheet, 
   ActivityIndicator, 
-  ViewStyle, 
-  TextStyle, 
-  TouchableOpacityProps
+  TouchableOpacityProps,
+  View
 } from 'react-native';
-import { colors, spacing, radii } from '../../theme';
+import { colors, spacing, radii, shadows } from '../../theme';
 import { AppText } from './AppText';
 
 export interface AppButtonProps extends TouchableOpacityProps {
   title: string;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'accent';
+  size?: 'xs' | 'sm' | 'md' | 'lg';
+  shape?: 'rounded' | 'pill';
   loading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
@@ -24,6 +24,7 @@ export function AppButton({
   title,
   variant = 'primary',
   size = 'md',
+  shape = 'rounded',
   loading = false,
   leftIcon,
   rightIcon,
@@ -36,49 +37,82 @@ export function AppButton({
   const isDisabled = disabled || loading;
 
   const getBackgroundColor = () => {
-    if (variant === 'primary') return isDisabled ? colors.brand.muted : colors.brand.primary;
-    if (variant === 'secondary') return isDisabled ? colors.border.subtle : colors.background.elevated;
-    if (variant === 'danger') return isDisabled ? colors.status.dangerMuted : colors.status.danger;
-    return 'transparent';
+    if (isDisabled) {
+      if (variant === 'ghost' || variant === 'outline') return 'transparent';
+      return colors.background.elevated;
+    }
+    switch (variant) {
+      case 'primary': return colors.brand.primary;
+      case 'secondary': return colors.background.elevated;
+      case 'accent': return colors.accent.amber;
+      case 'danger': return colors.status.danger;
+      case 'outline':
+      case 'ghost':
+      default: return 'transparent';
+    }
   };
 
   const getBorderColor = () => {
-    if (variant === 'outline') return isDisabled ? colors.border.subtle : colors.border.strong;
+    if (isDisabled) return variant === 'outline' ? colors.border.subtle : 'transparent';
+    if (variant === 'outline') return colors.border.strong;
     if (variant === 'secondary') return colors.border.subtle;
     return 'transparent';
   };
 
   const getTextColor = () => {
-    if (variant === 'primary' || variant === 'danger') return colors.text.inverse;
     if (isDisabled) return colors.text.muted;
-    if (variant === 'ghost' || variant === 'outline') return colors.text.primary;
-    return colors.text.primary;
+    switch (variant) {
+      case 'primary':
+      case 'accent':
+      case 'danger':
+        return colors.text.inverse;
+      case 'ghost':
+        return colors.brand.primary;
+      case 'secondary':
+      case 'outline':
+      default:
+        return colors.text.primary;
+    }
   };
 
   const getHeight = () => {
-    if (size === 'sm') return 36;
-    if (size === 'lg') return 56;
-    return 48; // md
+    if (size === 'xs') return 30;
+    if (size === 'sm') return 38;
+    if (size === 'lg') return 54;
+    return 46; // md
   };
 
-  const getPadding = () => {
+  const getPaddingHorizontal = () => {
+    if (size === 'xs') return spacing.sm;
     if (size === 'sm') return spacing.md;
-    if (size === 'lg') return spacing.xl;
+    if (size === 'lg') return spacing.xxl;
     return spacing.lg;
   };
 
+  const getBorderRadius = () => {
+    if (shape === 'pill') return radii.full;
+    if (size === 'xs') return radii.sm;
+    if (size === 'sm') return radii.md;
+    if (size === 'lg') return radii.xl;
+    return radii.lg;
+  };
+
+  const isElevated = variant === 'primary' && !isDisabled;
+
   return (
     <TouchableOpacity
-      activeOpacity={0.8}
+      activeOpacity={0.82}
       disabled={isDisabled}
       style={[
         styles.button,
+        isElevated && shadows.xs,
         {
           backgroundColor: getBackgroundColor(),
           borderColor: getBorderColor(),
           borderWidth: variant === 'outline' || variant === 'secondary' ? 1 : 0,
           height: getHeight(),
-          paddingHorizontal: getPadding(),
+          paddingHorizontal: getPaddingHorizontal(),
+          borderRadius: getBorderRadius(),
           alignSelf: fullWidth ? 'stretch' : 'flex-start',
         },
         style
@@ -86,25 +120,24 @@ export function AppButton({
       {...props}
     >
       {loading ? (
-        <ActivityIndicator color={getTextColor()} />
+        <ActivityIndicator size="small" color={getTextColor()} />
       ) : (
-        <>
-          {leftIcon && leftIcon}
+        <View style={styles.contentRow}>
+          {leftIcon && <View style={styles.leftIconWrapper}>{leftIcon}</View>}
           <AppText 
-            weight="medium" 
+            weight={variant === 'ghost' ? 'semibold' : 'bold'} 
             color={getTextColor()} 
             style={[
-              styles.text, 
-              { 
-                marginLeft: leftIcon ? spacing.sm : 0,
-                marginRight: rightIcon ? spacing.sm : 0 
-              }
+              styles.text,
+              size === 'xs' && styles.textXs,
+              size === 'sm' && styles.textSmall,
+              size === 'lg' && styles.textLarge,
             ]}
           >
             {title}
           </AppText>
-          {rightIcon && rightIcon}
-        </>
+          {rightIcon && <View style={styles.rightIconWrapper}>{rightIcon}</View>}
+        </View>
       )}
     </TouchableOpacity>
   );
@@ -115,9 +148,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: radii.md,
+  },
+  contentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  leftIconWrapper: {
+    marginRight: spacing.xs,
+  },
+  rightIconWrapper: {
+    marginLeft: spacing.xs,
   },
   text: {
     textAlign: 'center',
+    fontSize: 14,
+  },
+  textXs: {
+    fontSize: 11,
+  },
+  textSmall: {
+    fontSize: 12,
+  },
+  textLarge: {
+    fontSize: 16,
   }
 });
