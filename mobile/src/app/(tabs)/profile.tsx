@@ -14,8 +14,9 @@ import { resendVerificationApi, changePasswordApi } from '../../api/auth';
 import { normalizeApiError } from '../../api/client';
 import { 
   Package, LogOut, Settings, HelpCircle, 
-  ChevronRight, Sprout, ShoppingBag, ShieldCheck, CheckCircle2, AlertTriangle, Lock, MapPin
+  ChevronRight, Sprout, ShoppingBag, ShieldCheck, CheckCircle2, AlertTriangle, Lock, MapPin, Store
 } from 'lucide-react-native';
+import { FarmerAvatarSvg } from '../../components/illustrations/FarmerAvatarSvg';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -212,6 +213,26 @@ export default function ProfileScreen() {
               </AppText>
             </View>
           ) : null}
+
+          {/* Direct link to Farm Storefront (Screen 4) */}
+          <TouchableOpacity
+            style={styles.storefrontBanner}
+            onPress={() => router.push('/farmer/1' as any)}
+            activeOpacity={0.8}
+          >
+            <View style={styles.storefrontLeft}>
+              <FarmerAvatarSvg size={36} />
+              <View style={{ marginLeft: 10 }}>
+                <AppText variant="bodySmall" weight="bold" color={colors.text.primary}>
+                  {isFarmer ? 'My Farm Storefront' : 'Featured Producer Store'}
+                </AppText>
+                <AppText variant="caption" color={colors.text.muted}>
+                  Ramesh Farm • Pune, Maharashtra
+                </AppText>
+              </View>
+            </View>
+            <ChevronRight size={18} color={colors.brand.primary} />
+          </TouchableOpacity>
         </AppCard>
 
         {/* Recent Orders Section */}
@@ -440,6 +461,21 @@ const styles = StyleSheet.create({
   },
   loginBtn: {
     marginTop: spacing.md,
+  },
+  storefrontBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#F8F9F5',
+    borderRadius: radii.xl,
+    padding: spacing.md,
+    marginTop: spacing.md,
+    borderWidth: 1,
+    borderColor: '#EAECE7',
+  },
+  storefrontLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   section: {
     marginTop: spacing.xs,

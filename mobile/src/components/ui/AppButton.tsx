@@ -11,7 +11,7 @@ import { AppText } from './AppText';
 
 export interface AppButtonProps extends TouchableOpacityProps {
   title: string;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'accent';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'accent' | 'forest';
   size?: 'xs' | 'sm' | 'md' | 'lg';
   shape?: 'rounded' | 'pill';
   loading?: boolean;
@@ -42,6 +42,7 @@ export function AppButton({
       return colors.background.elevated;
     }
     switch (variant) {
+      case 'forest': return colors.brand.forest;
       case 'primary': return colors.brand.primary;
       case 'secondary': return colors.background.elevated;
       case 'accent': return colors.accent.amber;
@@ -62,6 +63,7 @@ export function AppButton({
   const getTextColor = () => {
     if (isDisabled) return colors.text.muted;
     switch (variant) {
+      case 'forest':
       case 'primary':
       case 'accent':
       case 'danger':

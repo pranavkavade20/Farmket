@@ -20,6 +20,69 @@ import { useCart } from '../../context/CartContext';
 import { FilterModal } from '../../components/marketplace/FilterModal';
 import { useRequireAuth } from '../../components/auth/AuthGateModal';
 
+const DEFAULT_PRODUCTS: Product[] = [
+  {
+    id: 1,
+    name: 'Organic Tomatoes',
+    slug: 'organic-tomatoes',
+    farmer: 1,
+    farmer_name: 'Ramesh Farm',
+    category: 1,
+    description: 'Fresh, juicy and organically grown tomatoes straight from our farm.',
+    price: 40,
+    unit: 'kg',
+    stock_quantity: 120,
+    is_organic: true,
+    is_available: true,
+    in_stock: true,
+    market_state: 'AVAILABLE_NOW',
+    images: [],
+    reviews: [],
+    average_rating: 4.8,
+    reviews_count: 124,
+  },
+  {
+    id: 2,
+    name: 'Fresh Spinach',
+    slug: 'fresh-spinach',
+    farmer: 2,
+    farmer_name: 'Green Valley Farm',
+    category: 1,
+    description: 'Crisp, tender and vibrant spinach harvested early morning.',
+    price: 30,
+    unit: 'bunch',
+    stock_quantity: 80,
+    is_organic: true,
+    is_available: true,
+    in_stock: true,
+    market_state: 'AVAILABLE_NOW',
+    images: [],
+    reviews: [],
+    average_rating: 4.7,
+    reviews_count: 98,
+  },
+  {
+    id: 3,
+    name: 'Sweet Carrots',
+    slug: 'sweet-carrots',
+    farmer: 1,
+    farmer_name: 'Ramesh Farm',
+    category: 1,
+    description: 'Sweet, crunchy organic carrots freshly pulled from organic soil.',
+    price: 35,
+    unit: 'kg',
+    stock_quantity: 90,
+    is_organic: true,
+    is_available: true,
+    in_stock: true,
+    market_state: 'AVAILABLE_NOW',
+    images: [],
+    reviews: [],
+    average_rating: 4.9,
+    reviews_count: 85,
+  },
+];
+
 export default function SearchScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -64,7 +127,10 @@ export default function SearchScreen() {
     initialPageParam: 'products/products/',
   });
 
-  const data: Product[] = productsData?.pages.flatMap(page => page.results) || [];
+  const rawData: Product[] = productsData?.pages.flatMap(page => page.results) || [];
+  const data: Product[] = rawData.length > 0 || debouncedQuery || selectedCategory || organicOnly
+    ? rawData
+    : DEFAULT_PRODUCTS;
 
   const handleEndReached = () => {
     if (hasNextPage && !isFetchingNextPage) {

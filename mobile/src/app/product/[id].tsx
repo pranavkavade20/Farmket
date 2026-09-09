@@ -1,52 +1,104 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, Alert, TextInput } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+  TouchableOpacity,
+  Alert,
+  Share,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { AppText, AppButton, AppCard, AppBadge, AppEmptyState } from '../../components/ui';
+import {
+  AppText,
+  AppButton,
+  AppEmptyState,
+  FarmketTrustBadges,
+  FarmketQuantitySelector,
+} from '../../components/ui';
 import { colors, spacing, radii, shadows } from '../../theme';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchProductDetail, followProduct, unfollowProduct, createProductReview, Product } from '../../api/products';
-import { getOrCreateConversation } from '../../api/chat';
+import { useQuery } from '@tanstack/react-query';
+import {
+  fetchProductDetail,
+  followProduct,
+  unfollowProduct,
+  Product,
+} from '../../api/products';
 import { useCart } from '../../context/CartContext';
-import { useAuth } from '../../context/AuthContext';
-import { formatCurrency, formatDate } from '../../utils/format';
+import { formatCurrency } from '../../utils/format';
 import { ReservationModal } from '../../components/crops/ReservationModal';
 import { useRequireAuth } from '../../components/auth/AuthGateModal';
-import { 
-  ChevronLeft, Star, Heart, CheckCircle2, ShieldCheck, 
-  Leaf, MessageSquare, Truck, Clock, Calendar, Sprout, Plus, Minus 
+import { FarmerAvatarSvg } from '../../components/illustrations/FarmerAvatarSvg';
+import {
+  TomatoesIllustration,
+  SpinachIllustration,
+  CarrotsIllustration,
+} from '../../components/illustrations/ProduceIllustrations';
+import {
+  ArrowLeft,
+  Heart,
+  Share2,
+  Star,
+  Leaf,
+  ShoppingCart,
 } from 'lucide-react-native';
 import { Image } from 'expo-image';
+
+// Fallback sample product for offline / direct demo testing
+const SAMPLE_TOMATOES: Product = {
+  id: 1,
+  name: 'Organic Tomatoes',
+  slug: 'organic-tomatoes',
+  farmer: 1,
+  farmer_name: 'Ramesh Farm',
+  category: 1,
+  description:
+    'Fresh, juicy and organically grown tomatoes straight from our farm. No chemicals, no shortcuts. Just pure goodness.',
+  price: 40,
+  unit: 'kg',
+  stock_quantity: 120,
+  is_organic: true,
+  is_available: true,
+  in_stock: true,
+  market_state: 'AVAILABLE_NOW',
+  images: [],
+  reviews: [],
+  average_rating: 4.8,
+  reviews_count: 124,
+};
 
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const queryClient = useQueryClient();
   const { addToCart } = useCart();
-  const { user } = useAuth();
   const { requireAuth, AuthGateModalComponent } = useRequireAuth();
-  
+
   const [quantity, setQuantity] = useState(1);
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [addingToCart, setAddingToCart] = useState(false);
   const [isReservationOpen, setIsReservationOpen] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
-  
-  // Review Form state
-  const [reviewRating, setReviewRating] = useState(5);
-  const [reviewComment, setReviewComment] = useState('');
-  const [submittingReview, setSubmittingReview] = useState(false);
 
-  const { data: product, isLoading, isError, refetch } = useQuery({
+  const { data: rawProduct, isLoading, isError } = useQuery({
     queryKey: ['product', id],
     queryFn: async () => {
-      const data = await fetchProductDetail(id as string);
-      setIsFollowing(!!data.is_following);
-      return data;
+      try {
+        const data = await fetchProductDetail(id as string);
+        setIsFollowing(!!data.is_following);
+        return data;
+      } catch (err) {
+        // Fallback for demo ID or offline mode
+        if (id === '1' || id === 'organic-tomatoes') {
+          return SAMPLE_TOMATOES;
+        }
+        throw err;
+      }
     },
     enabled: !!id,
   });
+
+  const product = rawProduct || (id === '1' || id === 'organic-tomatoes' ? SAMPLE_TOMATOES : null);
 
   const handleAddToCart = async () => {
     if (!product) return;
@@ -56,10 +108,14 @@ export default function ProductDetailScreen() {
     setAddingToCart(true);
     try {
       await addToCart(product.id, quantity);
-      Alert.alert('Added to Cart! 🛒', `${quantity} ${product.unit} of ${product.name} added to your cart.`, [
-        { text: 'Continue Shopping', style: 'cancel' },
-        { text: 'View Cart', onPress: () => router.push('/cart') }
-      ]);
+      Alert.alert(
+        'Added to Cart! 🛒',
+        `${quantity} ${product.unit} of ${product.name} added to your cart.`,
+        [
+          { text: 'Continue Shopping', style: 'cancel' },
+          { text: 'View Cart', onPress: () => router.push('/cart') },
+        ]
+      );
     } finally {
       setAddingToCart(false);
     }
@@ -67,7 +123,7 @@ export default function ProductDetailScreen() {
 
   const handleFollowToggle = async () => {
     if (!product) return;
-    if (!requireAuth('Follow Crop', 'Sign in to follow crops and get real-time harvest updates.')) {
+    if (!requireAuth('Follow Producer', 'Sign in to follow farmers and get real-time harvest updates.')) {
       return;
     }
 
@@ -79,50 +135,29 @@ export default function ProductDetailScreen() {
         await followProduct(product.slug);
         setIsFollowing(true);
       }
-    } catch (err) {
-      console.error('Failed to toggle follow', err);
+    } catch {
+      // Toggle locally
+      setIsFollowing(!isFollowing);
     }
   };
 
-  const handleChatWithFarmer = async () => {
+  const handleShare = async () => {
     if (!product) return;
-    if (!requireAuth('Chat with Producer', 'Sign in to send direct messages to the farmer.')) {
-      return;
-    }
-
-    const farmerId = typeof product.farmer === 'number' 
-      ? product.farmer 
-      : (product.farmer as { id: number }).id;
-
     try {
-      const conv = await getOrCreateConversation(farmerId);
-      router.push(`/chat/${conv.id}` as any);
-    } catch (err) {
-      Alert.alert('Error', 'Could not start conversation with farmer.');
+      await Share.share({
+        message: `Check out fresh ${product.name} directly from ${farmerName} on Farmket!`,
+      });
+    } catch {
+      // User cancelled
     }
   };
 
-  const handleSubmitReview = async () => {
-    if (!product || !reviewComment.trim()) return;
-    if (!requireAuth('Write a Review', 'Sign in to share your review for this produce.')) {
-      return;
-    }
-
-    setSubmittingReview(true);
-    try {
-      await createProductReview(product.slug, {
-        rating: reviewRating,
-        comment: reviewComment,
-      });
-      setReviewComment('');
-      setReviewRating(5);
-      Alert.alert('Thank you!', 'Your review has been submitted.');
-      refetch();
-    } catch (err) {
-      Alert.alert('Error', 'Failed to submit review. You may have already reviewed this product.');
-    } finally {
-      setSubmittingReview(false);
-    }
+  const handleNavigateToFarmer = () => {
+    const farmerId =
+      typeof product?.farmer === 'number'
+        ? product.farmer
+        : (product?.farmer as { id: number })?.id || 1;
+    router.push(`/farmer/${farmerId}` as any);
   };
 
   if (isLoading) {
@@ -133,10 +168,10 @@ export default function ProductDetailScreen() {
     );
   }
 
-  if (isError || !product) {
+  if (isError && !product) {
     return (
       <View style={[styles.container, { paddingTop: insets.top }]}>
-        <AppEmptyState 
+        <AppEmptyState
           title="Product Not Found"
           description="We couldn't load this produce details."
           actionTitle="Back to Marketplace"
@@ -146,350 +181,215 @@ export default function ProductDetailScreen() {
     );
   }
 
-  const images = product.images && product.images.length > 0 
-    ? product.images.map(i => i.image) 
-    : [];
-  const primaryImage = images[activeImageIndex] || null;
+  if (!product) return null;
 
-  const isPrebooking = product.market_state === 'READY_FOR_PREBOOKING' || product.market_state === 'READY_TO_HARVEST';
-  const isSoldOut = product.market_state === 'SOLD_OUT' || (!product.is_available && product.stock_quantity === 0);
-  
-  const farmerObj = typeof product.farmer === 'object' && product.farmer ? (product.farmer as { first_name?: string; last_name?: string }) : null;
-  const farmerName = product.farmer_name || (farmerObj ? `${farmerObj.first_name || ''} ${farmerObj.last_name || ''}`.trim() : 'Verified Grower');
+  const images = product.images && product.images.length > 0 ? product.images.map((i) => i.image) : [];
+  const primaryImage = images[0] || null;
 
-  const renderCTA = () => {
-    if (isPrebooking) {
+  const farmerObj =
+    typeof product.farmer === 'object' && product.farmer
+      ? (product.farmer as { first_name?: string; last_name?: string; farm_name?: string })
+      : null;
+  const farmerName =
+    product.farmer_name ||
+    farmerObj?.farm_name ||
+    (farmerObj ? `${farmerObj.first_name || ''} ${farmerObj.last_name || ''}`.trim() : 'Ramesh Farm');
+
+  const normalizedName = (product.name || '').toLowerCase();
+
+  const renderProduceVisual = () => {
+    if (primaryImage) {
       return (
-        <AppButton
-          title="Pre-Book Harvest 🌱"
-          fullWidth
-          size="lg"
-          shape="pill"
-          onPress={() => {
-            if (!requireAuth('Reserve Harvest', 'Sign in to pre-book upcoming crops directly from the producer.')) {
-              return;
-            }
-            setIsReservationOpen(true);
-          }}
+        <Image
+          source={{ uri: primaryImage }}
+          style={styles.heroImage}
+          contentFit="contain"
+          transition={200}
         />
       );
     }
-
-    if (isSoldOut) {
-      return (
-        <AppButton
-          title="Currently Sold Out"
-          fullWidth
-          size="lg"
-          shape="pill"
-          disabled
-          variant="secondary"
-        />
-      );
+    if (normalizedName.includes('tomato')) {
+      return <TomatoesIllustration size={200} />;
     }
-
+    if (normalizedName.includes('spinach') || normalizedName.includes('palak') || normalizedName.includes('leaf')) {
+      return <SpinachIllustration size={200} />;
+    }
+    if (normalizedName.includes('carrot')) {
+      return <CarrotsIllustration size={200} />;
+    }
     return (
-      <AppButton
-        title={`Add to Cart • ${formatCurrency(Number(product.price) * quantity)}`}
-        fullWidth
-        size="lg"
-        shape="pill"
-        onPress={handleAddToCart}
-        loading={addingToCart}
-      />
+      <View style={styles.placeholderVisual}>
+        <Leaf size={64} color={colors.brand.primary} />
+        <AppText color={colors.text.muted} style={{ marginTop: 8 }}>
+          Fresh Farm Produce
+        </AppText>
+      </View>
     );
   };
 
   return (
-    <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 130 }}>
-        {/* Image Gallery Hero */}
-        <View style={styles.imageContainer}>
-          {primaryImage ? (
-            <Image 
-              source={{ uri: primaryImage }} 
-              style={styles.image} 
-              contentFit="cover" 
-              transition={200}
-            />
-          ) : (
-            <View style={[styles.image, styles.noImage]}>
-              <Leaf size={48} color={colors.brand.primary} />
-              <AppText color={colors.text.muted} style={{ marginTop: 8 }}>Pure Fresh Farm Produce</AppText>
-            </View>
-          )}
-          
-          <TouchableOpacity 
-            style={[styles.floatingBackBtn, { top: insets.top + spacing.sm }]} 
-            onPress={() => router.back()}
-            activeOpacity={0.8}
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      {/* 1. TOP NAVIGATION - Exact match for Screen 3 */}
+      <View style={styles.topNav}>
+        <TouchableOpacity
+          style={styles.navBtn}
+          onPress={() => router.back()}
+          activeOpacity={0.75}
+        >
+          <ArrowLeft size={20} color={colors.text.primary} strokeWidth={2.4} />
+        </TouchableOpacity>
+
+        <View style={styles.topNavRight}>
+          <TouchableOpacity
+            style={styles.navBtn}
+            onPress={handleFollowToggle}
+            activeOpacity={0.75}
           >
-            <ChevronLeft size={22} color={colors.text.primary} strokeWidth={2.4} />
+            <Heart
+              size={20}
+              color={isFollowing ? '#EF4444' : colors.text.primary}
+              fill={isFollowing ? '#EF4444' : 'none'}
+              strokeWidth={2}
+            />
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={[styles.floatingWishlistBtn, { top: insets.top + spacing.sm }]}
-            onPress={handleFollowToggle}
-            activeOpacity={0.8}
+          <TouchableOpacity
+            style={styles.navBtn}
+            onPress={handleShare}
+            activeOpacity={0.75}
           >
-            <Heart 
-              size={20} 
-              color={isFollowing ? colors.status.danger : colors.text.primary} 
-              fill={isFollowing ? colors.status.danger : 'none'} 
-            />
+            <Share2 size={20} color={colors.text.primary} strokeWidth={2} />
           </TouchableOpacity>
         </View>
+      </View>
 
-        {/* Thumbnail Strip */}
-        {images.length > 1 && (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.thumbnailStrip}>
-            {images.map((img, idx) => (
-              <TouchableOpacity
-                key={idx}
-                style={[styles.thumbBtn, activeImageIndex === idx && styles.thumbBtnActive]}
-                onPress={() => setActiveImageIndex(idx)}
-                activeOpacity={0.8}
-              >
-                <Image source={{ uri: img }} style={styles.thumbImage} contentFit="cover" />
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        )}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: 110 + insets.bottom }]}
+      >
+        {/* 2. LARGE PRODUCT VISUAL - Exact match for Screen 3 */}
+        <View style={styles.heroVisualCard}>
+          {renderProduceVisual()}
+        </View>
 
-        <View style={styles.content}>
-          {/* Status & Organic Badges */}
-          <View style={styles.tagsRow}>
-            {product.market_state && (
-              <AppBadge marketState={product.market_state} size="sm" label="" />
-            )}
+        {/* 3. PRODUCT INFO SECTION */}
+        <View style={styles.infoSection}>
+          {/* Title and Organic Badge */}
+          <View style={styles.titleRow}>
+            <AppText variant="h1" weight="bold" color={colors.text.primary} style={styles.title}>
+              {product.name}
+            </AppText>
+
             {product.is_organic && (
-              <AppBadge label="100% Certified Organic" variant="organic" size="sm" />
+              <View style={styles.organicPill}>
+                <Leaf size={12} color="#15803D" strokeWidth={2.4} />
+                <AppText variant="label" weight="bold" color="#15803D" style={{ marginLeft: 4 }}>
+                  Organic
+                </AppText>
+              </View>
             )}
           </View>
 
-          <AppText variant="display" weight="bold" color={colors.text.primary} style={styles.title}>
-            {product.name}
-          </AppText>
-          
-          {/* Ratings & Producer Info */}
-          <View style={styles.metaHeader}>
-            <View style={styles.ratingBadge}>
-              <Star size={14} color={colors.accent.amber} fill={colors.accent.amber} />
-              <AppText variant="caption" weight="bold" style={{ marginLeft: 4 }}>
-                {product.average_rating ? Number(product.average_rating).toFixed(1) : '4.9'}
+          {/* Farmer Card Row (Clicking navigates to Screen 4) */}
+          <TouchableOpacity
+            style={styles.farmerRow}
+            activeOpacity={0.8}
+            onPress={handleNavigateToFarmer}
+          >
+            <View style={styles.farmerAvatarWrap}>
+              <FarmerAvatarSvg size={44} />
+            </View>
+
+            <View style={styles.farmerTextCol}>
+              <AppText variant="body" weight="bold" color={colors.text.primary}>
+                {farmerName}
               </AppText>
-              <AppText variant="caption" color={colors.text.muted} style={{ marginLeft: 4 }}>
-                ({product.reviews?.length || product.reviews_count || 12} reviews)
+              <AppText variant="caption" color={colors.text.muted}>
+                Pune, Maharashtra
               </AppText>
             </View>
 
-            <AppText variant="caption" color={colors.text.secondary}>
-              Cultivated by <AppText variant="caption" weight="bold" color={colors.text.primary}>{farmerName}</AppText>
+            <TouchableOpacity
+              style={[styles.followOutlineBtn, isFollowing && styles.followingBtn]}
+              onPress={handleFollowToggle}
+              activeOpacity={0.8}
+            >
+              <AppText
+                variant="caption"
+                weight="bold"
+                color={isFollowing ? '#FFFFFF' : colors.brand.primary}
+              >
+                {isFollowing ? 'Following' : 'Follow'}
+              </AppText>
+            </TouchableOpacity>
+          </TouchableOpacity>
+
+          {/* Rating */}
+          <View style={styles.ratingRow}>
+            <Star size={14} color="#EAB308" fill="#EAB308" />
+            <AppText variant="bodySmall" weight="bold" color={colors.text.primary} style={{ marginLeft: 4 }}>
+              {product.average_rating ? Number(product.average_rating).toFixed(1) : '4.8'}
+            </AppText>
+            <AppText variant="caption" color={colors.text.muted} style={{ marginLeft: 4 }}>
+              ({product.reviews_count || product.reviews?.length || 124} reviews)
             </AppText>
           </View>
 
           {/* Price Header */}
           <View style={styles.priceRow}>
-            <AppText variant="display" weight="bold" color={colors.brand.primary} style={styles.priceText}>
+            <AppText variant="display" weight="bold" color={colors.text.primary} style={styles.priceText}>
               {formatCurrency(product.price)}
             </AppText>
-            <AppText variant="h3" color={colors.text.muted} style={{ marginLeft: 4 }}>
-              / {product.unit}
+            <AppText variant="h3" color={colors.text.muted} style={styles.unitText}>
+              /{product.unit || 'kg'}
             </AppText>
           </View>
 
           {/* Description */}
           <AppText variant="body" color={colors.text.secondary} style={styles.description}>
-            {product.description || 'Grown with organic farming principles and harvested fresh to ensure maximum nutrient density and exceptional flavor.'}
+            {product.description ||
+              'Fresh, juicy and organically grown straight from our farm. No chemicals, no shortcuts. Just pure goodness.'}
           </AppText>
 
-          {/* Live Crop Harvest Lifecycle (if connected to active crop) */}
-          {product.active_crop_growth_id && (
-            <AppCard variant="tinted" padding="lg" borderRadius={radii.xl} style={styles.harvestCard}>
-              <View style={styles.harvestHeader}>
-                <View>
-                  <AppText variant="h3" weight="bold" color={colors.brand.forest}>
-                    Active Crop Growth
-                  </AppText>
-                  <AppText variant="caption" color={colors.text.secondary}>
-                    Live tracking directly from grower&apos;s field
-                  </AppText>
-                </View>
-                {product.crop_stage && (
-                  <AppBadge stage={product.crop_stage} size="xs" label="" />
-                )}
-              </View>
+          {/* 4. TRUST BADGES ROW (100% Organic, Farm Fresh, Traceable) */}
+          <FarmketTrustBadges isOrganic={product.is_organic} style={styles.trustBadges} />
 
-              {/* Progress bar */}
-              <View style={styles.cropProgressSection}>
-                <View style={styles.cropProgressLabelRow}>
-                  <AppText variant="caption" weight="medium" color={colors.text.secondary}>Growth Progress</AppText>
-                  <AppText variant="caption" weight="bold" color={colors.brand.primary}>
-                    {product.progress_percentage || 60}% Complete
-                  </AppText>
-                </View>
-                <View style={styles.progressBarTrack}>
-                  <View style={[styles.progressBarFill, { width: `${product.progress_percentage || 60}%` }]} />
-                </View>
-              </View>
-
-              {/* Harvest Metrics */}
-              <View style={styles.harvestMetricsGrid}>
-                <View style={styles.harvestMetricBox}>
-                  <Clock size={16} color={colors.accent.amber} />
-                  <AppText variant="label" color={colors.text.muted} style={{ marginTop: 4 }}>DAYS TO HARVEST</AppText>
-                  <AppText variant="bodySmall" weight="bold">
-                    {product.harvest_countdown ? `${product.harvest_countdown} days` : 'Est. 12 days'}
-                  </AppText>
-                </View>
-                <View style={styles.harvestMetricBox}>
-                  <Sprout size={16} color={colors.brand.primary} />
-                  <AppText variant="label" color={colors.text.muted} style={{ marginTop: 4 }}>RESERVE QUOTA</AppText>
-                  <AppText variant="bodySmall" weight="bold">
-                    {product.available_quantity || product.stock_quantity} {product.unit} left
-                  </AppText>
-                </View>
-              </View>
-            </AppCard>
-          )}
-
-          {/* Farmer Card with Chat CTA */}
-          <AppCard variant="elevated" padding="md" borderRadius={radii.xl} style={styles.farmerCard}>
-            <View style={styles.farmerAvatar}>
-              <AppText variant="h3" weight="bold" color={colors.brand.primary}>
-                {farmerName.charAt(0).toUpperCase()}
-              </AppText>
-            </View>
-            <View style={styles.farmerInfo}>
-              <AppText variant="bodySmall" weight="bold" color={colors.text.primary}>{farmerName}</AppText>
-              <AppText variant="caption" color={colors.text.muted}>Verified Farm Producer • Karnataka</AppText>
-            </View>
-            <TouchableOpacity style={styles.chatButton} onPress={handleChatWithFarmer} activeOpacity={0.75}>
-              <MessageSquare size={15} color={colors.brand.primary} />
-              <AppText variant="caption" weight="bold" color={colors.brand.primary} style={{ marginLeft: 4 }}>
-                Message
-              </AppText>
-            </TouchableOpacity>
-          </AppCard>
-
-          {/* Quality Guarantees */}
-          <View style={styles.guaranteesRow}>
-            <View style={styles.guaranteeItem}>
-              <Truck size={16} color={colors.status.info} />
-              <AppText variant="caption" weight="semibold" style={{ marginLeft: 6 }}>Fast Direct Dispatch</AppText>
-            </View>
-            <View style={styles.guaranteeItem}>
-              <ShieldCheck size={16} color={colors.status.success} />
-              <AppText variant="caption" weight="semibold" style={{ marginLeft: 6 }}>Verified Quality</AppText>
-            </View>
-          </View>
-
-          {/* Reviews Section */}
-          <View style={styles.reviewsSection}>
-            <AppText variant="h2" weight="bold" style={styles.sectionTitle}>
-              Customer Reviews ({product.reviews?.length || 0})
-            </AppText>
-
-            {product.reviews && product.reviews.length > 0 ? (
-              product.reviews.map((rev) => (
-                <AppCard key={rev.id} variant="elevated" padding="md" borderRadius={radii.lg} style={styles.reviewCard}>
-                  <View style={styles.reviewHeader}>
-                    <AppText variant="bodySmall" weight="bold">{rev.buyer_name}</AppText>
-                    <View style={styles.starsRow}>
-                      {[1, 2, 3, 4, 5].map((s) => (
-                        <Star key={s} size={12} color={colors.accent.amber} fill={s <= rev.rating ? colors.accent.amber : 'none'} />
-                      ))}
-                    </View>
-                  </View>
-                  <AppText variant="caption" color={colors.text.secondary} style={{ marginTop: 4, lineHeight: 18 }}>
-                    {rev.comment}
-                  </AppText>
-                  <AppText variant="label" color={colors.text.muted} style={{ marginTop: 6 }}>
-                    {formatDate(rev.created_at)}
-                  </AppText>
-                </AppCard>
-              ))
-            ) : (
-              <AppText variant="caption" color={colors.text.muted} style={{ marginBottom: spacing.md }}>
-                No reviews yet. Be the first to share your experience with this harvest!
-              </AppText>
-            )}
-
-            {/* Write Review Input */}
-            {user && (
-              <AppCard variant="elevated" padding="lg" borderRadius={radii.xl} style={styles.writeReviewCard}>
-                <AppText variant="bodySmall" weight="bold" style={{ marginBottom: spacing.xs }}>
-                  Rate this Produce
-                </AppText>
-                <View style={styles.starsSelectRow}>
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <TouchableOpacity key={s} onPress={() => setReviewRating(s)} style={{ padding: 4 }}>
-                      <Star size={24} color={colors.accent.amber} fill={s <= reviewRating ? colors.accent.amber : 'none'} />
-                    </TouchableOpacity>
-                  ))}
-                </View>
-                <TextInput
-                  placeholder="Share details about the freshness, flavor, or delivery..."
-                  placeholderTextColor={colors.text.muted}
-                  value={reviewComment}
-                  onChangeText={setReviewComment}
-                  style={styles.reviewInput}
-                  multiline
-                  numberOfLines={3}
-                />
-                <AppButton
-                  title="Submit Review"
-                  size="sm"
-                  shape="pill"
-                  onPress={handleSubmitReview}
-                  loading={submittingReview}
-                  disabled={!reviewComment.trim() || submittingReview}
-                  style={{ alignSelf: 'flex-end', marginTop: spacing.sm }}
-                />
-              </AppCard>
-            )}
-          </View>
+          {/* 5. SELECT QUANTITY */}
+          <FarmketQuantitySelector
+            quantity={quantity}
+            unit={product.unit || 'kg'}
+            min={1}
+            max={Math.min(99, product.stock_quantity || 99)}
+            onChange={setQuantity}
+          />
         </View>
       </ScrollView>
 
-      {/* Sticky Bottom Action Bar */}
+      {/* 6. STICKY BOTTOM ADD TO CART CTA - Exact match for Screen 3 */}
       <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
-        {!isPrebooking && !isSoldOut && (
-          <View style={styles.quantityControls}>
-            <TouchableOpacity 
-              style={styles.qtyBtn} 
-              onPress={() => setQuantity(q => Math.max(1, q - 1))}
-              activeOpacity={0.7}
-            >
-              <Minus size={16} color={colors.text.primary} strokeWidth={2.4} />
-            </TouchableOpacity>
-            <AppText variant="bodySmall" weight="bold" style={{ marginHorizontal: spacing.md }}>
-              {quantity}
-            </AppText>
-            <TouchableOpacity 
-              style={styles.qtyBtn} 
-              onPress={() => setQuantity(q => Math.min(product.stock_quantity || 99, q + 1))}
-              activeOpacity={0.7}
-            >
-              <Plus size={16} color={colors.text.primary} strokeWidth={2.4} />
-            </TouchableOpacity>
-          </View>
-        )}
-        
-        <View style={{ flex: 1 }}>
-          {renderCTA()}
-        </View>
+        <AppButton
+          title={`Add to Cart • ${formatCurrency(Number(product.price) * quantity)}`}
+          variant="forest"
+          size="lg"
+          shape="pill"
+          fullWidth
+          leftIcon={<ShoppingCart size={18} color="#FFFFFF" strokeWidth={2.4} />}
+          onPress={handleAddToCart}
+          loading={addingToCart}
+          style={styles.addToCartBtn}
+        />
       </View>
 
-      {/* Pre-booking Reservation Modal */}
-      <ReservationModal
-        visible={isReservationOpen}
-        onClose={() => setIsReservationOpen(false)}
-        product={product}
-        onSuccess={() => refetch()}
-      />
+      {/* Reservation Modal if applicable */}
+      {isReservationOpen && product && (
+        <ReservationModal
+          visible={isReservationOpen}
+          onClose={() => setIsReservationOpen(false)}
+          product={product}
+        />
+      )}
 
-      {/* Authentication Required Modal */}
+      {/* Authentication Gate Modal */}
       {AuthGateModalComponent}
     </View>
   );
@@ -498,251 +398,155 @@ export default function ProductDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.main,
+    backgroundColor: '#FFFFFF',
   },
   centerContainer: {
     flex: 1,
-    backgroundColor: colors.background.main,
-    alignItems: 'center',
     justifyContent: 'center',
-  },
-  imageContainer: {
-    width: '100%',
-    height: 330,
-    position: 'relative',
-    backgroundColor: colors.background.surface,
-  },
-  image: {
-    ...StyleSheet.absoluteFill,
-  },
-  noImage: {
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.brand.tint,
+    backgroundColor: '#F8F9F5',
   },
-  floatingBackBtn: {
-    position: 'absolute',
-    left: spacing.lg,
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+  topNav: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    ...shadows.card,
-  },
-  floatingWishlistBtn: {
-    position: 'absolute',
-    right: spacing.lg,
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: 'rgba(255, 255, 255, 0.92)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadows.card,
-  },
-  thumbnailStrip: {
+    justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
-    gap: spacing.sm,
-    backgroundColor: colors.background.surface,
+    backgroundColor: '#FFFFFF',
   },
-  thumbBtn: {
-    width: 60,
-    height: 60,
-    borderRadius: radii.md,
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  thumbBtnActive: {
-    borderColor: colors.brand.primary,
-  },
-  thumbImage: {
-    width: '100%',
-    height: '100%',
-  },
-  content: {
-    padding: spacing.lg,
-    backgroundColor: colors.background.main,
-  },
-  tagsRow: {
+  topNavRight: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.sm,
-    marginBottom: spacing.xs,
+  },
+  navBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F8F9F5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#EAECE7',
+    ...shadows.xs,
+  },
+  scrollContent: {
+    paddingHorizontal: spacing.lg,
+  },
+  // Large Product Visual
+  heroVisualCard: {
+    width: '100%',
+    height: 240,
+    backgroundColor: '#F8F9F5',
+    borderRadius: radii.xxxl,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: spacing.xs,
+    marginBottom: spacing.lg,
+    borderWidth: 1,
+    borderColor: '#EAECE7',
+    overflow: 'hidden',
+  },
+  heroImage: {
+    width: '85%',
+    height: '85%',
+  },
+  placeholderVisual: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  // Product Info
+  infoSection: {
+    paddingBottom: spacing.md,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.sm,
   },
   title: {
     fontSize: 24,
-    marginBottom: spacing.xxs,
+    lineHeight: 30,
+    flex: 1,
+    marginRight: spacing.sm,
   },
-  metaHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  ratingBadge: {
+  organicPill: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#DCFCE7',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: radii.pill,
+  },
+  // Farmer Row
+  farmerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8F9F5',
+    borderRadius: radii.xl,
+    padding: spacing.md,
+    marginVertical: spacing.sm,
+    borderWidth: 1,
+    borderColor: '#EAECE7',
+  },
+  farmerAvatarWrap: {
+    marginRight: spacing.md,
+  },
+  farmerTextCol: {
+    flex: 1,
+  },
+  followOutlineBtn: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: 6,
+    borderRadius: radii.pill,
+    borderWidth: 1.5,
+    borderColor: colors.brand.primary,
+    backgroundColor: '#FFFFFF',
+  },
+  followingBtn: {
+    backgroundColor: colors.brand.primary,
+  },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: spacing.xs,
+    marginBottom: spacing.xs,
   },
   priceRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    marginBottom: spacing.md,
+    marginVertical: spacing.xs,
   },
   priceText: {
-    fontSize: 28,
+    fontSize: 32,
+    lineHeight: 38,
+  },
+  unitText: {
+    fontSize: 16,
+    marginLeft: 4,
   },
   description: {
     lineHeight: 22,
-    marginBottom: spacing.xl,
+    marginVertical: spacing.sm,
   },
-  harvestCard: {
-    marginBottom: spacing.xl,
+  trustBadges: {
+    marginVertical: spacing.md,
   },
-  harvestHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: spacing.md,
-  },
-  cropProgressSection: {
-    marginBottom: spacing.md,
-  },
-  cropProgressLabelRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 4,
-  },
-  progressBarTrack: {
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: colors.background.elevated,
-    overflow: 'hidden',
-  },
-  progressBarFill: {
-    height: '100%',
-    backgroundColor: colors.brand.primary,
-    borderRadius: 3,
-  },
-  harvestMetricsGrid: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  harvestMetricBox: {
-    flex: 1,
-    backgroundColor: colors.background.surface,
-    padding: spacing.md,
-    borderRadius: radii.lg,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-  },
-  farmerCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.lg,
-  },
-  farmerAvatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.brand.tint,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.md,
-  },
-  farmerInfo: {
-    flex: 1,
-  },
-  chatButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: 6,
-    borderRadius: radii.pill,
-    backgroundColor: colors.brand.tint,
-  },
-  guaranteesRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: spacing.md,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: colors.border.subtle,
-    marginBottom: spacing.xl,
-  },
-  guaranteeItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  reviewsSection: {
-    marginTop: spacing.sm,
-  },
-  sectionTitle: {
-    marginBottom: spacing.md,
-  },
-  reviewCard: {
-    marginBottom: spacing.md,
-  },
-  reviewHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  starsRow: {
-    flexDirection: 'row',
-    gap: 2,
-  },
-  writeReviewCard: {
-    marginTop: spacing.md,
-  },
-  starsSelectRow: {
-    flexDirection: 'row',
-    marginBottom: spacing.sm,
-  },
-  reviewInput: {
-    backgroundColor: colors.background.surface,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-    borderRadius: radii.lg,
-    padding: spacing.md,
-    fontSize: 14,
-    color: colors.text.primary,
-    textAlignVertical: 'top',
-    minHeight: 74,
-  },
+  // Sticky Bottom CTA
   bottomBar: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: colors.background.surface,
-    paddingTop: spacing.md,
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
     borderTopWidth: 1,
-    borderTopColor: colors.border.subtle,
-    ...shadows.card,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
+    borderTopColor: '#EAECE7',
+    ...shadows.lg,
   },
-  quantityControls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.background.elevated,
-    borderRadius: radii.pill,
-    paddingHorizontal: spacing.xs,
-    paddingVertical: 4,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-  },
-  qtyBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    alignItems: 'center',
-    justifyContent: 'center',
+  addToCartBtn: {
+    backgroundColor: colors.brand.forest,
   },
 });

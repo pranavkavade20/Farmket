@@ -1,44 +1,47 @@
 export const colors = {
-  // Brand (Sophisticated Forest Emerald)
+  // Brand (Rich Agricultural Deep Green & Fresh Accents)
   brand: {
-    primary: '#0F766E',
-    hover: '#0D9488',
-    active: '#115E59',
-    muted: '#CCFBF1',
-    tint: '#F0FDFA',
-    forest: '#042F2E',
+    primary: '#15803D',
+    dark: '#14532D',
+    forest: '#165534',
+    hover: '#166534',
+    active: '#14532D',
+    muted: '#DCFCE7',
+    tint: '#F0FDF4',
     foreground: '#FFFFFF',
   },
   
-  // Backgrounds (Clean, warm light surfaces)
+  // Backgrounds (Clean, warm light cream surfaces from reference)
   background: {
-    main: '#F8FAFC',
+    main: '#F8F9F5',
     surface: '#FFFFFF',
-    elevated: '#F1F5F9',
-    subtle: '#F8FAFC',
+    elevated: '#F1F4EE',
+    subtle: '#F8F9F5',
+    cream: '#F8F9F5',
     card: '#FFFFFF',
     dark: '#0F172A',
+    hero: '#165534',
   },
   
-  // Text (Slate / Zinc Scale for high legibility)
+  // Text (Deep Charcoal Green & Earthy Slate for high legibility)
   text: {
-    primary: '#09090B',
-    secondary: '#52525B',
-    muted: '#71717A',
+    primary: '#18241B',
+    secondary: '#526155',
+    muted: '#8E9B91',
     inverse: '#FFFFFF',
-    brand: '#0F766E',
+    brand: '#15803D',
   },
   
   // Borders
   border: {
-    subtle: '#E4E4E7',
-    strong: '#D4D4D8',
-    focus: '#0F766E',
+    subtle: '#E8ECE6',
+    strong: '#D3D9CF',
+    focus: '#15803D',
   },
   
   // Statuses
   status: {
-    success: '#16A34A',
+    success: '#15803D',
     successMuted: '#DCFCE7',
     warning: '#D97706',
     warningMuted: '#FEF3C7',
@@ -56,16 +59,18 @@ export const colors = {
     sageLight: '#ECFCCB',
     terracotta: '#EA580C',
     terracottaLight: '#FFEDD5',
-    yellow: '#D97706',
+    yellow: '#EAB308',
     orange: '#EA580C',
-    purple: '#7C3AED',
+    purple: '#8B5CF6',
     purpleLight: '#EDE9FE',
+    blue: '#3B82F6',
+    blueLight: '#DBEAFE',
   },
 
   // Crop Lifecycle Stages
   cropStage: {
     planted: { color: '#0284C7', bg: '#E0F2FE', border: '#BAE6FD', label: 'Planted' },
-    growing: { color: '#059669', bg: '#D1FAE5', border: '#A7F3D0', label: 'Growing' },
+    growing: { color: '#15803D', bg: '#DCFCE7', border: '#BBF7D0', label: 'Growing' },
     nearHarvest: { color: '#D97706', bg: '#FEF3C7', border: '#FDE68A', label: 'Near Harvest' },
     harvested: { color: '#7C3AED', bg: '#EDE9FE', border: '#DDD6FE', label: 'Harvested' },
   },
@@ -75,35 +80,36 @@ export const colors = {
     pending: { color: '#D97706', bg: '#FEF3C7', border: '#FDE68A', label: 'Pending' },
     processing: { color: '#EA580C', bg: '#FFEDD5', border: '#FED7AA', label: 'Processing' },
     shipped: { color: '#2563EB', bg: '#DBEAFE', border: '#BFDBFE', label: 'Shipped' },
-    delivered: { color: '#16A34A', bg: '#DCFCE7', border: '#BBF7D0', label: 'Delivered' },
+    delivered: { color: '#15803D', bg: '#DCFCE7', border: '#BBF7D0', label: 'Delivered' },
     cancelled: { color: '#DC2626', bg: '#FEE2E2', border: '#FECACA', label: 'Cancelled' },
   },
 
   // Market States
   marketState: {
-    availableNow: { color: '#059669', bg: '#D1FAE5', border: '#A7F3D0', label: 'In Stock' },
+    availableNow: { color: '#15803D', bg: '#DCFCE7', border: '#BBF7D0', label: 'In Stock' },
     readyForPrebooking: { color: '#0284C7', bg: '#E0F2FE', border: '#BAE6FD', label: 'Pre-book' },
-    readyToHarvest: { color: '#7C3AED', bg: '#EDE9FE', border: '#DDD6FE', label: 'Harvest Ready' },
+    readyToHarvest: { color: '#D97706', bg: '#FEF3C7', border: '#FDE68A', label: 'Harvest Ready' },
     lowStock: { color: '#EA580C', bg: '#FFEDD5', border: '#FED7AA', label: 'Low Stock' },
-    soldOut: { color: '#71717A', bg: '#F4F4F5', border: '#E4E4E7', label: 'Sold Out' },
+    soldOut: { color: '#8E9B91', bg: '#F4F6F2', border: '#E8ECE6', label: 'Sold Out' },
   },
 
   // Interactive States
   state: {
-    hover: 'rgba(9, 9, 11, 0.04)',
-    active: 'rgba(9, 9, 11, 0.08)',
-    disabled: 'rgba(9, 9, 11, 0.38)',
+    hover: 'rgba(24, 36, 27, 0.04)',
+    active: 'rgba(24, 36, 27, 0.08)',
+    disabled: 'rgba(24, 36, 27, 0.38)',
   }
 };
 
 export const darkColors: typeof colors = {
   brand: {
-    primary: '#14B8A6',
-    hover: '#2DD4BF',
-    active: '#5EEAD4',
-    muted: '#042F2E',
+    primary: '#15803D',
+    dark: '#052E16',
+    forest: '#14532D',
+    hover: '#166534',
+    active: '#22C55E',
+    muted: '#052E16',
     tint: '#022120',
-    forest: '#0F766E',
     foreground: '#09090B',
   },
   background: {
@@ -111,20 +117,22 @@ export const darkColors: typeof colors = {
     surface: '#121214',
     elevated: '#18181B',
     subtle: '#141416',
+    cream: '#121214',
     card: '#121214',
     dark: '#000000',
+    hero: '#052E16',
   },
   text: {
     primary: '#FAFAFA',
     secondary: '#A1A1AA',
     muted: '#71717A',
     inverse: '#09090B',
-    brand: '#2DD4BF',
+    brand: '#22C55E',
   },
   border: {
     subtle: '#27272A',
     strong: '#3F3F46',
-    focus: '#14B8A6',
+    focus: '#22C55E',
   },
   status: {
     success: '#22C55E',
@@ -147,6 +155,8 @@ export const darkColors: typeof colors = {
     orange: '#F97316',
     purple: '#A855F7',
     purpleLight: '#3B0764',
+    blue: '#3B82F6',
+    blueLight: '#172554',
   },
   cropStage: {
     planted: { color: '#38BDF8', bg: '#082F49', border: '#0369A1', label: 'Planted' },

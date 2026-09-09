@@ -4,28 +4,20 @@ import Constants from 'expo-constants';
 /**
  * Derives the base LAN host IP of the development machine:
  * - On Expo Go, Constants.expoConfig?.hostUri or debuggerHost
- *   yields something like "10.51.121.145:8081".
+ *   yields something like "10.68.161.145:8081".
  * - We extract the IP and target port 8000 (Django default).
  */
 export const getBackendRootUrl = (): string => {
-  const envUrl = process.env.EXPO_PUBLIC_API_URL;
-  if (envUrl && envUrl.trim()) {
-    const trimmed = envUrl.trim().replace(/\/api\/?$/, '').replace(/\/$/, '');
-    // If running on a physical device and envUrl is 10.0.2.2, bypass and resolve true LAN host
-    if (Platform.OS !== 'web' && !trimmed.includes('10.0.2.2')) {
-      return trimmed;
+  if (Platform.OS === 'web') {
+    const envUrl = process.env.EXPO_PUBLIC_API_URL;
+    if (envUrl && envUrl.trim()) {
+      return envUrl.trim().replace(/\/api\/?$/, '').replace(/\/$/, '');
     }
-    if (Platform.OS === 'web') {
-      return trimmed;
-    }
+    return 'http://localhost:8000';
   }
 
+  // In native Expo Go / Dev: Dynamically extract the Metro host IP
   if (__DEV__) {
-    if (Platform.OS === 'web') {
-      return 'http://localhost:8000';
-    }
-
-    // Expo Go host discovery from all known SDK fields
     const candidateUri = 
       Constants.expoGoConfig?.debuggerHost ||
       Constants.expoConfig?.hostUri || 
@@ -36,23 +28,27 @@ export const getBackendRootUrl = (): string => {
       Constants.linkingUri;
 
     if (candidateUri) {
-      // Handles both "10.51.121.145:8081" and "exp://10.51.121.145:8081"
       const cleaned = candidateUri.replace(/^[a-zA-Z]+:\/\//, '');
       const hostIp = cleaned.split(':')[0].split('/')[0];
       if (hostIp && hostIp !== 'localhost' && hostIp !== '127.0.0.1') {
         return `http://${hostIp}:8000`;
       }
     }
-
-    // Known developer LAN host IP fallback
-    return 'http://10.51.121.145:8000';
   }
 
-  return 'http://10.51.121.145:8000';
+  const envUrl = process.env.EXPO_PUBLIC_API_URL;
+  if (envUrl && envUrl.trim()) {
+    const trimmed = envUrl.trim().replace(/\/api\/?$/, '').replace(/\/$/, '');
+    if (!trimmed.includes('10.0.2.2')) {
+      return trimmed;
+    }
+  }
+
+  return 'http://10.68.161.145:8000';
 };
 
 /**
- * Returns the REST API Base URL with trailing slash, e.g. "http://10.51.121.145:8000/api/"
+ * Returns the REST API Base URL with trailing slash, e.g. "http://10.68.161.145:8000/api/"
  */
 export const getApiBaseUrl = (): string => {
   const root = getBackendRootUrl();
@@ -61,7 +57,7 @@ export const getApiBaseUrl = (): string => {
 
 /**
  * Returns the WebSocket URL for real-time Django Channels connections.
- * e.g. "ws://10.51.121.145:8000/ws/chat/global/?token=..."
+ * e.g. "ws://10.68.161.145:8000/ws/chat/global/?token=..."
  */
 export const getWsUrl = (token?: string | null): string => {
   const root = getBackendRootUrl();

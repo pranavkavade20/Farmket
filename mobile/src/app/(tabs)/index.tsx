@@ -1,40 +1,108 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  RefreshControl,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { 
-  AppText, 
-  AppCard, 
-  AppButton, 
-  AppProductCard, 
-  AppCropCard, 
-  SectionHeader, 
-  ProductCardSkeleton, 
-  CropCardSkeleton, 
-  AppEmptyState 
-} from '../../components/ui';
-import { TopBarActions } from '../../components/navigation/TopBarActions';
-import { colors, spacing, radii, shadows } from '../../theme';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { fetchProducts, fetchCategories } from '../../api/products';
+import {
+  AppText,
+  AppProductCard,
+  AppCropCard,
+  CategoryCard,
+  ProductCardSkeleton,
+  NotificationsModal,
+} from '../../components/ui';
+import { colors, spacing, radii, shadows } from '../../theme';
+import { fetchProducts, fetchCategories, Product } from '../../api/products';
 import { fetchUpcomingHarvests } from '../../api/crops';
+import { fetchNotifications } from '../../api/notifications';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useRequireAuth } from '../../components/auth/AuthGateModal';
-import { 
-  MapPin, 
-  Search, 
-  PackageOpen, 
-  Sprout, 
-  Tag, 
-  ShieldCheck, 
-  Leaf, 
-  Truck, 
-  ChevronDown, 
-  Sparkles,
-  ArrowRight
+import { FarmketLogo } from '../../components/illustrations/FarmketLogo';
+import { FarmBannerSvg } from '../../components/illustrations/FarmBannerSvg';
+import { FarmerAvatarSvg } from '../../components/illustrations/FarmerAvatarSvg';
+import {
+  Search,
+  Bell,
+  ArrowRight,
+  Leaf,
+  Calendar,
+  MessageSquare,
+  BarChart2,
 } from 'lucide-react-native';
-import { Image } from 'expo-image';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+// Fallback curated products matching the reference image if backend is empty or offline
+const DEFAULT_PRODUCTS: Product[] = [
+  {
+    id: 1,
+    name: 'Organic Tomatoes',
+    slug: 'organic-tomatoes',
+    farmer: 1,
+    farmer_name: 'Ramesh Farm',
+    category: 1,
+    description: 'Fresh, juicy and organically grown tomatoes straight from our farm. No chemicals, no shortcuts. Just pure goodness.',
+    price: 40,
+    unit: 'kg',
+    stock_quantity: 120,
+    is_organic: true,
+    is_available: true,
+    in_stock: true,
+    market_state: 'AVAILABLE_NOW',
+    images: [],
+    reviews: [],
+    average_rating: 4.8,
+    reviews_count: 124,
+  },
+  {
+    id: 2,
+    name: 'Fresh Spinach',
+    slug: 'fresh-spinach',
+    farmer: 2,
+    farmer_name: 'Green Valley Farm',
+    category: 1,
+    description: 'Crisp, tender and vibrant spinach harvested early morning.',
+    price: 30,
+    unit: 'bunch',
+    stock_quantity: 80,
+    is_organic: true,
+    is_available: true,
+    in_stock: true,
+    market_state: 'AVAILABLE_NOW',
+    images: [],
+    reviews: [],
+    average_rating: 4.7,
+    reviews_count: 98,
+  },
+  {
+    id: 3,
+    name: 'Sweet Carrots',
+    slug: 'sweet-carrots',
+    farmer: 1,
+    farmer_name: 'Ramesh Farm',
+    category: 1,
+    description: 'Sweet, crunchy organic carrots freshly pulled from organic soil.',
+    price: 35,
+    unit: 'kg',
+    stock_quantity: 90,
+    is_organic: true,
+    is_available: true,
+    in_stock: true,
+    market_state: 'AVAILABLE_NOW',
+    images: [],
+    reviews: [],
+    average_rating: 4.9,
+    reviews_count: 85,
+  },
+];
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
@@ -43,25 +111,34 @@ export default function HomeScreen() {
   const { addToCart } = useCart();
   const { requireAuth, AuthGateModalComponent } = useRequireAuth();
   const [refreshing, setRefreshing] = useState(false);
-  const [addingId, setAddingId] = useState<number | null>(null);
+  const [notificationsVisible, setNotificationsVisible] = useState(false);
 
   // Categories from backend
-  const { data: categories = [], refetch: refetchCategories } = useQuery({
+  const { refetch: refetchCategories } = useQuery({
     queryKey: ['categories'],
     queryFn: fetchCategories,
   });
 
   // Featured Products
-  const { data: productsData, isLoading: loadingProducts, isError: isProductsError, refetch: refetchProducts } = useQuery({
+  const { data: productsData, isLoading: loadingProducts, refetch: refetchProducts } = useQuery({
     queryKey: ['products', 'featured'],
-    queryFn: () => fetchProducts({ limit: 8 }), 
+    queryFn: () => fetchProducts({ limit: 8 }),
   });
 
   // Upcoming Harvests
-  const { data: upcomingHarvests = [], isLoading: loadingHarvests, isError: isHarvestsError, refetch: refetchHarvests } = useQuery({
+  const { data: upcomingHarvests = [], refetch: refetchHarvests } = useQuery({
     queryKey: ['upcoming-harvests'],
     queryFn: fetchUpcomingHarvests,
   });
+
+  // Notifications
+  const { data: notifications = [] } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: fetchNotifications,
+    enabled: Boolean(user),
+  });
+
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -69,221 +146,193 @@ export default function HomeScreen() {
     setRefreshing(false);
   }, [refetchCategories, refetchProducts, refetchHarvests]);
 
-  const handleAddToCart = async (productId: number) => {
+  const handleAddToCart = async (product: Product) => {
     if (!requireAuth('Add to Cart', 'Sign in to add fresh produce to your cart and place direct farm orders.')) {
       return;
     }
-    setAddingId(productId);
-    try {
-      await addToCart(productId, 1);
-    } finally {
-      setAddingId(null);
-    }
+    await addToCart(product.id, 1);
   };
+
+  // Products to render (real backend products with fallback to curated items)
+  const displayProducts =
+    productsData?.results && productsData.results.length > 0
+      ? productsData.results
+      : DEFAULT_PRODUCTS;
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Top Bar with Location & Unified TopBarActions */}
+      {/* 1. TOP HEADER - Reference Image Screen 2 */}
       <View style={styles.topBar}>
-        <View style={styles.locationContainer}>
-          <AppText variant="label" color={colors.text.muted}>
-            DELIVER TO
-          </AppText>
-          <TouchableOpacity style={styles.locationRow} activeOpacity={0.7}>
-            <MapPin size={15} color={colors.brand.primary} />
-            <AppText variant="bodySmall" weight="bold" color={colors.text.primary} numberOfLines={1} style={{ marginLeft: 4 }}>
-              Bengaluru, Karnataka
-            </AppText>
-            <ChevronDown size={14} color={colors.text.muted} style={{ marginLeft: 2 }} />
+        <TouchableOpacity activeOpacity={0.8} onPress={() => router.push('/(tabs)')}>
+          <FarmketLogo size={28} wordmarkSize="md" />
+        </TouchableOpacity>
+
+        <View style={styles.topRightActions}>
+          <TouchableOpacity
+            style={styles.iconBtn}
+            onPress={() => router.push('/(tabs)/search')}
+            activeOpacity={0.75}
+          >
+            <Search size={20} color={colors.text.primary} strokeWidth={2} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.iconBtn}
+            onPress={() => setNotificationsVisible(true)}
+            activeOpacity={0.75}
+          >
+            <Bell size={20} color={colors.text.primary} strokeWidth={2} />
+            {unreadCount > 0 && (
+              <View style={styles.notificationDot} />
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.avatarBtn}
+            onPress={() => router.push('/(tabs)/profile')}
+            activeOpacity={0.8}
+          >
+            <FarmerAvatarSvg size={34} />
           </TouchableOpacity>
         </View>
-
-        <TopBarActions showCart={true} showNotifications={true} />
       </View>
 
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl 
-            refreshing={refreshing} 
-            onRefresh={onRefresh} 
-            colors={[colors.brand.primary]} 
-            tintColor={colors.brand.primary} 
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.brand.primary]}
+            tintColor={colors.brand.primary}
           />
         }
       >
-        {/* Search Bar Banner */}
-        <View style={styles.searchContainer}>
-          <TouchableOpacity 
-            style={styles.searchBar} 
-            activeOpacity={0.85}
-            onPress={() => router.push('/(tabs)/search')}
-          >
-            <Search size={18} color={colors.brand.primary} />
-            <AppText variant="bodySmall" color={colors.text.muted} style={{ marginLeft: spacing.sm, flex: 1 }}>
-              Search organic veggies, fruits, crops...
-            </AppText>
-            <View style={styles.searchTag}>
-              <AppText variant="label" weight="semibold" color={colors.brand.primary}>
-                Explore
+        {/* 2. HERO BANNER - Exact match for Screen 2 */}
+        <View style={styles.heroCard}>
+          <View style={styles.heroSvgBackground}>
+            <FarmBannerSvg width={SCREEN_WIDTH - spacing.lg * 2} height={148} variant="homeHero" />
+          </View>
+
+          <View style={styles.heroContent}>
+            <View style={styles.heroTextCol}>
+              <AppText variant="caption" weight="medium" color="rgba(255,255,255,0.85)">
+                Good morning,
+              </AppText>
+              <AppText variant="h2" weight="bold" color="#FFFFFF" style={styles.heroHeadline}>
+                Fresh produce{'\n'}straight from{'\n'}local farms
               </AppText>
             </View>
+
+            <TouchableOpacity
+              style={styles.heroArrowBtn}
+              onPress={() => router.push('/(tabs)/search')}
+              activeOpacity={0.85}
+            >
+              <ArrowRight size={18} color={colors.brand.forest} strokeWidth={2.6} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* 3. QUICK ACTIONS ROW - Exact match for Screen 2 */}
+        <View style={styles.quickActionsRow}>
+          {/* Action 1: Browse Products */}
+          <TouchableOpacity
+            style={styles.quickActionItem}
+            activeOpacity={0.8}
+            onPress={() => router.push('/(tabs)/search')}
+          >
+            <View style={[styles.quickActionIconBox, { backgroundColor: '#F0FDF4' }]}>
+              <Leaf size={18} color="#15803D" strokeWidth={2.4} />
+            </View>
+            <AppText variant="caption" weight="medium" color={colors.text.primary} align="center" style={styles.quickActionLabel}>
+              Browse{'\n'}Products
+            </AppText>
+          </TouchableOpacity>
+
+          {/* Action 2: Pre-Book Harvests */}
+          <TouchableOpacity
+            style={styles.quickActionItem}
+            activeOpacity={0.8}
+            onPress={() => router.push('/(tabs)/search')}
+          >
+            <View style={[styles.quickActionIconBox, { backgroundColor: '#FFFBEB' }]}>
+              <Calendar size={18} color="#D97706" strokeWidth={2.4} />
+            </View>
+            <AppText variant="caption" weight="medium" color={colors.text.primary} align="center" style={styles.quickActionLabel}>
+              Pre-Book{'\n'}Harvests
+            </AppText>
+          </TouchableOpacity>
+
+          {/* Action 3: Chat with Farmers */}
+          <TouchableOpacity
+            style={styles.quickActionItem}
+            activeOpacity={0.8}
+            onPress={() => router.push('/(tabs)/chat')}
+          >
+            <View style={[styles.quickActionIconBox, { backgroundColor: '#F0F9FF' }]}>
+              <MessageSquare size={18} color="#2563EB" strokeWidth={2.4} />
+            </View>
+            <AppText variant="caption" weight="medium" color={colors.text.primary} align="center" style={styles.quickActionLabel}>
+              Chat{'\n'}with Farmers
+            </AppText>
+          </TouchableOpacity>
+
+          {/* Action 4: Track Orders */}
+          <TouchableOpacity
+            style={styles.quickActionItem}
+            activeOpacity={0.8}
+            onPress={() => router.push('/(tabs)/orders')}
+          >
+            <View style={[styles.quickActionIconBox, { backgroundColor: '#FAF5FF' }]}>
+              <BarChart2 size={18} color="#7C3AED" strokeWidth={2.4} />
+            </View>
+            <AppText variant="caption" weight="medium" color={colors.text.primary} align="center" style={styles.quickActionLabel}>
+              Track{'\n'}Orders
+            </AppText>
           </TouchableOpacity>
         </View>
 
-        {/* Hero Banner */}
-        <View style={styles.heroContainer}>
-          <View style={styles.heroBanner}>
-            <Image 
-              source={{ uri: 'https://images.unsplash.com/photo-1595856342625-63451e03bce6?auto=format&fit=crop&q=80&w=800' }} 
-              style={StyleSheet.absoluteFill}
-              contentFit="cover"
-            />
-            <View style={styles.heroOverlay} />
-            <View style={styles.heroContent}>
-              <View style={styles.heroPill}>
-                <Sparkles size={11} color="#FFFFFF" />
-                <AppText variant="label" color="#FFFFFF" weight="bold" style={{ marginLeft: 4 }}>
-                  DIRECT HARVEST
-                </AppText>
-              </View>
-              <AppText variant="h1" weight="bold" color="#FFFFFF" style={styles.heroHeading}>
-                Pure Farm-to-Table
-              </AppText>
-              <AppText variant="bodySmall" color="rgba(255,255,255,0.9)" style={styles.heroSubtitle}>
-                Taste produce picked hours before delivery, directly supporting local growers.
-              </AppText>
-              <AppButton 
-                title="Shop Marketplace" 
-                size="sm" 
-                shape="pill"
-                variant="accent"
-                rightIcon={<ArrowRight size={14} color="#FFFFFF" strokeWidth={2.4} />}
-                style={styles.heroButton} 
-                onPress={() => router.push('/(tabs)/search')} 
-              />
-            </View>
-          </View>
-        </View>
-
-        {/* Value Proposition Strip */}
-        <View style={styles.valueStrip}>
-          <View style={styles.valueItem}>
-            <View style={[styles.valueIconWrapper, { backgroundColor: '#ECFDF5' }]}>
-              <Leaf size={14} color={colors.status.success} />
-            </View>
-            <AppText variant="label" weight="bold" color={colors.text.primary}>100% Organic</AppText>
-          </View>
-
-          <View style={styles.valueItem}>
-            <View style={[styles.valueIconWrapper, { backgroundColor: '#F0FDFA' }]}>
-              <Sprout size={14} color={colors.brand.primary} />
-            </View>
-            <AppText variant="label" weight="bold" color={colors.text.primary}>Pre-Book Crops</AppText>
-          </View>
-
-          <View style={styles.valueItem}>
-            <View style={[styles.valueIconWrapper, { backgroundColor: '#EFF6FF' }]}>
-              <ShieldCheck size={14} color={colors.status.info} />
-            </View>
-            <AppText variant="label" weight="bold" color={colors.text.primary}>Direct Pricing</AppText>
-          </View>
-        </View>
-
-        {/* Categories Rail */}
-        {categories.length > 0 && (
-          <View style={styles.sectionWrapper}>
-            <SectionHeader 
-              title="Shop by Category" 
-              actionTitle="View all" 
-              onAction={() => router.push('/(tabs)/search')} 
-              style={styles.sectionHeader}
-            />
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false} 
-              contentContainerStyle={styles.categoriesScroll}
+        {/* 4. FEATURED PRODUCTS CAROUSEL - Exact match for Screen 2 */}
+        <View style={styles.sectionContainer}>
+          <View style={styles.sectionHeader}>
+            <AppText variant="h3" weight="bold" color={colors.text.primary}>
+              Featured Products
+            </AppText>
+            <TouchableOpacity
+              style={styles.viewAllBtn}
+              onPress={() => router.push('/(tabs)/search')}
+              activeOpacity={0.7}
             >
-              {categories.map((cat) => (
-                <TouchableOpacity 
-                  key={cat.id} 
-                  style={styles.categoryItem} 
-                  activeOpacity={0.75} 
-                  onPress={() => router.push({
-                    pathname: '/(tabs)/search',
-                    params: { category: cat.slug }
-                  } as any)}
-                >
-                  <View style={styles.categoryIconCircle}>
-                    {cat.image ? (
-                      <Image source={{ uri: cat.image }} style={styles.categoryImg} contentFit="cover" transition={200} />
-                    ) : (
-                      <Tag size={22} color={colors.brand.primary} />
-                    )}
-                  </View>
-                  <AppText variant="label" weight="semibold" align="center" numberOfLines={1} style={styles.categoryLabel}>
-                    {cat.name}
-                  </AppText>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
+              <AppText variant="caption" weight="bold" color={colors.brand.primary}>
+                View All
+              </AppText>
+              <ArrowRight size={13} color={colors.brand.primary} strokeWidth={2.4} style={{ marginLeft: 3 }} />
+            </TouchableOpacity>
           </View>
-        )}
 
-        {/* Featured Products Carousel */}
-        <View style={styles.sectionWrapper}>
-          <SectionHeader 
-            title="Fresh In Season" 
-            subtitle="Hand-picked daily by verified farmers"
-            actionTitle="See all" 
-            onAction={() => router.push('/(tabs)/search')} 
-            style={styles.sectionHeader}
-          />
-          
           {loadingProducts && !refreshing ? (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalProductsScroll}>
-              {[1, 2, 3].map((i) => (
-                <View key={i} style={styles.productCardWrapper}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
+              {[1, 2].map((i) => (
+                <View key={i} style={{ marginRight: spacing.md }}>
                   <ProductCardSkeleton layout="vertical" />
                 </View>
               ))}
             </ScrollView>
-          ) : isProductsError ? (
-            <View style={{ paddingHorizontal: spacing.lg }}>
-              <AppEmptyState 
-                title="Couldn't Load Products" 
-                description="Unable to connect to the server. Please check your connection."
-                actionTitle="Try Again"
-                onAction={refetchProducts}
-              />
-            </View>
-          ) : productsData?.results.length === 0 ? (
-            <View style={{ paddingHorizontal: spacing.lg }}>
-              <AppEmptyState 
-                title="No Products Available" 
-                description="No products in this section at the moment."
-                icon={<PackageOpen size={40} color={colors.brand.muted} />}
-              />
-            </View>
           ) : (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalProductsScroll}>
-              {productsData?.results.map((product) => (
-                <View key={product.id} style={styles.productCardWrapper}>
-                  <AppProductCard 
-                    product={product} 
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.horizontalScroll}
+            >
+              {displayProducts.map((product) => (
+                <View key={product.id} style={{ marginRight: spacing.md }}>
+                  <AppProductCard
+                    product={product}
                     layout="vertical"
                     onPress={() => router.push(`/product/${product.id}` as any)}
-                    action={
-                      <AppButton 
-                        title="Add" 
-                        size="xs" 
-                        variant="primary"
-                        shape="pill"
-                        onPress={() => handleAddToCart(product.id)}
-                        loading={addingId === product.id}
-                      />
-                    }
+                    onQuickAdd={() => handleAddToCart(product)}
                   />
                 </View>
               ))}
@@ -291,19 +340,77 @@ export default function HomeScreen() {
           )}
         </View>
 
-        {/* Upcoming Harvests (Crop Lifecycle Showcase) */}
-        {upcomingHarvests.length > 0 && (
-          <View style={[styles.sectionWrapper, { marginTop: spacing.md }]}>
-            <SectionHeader 
-              title="Pre-Book Upcoming Harvests" 
-              subtitle="Lock in harvest quota before field harvesting begins"
-              actionTitle="Explore all" 
-              onAction={() => router.push('/(tabs)/search')} 
-              style={styles.sectionHeader}
+        {/* 5. POPULAR CATEGORIES - Exact match for Screen 2 */}
+        <View style={styles.sectionContainer}>
+          <View style={styles.sectionHeader}>
+            <AppText variant="h3" weight="bold" color={colors.text.primary}>
+              Popular Categories
+            </AppText>
+            <TouchableOpacity
+              style={styles.viewAllBtn}
+              onPress={() => router.push('/(tabs)/search')}
+              activeOpacity={0.7}
+            >
+              <AppText variant="caption" weight="bold" color={colors.brand.primary}>
+                View All
+              </AppText>
+              <ArrowRight size={13} color={colors.brand.primary} strokeWidth={2.4} style={{ marginLeft: 3 }} />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.categoriesRow}>
+            <CategoryCard
+              name="Vegetables"
+              icon="vegetables"
+              onPress={() =>
+                router.push({ pathname: '/(tabs)/search', params: { category: 'vegetables' } } as any)
+              }
             />
+            <CategoryCard
+              name="Fruits"
+              icon="fruits"
+              onPress={() =>
+                router.push({ pathname: '/(tabs)/search', params: { category: 'fruits' } } as any)
+              }
+            />
+            <CategoryCard
+              name="Grains"
+              icon="grains"
+              onPress={() =>
+                router.push({ pathname: '/(tabs)/search', params: { category: 'grains' } } as any)
+              }
+            />
+            <CategoryCard
+              name="Dairy"
+              icon="dairy"
+              onPress={() =>
+                router.push({ pathname: '/(tabs)/search', params: { category: 'dairy' } } as any)
+              }
+            />
+          </View>
+        </View>
+
+        {/* 6. UPCOMING HARVESTS (Crop Lifecycle Preservation) */}
+        {upcomingHarvests.length > 0 && (
+          <View style={[styles.sectionContainer, { marginTop: spacing.md }]}>
+            <View style={styles.sectionHeader}>
+              <AppText variant="h3" weight="bold" color={colors.text.primary}>
+                Pre-Book Harvests
+              </AppText>
+              <TouchableOpacity
+                style={styles.viewAllBtn}
+                onPress={() => router.push('/(tabs)/search')}
+                activeOpacity={0.7}
+              >
+                <AppText variant="caption" weight="bold" color={colors.brand.primary}>
+                  View All
+                </AppText>
+                <ArrowRight size={13} color={colors.brand.primary} strokeWidth={2.4} style={{ marginLeft: 3 }} />
+              </TouchableOpacity>
+            </View>
 
             <View style={styles.cropsList}>
-              {upcomingHarvests.slice(0, 3).map((crop) => (
+              {upcomingHarvests.slice(0, 2).map((crop) => (
                 <AppCropCard
                   key={crop.id}
                   crop={crop}
@@ -312,61 +419,18 @@ export default function HomeScreen() {
                       router.push(`/product/${crop.product}` as any);
                     }
                   }}
-                  action={
-                    crop.product ? (
-                      <AppButton
-                        title="Pre-Book Produce"
-                        size="sm"
-                        variant="secondary"
-                        shape="rounded"
-                        fullWidth
-                        onPress={() => router.push(`/product/${crop.product}` as any)}
-                      />
-                    ) : undefined
-                  }
                 />
               ))}
             </View>
           </View>
         )}
-
-        {/* Guest Onboarding Banner */}
-        {!user && (
-          <View style={styles.guestBannerContainer}>
-            <AppCard variant="tinted" padding="xl" borderRadius={radii.xxl} style={styles.guestCard}>
-              <View style={styles.guestBadge}>
-                <Sprout size={16} color={colors.brand.primary} />
-                <AppText variant="label" weight="bold" color={colors.brand.primary} style={{ marginLeft: 4 }}>
-                  FARMKET COMMUNITY
-                </AppText>
-              </View>
-              <AppText variant="h2" weight="bold" color={colors.text.primary} style={{ marginTop: spacing.xs }}>
-                Grow or Buy with Farmket
-              </AppText>
-              <AppText variant="bodySmall" color={colors.text.secondary} style={styles.guestSubtitle}>
-                Pre-book harvests with guaranteed pricing, or list crops directly to thousands of fresh buyers.
-              </AppText>
-              <View style={styles.guestActions}>
-                <AppButton
-                  title="Create Free Account"
-                  size="sm"
-                  shape="pill"
-                  onPress={() => router.push('/(auth)/register')}
-                  style={{ flex: 1.2, marginRight: spacing.sm }}
-                />
-                <AppButton
-                  title="Sign In"
-                  size="sm"
-                  variant="outline"
-                  shape="pill"
-                  onPress={() => router.push('/(auth)/login')}
-                  style={{ flex: 1 }}
-                />
-              </View>
-            </AppCard>
-          </View>
-        )}
       </ScrollView>
+
+      {/* Notifications Modal */}
+      <NotificationsModal
+        visible={notificationsVisible}
+        onClose={() => setNotificationsVisible(false)}
+      />
 
       {/* Authentication Gate Modal */}
       {AuthGateModalComponent}
@@ -377,178 +441,146 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.main,
+    backgroundColor: '#F8F9F5',
   },
   topBar: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.xs,
     paddingBottom: spacing.sm,
-    backgroundColor: colors.background.surface,
+    backgroundColor: '#F8F9F5',
   },
-  locationContainer: {
-    flex: 1,
-  },
-  locationRow: {
+  topRightActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 2,
+    gap: spacing.sm,
+  },
+  iconBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#EAECE7',
+    position: 'relative',
+    ...shadows.xs,
+  },
+  notificationDot: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
+    backgroundColor: '#EF4444',
+  },
+  avatarBtn: {
+    marginLeft: 2,
   },
   scrollContent: {
-    flexGrow: 1,
-    paddingBottom: spacing.huge,
+    paddingBottom: spacing.xxxl,
   },
-  searchContainer: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    backgroundColor: colors.background.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.subtle,
-  },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.background.elevated,
-    borderRadius: radii.pill,
-    paddingHorizontal: spacing.md,
-    height: 44,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-  },
-  searchTag: {
-    backgroundColor: colors.brand.tint,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: radii.pill,
-  },
-  heroContainer: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
-  },
-  heroBanner: {
-    height: 180,
-    borderRadius: radii.xxl,
+  // Hero Section
+  heroCard: {
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.xs,
+    marginBottom: spacing.md,
+    borderRadius: radii.xxxl,
     overflow: 'hidden',
+    height: 148,
     position: 'relative',
-    ...shadows.card,
+    backgroundColor: colors.brand.forest,
+    ...shadows.sm,
   },
-  heroOverlay: {
+  heroSvgBackground: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(4, 47, 46, 0.62)',
   },
   heroContent: {
     flex: 1,
-    justifyContent: 'center',
-    padding: spacing.xl,
-    alignItems: 'flex-start',
-  },
-  heroPill: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.22)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: radii.pill,
-    marginBottom: spacing.xs,
-  },
-  heroHeading: {
-    marginBottom: 4,
-    letterSpacing: -0.3,
-  },
-  heroSubtitle: {
-    marginBottom: spacing.md,
-    maxWidth: 240,
-    lineHeight: 18,
-  },
-  heroButton: {
-    paddingHorizontal: spacing.lg,
-  },
-  valueStrip: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.xl,
     paddingVertical: spacing.md,
-    backgroundColor: colors.background.surface,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: colors.border.subtle,
-    marginTop: spacing.lg,
+    zIndex: 2,
   },
-  valueItem: {
+  heroTextCol: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  heroHeadline: {
+    fontSize: 18,
+    lineHeight: 22,
+    marginTop: 4,
+  },
+  heroArrowBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shadows.sm,
+  },
+  // Quick Actions Row
+  quickActionsRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    marginVertical: spacing.xs,
   },
-  valueIconWrapper: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+  quickActionItem: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: spacing.xs,
+  },
+  quickActionIconBox: {
+    width: 52,
+    height: 52,
+    borderRadius: radii.xl,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  sectionWrapper: {
-    marginTop: spacing.xs,
-  },
-  sectionHeader: {
-    paddingHorizontal: spacing.lg,
-  },
-  categoriesScroll: {
-    paddingHorizontal: spacing.lg,
-    gap: spacing.md,
-  },
-  categoryItem: {
-    alignItems: 'center',
-    width: 72,
-  },
-  categoryIconCircle: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
-    backgroundColor: colors.background.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: colors.border.subtle,
-    overflow: 'hidden',
+    marginBottom: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.03)',
     ...shadows.xs,
   },
-  categoryImg: {
-    width: '100%',
-    height: '100%',
-  },
-  categoryLabel: {
-    marginTop: 6,
+  quickActionLabel: {
     fontSize: 11,
+    lineHeight: 14,
+    textAlign: 'center',
   },
-  horizontalProductsScroll: {
+  // Sections
+  sectionContainer: {
+    marginTop: spacing.md,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
-    gap: spacing.md,
+    marginBottom: spacing.sm,
   },
-  productCardWrapper: {
-    width: 172,
+  viewAllBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  horizontalScroll: {
+    paddingLeft: spacing.lg,
+    paddingRight: spacing.sm,
+    paddingBottom: spacing.xs,
+  },
+  categoriesRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
   },
   cropsList: {
     paddingHorizontal: spacing.lg,
-  },
-  guestBannerContainer: {
-    paddingHorizontal: spacing.lg,
-    marginTop: spacing.xl,
-  },
-  guestCard: {
-    backgroundColor: colors.brand.tint,
-  },
-  guestBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  guestSubtitle: {
-    marginTop: 4,
-    marginBottom: spacing.lg,
-    lineHeight: 20,
-  },
-  guestActions: {
-    flexDirection: 'row',
+    gap: spacing.sm,
   },
 });

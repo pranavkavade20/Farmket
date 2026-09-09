@@ -6,10 +6,11 @@ import { useRouter, Link } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText, AppInput, AppButton, AppCard } from '../../components/ui';
 import { colors, spacing, radii, shadows } from '../../theme';
-import { Mail, Lock, Sprout, ArrowRight } from 'lucide-react-native';
+import { Mail, Lock, ArrowRight } from 'lucide-react-native';
 import { useAuth } from '../../context/AuthContext';
 import { loginApi } from '../../api/auth';
 import { normalizeApiError } from '../../api/client';
+import { FarmketLogo } from '../../components/illustrations/FarmketLogo';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -60,12 +61,7 @@ export default function LoginScreen() {
       >
         {/* Brand Hero Emblem */}
         <View style={styles.header}>
-          <View style={styles.logoBadge}>
-            <Sprout size={32} color={colors.brand.primary} strokeWidth={2.2} />
-          </View>
-          <AppText variant="display" weight="bold" color={colors.brand.forest} style={styles.brandTitle}>
-            Farmket
-          </AppText>
+          <FarmketLogo size={42} wordmarkSize="xl" style={{ justifyContent: 'center', marginBottom: spacing.xs }} />
           <AppText variant="body" color={colors.text.secondary} align="center" style={styles.subtitle}>
             Direct from farm to table. Fresh, seasonal, and completely traceable.
           </AppText>

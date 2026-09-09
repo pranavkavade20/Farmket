@@ -1,129 +1,171 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { Image } from 'expo-image';
 import { AppText } from './AppText';
 import { AppCard } from './AppCard';
-import { AppBadge } from './AppBadge';
 import { colors, spacing, radii, shadows } from '../../theme';
 import { formatCurrency } from '../../utils/format';
 import type { Product } from '../../api/products';
-import { Star, Leaf, MapPin, Plus } from 'lucide-react-native';
+import {
+  TomatoesIllustration,
+  SpinachIllustration,
+  CarrotsIllustration,
+} from '../illustrations/ProduceIllustrations';
+import { Star, Heart, ShoppingCart, Leaf } from 'lucide-react-native';
 
 interface AppProductCardProps {
   product: Product;
   onPress?: (product: Product) => void;
   onQuickAdd?: (product: Product) => void;
+  onToggleFavorite?: (product: Product) => void;
   action?: React.ReactNode;
   layout?: 'horizontal' | 'vertical';
   style?: ViewStyle;
 }
 
-export const AppProductCard: React.FC<AppProductCardProps> = ({ 
-  product, 
-  onPress, 
+export const AppProductCard: React.FC<AppProductCardProps> = ({
+  product,
+  onPress,
   onQuickAdd,
+  onToggleFavorite,
   action,
   layout = 'horizontal',
-  style
+  style,
 }) => {
+  const [isFavorited, setIsFavorited] = useState(!!product.is_following);
   const primaryImage = product.images?.find((img) => img.is_primary)?.image || product.images?.[0]?.image;
   const isVertical = layout === 'vertical';
 
-  const farmerObj = typeof product.farmer === 'object' && product.farmer ? (product.farmer as { first_name?: string; last_name?: string }) : null;
-  const farmerName = product.farmer_name || (farmerObj ? `${farmerObj.first_name || ''} ${farmerObj.last_name || ''}`.trim() : 'Verified Grower');
+  const farmerObj = typeof product.farmer === 'object' && product.farmer ? (product.farmer as { first_name?: string; last_name?: string; farm_name?: string }) : null;
+  const farmerName = product.farmer_name || farmerObj?.farm_name || (farmerObj ? `${farmerObj.first_name || ''} ${farmerObj.last_name || ''}`.trim() : 'Ramesh Farm');
 
+  const normalizedName = (product.name || '').toLowerCase();
+
+  const handleFavoritePress = () => {
+    setIsFavorited(!isFavorited);
+    if (onToggleFavorite) {
+      onToggleFavorite(product);
+    }
+  };
+
+  const renderProductGraphic = (size: number) => {
+    if (primaryImage) {
+      return (
+        <Image
+          source={{ uri: primaryImage }}
+          style={[isVertical ? styles.verticalImage : styles.horizontalImage, { width: '100%', height: '100%' }]}
+          contentFit="contain"
+          transition={200}
+        />
+      );
+    }
+
+    if (normalizedName.includes('tomato')) {
+      return <TomatoesIllustration size={size} />;
+    }
+    if (normalizedName.includes('spinach') || normalizedName.includes('palak') || normalizedName.includes('leaf')) {
+      return <SpinachIllustration size={size} />;
+    }
+    if (normalizedName.includes('carrot')) {
+      return <CarrotsIllustration size={size} />;
+    }
+    return (
+      <View style={styles.placeholderGraphic}>
+        <Leaf size={size * 0.4} color={colors.brand.primary} />
+      </View>
+    );
+  };
+
+  // Card Content
   const content = (
-    <AppCard 
-      variant="elevated"
+    <AppCard
+      variant="default"
       padding={0}
-      borderRadius={radii.xl}
+      borderRadius={radii.xxl}
       style={[
+        styles.cardBase,
         isVertical ? styles.verticalCard : styles.horizontalCard,
-        style
+        style,
       ]}
     >
-      <View style={isVertical ? styles.verticalImageWrapper : styles.horizontalImageWrapper}>
-        {primaryImage ? (
-          <Image 
-            source={{ uri: primaryImage }} 
-            style={isVertical ? styles.verticalImage : styles.horizontalImage} 
-            contentFit="cover"
-            transition={200}
-          />
-        ) : (
-          <View style={[styles.placeholderImage, isVertical ? styles.verticalImage : styles.horizontalImage]}>
-            <Leaf size={24} color={colors.brand.primary} />
-            <AppText variant="caption" color={colors.text.muted} style={{ marginTop: 4 }}>Fresh Farm</AppText>
-          </View>
-        )}
+      {/* Visual Image Container */}
+      <View style={isVertical ? styles.verticalImageContainer : styles.horizontalImageContainer}>
+        {renderProductGraphic(isVertical ? 90 : 70)}
 
-        {/* Floating Organic Badge */}
-        {product.is_organic && (
-          <View style={styles.organicBadgeContainer}>
-            <View style={styles.organicBadge}>
-              <Leaf size={10} color="#FFFFFF" strokeWidth={2.5} />
-              <AppText variant="label" color="#FFFFFF" weight="bold" style={styles.organicText}>
-                Organic
+        {/* Favorite Heart Button */}
+        <TouchableOpacity
+          style={styles.favoriteButton}
+          onPress={handleFavoritePress}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          activeOpacity={0.75}
+        >
+          <Heart
+            size={16}
+            color={isFavorited ? '#EF4444' : colors.text.muted}
+            fill={isFavorited ? '#EF4444' : 'none'}
+            strokeWidth={1.8}
+          />
+        </TouchableOpacity>
+      </View>
+
+      {/* Info Body */}
+      <View style={isVertical ? styles.verticalBody : styles.horizontalBody}>
+        <AppText
+          variant="bodySmall"
+          weight="bold"
+          numberOfLines={1}
+          color={colors.text.primary}
+          style={styles.name}
+        >
+          {product.name}
+        </AppText>
+
+        <AppText
+          variant="caption"
+          color={colors.text.muted}
+          numberOfLines={1}
+          style={styles.farmer}
+        >
+          {farmerName}
+        </AppText>
+
+        {/* Bottom Price & Action Row */}
+        <View style={styles.bottomRow}>
+          <View style={styles.priceCol}>
+            <View style={styles.priceUnitRow}>
+              <AppText variant="body" weight="bold" color={colors.text.primary}>
+                {formatCurrency(product.price)}
+              </AppText>
+              <AppText variant="caption" color={colors.text.muted} style={{ marginLeft: 1 }}>
+                /{product.unit || 'kg'}
+              </AppText>
+            </View>
+
+            {/* Rating badge */}
+            <View style={styles.ratingRow}>
+              <Star size={11} color="#EAB308" fill="#EAB308" />
+              <AppText variant="label" weight="bold" color={colors.text.primary} style={{ marginLeft: 3 }}>
+                {product.average_rating ? Number(product.average_rating).toFixed(1) : '4.8'}
+              </AppText>
+              <AppText variant="label" color={colors.text.muted} style={{ marginLeft: 2 }}>
+                ({product.reviews_count || product.reviews?.length || 124})
               </AppText>
             </View>
           </View>
-        )}
 
-        {/* Floating Market State Badge for vertical */}
-        {isVertical && product.market_state && product.market_state !== 'AVAILABLE_NOW' && (
-          <View style={styles.verticalStateBadge}>
-            <AppBadge marketState={product.market_state} size="xs" label="" />
-          </View>
-        )}
-      </View>
-      
-      <View style={isVertical ? styles.verticalInfo : styles.horizontalInfo}>
-        {/* Horizontal Market State badge */}
-        {!isVertical && product.market_state && product.market_state !== 'AVAILABLE_NOW' && (
-          <View style={{ marginBottom: 4 }}>
-            <AppBadge marketState={product.market_state} size="xs" label="" />
-          </View>
-        )}
-
-        <AppText variant="h3" weight="bold" numberOfLines={1} style={styles.name}>
-          {product.name}
-        </AppText>
-        
-        <View style={styles.farmerRow}>
-          <AppText variant="caption" color={colors.text.secondary} numberOfLines={1} style={styles.farmerText}>
-            {farmerName}
-          </AppText>
-          <View style={styles.ratingBadge}>
-            <Star size={11} color={colors.accent.amber} fill={colors.accent.amber} />
-            <AppText variant="label" weight="bold" color={colors.text.primary} style={{ marginLeft: 3 }}>
-              {product.average_rating ? Number(product.average_rating).toFixed(1) : '4.9'}
-            </AppText>
-          </View>
-        </View>
-
-        <View style={styles.priceRow}>
-          <View style={styles.priceGroup}>
-            <AppText variant="h3" weight="bold" color={colors.brand.primary}>
-              {formatCurrency(product.price)}
-            </AppText>
-            <AppText variant="caption" color={colors.text.muted} style={{ marginLeft: 2 }}>
-              /{product.unit}
-            </AppText>
-          </View>
-
-          {/* Quick Add or Action button */}
+          {/* Cart Action Button */}
           {action ? (
-            <View style={styles.actionWrapper}>{action}</View>
-          ) : onQuickAdd ? (
-            <TouchableOpacity 
-              style={styles.quickAddButton} 
-              onPress={() => onQuickAdd(product)}
+            <View style={styles.actionSlot}>{action}</View>
+          ) : (
+            <TouchableOpacity
+              style={styles.cartButton}
+              onPress={() => onQuickAdd && onQuickAdd(product)}
               hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
               activeOpacity={0.8}
             >
-              <Plus size={16} color="#FFFFFF" strokeWidth={2.5} />
+              <ShoppingCart size={15} color="#FFFFFF" strokeWidth={2.4} />
             </TouchableOpacity>
-          ) : null}
+          )}
         </View>
       </View>
     </AppCard>
@@ -131,7 +173,7 @@ export const AppProductCard: React.FC<AppProductCardProps> = ({
 
   if (onPress) {
     return (
-      <TouchableOpacity onPress={() => onPress(product)} activeOpacity={0.88}>
+      <TouchableOpacity onPress={() => onPress(product)} activeOpacity={0.85}>
         {content}
       </TouchableOpacity>
     );
@@ -141,114 +183,113 @@ export const AppProductCard: React.FC<AppProductCardProps> = ({
 };
 
 const styles = StyleSheet.create({
-  horizontalCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-    padding: spacing.sm,
-    backgroundColor: colors.background.surface,
+  cardBase: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EAECE7',
+    ...shadows.xs,
   },
+  // Vertical (Reference Featured Products horizontal scroll)
   verticalCard: {
-    flexDirection: 'column',
+    width: 164,
+    borderRadius: radii.xxl,
     overflow: 'hidden',
-    backgroundColor: colors.background.surface,
   },
-  horizontalImageWrapper: {
-    position: 'relative',
-  },
-  verticalImageWrapper: {
-    position: 'relative',
+  verticalImageContainer: {
     width: '100%',
-  },
-  horizontalImage: {
-    width: 92,
-    height: 92,
-    borderRadius: radii.lg,
-    backgroundColor: colors.background.elevated,
+    height: 116,
+    backgroundColor: '#F8F9F5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    padding: spacing.xs,
   },
   verticalImage: {
     width: '100%',
-    aspectRatio: 1.1,
-    backgroundColor: colors.background.elevated,
+    height: '100%',
   },
-  placeholderImage: {
+  verticalBody: {
+    padding: spacing.md,
+  },
+  // Horizontal (List view for search/category)
+  horizontalCard: {
+    flexDirection: 'row',
+    borderRadius: radii.xl,
+    overflow: 'hidden',
+    marginBottom: spacing.sm,
+  },
+  horizontalImageContainer: {
+    width: 100,
+    height: 100,
+    backgroundColor: '#F8F9F5',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.brand.tint,
+    position: 'relative',
   },
-  organicBadgeContainer: {
-    position: 'absolute',
-    top: 8,
-    left: 8,
+  horizontalImage: {
+    width: '100%',
+    height: '100%',
   },
-  organicBadge: {
-    flexDirection: 'row',
+  horizontalBody: {
+    flex: 1,
+    padding: spacing.md,
+    justifyContent: 'center',
+  },
+  placeholderGraphic: {
+    width: '100%',
+    height: '100%',
     alignItems: 'center',
-    backgroundColor: 'rgba(15, 118, 110, 0.92)',
-    borderRadius: radii.pill,
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-    gap: 3,
-    ...shadows.xs,
+    justifyContent: 'center',
   },
-  organicText: {
-    fontSize: 9,
-    textTransform: 'uppercase',
-  },
-  verticalStateBadge: {
+  favoriteButton: {
     position: 'absolute',
     top: 8,
     right: 8,
-  },
-  horizontalInfo: {
-    flex: 1,
-    marginLeft: spacing.md,
-    justifyContent: 'center',
-  },
-  verticalInfo: {
-    padding: spacing.md,
-  },
-  name: {
-    fontSize: 15,
-    marginBottom: 2,
-  },
-  farmerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.sm,
-  },
-  farmerText: {
-    flex: 1,
-  },
-  ratingBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.background.elevated,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: radii.sm,
-    marginLeft: 6,
-  },
-  priceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  priceGroup: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-  },
-  actionWrapper: {
-    marginLeft: spacing.sm,
-  },
-  quickAddButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.brand.primary,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.85)',
     alignItems: 'center',
     justifyContent: 'center',
     ...shadows.xs,
-  }
+  },
+  name: {
+    fontSize: 14,
+    lineHeight: 18,
+  },
+  farmer: {
+    fontSize: 12,
+    marginTop: 2,
+    marginBottom: spacing.xs,
+  },
+  bottomRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    marginTop: 2,
+  },
+  priceCol: {
+    flex: 1,
+  },
+  priceUnitRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 3,
+  },
+  cartButton: {
+    width: 32,
+    height: 32,
+    borderRadius: radii.md,
+    backgroundColor: colors.brand.forest,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: spacing.xs,
+  },
+  actionSlot: {
+    marginLeft: spacing.xs,
+  },
 });
