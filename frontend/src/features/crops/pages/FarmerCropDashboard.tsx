@@ -6,29 +6,48 @@ import { CropCalendar } from '../components/CropCalendar';
 import { StageUpdateModal } from '../components/StageUpdateModal';
 import { ReservationManagement } from '../components/ReservationManagement';
 import { AddTrackingModal } from '../components/AddTrackingModal';
+import { CropDetailDrawer } from '../components/CropDetailDrawer';
+import { CropOverviewStrip } from '../components/CropOverviewStrip';
+import { CropNeedsAttention } from '../components/CropNeedsAttention';
+import { getCropAttentionItems } from '../utils/cropUtils';
 import { useAppDispatch } from '@/app/hooks';
-import { openAddTrackingModal } from '../cropsSlice';
-import { Sprout, Plus, ActivitySquare, LayoutGrid, List, Calendar as CalendarIcon, Search, Filter, Package, TrendingUp, CheckCircle2 } from 'lucide-react';
+import { openAddTrackingModal, openStageUpdateModal, openCropDetail } from '../cropsSlice';
+import {
+  Sprout,
+  Plus,
+  LayoutGrid,
+  List,
+  Calendar as CalendarIcon,
+  Search,
+  X,
+  Sparkles,
+  Layers,
+  ArrowUpRight,
+  RefreshCw,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Button, Alert, EmptyState } from '@/components/ui';
+import { Button, Alert } from '@/components/ui';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const SkeletonCard = ({ index = 0 }: { index?: number }) => (
   <motion.div
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.4, delay: index * 0.1 }}
-    className="bg-surface rounded-3xl border border-border-subtle overflow-hidden flex flex-col h-[440px] shadow-sm"
+    transition={{ duration: 0.3, delay: index * 0.05 }}
+    className="bg-surface rounded-2xl border border-border-subtle overflow-hidden flex flex-col h-[380px] shadow-xs"
   >
-    <div className="h-[45%] bg-border-subtle/50 animate-pulse w-full"></div>
-    <div className="flex-1 p-5 flex flex-col">
-      <div className="h-7 w-2/3 bg-border-subtle rounded-md animate-pulse mb-3"></div>
-      <div className="h-4 w-1/3 bg-border-subtle rounded-md animate-pulse mb-6"></div>
-      <div className="h-2 w-full bg-border-subtle rounded-full animate-pulse mb-2 mt-auto"></div>
-      <div className="grid grid-cols-2 gap-3 mt-4">
-        <div className="h-16 bg-border-subtle rounded-2xl animate-pulse"></div>
-        <div className="h-16 bg-border-subtle rounded-2xl animate-pulse"></div>
+    <div className="h-36 bg-surface-elevated animate-pulse w-full" />
+    <div className="flex-1 p-4 sm:p-5 flex flex-col justify-between space-y-3">
+      <div>
+        <div className="h-5 w-2/3 bg-surface-elevated rounded-md animate-pulse mb-2" />
+        <div className="h-3.5 w-1/3 bg-surface-elevated rounded-md animate-pulse mb-4" />
+        <div className="h-8 w-full bg-surface-elevated rounded-lg animate-pulse mb-3" />
       </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="h-12 bg-surface-elevated rounded-xl animate-pulse" />
+        <div className="h-12 bg-surface-elevated rounded-xl animate-pulse" />
+      </div>
+      <div className="h-10 bg-surface-elevated rounded-xl animate-pulse" />
     </div>
   </motion.div>
 );
@@ -40,163 +59,297 @@ export default function FarmerCropDashboard() {
   const [view, setView] = useState<'grid' | 'table' | 'calendar'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStage, setFilterStage] = useState('ALL');
+  const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
 
+  // 1. Calculate Analytics for Overview Strip
+  const analytics = useMemo(() => {
+    if (!crops) return { total: 0, growing: 0, harvestSoon: 0, readyToSell: 0, completed: 0 };
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const growing = crops.filter((c) => c.stage === 'GROWING' || c.stage === 'PLANTED').length;
+
+    const harvestSoon = crops.filter((c) => {
+      if (c.stage === 'HARVESTED') return false;
+      if (c.stage === 'NEAR_HARVEST') return true;
+      if (!c.expected_harvest_date) return false;
+      const hDate = new Date(c.expected_harvest_date);
+      hDate.setHours(0, 0, 0, 0);
+      const diffDays = (hDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+      return diffDays <= 14 && diffDays >= 0;
+    }).length;
+
+    const readyToSell = crops.filter((c) => Number(c.available_quantity) > 0).length;
+    const completed = crops.filter((c) => c.stage === 'HARVESTED').length;
+
+    return {
+      total: crops.length,
+      growing,
+      harvestSoon,
+      readyToSell,
+      completed,
+    };
+  }, [crops]);
+
+  // 2. Filter Crops by Search and Filter Stage
   const filteredCrops = useMemo(() => {
     if (!crops) return [];
-    return crops.filter(crop => {
-      const matchesSearch = crop.product_details?.name?.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStage = filterStage === 'ALL' || crop.stage === filterStage;
+    return crops.filter((crop) => {
+      const name = (crop.product_details?.name || crop.crop_name || '').toLowerCase();
+      const matchesSearch = name.includes(searchQuery.toLowerCase().trim());
+
+      let matchesStage = true;
+      if (filterStage === 'GROWING') {
+        matchesStage = crop.stage === 'GROWING' || crop.stage === 'PLANTED';
+      } else if (filterStage === 'HARVEST_SOON') {
+        if (crop.stage === 'HARVESTED') return false;
+        if (crop.stage === 'NEAR_HARVEST') return true;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const hDate = new Date(crop.expected_harvest_date);
+        hDate.setHours(0, 0, 0, 0);
+        const diffDays = (hDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+        matchesStage = diffDays <= 14 && diffDays >= 0;
+      } else if (filterStage === 'READY_TO_SELL') {
+        matchesStage = Number(crop.available_quantity) > 0;
+      } else if (filterStage === 'HARVESTED') {
+        matchesStage = crop.stage === 'HARVESTED';
+      }
+
       return matchesSearch && matchesStage;
     });
   }, [crops, searchQuery, filterStage]);
 
-  const analytics = useMemo(() => {
-    if (!crops) return { total: 0, growing: 0, harvestReady: 0, harvested: 0 };
-    return {
-      total: crops.length,
-      growing: crops.filter(c => c.stage === 'GROWING').length,
-      harvestReady: crops.filter(c => c.stage === 'NEAR_HARVEST').length,
-      harvested: crops.filter(c => c.stage === 'HARVESTED').length
-    };
+  // 3. Extract actionable "Needs Attention" items
+  const attentionItems = useMemo(() => {
+    if (!crops) return [];
+    return getCropAttentionItems(crops);
   }, [crops]);
 
   if (error) {
     return (
-      <div className="p-6 max-w-2xl mx-auto">
+      <div className="w-full max-w-2xl mx-auto py-12 px-4">
         <Alert
           variant="danger"
-          title="Failed to load crops data"
+          title="Couldn't load your crops"
           action={
-            <Button size="sm" variant="outline" onClick={() => refetch()}>
-              Retry
+            <Button size="sm" variant="outline" onClick={() => refetch()} className="gap-1.5 rounded-xl">
+              <RefreshCw className="w-3.5 h-3.5" />
+              Try Again
             </Button>
           }
         >
-          An error occurred while fetching your crop tracking information. Please check your connection and try again.
+          Something went wrong while getting your crop information. Please check your internet connection or try again.
         </Alert>
       </div>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="w-full space-y-8"
-    >
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div className="w-full space-y-6 sm:space-y-8">
+      {/* 1. Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border-subtle pb-5">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground tracking-tight">Crop Tracking</h1>
-          <p className="text-sm font-medium text-foreground-secondary mt-1">Monitor your crop growth and manage buyer reservations.</p>
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-brand/10 text-brand flex items-center justify-center shrink-0">
+              <Sprout className="w-4 h-4" />
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground tracking-tight">
+              My Crops
+            </h1>
+          </div>
+          <p className="text-xs sm:text-sm font-medium text-foreground-secondary mt-1">
+            Track your crops, monitor growth, and manage upcoming harvests.
+          </p>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2.5 w-full sm:w-auto relative">
           <Button
             variant="outline"
             onClick={() => dispatch(openAddTrackingModal())}
-            className="gap-2"
+            className="flex-1 sm:flex-none text-xs sm:text-sm h-10 px-4 rounded-xl gap-2 font-semibold"
           >
-            <ActivitySquare className="w-4 h-4" />
-            Track Existing Product
+            <Layers className="w-4 h-4 text-brand" />
+            Track Existing Crop
           </Button>
-          <Link to="/dashboard/products/new">
-            <Button variant="primary" className="gap-2">
+
+          <div className="relative flex-1 sm:flex-none">
+            <Button
+              variant="brand"
+              onClick={() => setIsAddMenuOpen(!isAddMenuOpen)}
+              className="w-full sm:w-auto text-xs sm:text-sm h-10 px-4 rounded-xl gap-1.5 font-bold shadow-xs"
+            >
               <Plus className="w-4 h-4" />
-              Add New Product
+              Add Crop
             </Button>
-          </Link>
+
+            {/* Quick Choice Dropdown */}
+            {isAddMenuOpen && (
+              <div
+                className="absolute right-0 top-12 z-30 w-56 bg-surface rounded-2xl shadow-xl border border-border-subtle p-2 space-y-1 animate-in fade-in slide-in-from-top-2 duration-150"
+                onClick={() => setIsAddMenuOpen(false)}
+              >
+                <button
+                  type="button"
+                  onClick={() => dispatch(openAddTrackingModal())}
+                  className="w-full flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-surface-elevated text-left text-xs font-semibold text-foreground transition-colors cursor-pointer"
+                >
+                  <div className="w-7 h-7 rounded-lg bg-brand/10 text-brand flex items-center justify-center shrink-0">
+                    <Layers className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <p className="text-foreground">Track Existing Product</p>
+                    <p className="text-[10px] text-muted">From existing catalog</p>
+                  </div>
+                </button>
+
+                <Link
+                  to="/dashboard/products/new"
+                  className="w-full flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-surface-elevated text-left text-xs font-semibold text-foreground transition-colors"
+                >
+                  <div className="w-7 h-7 rounded-lg bg-info/10 text-info flex items-center justify-center shrink-0">
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <p className="text-foreground">Create New Product & Track</p>
+                    <p className="text-[10px] text-muted">Add new farm listing</p>
+                  </div>
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Analytics Section */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {[
-          { label: 'Total Crops', value: analytics.total, icon: Package, color: 'text-brand', bg: 'bg-brand/10' },
-          { label: 'Actively Growing', value: analytics.growing, icon: TrendingUp, color: 'text-info', bg: 'bg-info/10' },
-          { label: 'Harvest Ready', value: analytics.harvestReady, icon: Sprout, color: 'text-warning', bg: 'bg-warning/10' },
-          { label: 'Completed', value: analytics.harvested, icon: CheckCircle2, color: 'text-success', bg: 'bg-success/10' },
-        ].map((stat, idx) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.1 }}
-            className="bg-surface rounded-2xl p-5 border border-border-subtle shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow"
-          >
-            <div className={`p-3 rounded-xl ${stat.bg}`}>
-              <stat.icon className={`w-6 h-6 ${stat.color}`} />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted">{stat.label}</p>
-              <h3 className="text-2xl font-display font-bold text-foreground">{stat.value}</h3>
-            </div>
-          </motion.div>
-        ))}
-      </div>
+      {/* 2. Crop Overview Strip */}
+      <CropOverviewStrip
+        analytics={analytics}
+        activeFilter={filterStage}
+        onSelectFilter={(filter) => setFilterStage(filter)}
+      />
 
-      <div className="mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
-        <div className="flex w-full sm:w-auto flex-1 gap-4 items-center">
-          <div className="relative max-w-md w-full group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted group-focus-within:text-brand transition-colors" />
+      {/* 3. Needs Attention Section */}
+      <CropNeedsAttention
+        items={attentionItems}
+        onUpdateStage={(id) => dispatch(openStageUpdateModal(id))}
+        onViewDetails={(id) => dispatch(openCropDetail(id))}
+      />
+
+      {/* 4. Controls: Search, Filter Chips & View Switcher */}
+      <div className="space-y-3 pt-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          {/* Search bar */}
+          <div className="relative flex-1 max-w-md w-full">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
             <input
               type="text"
-              placeholder="Search crops..."
+              placeholder="Search crops by name or variety..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 bg-surface border border-border-strong rounded-xl text-sm font-medium text-foreground placeholder-muted focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 shadow-sm transition-all"
+              className="w-full pl-9 pr-8 py-2.5 bg-surface border border-border-strong rounded-xl text-xs sm:text-sm font-medium text-foreground placeholder-muted focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all shadow-2xs"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-muted hover:text-foreground rounded-full"
+                aria-label="Clear search"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
-          <div className="flex items-center gap-2 relative group">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted hidden sm:block pointer-events-none group-focus-within:text-brand transition-colors" />
-            <select
-              value={filterStage}
-              onChange={(e) => setFilterStage(e.target.value)}
-              className="pl-9 pr-8 py-2.5 bg-surface border border-border-strong rounded-xl text-sm font-medium text-foreground focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 shadow-sm transition-all appearance-none cursor-pointer"
+
+          {/* View Mode Toggle */}
+          <div className="flex items-center self-end sm:self-auto gap-1 bg-surface border border-border-subtle p-1 rounded-xl shadow-2xs">
+            <button
+              type="button"
+              onClick={() => setView('grid')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                view === 'grid'
+                  ? 'bg-surface-elevated text-brand shadow-xs border border-border-subtle'
+                  : 'text-muted hover:text-foreground'
+              }`}
+              title="Card Grid"
             >
-              <option value="ALL">All Stages</option>
-              <option value="PLANTED">Planted</option>
-              <option value="GROWING">Growing</option>
-              <option value="NEAR_HARVEST">Near Harvest</option>
-              <option value="HARVESTED">Harvested</option>
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-muted">
-              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
-            </div>
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span>Cards</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setView('table')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                view === 'table'
+                  ? 'bg-surface-elevated text-brand shadow-xs border border-border-subtle'
+                  : 'text-muted hover:text-foreground'
+              }`}
+              title="Table View"
+            >
+              <List className="w-3.5 h-3.5" />
+              <span>Table</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setView('calendar')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                view === 'calendar'
+                  ? 'bg-surface-elevated text-brand shadow-xs border border-border-subtle'
+                  : 'text-muted hover:text-foreground'
+              }`}
+              title="Harvest Schedule"
+            >
+              <CalendarIcon className="w-3.5 h-3.5" />
+              <span>Harvest Schedule</span>
+            </button>
           </div>
         </div>
 
-        <div className="flex items-center gap-1 bg-surface border border-border-subtle p-1 rounded-xl shadow-sm">
-          <button
-            onClick={() => setView('grid')}
-            className={`p-2.5 rounded-lg transition-all duration-200 ${view === 'grid' ? 'bg-surface-elevated shadow-sm text-brand' : 'text-muted hover:text-foreground hover:bg-surface-elevated/50'}`}
-            title="Grid View"
-          >
-            <LayoutGrid className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setView('table')}
-            className={`p-2.5 rounded-lg transition-all duration-200 ${view === 'table' ? 'bg-surface-elevated shadow-sm text-brand' : 'text-muted hover:text-foreground hover:bg-surface-elevated/50'}`}
-            title="Table View"
-          >
-            <List className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setView('calendar')}
-            className={`p-2.5 rounded-lg transition-all duration-200 ${view === 'calendar' ? 'bg-surface-elevated shadow-sm text-brand' : 'text-muted hover:text-foreground hover:bg-surface-elevated/50'}`}
-            title="Calendar View"
-          >
-            <CalendarIcon className="w-4 h-4" />
-          </button>
+        {/* Filter Chips Row */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar text-xs">
+          {[
+            { id: 'ALL', label: 'All Crops', count: analytics.total },
+            { id: 'GROWING', label: 'Growing', count: analytics.growing },
+            { id: 'HARVEST_SOON', label: 'Harvest Soon', count: analytics.harvestSoon },
+            { id: 'READY_TO_SELL', label: 'Ready to Sell', count: analytics.readyToSell },
+            { id: 'HARVESTED', label: 'Completed', count: analytics.completed },
+          ].map((chip) => {
+            const isActive = filterStage === chip.id;
+            return (
+              <button
+                key={chip.id}
+                type="button"
+                onClick={() => setFilterStage(chip.id)}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full font-semibold transition-all cursor-pointer shrink-0 border ${
+                  isActive
+                    ? 'bg-foreground text-background border-foreground shadow-xs'
+                    : 'bg-surface text-foreground-secondary border-border-strong hover:bg-surface-elevated hover:text-foreground'
+                }`}
+              >
+                <span>{chip.label}</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full ${
+                    isActive ? 'bg-background/20 text-background' : 'bg-surface-elevated text-muted'
+                  }`}
+                >
+                  {chip.count}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
+      {/* 5. Main Views Content */}
       <AnimatePresence mode="wait">
         {isLoading ? (
           <motion.div
             key="loading"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-6 min-h-[500px]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
           >
             {[1, 2, 3, 4, 5, 6].map((i, idx) => (
               <SkeletonCard key={i} index={idx} />
@@ -205,38 +358,86 @@ export default function FarmerCropDashboard() {
         ) : (
           <motion.div
             key={view}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
+            exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
           >
+            {/* Cards View */}
             {view === 'grid' && (
-              <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-6 min-h-[500px] items-start auto-rows-max">
-                {filteredCrops.map((crop, index) => (
-                  <CropCard key={crop.id} crop={crop} index={index} />
-                ))}
-                {(!filteredCrops || filteredCrops.length === 0) && (
-                  <div className="col-span-full">
-                    <EmptyState
-                      icon={<Sprout className="w-10 h-10 text-muted" />}
-                      title="No crops match your filters"
-                      description="Try adjusting your search terms or filter criteria to find what you're looking for."
-                      action={{
-                        label: "Clear Filters",
-                        onClick: () => { setSearchQuery(''); setFilterStage('ALL'); }
+              <>
+                {crops && crops.length === 0 ? (
+                  /* Full Empty State: No crops at all */
+                  <div className="py-16 px-4 text-center rounded-3xl bg-surface border-2 border-dashed border-border-strong max-w-2xl mx-auto shadow-xs">
+                    <div className="w-16 h-16 rounded-2xl bg-brand/10 text-brand flex items-center justify-center mx-auto mb-4">
+                      <Sprout className="w-8 h-8" />
+                    </div>
+                    <h3 className="text-xl font-display font-bold text-foreground">
+                      Start tracking your first crop
+                    </h3>
+                    <p className="text-xs sm:text-sm text-foreground-secondary mt-1.5 max-w-md mx-auto leading-relaxed">
+                      Add your crops to monitor growth, plan harvests, and connect your produce with interested buyers.
+                    </p>
+                    <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                      <Button
+                        variant="brand"
+                        onClick={() => dispatch(openAddTrackingModal())}
+                        className="rounded-xl px-5 gap-2 font-bold"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Track Your First Crop
+                      </Button>
+                      <Link to="/dashboard/products/new">
+                        <Button variant="outline" className="rounded-xl px-5 gap-2 font-semibold">
+                          Add New Product
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                ) : filteredCrops.length === 0 ? (
+                  /* Filter Empty State */
+                  <div className="py-14 text-center rounded-2xl bg-surface border border-border-subtle p-6 max-w-md mx-auto">
+                    <Sparkles className="w-8 h-8 text-muted mx-auto mb-2" />
+                    <h4 className="text-sm font-bold text-foreground">No crops match your filters</h4>
+                    <p className="text-xs text-muted mt-1">
+                      Try searching with different terms or reset your active filters.
+                    </p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setSearchQuery('');
+                        setFilterStage('ALL');
                       }}
-                    />
+                      className="mt-4 rounded-xl text-xs"
+                    >
+                      Clear Filters
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch auto-rows-max">
+                    {filteredCrops.map((crop, index) => (
+                      <CropCard
+                        key={crop.id}
+                        crop={crop}
+                        index={index}
+                        onUpdateStage={(id) => dispatch(openStageUpdateModal(id))}
+                        onViewDetails={(id) => dispatch(openCropDetail(id))}
+                      />
+                    ))}
                   </div>
                 )}
-              </div>
+              </>
             )}
 
+            {/* Table View */}
             {view === 'table' && (
-              <div className="bg-surface rounded-2xl shadow-sm border border-border-subtle overflow-hidden">
+              <div className="bg-surface rounded-2xl shadow-xs border border-border-subtle overflow-hidden">
                 <CropTable crops={filteredCrops} />
               </div>
             )}
 
+            {/* Calendar View (Harvest Schedule Agenda) */}
             {view === 'calendar' && (
               <CropCalendar crops={filteredCrops} />
             )}
@@ -244,9 +445,13 @@ export default function FarmerCropDashboard() {
         )}
       </AnimatePresence>
 
+      {/* 6. Collapsible Reservation Management Section */}
       <ReservationManagement />
+
+      {/* 7. Drawers & Modals */}
+      <CropDetailDrawer />
       <StageUpdateModal />
       <AddTrackingModal />
-    </motion.div>
+    </div>
   );
 }

@@ -5,6 +5,8 @@ interface CropsState {
   selectedCropId: number | null;
   isStageUpdateModalOpen: boolean;
   isAddTrackingModalOpen: boolean;
+  isDetailDrawerOpen: boolean;
+  selectedDetailCropId: number | null;
 }
 
 const initialState: CropsState = {
@@ -12,6 +14,8 @@ const initialState: CropsState = {
   selectedCropId: null,
   isStageUpdateModalOpen: false,
   isAddTrackingModalOpen: false,
+  isDetailDrawerOpen: false,
+  selectedDetailCropId: null,
 };
 
 const cropsSlice = createSlice({
@@ -40,6 +44,14 @@ const cropsSlice = createSlice({
     closeAddTrackingModal: (state) => {
       state.isAddTrackingModalOpen = false;
     },
+    openCropDetail: (state, action: PayloadAction<number>) => {
+      state.selectedDetailCropId = action.payload;
+      state.isDetailDrawerOpen = true;
+    },
+    closeCropDetail: (state) => {
+      state.isDetailDrawerOpen = false;
+      state.selectedDetailCropId = null;
+    },
   },
 });
 
@@ -50,6 +62,8 @@ export const {
   closeStageUpdateModal,
   openAddTrackingModal,
   closeAddTrackingModal,
+  openCropDetail,
+  closeCropDetail,
 } = cropsSlice.actions;
 
 export default cropsSlice.reducer;
