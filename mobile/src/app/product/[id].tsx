@@ -26,6 +26,7 @@ import {
   Product,
 } from '../../api/products';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 import { formatCurrency } from '../../utils/format';
 import { ReservationModal } from '../../components/crops/ReservationModal';
 import { useRequireAuth } from '../../components/auth/AuthGateModal';
@@ -72,8 +73,10 @@ export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
   const { addToCart } = useCart();
   const { requireAuth, AuthGateModalComponent } = useRequireAuth();
+  const isFarmer = user?.user_type === 'farmer';
 
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
@@ -102,6 +105,10 @@ export default function ProductDetailScreen() {
 
   const handleAddToCart = async () => {
     if (!product) return;
+    if (isFarmer) {
+      Alert.alert('Role Restricted', 'Produce purchasing is reserved for Buyer accounts.');
+      return;
+    }
     if (!requireAuth('Add to Cart', 'Sign in to add fresh produce to your cart and complete your order.')) {
       return;
     }
@@ -354,30 +361,43 @@ export default function ProductDetailScreen() {
           {/* 4. TRUST BADGES ROW (100% Organic, Farm Fresh, Traceable) */}
           <FarmketTrustBadges isOrganic={product.is_organic} style={styles.trustBadges} />
 
-          {/* 5. SELECT QUANTITY */}
-          <FarmketQuantitySelector
-            quantity={quantity}
-            unit={product.unit || 'kg'}
-            min={1}
-            max={Math.min(99, product.stock_quantity || 99)}
-            onChange={setQuantity}
-          />
+          {/* 5. SELECT QUANTITY (Buyers Only) */}
+          {!isFarmer && (
+            <FarmketQuantitySelector
+              quantity={quantity}
+              unit={product.unit || 'kg'}
+              min={1}
+              max={Math.min(99, product.stock_quantity || 99)}
+              onChange={setQuantity}
+            />
+          )}
         </View>
       </ScrollView>
 
-      {/* 6. STICKY BOTTOM ADD TO CART CTA - Exact match for Screen 3 */}
+      {/* 6. STICKY BOTTOM ACTION CTA */}
       <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
-        <AppButton
-          title={`Add to Cart • ${formatCurrency(Number(product.price) * quantity)}`}
-          variant="forest"
-          size="lg"
-          shape="pill"
-          fullWidth
-          leftIcon={<ShoppingCart size={18} color="#FFFFFF" strokeWidth={2.4} />}
-          onPress={handleAddToCart}
-          loading={addingToCart}
-          style={styles.addToCartBtn}
-        />
+        {isFarmer ? (
+          <View style={styles.farmerNoticeBox}>
+            <AppText variant="caption" weight="bold" color={colors.brand.forest} align="center">
+              🌾 Farmer Account: Purchasing is reserved for Buyer accounts.
+            </AppText>
+            <AppText variant="label" color={colors.text.muted} align="center" style={{ marginTop: 2 }}>
+              Manage your own inventory in Crops Hub
+            </AppText>
+          </View>
+        ) : (
+          <AppButton
+            title={`Add to Cart • ${formatCurrency(Number(product.price) * quantity)}`}
+            variant="forest"
+            size="lg"
+            shape="pill"
+            fullWidth
+            leftIcon={<ShoppingCart size={18} color="#FFFFFF" strokeWidth={2.4} />}
+            onPress={handleAddToCart}
+            loading={addingToCart}
+            style={styles.addToCartBtn}
+          />
+        )}
       </View>
 
       {/* Reservation Modal if applicable */}
@@ -548,5 +568,15 @@ const styles = StyleSheet.create({
   },
   addToCartBtn: {
     backgroundColor: colors.brand.forest,
+  },
+  farmerNoticeBox: {
+    backgroundColor: '#F0FDF4',
+    borderColor: '#DCFCE7',
+    borderWidth: 1,
+    borderRadius: radii.xl,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

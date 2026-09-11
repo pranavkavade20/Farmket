@@ -28,6 +28,7 @@ import { useRequireAuth } from '../../components/auth/AuthGateModal';
 import { FarmketLogo } from '../../components/illustrations/FarmketLogo';
 import { FarmBannerSvg } from '../../components/illustrations/FarmBannerSvg';
 import { FarmerAvatarSvg } from '../../components/illustrations/FarmerAvatarSvg';
+import { Image } from 'expo-image';
 import {
   Search,
   Bell,
@@ -36,6 +37,9 @@ import {
   Calendar,
   MessageSquare,
   BarChart2,
+  Sprout,
+  Store,
+  Package,
 } from 'lucide-react-native';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -113,8 +117,20 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [notificationsVisible, setNotificationsVisible] = useState(false);
 
+  const isFarmer = user?.user_type === 'farmer';
+  const displayName = user?.first_name 
+    ? `${user.first_name}` 
+    : (user?.username || '');
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  };
+
   // Categories from backend
-  const { refetch: refetchCategories } = useQuery({
+  const { data: categories = [], isLoading: loadingCategories, refetch: refetchCategories } = useQuery({
     queryKey: ['categories'],
     queryFn: fetchCategories,
   });
@@ -147,6 +163,9 @@ export default function HomeScreen() {
   }, [refetchCategories, refetchProducts, refetchHarvests]);
 
   const handleAddToCart = async (product: Product) => {
+    if (isFarmer) {
+      return;
+    }
     if (!requireAuth('Add to Cart', 'Sign in to add fresh produce to your cart and place direct farm orders.')) {
       return;
     }
@@ -191,8 +210,42 @@ export default function HomeScreen() {
             style={styles.avatarBtn}
             onPress={() => router.push('/(tabs)/profile')}
             activeOpacity={0.8}
+            accessibilityLabel="View Profile"
           >
-            <FarmerAvatarSvg size={34} />
+            {user?.profile_picture ? (
+              <View style={styles.userAvatarWrap}>
+                <Image
+                  source={{ uri: user.profile_picture }}
+                  style={styles.avatarImage}
+                  contentFit="cover"
+                />
+                {isFarmer && (
+                  <View style={styles.avatarRoleDot}>
+                    <Sprout size={9} color="#FFFFFF" strokeWidth={3} />
+                  </View>
+                )}
+              </View>
+            ) : user ? (
+              <View style={styles.userAvatarWrap}>
+                <View
+                  style={[
+                    styles.avatarInitialWrap,
+                    isFarmer ? styles.farmerInitialWrap : styles.buyerInitialWrap,
+                  ]}
+                >
+                  <AppText variant="caption" weight="bold" color="#FFFFFF" style={{ fontSize: 13 }}>
+                    {(displayName || user.username || 'U').charAt(0).toUpperCase()}
+                  </AppText>
+                </View>
+                {isFarmer && (
+                  <View style={styles.avatarRoleDot}>
+                    <Sprout size={9} color="#FFFFFF" strokeWidth={3} />
+                  </View>
+                )}
+              </View>
+            ) : (
+              <FarmerAvatarSvg size={36} />
+            )}
           </TouchableOpacity>
         </View>
       </View>
@@ -217,12 +270,33 @@ export default function HomeScreen() {
 
           <View style={styles.heroContent}>
             <View style={styles.heroTextCol}>
-              <AppText variant="caption" weight="medium" color="rgba(255,255,255,0.85)">
-                Good morning,
-              </AppText>
+              <View style={styles.heroGreetingRow}>
+                <AppText variant="caption" weight="semibold" color="rgba(255,255,255,0.92)">
+                  {getGreeting()}{displayName ? `, ${displayName}` : ''}
+                </AppText>
+                {user && (
+                  <View
+                    style={[
+                      styles.heroRoleBadge,
+                      isFarmer ? styles.heroRoleFarmer : styles.heroRoleBuyer,
+                    ]}
+                  >
+                    <AppText variant="label" weight="bold" color="#FFFFFF" style={{ fontSize: 9 }}>
+                      {isFarmer ? 'FARMER' : 'BUYER'}
+                    </AppText>
+                  </View>
+                )}
+              </View>
+
               <AppText variant="h2" weight="bold" color="#FFFFFF" style={styles.heroHeadline}>
                 Fresh produce{'\n'}straight from{'\n'}local farms
               </AppText>
+
+              {isFarmer && user?.farm_name ? (
+                <AppText variant="label" color="rgba(255,255,255,0.85)" style={{ marginTop: 4 }}>
+                  🌾 {user.farm_name}
+                </AppText>
+              ) : null}
             </View>
 
             <TouchableOpacity
@@ -235,63 +309,125 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* 3. QUICK ACTIONS ROW - Exact match for Screen 2 */}
+        {/* 3. QUICK ACTIONS ROW - Role-tailored */}
         <View style={styles.quickActionsRow}>
-          {/* Action 1: Browse Products */}
-          <TouchableOpacity
-            style={styles.quickActionItem}
-            activeOpacity={0.8}
-            onPress={() => router.push('/(tabs)/search')}
-          >
-            <View style={[styles.quickActionIconBox, { backgroundColor: '#F0FDF4' }]}>
-              <Leaf size={18} color="#15803D" strokeWidth={2.4} />
-            </View>
-            <AppText variant="caption" weight="medium" color={colors.text.primary} align="center" style={styles.quickActionLabel}>
-              Browse{'\n'}Products
-            </AppText>
-          </TouchableOpacity>
+          {isFarmer ? (
+            <>
+              {/* Farmer Action 1: My Crops */}
+              <TouchableOpacity
+                style={styles.quickActionItem}
+                activeOpacity={0.8}
+                onPress={() => router.push('/farmer-crops' as any)}
+              >
+                <View style={[styles.quickActionIconBox, { backgroundColor: '#F0FDF4' }]}>
+                  <Sprout size={19} color="#15803D" strokeWidth={2.4} />
+                </View>
+                <AppText variant="caption" weight="medium" color={colors.text.primary} align="center" style={styles.quickActionLabel}>
+                  Crops{'\n'}Tracking
+                </AppText>
+              </TouchableOpacity>
 
-          {/* Action 2: Pre-Book Harvests */}
-          <TouchableOpacity
-            style={styles.quickActionItem}
-            activeOpacity={0.8}
-            onPress={() => router.push('/(tabs)/search')}
-          >
-            <View style={[styles.quickActionIconBox, { backgroundColor: '#FFFBEB' }]}>
-              <Calendar size={18} color="#D97706" strokeWidth={2.4} />
-            </View>
-            <AppText variant="caption" weight="medium" color={colors.text.primary} align="center" style={styles.quickActionLabel}>
-              Pre-Book{'\n'}Harvests
-            </AppText>
-          </TouchableOpacity>
+              {/* Farmer Action 2: Public Storefront */}
+              <TouchableOpacity
+                style={styles.quickActionItem}
+                activeOpacity={0.8}
+                onPress={() => router.push('/(tabs)/profile')}
+              >
+                <View style={[styles.quickActionIconBox, { backgroundColor: '#FFFBEB' }]}>
+                  <Store size={19} color="#D97706" strokeWidth={2.4} />
+                </View>
+                <AppText variant="caption" weight="medium" color={colors.text.primary} align="center" style={styles.quickActionLabel}>
+                  Farm{'\n'}Storefront
+                </AppText>
+              </TouchableOpacity>
 
-          {/* Action 3: Chat with Farmers */}
-          <TouchableOpacity
-            style={styles.quickActionItem}
-            activeOpacity={0.8}
-            onPress={() => router.push('/(tabs)/chat')}
-          >
-            <View style={[styles.quickActionIconBox, { backgroundColor: '#F0F9FF' }]}>
-              <MessageSquare size={18} color="#2563EB" strokeWidth={2.4} />
-            </View>
-            <AppText variant="caption" weight="medium" color={colors.text.primary} align="center" style={styles.quickActionLabel}>
-              Chat{'\n'}with Farmers
-            </AppText>
-          </TouchableOpacity>
+              {/* Farmer Action 3: Messages */}
+              <TouchableOpacity
+                style={styles.quickActionItem}
+                activeOpacity={0.8}
+                onPress={() => router.push('/(tabs)/chat')}
+              >
+                <View style={[styles.quickActionIconBox, { backgroundColor: '#F0F9FF' }]}>
+                  <MessageSquare size={19} color="#2563EB" strokeWidth={2.4} />
+                </View>
+                <AppText variant="caption" weight="medium" color={colors.text.primary} align="center" style={styles.quickActionLabel}>
+                  Farmer{'\n'}Chat
+                </AppText>
+              </TouchableOpacity>
 
-          {/* Action 4: Track Orders */}
-          <TouchableOpacity
-            style={styles.quickActionItem}
-            activeOpacity={0.8}
-            onPress={() => router.push('/(tabs)/orders')}
-          >
-            <View style={[styles.quickActionIconBox, { backgroundColor: '#FAF5FF' }]}>
-              <BarChart2 size={18} color="#7C3AED" strokeWidth={2.4} />
-            </View>
-            <AppText variant="caption" weight="medium" color={colors.text.primary} align="center" style={styles.quickActionLabel}>
-              Track{'\n'}Orders
-            </AppText>
-          </TouchableOpacity>
+              {/* Farmer Action 4: Incoming Orders */}
+              <TouchableOpacity
+                style={styles.quickActionItem}
+                activeOpacity={0.8}
+                onPress={() => router.push('/(tabs)/orders')}
+              >
+                <View style={[styles.quickActionIconBox, { backgroundColor: '#FAF5FF' }]}>
+                  <Package size={19} color="#7C3AED" strokeWidth={2.4} />
+                </View>
+                <AppText variant="caption" weight="medium" color={colors.text.primary} align="center" style={styles.quickActionLabel}>
+                  Farm{'\n'}Orders
+                </AppText>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              {/* Buyer Action 1: Browse Products */}
+              <TouchableOpacity
+                style={styles.quickActionItem}
+                activeOpacity={0.8}
+                onPress={() => router.push('/(tabs)/search')}
+              >
+                <View style={[styles.quickActionIconBox, { backgroundColor: '#F0FDF4' }]}>
+                  <Leaf size={18} color="#15803D" strokeWidth={2.4} />
+                </View>
+                <AppText variant="caption" weight="medium" color={colors.text.primary} align="center" style={styles.quickActionLabel}>
+                  Browse{'\n'}Products
+                </AppText>
+              </TouchableOpacity>
+
+              {/* Buyer Action 2: Pre-Book Harvests */}
+              <TouchableOpacity
+                style={styles.quickActionItem}
+                activeOpacity={0.8}
+                onPress={() => router.push('/(tabs)/search')}
+              >
+                <View style={[styles.quickActionIconBox, { backgroundColor: '#FFFBEB' }]}>
+                  <Calendar size={18} color="#D97706" strokeWidth={2.4} />
+                </View>
+                <AppText variant="caption" weight="medium" color={colors.text.primary} align="center" style={styles.quickActionLabel}>
+                  Pre-Book{'\n'}Harvests
+                </AppText>
+              </TouchableOpacity>
+
+              {/* Buyer Action 3: Chat with Farmers */}
+              <TouchableOpacity
+                style={styles.quickActionItem}
+                activeOpacity={0.8}
+                onPress={() => router.push('/(tabs)/chat')}
+              >
+                <View style={[styles.quickActionIconBox, { backgroundColor: '#F0F9FF' }]}>
+                  <MessageSquare size={18} color="#2563EB" strokeWidth={2.4} />
+                </View>
+                <AppText variant="caption" weight="medium" color={colors.text.primary} align="center" style={styles.quickActionLabel}>
+                  Chat{'\n'}with Farmers
+                </AppText>
+              </TouchableOpacity>
+
+              {/* Buyer Action 4: Track Orders */}
+              <TouchableOpacity
+                style={styles.quickActionItem}
+                activeOpacity={0.8}
+                onPress={() => router.push('/(tabs)/orders')}
+              >
+                <View style={[styles.quickActionIconBox, { backgroundColor: '#FAF5FF' }]}>
+                  <BarChart2 size={18} color="#7C3AED" strokeWidth={2.4} />
+                </View>
+                <AppText variant="caption" weight="medium" color={colors.text.primary} align="center" style={styles.quickActionLabel}>
+                  Track{'\n'}Orders
+                </AppText>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
 
         {/* 4. FEATURED PRODUCTS CAROUSEL - Exact match for Screen 2 */}
@@ -332,7 +468,7 @@ export default function HomeScreen() {
                     product={product}
                     layout="vertical"
                     onPress={() => router.push(`/product/${product.id}` as any)}
-                    onQuickAdd={() => handleAddToCart(product)}
+                    onQuickAdd={!isFarmer ? () => handleAddToCart(product) : undefined}
                   />
                 </View>
               ))}
@@ -340,7 +476,7 @@ export default function HomeScreen() {
           )}
         </View>
 
-        {/* 5. POPULAR CATEGORIES - Exact match for Screen 2 */}
+        {/* 5. POPULAR CATEGORIES - Live from Backend */}
         <View style={styles.sectionContainer}>
           <View style={styles.sectionHeader}>
             <AppText variant="h3" weight="bold" color={colors.text.primary}>
@@ -358,36 +494,46 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
-          <View style={styles.categoriesRow}>
-            <CategoryCard
-              name="Vegetables"
-              icon="vegetables"
-              onPress={() =>
-                router.push({ pathname: '/(tabs)/search', params: { category: 'vegetables' } } as any)
-              }
-            />
-            <CategoryCard
-              name="Fruits"
-              icon="fruits"
-              onPress={() =>
-                router.push({ pathname: '/(tabs)/search', params: { category: 'fruits' } } as any)
-              }
-            />
-            <CategoryCard
-              name="Grains"
-              icon="grains"
-              onPress={() =>
-                router.push({ pathname: '/(tabs)/search', params: { category: 'grains' } } as any)
-              }
-            />
-            <CategoryCard
-              name="Dairy"
-              icon="dairy"
-              onPress={() =>
-                router.push({ pathname: '/(tabs)/search', params: { category: 'dairy' } } as any)
-              }
-            />
-          </View>
+          {loadingCategories && categories.length === 0 ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.categoriesScroll}
+            >
+              {[1, 2, 3, 4].map((i) => (
+                <View key={i} style={styles.categorySkeleton} />
+              ))}
+            </ScrollView>
+          ) : (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.categoriesScroll}
+            >
+              {(categories.length > 0
+                ? categories
+                : [
+                    { id: 1, name: 'Vegetables', slug: 'vegetables' },
+                    { id: 2, name: 'Fruits', slug: 'fruits' },
+                    { id: 3, name: 'Grains', slug: 'grains' },
+                    { id: 5, name: 'Dairy', slug: 'dairy-animal-products' },
+                  ]
+              ).map((cat) => (
+                <View key={cat.id} style={{ marginRight: spacing.sm }}>
+                  <CategoryCard
+                    name={cat.name}
+                    slug={cat.slug}
+                    onPress={() =>
+                      router.push({
+                        pathname: '/(tabs)/search',
+                        params: { category: cat.slug },
+                      } as any)
+                    }
+                  />
+                </View>
+              ))}
+            </ScrollView>
+          )}
         </View>
 
         {/* 6. UPCOMING HARVESTS (Crop Lifecycle Preservation) */}
@@ -481,10 +627,68 @@ const styles = StyleSheet.create({
   avatarBtn: {
     marginLeft: 2,
   },
+  userAvatarWrap: {
+    position: 'relative',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+  },
+  avatarImage: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1.5,
+    borderColor: colors.brand.primary,
+  },
+  avatarInitialWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
+    ...shadows.xs,
+  },
+  farmerInitialWrap: {
+    backgroundColor: '#15803D',
+  },
+  buyerInitialWrap: {
+    backgroundColor: '#0284C7',
+  },
+  avatarRoleDot: {
+    position: 'absolute',
+    bottom: -1,
+    right: -1,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: '#16A34A',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
+  },
   scrollContent: {
     paddingBottom: spacing.xxxl,
   },
   // Hero Section
+  heroGreetingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  heroRoleBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
+    borderRadius: radii.pill,
+  },
+  heroRoleFarmer: {
+    backgroundColor: 'rgba(34, 197, 94, 0.4)',
+  },
+  heroRoleBuyer: {
+    backgroundColor: 'rgba(56, 189, 248, 0.4)',
+  },
   heroCard: {
     marginHorizontal: spacing.lg,
     marginTop: spacing.xs,
@@ -578,6 +782,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
+  },
+  categoriesScroll: {
+    paddingLeft: spacing.lg,
+    paddingRight: spacing.sm,
+    paddingBottom: spacing.xs,
+  },
+  categorySkeleton: {
+    width: 86,
+    height: 94,
+    borderRadius: radii.xl,
+    backgroundColor: '#EAECE7',
+    marginRight: spacing.sm,
+    opacity: 0.6,
   },
   cropsList: {
     paddingHorizontal: spacing.lg,

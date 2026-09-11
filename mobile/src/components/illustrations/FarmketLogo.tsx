@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
-import Svg, { Path, G } from 'react-native-svg';
+import { Image, ImageStyle } from 'expo-image';
 import { AppText } from '../ui/AppText';
 import { colors } from '../../theme';
 
@@ -12,34 +12,17 @@ interface FarmketLogoProps {
   textColor?: string;
 }
 
-export const FarmketLogoIcon: React.FC<{ size?: number }> = ({ size = 32 }) => {
+export const FarmketLogoIcon: React.FC<{ size?: number; style?: StyleProp<ImageStyle> }> = ({
+  size = 32,
+  style,
+}) => {
   return (
-    <Svg width={size} height={size} viewBox="0 0 48 48" fill="none">
-      <G>
-        {/* Left / Upper leaf - Harvest Golden Yellow */}
-        <Path
-          d="M20 7C20 7 13 13 13 22C13 25 15 28 17 30C18 24 22 17 29 13C27 9 24 7 20 7Z"
-          fill="#EAB308"
-        />
-        {/* Top Right leaf - Fresh Vibrant Green */}
-        <Path
-          d="M27 8C27 8 28 16 23 23C27 23 35 22 37 15C37 11 33 8 27 8Z"
-          fill="#22C55E"
-        />
-        {/* Lower Right leaf - Deep Agricultural Green */}
-        <Path
-          d="M23 23C21 27 22 33 26 36C30 38 36 36 38 31C39 25 34 23 27 23C25.5 23 24.2 23 23 23Z"
-          fill="#15803D"
-        />
-        {/* Central Stem connecting the leaves */}
-        <Path
-          d="M17 38C19 32 22 25 24 21"
-          stroke="#165534"
-          strokeWidth="3.5"
-          strokeLinecap="round"
-        />
-      </G>
-    </Svg>
+    <Image
+      source={require('../../../assets/images/logo.png')}
+      style={[{ width: size, height: size }, style]}
+      contentFit="contain"
+      accessibilityLabel="Farmket Logo"
+    />
   );
 };
 

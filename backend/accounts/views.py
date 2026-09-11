@@ -536,9 +536,16 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class FarmerProfileViewSet(viewsets.ModelViewSet):
-    queryset = FarmerProfile.objects.all()
+    queryset = FarmerProfile.objects.all().order_by('id')
     serializer_class = FarmerProfileSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        user_id = self.request.query_params.get('user')
+        if user_id:
+            qs = qs.filter(user_id=user_id)
+        return qs
 
 
 class BuyerProfileViewSet(viewsets.ModelViewSet):

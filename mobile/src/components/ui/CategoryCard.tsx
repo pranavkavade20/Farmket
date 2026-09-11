@@ -8,7 +8,7 @@ import {
   GrainsCategorySvg,
   DairyCategorySvg,
 } from '../illustrations/ProduceIllustrations';
-import { Tag } from 'lucide-react-native';
+import { Tag, Flower, Flame } from 'lucide-react-native';
 
 export interface CategoryCardProps {
   name: string;
@@ -51,11 +51,25 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
         renderIcon: () => <GrainsCategorySvg size={30} />,
       };
     }
-    if (normalizedKey.includes('dairy') || normalizedKey.includes('milk') || normalizedKey.includes('egg')) {
+    if (normalizedKey.includes('dairy') || normalizedKey.includes('milk') || normalizedKey.includes('animal')) {
       return {
         bg: '#F0F9FF',
         border: '#E0F2FE',
         renderIcon: () => <DairyCategorySvg size={30} />,
+      };
+    }
+    if (normalizedKey.includes('flower') || normalizedKey.includes('floral') || normalizedKey.includes('blossom')) {
+      return {
+        bg: '#FFF1F2',
+        border: '#FECDD3',
+        renderIcon: () => <Flower size={26} color="#E11D48" strokeWidth={2.2} />,
+      };
+    }
+    if (normalizedKey.includes('spice') || normalizedKey.includes('cash') || normalizedKey.includes('herb') || normalizedKey.includes('chili')) {
+      return {
+        bg: '#FFF7ED',
+        border: '#FFEDD5',
+        renderIcon: () => <Flame size={26} color="#EA580C" strokeWidth={2.2} />,
       };
     }
     return {

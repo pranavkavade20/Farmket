@@ -12,6 +12,7 @@ import {
   CarrotsIllustration,
 } from '../illustrations/ProduceIllustrations';
 import { Star, Heart, ShoppingCart, Leaf } from 'lucide-react-native';
+import { useAuth } from '../../context/AuthContext';
 
 interface AppProductCardProps {
   product: Product;
@@ -32,6 +33,8 @@ export const AppProductCard: React.FC<AppProductCardProps> = ({
   layout = 'horizontal',
   style,
 }) => {
+  const { user } = useAuth();
+  const isFarmerOrAdmin = user?.user_type === 'farmer' || user?.user_type === 'admin';
   const [isFavorited, setIsFavorited] = useState(!!product.is_following);
   const primaryImage = product.images?.find((img) => img.is_primary)?.image || product.images?.[0]?.image;
   const isVertical = layout === 'vertical';
@@ -153,18 +156,20 @@ export const AppProductCard: React.FC<AppProductCardProps> = ({
             </View>
           </View>
 
-          {/* Cart Action Button */}
-          {action ? (
-            <View style={styles.actionSlot}>{action}</View>
-          ) : (
-            <TouchableOpacity
-              style={styles.cartButton}
-              onPress={() => onQuickAdd && onQuickAdd(product)}
-              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-              activeOpacity={0.8}
-            >
-              <ShoppingCart size={15} color="#FFFFFF" strokeWidth={2.4} />
-            </TouchableOpacity>
+          {/* Cart Action Button (Only for buyers/non-farmers with purchase permissions) */}
+          {!isFarmerOrAdmin && (
+            action ? (
+              <View style={styles.actionSlot}>{action}</View>
+            ) : onQuickAdd ? (
+              <TouchableOpacity
+                style={styles.cartButton}
+                onPress={() => onQuickAdd(product)}
+                hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                activeOpacity={0.8}
+              >
+                <ShoppingCart size={15} color="#FFFFFF" strokeWidth={2.4} />
+              </TouchableOpacity>
+            ) : null
           )}
         </View>
       </View>

@@ -9,6 +9,7 @@ import { ShoppingBag, Plus, Minus, Trash2, Tag, ShieldCheck, Truck, Award, Check
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { formatCurrency } from '../utils/format';
+import { normalizeApiError } from '../api/client';
 
 export default function CartScreen() {
   const insets = useSafeAreaInsets();
@@ -34,7 +35,13 @@ export default function CartScreen() {
     }
   };
 
-  const handleUpdateQuantity = async (itemId: number, currentQty: number, change: number, itemName?: string) => {
+  const handleUpdateQuantity = async (
+    itemId: number,
+    currentQty: number,
+    change: number,
+    itemName?: string,
+    maxStock?: number
+  ) => {
     const newQty = currentQty + change;
     if (newQty <= 0) {
       Alert.alert(
@@ -42,8 +49,16 @@ export default function CartScreen() {
         `Remove "${itemName || 'this produce'}" from your cart?`,
         [
           { text: 'Cancel', style: 'cancel' },
-          { text: 'Remove', style: 'destructive', onPress: () => handleDeleteItem(itemId) }
+          { text: 'Remove', style: 'destructive', onPress: () => handleDeleteItem(itemId) },
         ]
+      );
+      return;
+    }
+
+    if (change > 0 && maxStock !== undefined && newQty > maxStock) {
+      Alert.alert(
+        'Stock Limit Reached',
+        `Only ${maxStock} units of "${itemName || 'this produce'}" are available in farm inventory.`
       );
       return;
     }
@@ -51,6 +66,9 @@ export default function CartScreen() {
     setUpdatingId(itemId);
     try {
       await updateQuantity(itemId, newQty);
+    } catch (error) {
+      const errorMsg = normalizeApiError(error, 'Could not update item quantity.');
+      Alert.alert('Stock Notice', errorMsg);
     } finally {
       setUpdatingId(null);
     }
@@ -127,6 +145,11 @@ export default function CartScreen() {
             const isItemRemoving = removingId === item.id;
             const isItemUpdating = updatingId === item.id;
 
+            const maxStock = item.is_prebooking && prod?.available_quantity
+              ? Number(prod.available_quantity)
+              : Number(prod?.stock_quantity ?? 99);
+            const isAtMaxStock = item.quantity >= maxStock;
+
             const renderRightActions = () => (
               <TouchableOpacity 
                 style={styles.deleteAction} 
@@ -179,9 +202,16 @@ export default function CartScreen() {
                       </TouchableOpacity>
                     </View>
                     
-                    <AppText variant="caption" color={colors.text.muted} style={{ marginTop: 2 }}>
-                      {formatCurrency(itemPrice)} / {prod?.unit || 'kg'}
-                    </AppText>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 }}>
+                      <AppText variant="caption" color={colors.text.muted}>
+                        {formatCurrency(itemPrice)} / {prod?.unit || 'kg'}
+                      </AppText>
+                      {maxStock <= 5 && (
+                        <AppText variant="label" color={colors.status.warning} weight="bold">
+                          Only {maxStock} in stock
+                        </AppText>
+                      )}
+                    </View>
 
                     {/* Price & Stepper Row */}
                     <View style={styles.actionRow}>
@@ -192,7 +222,7 @@ export default function CartScreen() {
                       <View style={styles.quantityControl}>
                         <TouchableOpacity 
                           style={styles.qBtn} 
-                          onPress={() => handleUpdateQuantity(item.id, item.quantity, -1, prod?.name)}
+                          onPress={() => handleUpdateQuantity(item.id, item.quantity, -1, prod?.name, maxStock)}
                           disabled={isItemUpdating || isItemRemoving}
                           activeOpacity={0.7}
                         >
@@ -208,12 +238,16 @@ export default function CartScreen() {
                         </View>
 
                         <TouchableOpacity 
-                          style={styles.qBtn} 
-                          onPress={() => handleUpdateQuantity(item.id, item.quantity, 1, prod?.name)}
-                          disabled={isItemUpdating || isItemRemoving}
+                          style={[styles.qBtn, isAtMaxStock && styles.qBtnDisabled]} 
+                          onPress={() => handleUpdateQuantity(item.id, item.quantity, 1, prod?.name, maxStock)}
+                          disabled={isItemUpdating || isItemRemoving || isAtMaxStock}
                           activeOpacity={0.7}
                         >
-                          <Plus size={13} color={colors.text.primary} strokeWidth={2.4} />
+                          <Plus
+                            size={13}
+                            color={isAtMaxStock ? colors.text.muted : colors.text.primary}
+                            strokeWidth={2.4}
+                          />
                         </TouchableOpacity>
                       </View>
                     </View>
@@ -434,6 +468,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     ...shadows.xs,
+  },
+  qBtnDisabled: {
+    opacity: 0.35,
+    backgroundColor: '#F3F4F6',
   },
   qTextWrapper: {
     width: 28,

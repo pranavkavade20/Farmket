@@ -17,6 +17,7 @@ import { fetchProducts, fetchCategories, Product } from '../../api/products';
 import { useDebounce } from '../../hooks/useDebounce';
 import { useRouter } from 'expo-router';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 import { FilterModal } from '../../components/marketplace/FilterModal';
 import { useRequireAuth } from '../../components/auth/AuthGateModal';
 
@@ -86,8 +87,10 @@ const DEFAULT_PRODUCTS: Product[] = [
 export default function SearchScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { user } = useAuth();
   const { addToCart } = useCart();
   const { requireAuth, AuthGateModalComponent } = useRequireAuth();
+  const isFarmerOrAdmin = user?.user_type === 'farmer' || user?.user_type === 'admin';
   
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 350);
@@ -164,14 +167,16 @@ export default function SearchScreen() {
         layout="horizontal"
         onPress={(product) => router.push(`/product/${product.id}` as any)} 
         action={
-          <AppButton 
-            title="Add" 
-            size="xs" 
-            shape="pill"
-            style={styles.addButton}
-            onPress={() => handleAddToCart(item.id)}
-            loading={addingId === item.id}
-          />
+          !isFarmerOrAdmin ? (
+            <AppButton 
+              title="Add" 
+              size="xs" 
+              shape="pill"
+              style={styles.addButton}
+              onPress={() => handleAddToCart(item.id)}
+              loading={addingId === item.id}
+            />
+          ) : undefined
         }
       />
     );
