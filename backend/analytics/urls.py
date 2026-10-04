@@ -2,6 +2,7 @@ from django.urls import path
 from .views import (
     FarmerAnalyticsView, 
     BuyerAnalyticsView,
+    PublicPlatformStatsView,
     AdminExecutiveOverviewAPIView,
     AdminUserAnalyticsAPIView,
     AdminMarketplaceAnalyticsAPIView,
@@ -14,6 +15,8 @@ app_name = 'analytics'
 urlpatterns = [
     path('farmer/', FarmerAnalyticsView.as_view(), name='analytics-farmer'),
     path('buyer/', BuyerAnalyticsView.as_view(), name='analytics-buyer'),
+    path('platform-stats/', PublicPlatformStatsView.as_view(), name='analytics-platform-stats'),
+    path('public-stats/', PublicPlatformStatsView.as_view(), name='analytics-public-stats'),
     
     # Admin API Routes
     path('admin/executive/', AdminExecutiveOverviewAPIView.as_view(), name='admin-executive'),

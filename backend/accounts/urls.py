@@ -40,6 +40,8 @@ urlpatterns = [
 
     # Dashboard & Profile Utilities
     path('dashboard-stats/', DashboardStatsView.as_view(), name='dashboard-stats'),
+    path('community-stats/', __import__('analytics.views', fromlist=['PublicPlatformStatsView']).PublicPlatformStatsView.as_view(), name='community-stats'),
+    path('platform-stats/', __import__('analytics.views', fromlist=['PublicPlatformStatsView']).PublicPlatformStatsView.as_view(), name='accounts-platform-stats'),
 
     # Resource endpoints (users, farmers, buyers)
     path('', include(router.urls)),

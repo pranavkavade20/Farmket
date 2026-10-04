@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.db.models import Sum, Count, Avg, Q
 from django.db.models.functions import TruncMonth
 from django.utils import timezone
@@ -199,6 +199,69 @@ class BuyerAnalyticsView(APIView):
             },
             'spend_trend': spend_trend,
         })
+
+
+class PublicPlatformStatsView(APIView):
+    """
+    GET /api/analytics/platform-stats/
+    Public endpoint returning real-time platform statistics for social proof sections:
+    - Farmers count (total and verified)
+    - Buyers count
+    - Orders count (total and completed)
+    - Products count
+    - Cities / geographical regions covered
+    - Community partner / farm / business names for marquee display
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        from accounts.models import User, FarmerProfile, BuyerProfile
+        from orders.models import Order
+        from products.models import Product
+
+        total_farmers = User.objects.filter(user_type='farmer').count()
+        verified_farmers = User.objects.filter(user_type='farmer', is_verified=True).count()
+        total_buyers = User.objects.filter(user_type='buyer').count()
+        total_orders = Order.objects.count()
+        completed_orders = Order.objects.filter(status='delivered').count()
+        total_products = Product.objects.count()
+
+        # Extract unique cities/locations from farmer profiles and buyer delivery addresses
+        locations = set()
+        for loc in FarmerProfile.objects.exclude(location__isnull=True).exclude(location='').values_list('location', flat=True):
+            city = loc.split(',')[0].strip() if ',' in loc else loc.strip()
+            if city:
+                locations.add(city)
+        for loc in BuyerProfile.objects.exclude(delivery_address__isnull=True).exclude(delivery_address='').values_list('delivery_address', flat=True):
+            city = loc.split(',')[0].strip() if ',' in loc else loc.strip()
+            if city:
+                locations.add(city)
+
+        cities_count = len(locations)
+
+        # Community partner names (real farm names and buyer enterprise names)
+        farms = list(FarmerProfile.objects.exclude(farm_name__isnull=True).exclude(farm_name='').values_list('farm_name', flat=True)[:10])
+        buyers = list(BuyerProfile.objects.exclude(company_name__isnull=True).exclude(company_name='').values_list('company_name', flat=True)[:10])
+
+        partners = farms + buyers
+        # Fallback default names if database has few or no partner names
+        if len(partners) < 4:
+            fallback = ["AgriTech India", "Kisan Connect", "FarmFresh", "GreenHarvest", "EcoFoods", "AgroTrade", "BharatFarms", "NatureBasket"]
+            for f in fallback:
+                if f not in partners:
+                    partners.append(f)
+
+        return Response({
+            'total_farmers': total_farmers,
+            'verified_farmers': verified_farmers,
+            'total_buyers': total_buyers,
+            'total_orders': total_orders,
+            'completed_orders': completed_orders,
+            'total_products': total_products,
+            'cities_count': cities_count,
+            'partners': partners,
+        })
+
 
 class IsAdminUserType(IsAuthenticated):
     def has_permission(self, request, view):

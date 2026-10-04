@@ -1,119 +1,35 @@
-/* 1. Update Google Fonts Import */
+/* ==========================================================================
+   Farmket Design System — "Fresh Harvest"
+   --------------------------------------------------------------------------
+   Principle: colour = meaning. Every colour has one job, so users learn the
+   app without reading (the way Google and Instagram do).
+
+   • GREEN   → the main action & the Farmer side   (Buy, Sell, Confirm)
+   • BLUE    → trust & the Buyer side              (Orders, Chat, Links)
+   • SUN     → deals, price drops, ratings         (Offers, Stars)
+   • ORANGE  → urgency & fresh arrivals            (Limited stock, New)
+   • TOMATO  → alerts, favourites, perishables     (Errors, Hearts)
+   • BERRY   → premium & organic highlights        (Verified, Pro)
+
+   60 / 30 / 10 rule: 60% clean neutrals, 30% brand green, 10% accents.
+   Bright gradients are for heroes, banners and promos only — never behind
+   small text. Buttons and body text always meet WCAG AA contrast.
+   ========================================================================== */
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400..700;1,14..32,400..700&family=Plus+Jakarta+Sans:ital,wght@0,500..800;1,500..800&display=swap');
 @import "tailwindcss";
 
-@theme {
-  /* 2. Map Font Families */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-
-  /* ... rest of your design tokens ... */
-}
-
-@layer base {
-  body {
-    font-family: var(--font-sans);
-    /* Enable contextual alternates & tabular figures for clean numbers */
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-  }
-
-  /* Force tabular numbers in pricing, counters, and data tables */
-  .tabular-nums {
-    font-variant-numeric: tabular-nums;
-  }
-}
-
 @custom-variant dark (&:where(.dark, .dark *));
 
-@layer base {
-  :root {
-    /* ── Semantic Backgrounds (Premium Light) ── */
-    --bg-main: #F9FAFB;
-    --bg-surface: #FFFFFF;
-    --bg-surface-elevated: #FFFFFF;
-
-    /* ── Semantic Text (Slate/Zinc scale) ── */
-    --text-primary: #09090B;
-    --text-secondary: #52525B;
-    --text-muted: #71717A;
-
-    /* ── Semantic Borders ── */
-    --border-subtle: #E4E4E7;
-    --border-strong: #D4D4D8;
-
-    /* ── Brand Colors (Refined Farmket Green) ── */
-    --brand-primary: #10B981;
-    --brand-hover: #059669;
-    --brand-active: #047857;
-    --brand-muted: #D1FAE5;
-
-    /* ── Accent Colors ── */
-    --accent-yellow: #F59E0B;
-    --accent-orange: #F97316;
-
-    /* ── Status Colors ── */
-    --semantic-success: #10B981;
-    --semantic-success-muted: #D1FAE5;
-    --semantic-warning: #F59E0B;
-    --semantic-warning-muted: #FEF3C7;
-    --semantic-danger: #EF4444;
-    --semantic-danger-muted: #FEE2E2;
-    --semantic-info: #3B82F6;
-    --semantic-info-muted: #DBEAFE;
-
-    /* ── Interactive States ── */
-    --state-hover: rgba(9, 9, 11, 0.04);
-    --state-active: rgba(9, 9, 11, 0.08);
-    --state-disabled: rgba(9, 9, 11, 0.38);
-  }
-
-  .dark {
-    /* ── Semantic Backgrounds (Premium Dark) ── */
-    --bg-main: #09090B;
-    --bg-surface: #121214;
-    --bg-surface-elevated: #18181B;
-
-    /* ── Semantic Text ── */
-    --text-primary: #FAFAFA;
-    --text-secondary: #A1A1AA;
-    --text-muted: #71717A;
-
-    /* ── Semantic Borders ── */
-    --border-subtle: #27272A;
-    --border-strong: #3F3F46;
-
-    /* ── Brand Colors (Vibrant for Dark Mode) ── */
-    --brand-primary: #10B981;
-    --brand-hover: #34D399;
-    --brand-active: #6EE7B7;
-    --brand-muted: #064E3B;
-
-    /* ── Accent Colors ── */
-    --accent-yellow: #FBBF24;
-    --accent-orange: #FB923C;
-
-    /* ── Status Colors ── */
-    --semantic-success: #10B981;
-    --semantic-success-muted: #064E3B;
-    --semantic-warning: #F59E0B;
-    --semantic-warning-muted: #78350F;
-    --semantic-danger: #EF4444;
-    --semantic-danger-muted: #7F1D1D;
-    --semantic-info: #3B82F6;
-    --semantic-info-muted: #1E3A8A;
-
-    /* ── Interactive States ── */
-    --state-hover: rgba(250, 250, 250, 0.06);
-    --state-active: rgba(250, 250, 250, 0.10);
-    --state-disabled: rgba(250, 250, 250, 0.38);
-  }
-}
-
+/* --------------------------------------------------------------------------
+   1. Theme tokens (CSS variables -> Tailwind utilities)
+   -------------------------------------------------------------------------- */
 @theme {
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-display: 'Manrope', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  /* Fonts */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
-  /* Theme Colors mapped to utilities */
+  /* Surfaces & text */
   --color-background: var(--bg-main);
   --color-main: var(--bg-main);
   --color-surface: var(--bg-surface);
@@ -126,14 +42,47 @@
   --color-border-subtle: var(--border-subtle);
   --color-border-strong: var(--border-strong);
 
+  /* Brand */
   --color-brand: var(--brand-primary);
   --color-brand-hover: var(--brand-hover);
   --color-brand-active: var(--brand-active);
   --color-brand-muted: var(--brand-muted);
+  --color-brand-vivid: var(--brand-vivid);
+  --color-on-brand: var(--text-on-brand);
 
+  /* Accents (each has a soft tint for badges, chips, and card backgrounds) */
   --color-accent-yellow: var(--accent-yellow);
+  --color-accent-yellow-muted: var(--accent-yellow-muted);
   --color-accent-orange: var(--accent-orange);
+  --color-accent-orange-muted: var(--accent-orange-muted);
+  --color-accent-tomato: var(--accent-tomato);
+  --color-accent-tomato-muted: var(--accent-tomato-muted);
+  --color-accent-sky: var(--accent-sky);
+  --color-accent-sky-muted: var(--accent-sky-muted);
+  --color-accent-berry: var(--accent-berry);
+  --color-accent-berry-muted: var(--accent-berry-muted);
 
+  /* Marketplace roles */
+  --color-farmer: var(--brand-primary);
+  --color-farmer-muted: var(--brand-muted);
+  --color-buyer: var(--accent-sky);
+  --color-buyer-muted: var(--accent-sky-muted);
+
+  /* Product categories: use as bg-cat-fruit-muted text-cat-fruit, etc. */
+  --color-cat-veg: var(--brand-primary);
+  --color-cat-veg-muted: var(--brand-muted);
+  --color-cat-fruit: var(--accent-orange);
+  --color-cat-fruit-muted: var(--accent-orange-muted);
+  --color-cat-grain: var(--accent-yellow);
+  --color-cat-grain-muted: var(--accent-yellow-muted);
+  --color-cat-dairy: var(--accent-sky);
+  --color-cat-dairy-muted: var(--accent-sky-muted);
+  --color-cat-spice: var(--accent-tomato);
+  --color-cat-spice-muted: var(--accent-tomato-muted);
+  --color-cat-pulse: var(--accent-berry);
+  --color-cat-pulse-muted: var(--accent-berry-muted);
+
+  /* Status */
   --color-success: var(--semantic-success);
   --color-success-muted: var(--semantic-success-muted);
   --color-warning: var(--semantic-warning);
@@ -143,11 +92,25 @@
   --color-info: var(--semantic-info);
   --color-info-muted: var(--semantic-info-muted);
 
+  /* Interaction */
   --color-state-hover: var(--state-hover);
   --color-state-active: var(--state-active);
   --color-state-disabled: var(--state-disabled);
 
-  /* Typography Scale */
+  /* Leaf scale (static: illustrations, charts, gradients) */
+  --color-leaf-50: #ECFBF1;
+  --color-leaf-100: #D2F5DF;
+  --color-leaf-200: #A8EAC2;
+  --color-leaf-300: #6FDA9B;
+  --color-leaf-400: #38CE77;
+  --color-leaf-500: #12A650;
+  --color-leaf-600: #098541;
+  --color-leaf-700: #076F36;
+  --color-leaf-800: #055C2D;
+  --color-leaf-900: #044A25;
+  --color-leaf-950: #022B15;
+
+  /* Typography scale */
   --text-display: 3.5rem;
   --text-heading-lg: 2.5rem;
   --text-heading: 2rem;
@@ -159,22 +122,24 @@
   --text-small: 0.75rem;
   /* 12px */
 
-  /* Border Radius */
+  /* Radius: friendly, rounded, like consumer apps */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --radius-2xl: 1.25rem;
+  --radius-3xl: 1.75rem;
   --radius-full: 9999px;
 
-  /* Premium Subtle Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-  --shadow-glow: 0 0 24px rgba(16, 185, 129, 0.15);
-  /* Brand glow */
+  /* Shadows: soft, with a green tint; coloured shadows give CTAs life */
+  --shadow-sm: 0 1px 2px rgba(14, 40, 24, 0.06);
+  --shadow-md: 0 4px 10px -2px rgba(14, 40, 24, 0.09), 0 2px 4px -2px rgba(14, 40, 24, 0.05);
+  --shadow-lg: 0 16px 32px -8px rgba(14, 40, 24, 0.14), 0 6px 12px -6px rgba(14, 40, 24, 0.07);
+  --shadow-glow: 0 0 32px rgba(18, 166, 80, 0.30);
+  --shadow-brand: 0 8px 20px -6px rgba(9, 133, 65, 0.50);
+  --shadow-sun: 0 8px 20px -6px rgba(255, 107, 44, 0.45);
 
-  /* Custom Animations - Reduced */
+  /* Animations */
   --animate-fade-in: fadeIn 0.3s ease-out;
   --animate-slide-up: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   --animate-scale-in: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -214,6 +179,137 @@
   }
 }
 
+/* --------------------------------------------------------------------------
+   2. Colour variables: light & dark
+   -------------------------------------------------------------------------- */
+@layer base {
+  :root {
+    color-scheme: light;
+
+    /* Backgrounds: crisp white cards on a fresh mint-tinted canvas */
+    --bg-main: #F3F9F5;
+    --bg-surface: #FFFFFF;
+    --bg-surface-elevated: #FFFFFF;
+
+    /* Text: deep green-black for a rich, high-contrast read */
+    --text-primary: #0E1B13;
+    --text-secondary: #435349;
+    --text-muted: #5F7066;
+
+    /* Borders */
+    --border-subtle: #DCE8DF;
+    --border-strong: #C3D4C8;
+
+    /* Brand: vivid Fresh Green (white text = 4.7:1) */
+    --brand-primary: #098541;
+    --brand-hover: #076F36;
+    --brand-active: #055C2D;
+    --brand-muted: #D8F5E3;
+    --brand-vivid: #19C26B;
+    /* decorative: icons, dots, charts, large shapes */
+    --text-on-brand: #FFFFFF;
+
+    /* Accents: bold, saturated, each with a soft tint */
+    --accent-yellow: #FFB400;
+    --accent-yellow-muted: #FFF3CC;
+    --accent-orange: #FF6B2C;
+    --accent-orange-muted: #FFE7DB;
+    --accent-tomato: #E8344E;
+    --accent-tomato-muted: #FDE2E7;
+    --accent-sky: #1A73E8;
+    /* buyer / trust / links */
+    --accent-sky-muted: #E1EDFD;
+    --accent-berry: #7B3FF2;
+    /* premium / verified */
+    --accent-berry-muted: #EDE4FE;
+
+    /* Status */
+    --semantic-success: #0C8A42;
+    --semantic-success-muted: #D8F5E3;
+    --semantic-warning: #B26A00;
+    --semantic-warning-muted: #FFF1CC;
+    --semantic-danger: #D92D3F;
+    --semantic-danger-muted: #FDE2E7;
+    --semantic-info: #1A73E8;
+    --semantic-info-muted: #E1EDFD;
+
+    /* Interactive states */
+    --state-hover: rgba(14, 27, 19, 0.045);
+    --state-active: rgba(14, 27, 19, 0.09);
+    --state-disabled: rgba(14, 27, 19, 0.38);
+
+    /* Gradients: heroes, banners, promos, never behind small text */
+    --gradient-harvest: linear-gradient(135deg, #0A9B4E 0%, #7ACB2E 55%, #FFC21A 100%);
+    --gradient-sunrise: linear-gradient(135deg, #FFB400 0%, #FF6B2C 50%, #E8344E 100%);
+    --gradient-sky: linear-gradient(135deg, #1A73E8 0%, #36C5F0 100%);
+    --gradient-berry: linear-gradient(135deg, #7B3FF2 0%, #E8344E 100%);
+    --gradient-text: linear-gradient(90deg, #098541 0%, #4CB82E 60%, #E0A100 100%);
+  }
+
+  .dark {
+    color-scheme: dark;
+
+    /* Backgrounds: deep forest-black, layered by elevation */
+    --bg-main: #0A120D;
+    --bg-surface: #101A14;
+    --bg-surface-elevated: #17241C;
+
+    /* Text */
+    --text-primary: #F3F8F5;
+    --text-secondary: #A6B5AC;
+    --text-muted: #7D8D84;
+
+    /* Borders */
+    --border-subtle: #213227;
+    --border-strong: #33493B;
+
+    /* Brand: glowing green, dark text on top (9:1 contrast) */
+    --brand-primary: #2FD477;
+    --brand-hover: #55E292;
+    --brand-active: #86EDB3;
+    --brand-muted: #0F3A22;
+    --brand-vivid: #2FD477;
+    --text-on-brand: #03150A;
+
+    /* Accents */
+    --accent-yellow: #FFC93D;
+    --accent-yellow-muted: #3D2E06;
+    --accent-orange: #FF8A57;
+    --accent-orange-muted: #45200F;
+    --accent-tomato: #FF6B7F;
+    --accent-tomato-muted: #4A1520;
+    --accent-sky: #5AA9FF;
+    --accent-sky-muted: #12305A;
+    --accent-berry: #A683FF;
+    --accent-berry-muted: #2C1B58;
+
+    /* Status */
+    --semantic-success: #3FD07F;
+    --semantic-success-muted: #0F3A22;
+    --semantic-warning: #FFC24D;
+    --semantic-warning-muted: #46300A;
+    --semantic-danger: #FF6B7F;
+    --semantic-danger-muted: #4A1520;
+    --semantic-info: #5AA9FF;
+    --semantic-info-muted: #12305A;
+
+    /* Interactive states */
+    --state-hover: rgba(243, 248, 245, 0.06);
+    --state-active: rgba(243, 248, 245, 0.10);
+    --state-disabled: rgba(243, 248, 245, 0.38);
+
+    /* Gradients (slightly deeper so they don't glare at night) */
+    --gradient-harvest: linear-gradient(135deg, #0A9B4E 0%, #5FB52A 55%, #E5A800 100%);
+    --gradient-sunrise: linear-gradient(135deg, #E59E00 0%, #E5561E 50%, #CF2A43 100%);
+    --gradient-sky: linear-gradient(135deg, #1A73E8 0%, #2A9CC8 100%);
+    --gradient-berry: linear-gradient(135deg, #6A34D6 0%, #CF2A43 100%);
+    --gradient-text: linear-gradient(90deg, #2FD477 0%, #8BE04E 60%, #FFC93D 100%);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3. Base styles
+   -------------------------------------------------------------------------- */
 @layer base {
 
   *,
@@ -230,6 +326,8 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    /* Inter contextual alternates for cleaner numerals and letterforms */
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
@@ -265,6 +363,16 @@
     @apply transition-colors duration-200;
   }
 
+  ::selection {
+    background-color: var(--brand-muted);
+    color: var(--text-primary);
+  }
+
+  /* Tabular numbers for prices, quantities, counters and data tables */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
   /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
@@ -283,7 +391,7 @@
     @apply bg-muted;
   }
 
-  /* Form Autofill styles for dark mode */
+  /* Form autofill: keeps theme colours in light and dark */
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus,
@@ -292,8 +400,25 @@
     -webkit-text-fill-color: var(--text-primary) !important;
     transition: background-color 5000s ease-in-out 0s;
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 }
 
+/* --------------------------------------------------------------------------
+   4. Utilities
+   -------------------------------------------------------------------------- */
 @layer utilities {
   .animate-in {
     animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -311,8 +436,39 @@
     @apply transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-border-strong;
   }
 
+  /* Gradient backgrounds: hero sections, promo banners, avatars, badges */
+  .bg-gradient-harvest {
+    background-image: var(--gradient-harvest);
+  }
+
+  .bg-gradient-sunrise {
+    background-image: var(--gradient-sunrise);
+  }
+
+  .bg-gradient-sky {
+    background-image: var(--gradient-sky);
+  }
+
+  .bg-gradient-berry {
+    background-image: var(--gradient-berry);
+  }
+
+  /* Gradient headline text (large display type only) */
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand to-brand-hover;
+    background-image: var(--gradient-text);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Primary call-to-action: vivid, lifted, tactile. Use on one button per view. */
+  .btn-primary {
+    @apply bg-brand text-on-brand font-semibold rounded-full shadow-brand transition-all duration-200 hover:bg-brand-hover hover:-translate-y-0.5 active:bg-brand-active active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
+  /* Deal / offer call-to-action */
+  .btn-deal {
+    @apply bg-accent-orange text-white font-semibold rounded-full shadow-sun transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-orange/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
 
   .mask-image-fade {

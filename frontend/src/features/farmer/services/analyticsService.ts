@@ -57,6 +57,17 @@ export interface BuyerAnalyticsData {
   spend_trend: TrendPoint[];
 }
 
+export interface PlatformStats {
+  total_farmers: number;
+  verified_farmers: number;
+  total_buyers: number;
+  total_orders: number;
+  completed_orders: number;
+  total_products: number;
+  cities_count: number;
+  partners: string[];
+}
+
 export const analyticsService = {
   getFarmerAnalytics: async (): Promise<FarmerAnalyticsData> => {
     const res = await api.get<FarmerAnalyticsData>('/analytics/farmer/');
@@ -65,6 +76,11 @@ export const analyticsService = {
 
   getBuyerAnalytics: async (): Promise<BuyerAnalyticsData> => {
     const res = await api.get<BuyerAnalyticsData>('/analytics/buyer/');
+    return res.data;
+  },
+
+  getPlatformStats: async (): Promise<PlatformStats> => {
+    const res = await api.get<PlatformStats>('/analytics/platform-stats/');
     return res.data;
   },
 };
