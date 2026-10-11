@@ -1,93 +1,77 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { ambientBackgroundVariants } from '@/utils/animations';
+import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowUpRight, Sprout, Store, Users } from 'lucide-react';
 import { Container } from '@/components/ui';
 
+const community = [
+  { label: 'Farmers', icon: Sprout, className: 'bg-brand/10 text-brand' },
+  { label: 'Buyers', icon: Users, className: 'bg-accent-sky-muted text-accent-sky' },
+  { label: 'One marketplace', icon: Store, className: 'bg-accent-berry-muted text-accent-berry' },
+];
+
 export const FutureVision = () => {
-  const [particles] = useState<Array<{x: number, y: number, duration: number, delay: number}>>(() => 
-    [...Array(12)].map(() => ({
-      x: Math.random() * 200 - 100,
-      y: Math.random() * 200 - 100,
-      duration: 2 + Math.random() * 2,
-      delay: Math.random() * 2,
-    }))
-  );
+  const prefersReducedMotion = useReducedMotion();
 
   return (
-    <section className="relative w-full min-h-[80vh] bg-surface flex flex-col items-center justify-center overflow-hidden py-32">
-      {/* Background glowing gradients */}
-      <motion.div 
-        variants={ambientBackgroundVariants}
-        animate="animate"
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand/5 rounded-full blur-[120px] pointer-events-none" 
-      />
-      
-      <Container className="relative z-10 text-center flex flex-col items-center">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.98, y: 24 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="max-w-4xl"
+    <section aria-labelledby="future-title" className="relative overflow-hidden bg-surface py-20 sm:py-24 lg:py-28">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -right-32 -top-40 h-96 w-96 rounded-full bg-brand/10 blur-3xl" />
+        <div className="absolute -bottom-40 -left-32 h-96 w-96 rounded-full bg-accent-sky/10 blur-3xl" />
+      </div>
+
+      <Container className="relative z-10 grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+        <motion.div
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         >
-          <h2 className="text-4xl md:text-6xl font-display font-bold leading-tight mb-8">
-            Building a <span className="text-gradient">smarter</span> agricultural ecosystem.
+          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.16em] text-brand">Better connections, from farm to buyer</p>
+          <h2 id="future-title" className="max-w-xl font-display text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
+            Fresh produce deserves a clearer path.
           </h2>
-          <p className="text-xl text-foreground-secondary mb-12 max-w-2xl mx-auto leading-relaxed">
-            Farmket isn't just a marketplace. It's a foundational layer for the future of agriculture, where data, AI, and direct connections empower everyone from the farm to the table.
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-foreground-secondary sm:text-lg">
+            Farmket gives growers and buyers one place to meet, discover produce, and make direct connections.
           </p>
+          <a
+            href="#how-it-works"
+            className="mt-7 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-brand px-5 py-3 text-sm font-semibold text-on-brand shadow-md transition duration-200 hover:-translate-y-0.5 hover:bg-brand-hover hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+          >
+            See the journey <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+          </a>
         </motion.div>
 
-        {/* Abstract Ecosystem representation */}
-        <div className="relative w-full max-w-3xl h-64 md:h-96 flex items-center justify-center mt-10">
-          
-          {/* Center */}
-          <motion.div 
-            animate={{ scale: [1, 1.05, 1] }} 
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute z-30 w-24 h-24 bg-surface rounded-full shadow-glow border-2 border-brand/50 flex items-center justify-center backdrop-blur-xl"
-          >
-            <div className="w-12 h-12 rounded-full bg-brand"></div>
-          </motion.div>
-
-          {/* Orbits */}
-          <motion.div 
-            animate={{ rotate: 360 }} 
-            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-            className="absolute z-20 w-64 h-64 rounded-full border border-border-strong"
-          >
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-orange-400"></div>
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-8 h-8 rounded-full bg-blue-400"></div>
-          </motion.div>
-
-          <motion.div 
-            animate={{ rotate: -360 }} 
-            transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-            className="absolute z-10 w-96 h-96 rounded-full border border-border-subtle hidden md:block"
-          >
-            <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-purple-400"></div>
-            <div className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-yellow-400"></div>
-          </motion.div>
-
-          {/* Data particles */}
-          {particles.map((particle, i) => (
-             <motion.div 
-               key={i}
-               className="absolute w-1 h-1 bg-brand rounded-full z-20"
-               animate={{ 
-                 opacity: [0, 1, 0],
-                 scale: [1, 2, 1],
-                 x: [particle.x, 0],
-                 y: [particle.y, 0]
-               }}
-               transition={{ 
-                 duration: particle.duration, 
-                 repeat: Infinity, 
-                 delay: particle.delay 
-               }}
-             />
+        <motion.ul
+          aria-label="Who Farmket brings together"
+          initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.97 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.55, delay: prefersReducedMotion ? 0 : 0.1 }}
+          className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1"
+        >
+          {community.map(({ label, icon: Icon, className }, index) => (
+            <motion.li
+              key={label}
+              whileHover={prefersReducedMotion ? undefined : { x: 4 }}
+              transition={{ duration: 0.2 }}
+              className="flex items-center gap-4 rounded-2xl border border-border-subtle bg-background/80 p-4 shadow-sm sm:flex-col sm:items-start sm:p-5 lg:flex-row lg:items-center"
+            >
+              <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${className}`}>
+                <Icon aria-hidden="true" className="h-5 w-5" />
+              </span>
+              <div className="flex-1">
+                <p className="font-display font-semibold">{label}</p>
+                <p className="mt-1 text-sm text-foreground-secondary">
+                  {index === 0 && 'Share fresh produce and reach new customers.'}
+                  {index === 1 && 'Discover listings and connect with growers.'}
+                  {index === 2 && 'Bring supply and demand closer together.'}
+                </p>
+              </div>
+              {index < community.length - 1 && (
+                <span aria-hidden="true" className="hidden text-border-strong sm:block lg:hidden">↓</span>
+              )}
+            </motion.li>
           ))}
-
-        </div>
+        </motion.ul>
       </Container>
     </section>
   );

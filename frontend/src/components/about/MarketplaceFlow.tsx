@@ -1,109 +1,95 @@
-import { type ComponentType } from 'react';
-import { motion } from 'framer-motion';
-import { User, Wheat, Store, ShoppingCart, CheckCircle } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowRight, Search, Sprout, Store } from 'lucide-react';
 import { Container } from '@/components/ui';
 
-const FlowNode = ({ 
-  icon: Icon, 
-  title, 
-  subtitle, 
-  index, 
-  totalNodes,
-}: { 
-  icon: ComponentType<{ className?: string }>, 
-  title: string, 
-  subtitle: string, 
-  index: number,
-  totalNodes: number,
-}) => {
-  const isLast = index === totalNodes - 1;
-
-  return (
-    <div className="relative flex flex-col items-center w-full max-w-[200px]">
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6, delay: index * 0.2 }}
-        className="z-10"
-      >
-        <motion.div
-          animate={{ y: [0, -4, 0] }}
-          transition={{ duration: 4, repeat: Infinity, delay: index * 0.5, ease: 'easeInOut' }}
-          className="w-24 h-24 rounded-2xl bg-surface border-2 border-border-strong flex flex-col items-center justify-center shadow-lg relative overflow-hidden"
-        >
-          <div className="absolute inset-0 bg-brand/10 translate-y-full group-hover:translate-y-0 transition-transform"></div>
-          <Icon className="w-10 h-10 text-foreground mb-1" />
-        </motion.div>
-      </motion.div>
-
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: index * 0.2 + 0.3 }}
-        className="mt-6 text-center"
-      >
-        <h4 className="font-bold text-lg">{title}</h4>
-        <p className="text-sm text-foreground-secondary">{subtitle}</p>
-      </motion.div>
-
-      {!isLast && (
-        <div className="absolute top-12 left-24 w-[calc(100%-48px)] md:w-[calc(100vw/5)] h-0.5 bg-border-subtle -z-10 hidden md:block overflow-hidden">
-          <motion.div 
-            className="h-full bg-brand origin-left"
-            initial={{ scaleX: 0, opacity: 1 }}
-            animate={{ scaleX: 1, opacity: [1, 1, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity, delay: index * 0.2, ease: 'linear' }}
-          />
-        </div>
-      )}
-      {!isLast && (
-        <div className="w-0.5 h-16 bg-border-subtle md:hidden my-4 relative overflow-hidden">
-          <motion.div 
-            className="w-full bg-brand origin-top"
-            initial={{ scaleY: 0, opacity: 1 }}
-            animate={{ scaleY: 1, opacity: [1, 1, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity, delay: index * 0.2, ease: 'linear' }}
-          />
-        </div>
-      )}
-    </div>
-  );
-};
+const steps = [
+  {
+    number: '01',
+    label: 'For farmers',
+    title: 'List what you grow',
+    description: 'Share available produce, quantity, and harvest details in one place.',
+    icon: Sprout,
+    color: 'text-brand',
+    tint: 'bg-brand/10',
+  },
+  {
+    number: '02',
+    label: 'On Farmket',
+    title: 'Get discovered',
+    description: 'Relevant listings are easier to find with clear details and smart matching.',
+    icon: Store,
+    color: 'text-accent-berry',
+    tint: 'bg-accent-berry-muted',
+  },
+  {
+    number: '03',
+    label: 'For buyers',
+    title: 'Source farm-direct',
+    description: 'Explore fresh options, compare what matters, and connect with growers.',
+    icon: Search,
+    color: 'text-accent-sky',
+    tint: 'bg-accent-sky-muted',
+  },
+];
 
 export const MarketplaceFlow = () => {
-  const nodes = [
-    { icon: User, title: "Farmer", subtitle: "Harvests crop" },
-    { icon: Wheat, title: "Product", subtitle: "Digitized inventory" },
-    { icon: Store, title: "Marketplace", subtitle: "AI matchmaking" },
-    { icon: ShoppingCart, title: "Buyer", subtitle: "Purchases goods" },
-    { icon: CheckCircle, title: "Order", subtitle: "Fulfilled securely" }
-  ];
+  const prefersReducedMotion = useReducedMotion();
 
   return (
-    <section className="bg-background py-32 relative">
+    <section id="how-it-works" aria-labelledby="journey-title" className="scroll-mt-20 bg-surface py-20 sm:py-24 lg:py-28">
       <Container>
-        <motion.div 
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-20"
+        <motion.div
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="mx-auto mb-12 max-w-2xl text-center sm:mb-16"
         >
-          <h2 className="text-3xl md:text-5xl font-display font-bold mb-6">The seamless flow of trade.</h2>
-          <p className="text-lg text-foreground-secondary max-w-2xl mx-auto">
-            Farmket streamlines the agricultural supply chain, removing friction at every step from farm to table.
+          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.16em] text-brand">How Farmket works</p>
+          <h2 id="journey-title" className="font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+            Three steps. A more direct journey.
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-foreground-secondary sm:text-lg">
+            Farmket helps fresh produce move from the people who grow it to the people who need it.
           </p>
         </motion.div>
 
-        <div className="w-full flex flex-col md:flex-row items-center justify-between relative pb-32">
-          {nodes.map((node, index) => (
-            <FlowNode 
-              key={index}
-              index={index}
-              totalNodes={nodes.length}
-              {...node}
-            />
+        <ol className="relative grid gap-4 md:grid-cols-3 md:gap-6">
+          {steps.map(({ number, label, title, description, icon: Icon, color, tint }, index) => (
+            <motion.li
+              key={number}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.45, delay: prefersReducedMotion ? 0 : index * 0.1, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={prefersReducedMotion ? undefined : { y: -4 }}
+              className="group relative rounded-2xl border border-border-subtle bg-background p-6 shadow-sm transition-shadow duration-300 hover:shadow-md sm:p-7"
+            >
+              <div className="mb-8 flex items-center justify-between">
+                <span className="text-sm font-semibold tracking-widest text-foreground-secondary">{number}</span>
+                <span className={`flex h-12 w-12 items-center justify-center rounded-xl ${tint} ${color} transition-transform duration-300 group-hover:scale-105`}>
+                  <Icon aria-hidden="true" className="h-6 w-6" />
+                </span>
+              </div>
+              <p className={`mb-2 text-xs font-semibold uppercase tracking-wider ${color}`}>{label}</p>
+              <h3 className="font-display text-xl font-bold tracking-tight">{title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-foreground-secondary sm:text-base">{description}</p>
+              {index < steps.length - 1 && (
+                <ArrowRight aria-hidden="true" className="absolute -right-[1.15rem] top-1/2 z-10 hidden h-5 w-5 -translate-y-1/2 text-border-strong md:block" />
+              )}
+            </motion.li>
           ))}
-        </div>
+        </ol>
+
+        <motion.p
+          initial={prefersReducedMotion ? false : { opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, amount: 0.8 }}
+          transition={{ duration: 0.5, delay: prefersReducedMotion ? 0 : 0.3 }}
+          className="mt-8 text-center text-sm text-foreground-secondary"
+        >
+          Less friction between harvest and the people looking for it.
+        </motion.p>
       </Container>
     </section>
   );
