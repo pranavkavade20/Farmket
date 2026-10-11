@@ -30,7 +30,7 @@ const GooglePlayIcon = ({ className = "w-7 h-7" }) => (
 
 export const CTASection = () => {
   return (
-    <section className="w-full bg-background py-24 lg:py-32 overflow-hidden transition-colors duration-300">
+    <section className="w-full bg-background py-16 md:py-20 overflow-hidden transition-colors duration-300">
       <div className="mx-auto max-w-[1440px] px-6 sm:px-8 lg:px-12">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

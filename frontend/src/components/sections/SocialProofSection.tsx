@@ -165,18 +165,18 @@ export const SocialProofSection = () => {
   ];
 
   return (
-    <section className="w-full bg-surface py-16 md:py-24 overflow-hidden font-sans transition-colors duration-300">
+    <section className="w-full bg-surface py-12 md:py-16 overflow-hidden font-sans transition-colors duration-300">
       <div className="mx-auto w-full max-w-6xl px-6 lg:px-8">
 
         {/* Section Header */}
-        <div className="flex justify-center mb-16">
+        <div className="flex justify-center mb-8">
           <h2 className="text-xs md:text-sm font-bold text-foreground-secondary uppercase tracking-[0.2em] text-center transition-colors duration-300">
             Trusted by the agricultural community across India
           </h2>
         </div>
 
         {/* Ambient Marquee with real community partners */}
-        <div className="w-full max-w-5xl mx-auto overflow-hidden relative mb-20 md:mb-24">
+        <div className="w-full max-w-5xl mx-auto overflow-hidden relative mb-10 md:mb-12">
           {/* Smooth gradient masks matching the surface background */}
           <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-surface to-transparent z-10 pointer-events-none transition-colors duration-300" />
           <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-surface to-transparent z-10 pointer-events-none transition-colors duration-300" />
@@ -198,11 +198,11 @@ export const SocialProofSection = () => {
         </div>
 
         {/* Minimalist Divider */}
-        <div className="w-full h-[1px] bg-border-subtle mb-16 md:mb-20 max-w-5xl mx-auto transition-colors duration-300" />
+        <div className="w-full h-[1px] bg-border-subtle mb-10 md:mb-12 max-w-5xl mx-auto transition-colors duration-300" />
 
         {/* Stats Grid */}
         {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-12 max-w-5xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-8 max-w-5xl mx-auto">
             {[0, 1, 2, 3].map((idx) => (
               <div key={idx} className="flex flex-col items-center justify-center text-center">
                 <Skeleton className="h-12 md:h-14 w-28 md:w-36 mb-3 rounded-xl" />
@@ -211,7 +211,7 @@ export const SocialProofSection = () => {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-12 max-w-5xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-8 max-w-5xl mx-auto">
             {stats.map((stat, idx) => (
               <motion.div
                 key={stat.label}

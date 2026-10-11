@@ -30,18 +30,18 @@ const testimonials = [
 
 export const SuccessStoriesSection = () => {
   return (
-    <section id="success-stories" className="relative w-full bg-surface py-24 lg:py-32 border-b border-border-subtle overflow-hidden font-sans transition-colors duration-300">
+    <section id="success-stories" className="relative w-full bg-surface py-16 md:py-20 border-y border-border-subtle overflow-hidden font-sans transition-colors duration-300">
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
 
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-20 flex flex-col items-center">
+        <div className="text-center max-w-3xl mx-auto mb-12 flex flex-col items-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="inline-flex items-center gap-2 mb-6"
+            className="inline-flex items-center gap-2 mb-4"
           >
             <Star className="w-4 h-4 text-accent-yellow fill-current" />
             <span className="text-xs font-bold text-foreground-secondary uppercase tracking-[0.2em]">
@@ -54,7 +54,7 @@ export const SuccessStoriesSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ delay: 0.1, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="text-4xl md:text-5xl lg:text-6xl font-display font-black text-foreground tracking-tighter mb-6 leading-[1.1] transition-colors duration-300"
+            className="text-4xl md:text-5xl lg:text-6xl font-display font-black text-foreground tracking-tighter mb-4 leading-[1.1] transition-colors duration-300"
           >
             Don't just take our <span className="text-accent-yellow">word for it.</span>
           </motion.h2>

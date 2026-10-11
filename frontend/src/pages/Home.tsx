@@ -16,7 +16,7 @@ import {
   CTASection
 } from '@/components/sections';
 
-import { Container, Section, Stack } from '@/components/ui';
+import { Container, Section } from '@/components/ui';
 
 const Home = () => {
   useSEO({
@@ -52,45 +52,41 @@ const Home = () => {
   return (
     <div className="flex flex-col bg-background w-full min-h-screen transition-colors duration-300 text-foreground">
 
-      {/* 1. Hero */}
       <HeroSection />
 
-      {/* 2. Social Proof */}
-      <SocialProofSection />
-
-      {/* 3. Marketplace Preview */}
-      <Section className="bg-surface border-b border-border-subtle" spacing="lg">
+      <Section className="bg-surface border-y border-border-subtle" spacing="md">
         <Container>
           <PopularCategories categories={categoriesList} />
         </Container>
       </Section>
 
-      {/* Products Band */}
-      <Section className="bg-background border-t border-border-subtle" spacing="lg">
+      <Section className="bg-background" spacing="lg">
         <Container>
-          <Stack gap="xl">
-            <WeeklyBestSelling
-              products={products.slice(0, 5).reverse()}
-              onAddToCart={handleAddToCart}
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-            />
-
-            <ProductGridSection
-              title="Trending Products"
-              products={products.slice(0, 5)}
-              onAddToCart={handleAddToCart}
-              badge="Trending"
-            />
-          </Stack>
+          <WeeklyBestSelling
+            products={products.slice(0, 4)}
+            onAddToCart={handleAddToCart}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+          />
         </Container>
       </Section>
 
-      {/* Activity and Testimonials */}
-      <div className="mt-8 border-t border-border-subtle bg-surface">
-        <SuccessStoriesSection />
-      </div>
+      <SocialProofSection />
 
+      {products.length > 4 && (
+        <Section className="bg-background" spacing="lg">
+          <Container>
+            <ProductGridSection
+              title="Trending Products"
+              products={products.slice(4, 8)}
+              onAddToCart={handleAddToCart}
+              badge="Trending"
+            />
+          </Container>
+        </Section>
+      )}
+
+      <SuccessStoriesSection />
       <CTASection />
 
     </div>
