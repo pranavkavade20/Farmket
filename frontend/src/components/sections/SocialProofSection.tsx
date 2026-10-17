@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
+import {
+  Scale,
+  PackageSearch,
+  UserCheck,
+  ShoppingBag,
+} from 'lucide-react';
 import { analyticsService, type PlatformStats } from '@/features/farmer';
 import { Skeleton } from '@/components/ui';
-
-const DEFAULT_PARTNERS = [
-  "AgriTech India", "Kisan Connect", "FarmFresh", "GreenHarvest", "EcoFoods", "AgroTrade", "BharatFarms", "NatureBasket"
-];
 
 function formatStatConfig(rawNumber: number) {
   if (rawNumber >= 1_000_000) {
@@ -28,25 +30,29 @@ interface AnimatedCounterProps {
   isMillion?: boolean;
 }
 
-const AnimatedCounter = ({ target, suffix, isMillion }: AnimatedCounterProps) => {
-  const [count, setCount] = useState(0);
+const AnimatedCounter = ({
+  target,
+  suffix,
+  isMillion,
+}: AnimatedCounterProps) => {
+  const shouldReduceMotion = useReducedMotion();
+  const [count, setCount] = useState(shouldReduceMotion ? target : 0);
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-40px' });
 
   useEffect(() => {
     if (!isInView) return;
-    if (target <= 0) {
-      setCount(0);
+    if (target <= 0 || shouldReduceMotion) {
+      setCount(Math.max(0, target));
       return;
     }
 
-    const duration = 1200;
+    const duration = 900;
     const startTime = performance.now();
 
     const update = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      // easeOutCubic
       const ease = 1 - Math.pow(1 - progress, 3);
 
       if (isMillion) {
@@ -64,26 +70,47 @@ const AnimatedCounter = ({ target, suffix, isMillion }: AnimatedCounterProps) =>
 
     const frameId = requestAnimationFrame(update);
     return () => cancelAnimationFrame(frameId);
-  }, [isInView, target, isMillion]);
+  }, [isInView, target, isMillion, shouldReduceMotion]);
 
   const display = isMillion ? count.toFixed(1) : count.toLocaleString();
 
   return (
     <div
       ref={ref}
-      className="text-5xl md:text-6xl font-black text-foreground tracking-tighter mb-2 flex items-baseline transition-colors duration-300"
+      className="text-3xl sm:text-4xl font-display font-black text-foreground tracking-tight mb-1 flex items-baseline"
     >
-      {display}
-      <span
-        className={`text-4xl md:text-5xl tracking-normal transition-colors duration-300 ${
-          suffix === 'M+' ? 'text-brand ml-1' : 'text-foreground'
-        }`}
-      >
-        {suffix}
-      </span>
+      <span>{display}</span>
+      <span className="text-2xl sm:text-3xl text-brand ml-0.5">{suffix}</span>
     </div>
   );
 };
+
+const PLATFORM_CAPABILITIES = [
+  {
+    icon: Scale,
+    title: 'Direct Unit Pricing',
+    description:
+      'Farmers publish exact rates per kg, quintal, crate, or unit so buyers see transparent base pricing.',
+  },
+  {
+    icon: PackageSearch,
+    title: 'Structured Crop Discovery',
+    description:
+      'Browse produce organized by agricultural category with clear stock availability on every card.',
+  },
+  {
+    icon: UserCheck,
+    title: 'Dedicated Farmer Dashboard',
+    description:
+      'Producers manage their own product catalog, update harvest quantities, and control active listings.',
+  },
+  {
+    icon: ShoppingBag,
+    title: 'Streamlined Buyer Cart',
+    description:
+      'Buyers evaluate multiple farm listings and add available agricultural produce directly to their cart.',
+  },
+];
 
 export const SocialProofSection = () => {
   const [statsData, setStatsData] = useState<PlatformStats | null>(null);
@@ -110,11 +137,6 @@ export const SocialProofSection = () => {
     };
   }, []);
 
-  const partnersList =
-    statsData?.partners && statsData.partners.length > 0
-      ? statsData.partners
-      : DEFAULT_PARTNERS;
-
   const farmersCount =
     (statsData?.verified_farmers ?? 0) > 0
       ? (statsData?.verified_farmers ?? 0)
@@ -129,115 +151,150 @@ export const SocialProofSection = () => {
 
   const ordersLabel =
     (statsData?.completed_orders ?? 0) > 0
-      ? 'Successful Orders'
+      ? 'Completed Orders'
       : 'Orders Placed';
 
-  const citiesCount =
+  const citiesOrProductsCount =
     (statsData?.cities_count ?? 0) > 0
       ? (statsData?.cities_count ?? 0)
       : (statsData?.total_products ?? 0);
 
-  const citiesLabel =
+  const citiesOrProductsLabel =
     (statsData?.cities_count ?? 0) > 0
-      ? 'Cities Covered'
+      ? 'Locations Reached'
       : 'Products Listed';
 
-  const stats = [
+  const rawStats = [
     {
       label:
         (statsData?.verified_farmers ?? 0) > 0
           ? 'Verified Farmers'
           : 'Registered Farmers',
+      raw: farmersCount,
       ...formatStatConfig(farmersCount),
     },
     {
-      label: 'Active Buyers',
+      label: 'Registered Buyers',
+      raw: buyersCount,
       ...formatStatConfig(buyersCount),
     },
     {
       label: ordersLabel,
+      raw: ordersCount,
       ...formatStatConfig(ordersCount),
     },
     {
-      label: citiesLabel,
-      ...formatStatConfig(citiesCount),
+      label: citiesOrProductsLabel,
+      raw: citiesOrProductsCount,
+      ...formatStatConfig(citiesOrProductsCount),
     },
   ];
 
-  return (
-    <section className="w-full bg-surface py-12 md:py-16 overflow-hidden font-sans transition-colors duration-300">
-      <div className="mx-auto w-full max-w-6xl px-6 lg:px-8">
+  // Only render live numeric counters that actually have positive values from the backend
+  const positiveStats = rawStats.filter((item) => item.raw > 0);
+  const verifiedPartners =
+    statsData?.partners && statsData.partners.length > 0
+      ? statsData.partners
+      : [];
 
-        {/* Section Header */}
-        <div className="flex justify-center mb-8">
-          <h2 className="text-xs md:text-sm font-bold text-foreground-secondary uppercase tracking-[0.2em] text-center transition-colors duration-300">
-            Trusted by the agricultural community across India
-          </h2>
+  return (
+    <section
+      aria-label="Platform capabilities and marketplace transparency"
+      className="w-full bg-surface border-b border-border-subtle py-12 md:py-16 font-sans transition-colors duration-300"
+    >
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Core Marketplace Transparency Pillars */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {PLATFORM_CAPABILITIES.map((capability) => {
+            const IconComponent = capability.icon;
+            return (
+              <div
+                key={capability.title}
+                className="rounded-2xl bg-background border border-border-subtle p-5 sm:p-6 flex flex-col justify-between transition-colors hover:border-border-strong"
+              >
+                <div>
+                  <div className="h-10 w-10 rounded-xl bg-surface border border-border-subtle flex items-center justify-center text-brand mb-4">
+                    <IconComponent className="w-5 h-5" aria-hidden="true" />
+                  </div>
+                  <h2 className="text-base font-bold text-foreground mb-1.5">
+                    {capability.title}
+                  </h2>
+                  <p className="text-xs sm:text-sm text-foreground-secondary leading-relaxed">
+                    {capability.description}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
-        {/* Ambient Marquee with real community partners */}
-        <div className="w-full max-w-5xl mx-auto overflow-hidden relative mb-10 md:mb-12">
-          {/* Smooth gradient masks matching the surface background */}
-          <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-surface to-transparent z-10 pointer-events-none transition-colors duration-300" />
-          <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-surface to-transparent z-10 pointer-events-none transition-colors duration-300" />
-
-          <motion.div
-            className="flex whitespace-nowrap gap-16 md:gap-24 items-center w-max"
-            animate={{ x: ["0%", "-50%"] }}
-            transition={{ repeat: Infinity, duration: 45, ease: "linear" }}
+        {/* Live Platform Activity Metrics (Rendered only while loading or when real positive stats exist) */}
+        {loading ? (
+          <div
+            className="mt-10 pt-8 border-t border-border-subtle grid grid-cols-2 md:grid-cols-4 gap-6"
+            aria-busy="true"
+            aria-label="Loading live platform statistics"
           >
-            {[...partnersList, ...partnersList].map((partner, idx) => (
+            {[0, 1, 2, 3].map((idx) => (
               <div
                 key={idx}
-                className="flex-shrink-0 text-2xl md:text-3xl font-bold text-border-strong opacity-40 tracking-tight select-none pointer-events-none transition-colors duration-300"
+                className="flex flex-col items-center justify-center text-center"
               >
-                {partner}
-              </div>
-            ))}
-          </motion.div>
-        </div>
-
-        {/* Minimalist Divider */}
-        <div className="w-full h-[1px] bg-border-subtle mb-10 md:mb-12 max-w-5xl mx-auto transition-colors duration-300" />
-
-        {/* Stats Grid */}
-        {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-8 max-w-5xl mx-auto">
-            {[0, 1, 2, 3].map((idx) => (
-              <div key={idx} className="flex flex-col items-center justify-center text-center">
-                <Skeleton className="h-12 md:h-14 w-28 md:w-36 mb-3 rounded-xl" />
-                <Skeleton className="h-4 md:h-5 w-20 md:w-28 rounded-md" />
+                <Skeleton className="h-9 w-24 mb-2 rounded-lg" />
+                <Skeleton className="h-4 w-28 rounded-md" />
               </div>
             ))}
           </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-8 max-w-5xl mx-auto">
-            {stats.map((stat, idx) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{
-                  delay: idx * 0.1,
-                  duration: 0.8,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="flex flex-col items-center justify-center text-center"
+        ) : positiveStats.length > 0 ? (
+          <div className="mt-10 pt-8 border-t border-border-subtle">
+            <div
+              className={`grid grid-cols-2 ${
+                positiveStats.length >= 4
+                  ? 'md:grid-cols-4'
+                  : positiveStats.length === 3
+                    ? 'md:grid-cols-3'
+                    : 'md:grid-cols-2'
+              } gap-6 max-w-5xl mx-auto`}
+            >
+              {positiveStats.map((stat, idx) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 12 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{ delay: idx * 0.08, duration: 0.45 }}
+                  className="flex flex-col items-center justify-center text-center p-4 rounded-xl bg-background/60 border border-border-subtle"
+                >
+                  <AnimatedCounter
+                    target={stat.target}
+                    suffix={stat.suffix}
+                    isMillion={stat.isMillion}
+                  />
+                  <p className="text-xs sm:text-sm text-foreground-secondary font-semibold">
+                    {stat.label}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        {/* Verified Community Partners (Only shown when returned by backend API) */}
+        {!loading && verifiedPartners.length > 0 && (
+          <div className="mt-8 pt-6 border-t border-border-subtle flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
+            <span className="text-xs font-semibold uppercase tracking-wider text-foreground-secondary">
+              Participating Organizations:
+            </span>
+            {verifiedPartners.map((partner) => (
+              <span
+                key={partner}
+                className="text-xs sm:text-sm font-bold text-foreground-secondary"
               >
-                <AnimatedCounter
-                  target={stat.target}
-                  suffix={stat.suffix}
-                  isMillion={stat.isMillion}
-                />
-                <p className="text-sm md:text-base text-foreground-secondary font-medium transition-colors duration-300">
-                  {stat.label}
-                </p>
-              </motion.div>
+                {partner}
+              </span>
             ))}
           </div>
         )}
-
       </div>
     </section>
   );
