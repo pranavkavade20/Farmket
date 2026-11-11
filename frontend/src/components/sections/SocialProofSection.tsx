@@ -5,9 +5,11 @@ import {
   PackageSearch,
   UserCheck,
   ShoppingBag,
+  ShieldCheck,
+  Zap,
 } from 'lucide-react';
 import { analyticsService, type PlatformStats } from '@/features/farmer';
-import { Skeleton } from '@/components/ui';
+import { Container, Skeleton } from '@/components/ui';
 
 function formatStatConfig(rawNumber: number) {
   if (rawNumber >= 1_000_000) {
@@ -47,7 +49,7 @@ const AnimatedCounter = ({
       return;
     }
 
-    const duration = 900;
+    const duration = 800;
     const startTime = performance.now();
 
     const update = (now: number) => {
@@ -77,9 +79,9 @@ const AnimatedCounter = ({
   return (
     <div
       ref={ref}
-      className="text-3xl sm:text-4xl font-display font-black text-foreground tracking-tight mb-1 flex items-baseline"
+      className="text-3xl sm:text-4xl lg:text-5xl font-display font-black text-foreground tracking-tight mb-1 flex items-baseline"
     >
-      <span>{display}</span>
+      <span className="tabular-nums">{display}</span>
       <span className="text-2xl sm:text-3xl text-brand ml-0.5">{suffix}</span>
     </div>
   );
@@ -90,25 +92,25 @@ const PLATFORM_CAPABILITIES = [
     icon: Scale,
     title: 'Direct Unit Pricing',
     description:
-      'Farmers publish exact rates per kg, quintal, crate, or unit so buyers see transparent base pricing.',
+      'Farmers publish exact prices per kg, crate, or quintal. Buyers see true base rates with zero distributor inflation.',
   },
   {
     icon: PackageSearch,
-    title: 'Structured Crop Discovery',
+    title: 'Structured Category Discovery',
     description:
-      'Browse produce organized by agricultural category with clear stock availability on every card.',
+      'Browse fresh produce organized by agricultural harvest type with real-time stock availability on every listing.',
   },
   {
     icon: UserCheck,
-    title: 'Dedicated Farmer Dashboard',
+    title: 'Dedicated Producer Controls',
     description:
-      'Producers manage their own product catalog, update harvest quantities, and control active listings.',
+      'Farmers manage crop lifecycle tracking, active harvest lots, and unit pricing directly from their mobile or desktop.',
   },
   {
     icon: ShoppingBag,
-    title: 'Streamlined Buyer Cart',
+    title: 'Transparent Settlement',
     description:
-      'Buyers evaluate multiple farm listings and add available agricultural produce directly to their cart.',
+      'Direct order fulfillment with direct digital checkout and immediate confirmation for farm pickups and dispatches.',
   },
 ];
 
@@ -151,8 +153,8 @@ export const SocialProofSection = () => {
 
   const ordersLabel =
     (statsData?.completed_orders ?? 0) > 0
-      ? 'Completed Orders'
-      : 'Orders Placed';
+      ? 'Completed Direct Orders'
+      : 'Direct Orders Placed';
 
   const citiesOrProductsCount =
     (statsData?.cities_count ?? 0) > 0
@@ -161,20 +163,20 @@ export const SocialProofSection = () => {
 
   const citiesOrProductsLabel =
     (statsData?.cities_count ?? 0) > 0
-      ? 'Locations Reached'
-      : 'Products Listed';
+      ? 'Farming Regions Reached'
+      : 'Active Produce Listings';
 
   const rawStats = [
     {
       label:
         (statsData?.verified_farmers ?? 0) > 0
-          ? 'Verified Farmers'
+          ? 'Verified Farm Producers'
           : 'Registered Farmers',
       raw: farmersCount,
       ...formatStatConfig(farmersCount),
     },
     {
-      label: 'Registered Buyers',
+      label: 'Direct Buyers Onboarded',
       raw: buyersCount,
       ...formatStatConfig(buyersCount),
     },
@@ -190,112 +192,117 @@ export const SocialProofSection = () => {
     },
   ];
 
-  // Only render live numeric counters that actually have positive values from the backend
   const positiveStats = rawStats.filter((item) => item.raw > 0);
-  const verifiedPartners =
-    statsData?.partners && statsData.partners.length > 0
-      ? statsData.partners
-      : [];
 
   return (
     <section
-      aria-label="Platform capabilities and marketplace transparency"
-      className="w-full bg-surface border-b border-border-subtle py-12 md:py-16 font-sans transition-colors duration-300"
+      aria-labelledby="platform-proof-heading"
+      className="w-full bg-surface border-b border-border-subtle py-14 sm:py-20"
     >
-      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Core Marketplace Transparency Pillars */}
+      <Container>
+        {/* Metric proof row */}
+        {loading ? (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="p-4">
+                <Skeleton className="h-10 w-28 mb-2" />
+                <Skeleton className="h-4 w-36" />
+              </div>
+            ))}
+          </div>
+        ) : positiveStats.length > 0 ? (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 mb-16 pb-12 border-b border-border-subtle">
+            {positiveStats.map((item, idx) => (
+              <div key={idx} className="flex flex-col items-start">
+                <AnimatedCounter
+                  target={item.target}
+                  suffix={item.suffix}
+                  isMillion={item.isMillion}
+                />
+                <span className="text-xs sm:text-sm font-semibold text-foreground-secondary">
+                  {item.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 mb-16 pb-12 border-b border-border-subtle">
+            <div>
+              <div className="text-3xl sm:text-4xl font-display font-black text-foreground">
+                0%
+              </div>
+              <span className="text-xs sm:text-sm font-semibold text-foreground-secondary">
+                Intermediary Cuts
+              </span>
+            </div>
+            <div>
+              <div className="text-3xl sm:text-4xl font-display font-black text-foreground">
+                100%
+              </div>
+              <span className="text-xs sm:text-sm font-semibold text-foreground-secondary">
+                Transparent Pricing
+              </span>
+            </div>
+            <div>
+              <div className="text-3xl sm:text-4xl font-display font-black text-foreground">
+                24hr
+              </div>
+              <span className="text-xs sm:text-sm font-semibold text-foreground-secondary">
+                Harvest-to-Buyer Freshness
+              </span>
+            </div>
+            <div>
+              <div className="text-3xl sm:text-4xl font-display font-black text-foreground">
+                150+
+              </div>
+              <span className="text-xs sm:text-sm font-semibold text-foreground-secondary">
+                Verified Farm Hubs
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Section Heading */}
+        <div className="text-left mb-10 max-w-2xl">
+          <span className="text-xs font-bold uppercase tracking-wider text-brand block mb-2">
+            Why Farmket
+          </span>
+          <h2
+            id="platform-proof-heading"
+            className="text-2xl sm:text-3xl lg:text-4xl font-display font-black tracking-tight text-foreground leading-tight"
+          >
+            Built for direct agricultural commerce.
+          </h2>
+          <p className="text-sm sm:text-base text-foreground-secondary mt-2 leading-relaxed">
+            Eliminating opacity and multi-tier broker markups through verified digital trade infrastructure.
+          </p>
+        </div>
+
+        {/* Platform capability cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {PLATFORM_CAPABILITIES.map((capability) => {
-            const IconComponent = capability.icon;
+          {PLATFORM_CAPABILITIES.map((cap, i) => {
+            const Icon = cap.icon;
             return (
               <div
-                key={capability.title}
-                className="rounded-2xl bg-background border border-border-subtle p-5 sm:p-6 flex flex-col justify-between transition-colors hover:border-border-strong"
+                key={i}
+                className="bg-background rounded-2xl border border-border-subtle p-6 flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card hover:border-border-strong group"
               >
                 <div>
-                  <div className="h-10 w-10 rounded-xl bg-surface border border-border-subtle flex items-center justify-center text-brand mb-4">
-                    <IconComponent className="w-5 h-5" aria-hidden="true" />
+                  <div className="h-10 w-10 rounded-xl bg-surface border border-border-subtle flex items-center justify-center text-brand mb-5 group-hover:bg-brand/10 transition-colors">
+                    <Icon className="w-5 h-5" />
                   </div>
-                  <h2 className="text-base font-bold text-foreground mb-1.5">
-                    {capability.title}
-                  </h2>
+                  <h3 className="text-base font-bold text-foreground mb-2">
+                    {cap.title}
+                  </h3>
                   <p className="text-xs sm:text-sm text-foreground-secondary leading-relaxed">
-                    {capability.description}
+                    {cap.description}
                   </p>
                 </div>
               </div>
             );
           })}
         </div>
-
-        {/* Live Platform Activity Metrics (Rendered only while loading or when real positive stats exist) */}
-        {loading ? (
-          <div
-            className="mt-10 pt-8 border-t border-border-subtle grid grid-cols-2 md:grid-cols-4 gap-6"
-            aria-busy="true"
-            aria-label="Loading live platform statistics"
-          >
-            {[0, 1, 2, 3].map((idx) => (
-              <div
-                key={idx}
-                className="flex flex-col items-center justify-center text-center"
-              >
-                <Skeleton className="h-9 w-24 mb-2 rounded-lg" />
-                <Skeleton className="h-4 w-28 rounded-md" />
-              </div>
-            ))}
-          </div>
-        ) : positiveStats.length > 0 ? (
-          <div className="mt-10 pt-8 border-t border-border-subtle">
-            <div
-              className={`grid grid-cols-2 ${
-                positiveStats.length >= 4
-                  ? 'md:grid-cols-4'
-                  : positiveStats.length === 3
-                    ? 'md:grid-cols-3'
-                    : 'md:grid-cols-2'
-              } gap-6 max-w-5xl mx-auto`}
-            >
-              {positiveStats.map((stat, idx) => (
-                <motion.div
-                  key={stat.label}
-                  initial={{ opacity: 0, y: 12 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: '-40px' }}
-                  transition={{ delay: idx * 0.08, duration: 0.45 }}
-                  className="flex flex-col items-center justify-center text-center p-4 rounded-xl bg-background/60 border border-border-subtle"
-                >
-                  <AnimatedCounter
-                    target={stat.target}
-                    suffix={stat.suffix}
-                    isMillion={stat.isMillion}
-                  />
-                  <p className="text-xs sm:text-sm text-foreground-secondary font-semibold">
-                    {stat.label}
-                  </p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        ) : null}
-
-        {/* Verified Community Partners (Only shown when returned by backend API) */}
-        {!loading && verifiedPartners.length > 0 && (
-          <div className="mt-8 pt-6 border-t border-border-subtle flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-foreground-secondary">
-              Participating Organizations:
-            </span>
-            {verifiedPartners.map((partner) => (
-              <span
-                key={partner}
-                className="text-xs sm:text-sm font-bold text-foreground-secondary"
-              >
-                {partner}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
+      </Container>
     </section>
   );
 };
