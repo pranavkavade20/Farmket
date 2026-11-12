@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
-import type { FormEvent, ReactNode } from 'react';
+import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowRight,
   Check,
+  Heart,
+  Leaf,
   Search,
+  ShieldCheck,
+  ShoppingCart,
+  Truck,
 } from 'lucide-react';
 import {
-  AnimatePresence,
-  MotionConfig,
   motion,
   useReducedMotion,
 } from 'framer-motion';
@@ -16,142 +19,84 @@ import {
 import farmerImg from '@/assets/images/hero/indian_farmer.png';
 import buyerImg from '@/assets/images/hero/young_buyer.png';
 
-/**
- * Farmket hero.
- *
- * The two photos are the visual. Instead of a UI card on top of them, a short
- * three-step story plays between the people (PRD §12, Journey 1):
- *   1. Farmer sets the price   → listing chip appears on the farmer
- *   2. You chat directly       → a dot travels the line between you, chat bubble
- *   3. You order fresh         → order chip on you, "new order" on the farmer
- *
- * Engineering notes:
- *  - H1, search and photos render immediately (no opacity-0 start), so LCP is
- *    not delayed. Motion only runs on decorative / supporting parts.
- *  - The story pauses on hover and focus, restarts from the clicked step, and
- *    never auto-plays for people with "reduce motion" turned on.
- *  - No made-up numbers: social proof renders only if you pass real `stats`.
- *  - `onTrack` lets you wire the product events proposed in PRD §24.
- */
-
-/* ───────────── Config: adjust to match your routes and API ───────────── */
+/* ───────────── Config & Constants ───────────── */
 
 const MARKETPLACE_PATH = '/marketplace';
-/** Query param your marketplace page reads for text search. */
 const SEARCH_PARAM = 'search';
-/** Rotating hint inside the search box. */
-const SEARCH_HINTS = [
-  'fresh tomatoes',
-  'organic onions',
-  'mangoes',
-  'a farmer by name',
-];
-
-/* ───────────── Types ───────────── */
-
-type Step = 0 | 1 | 2;
-type TrackFn = (event: string, props?: Record<string, unknown>) => void;
 
 export interface HeroSectionProps {
-  /** Real platform numbers. Each one renders only when provided. */
   stats?: {
     farmers?: number;
     ordersFulfilled?: number;
   };
-  /** Analytics hook, e.g. (name, props) => posthog.capture(name, props). */
-  onTrack?: TrackFn;
+  onTrack?: (event: string, props?: Record<string, unknown>) => void;
 }
 
-/* ───────────── Sample story content ───────────── */
+/* ───────────── Organic Double Leaf Brand Icon ───────────── */
 
-const SAMPLE = {
-  crop: 'Red Tomatoes',
-  farm: 'Jadhav Farm, Nashik',
-  pricePerKg: 34,
-  readyKg: 450,
-  orderKg: 25,
-};
-const SAMPLE_TOTAL = SAMPLE.pricePerKg * SAMPLE.orderKg;
+const DoubleLeafIcon = ({ className = 'w-6 h-6' }: { className?: string }) => (
+  <svg
+    viewBox="0 0 32 32"
+    fill="none"
+    className={className}
+    aria-hidden="true"
+  >
+    {/* Left leaf */}
+    <path
+      d="M15 22C15 22 10 20.5 7.2 15.5C4.5 10.5 7.2 5.5 12.8 6.5C13.4 11 15 17.5 15 22Z"
+      fill="currentColor"
+      opacity="0.88"
+    />
+    {/* Right leaf */}
+    <path
+      d="M15 24C15 24 17.8 17.2 24 13.8C29.6 11 28.5 3.7 20.6 4.3C16.7 8.8 15 18.4 15 24Z"
+      fill="currentColor"
+    />
+    {/* Subtle stem */}
+    <path
+      d="M15 21.5V28"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+    />
+  </svg>
+);
 
-const STEP_MS = 3600;
+/* ───────────── Hand-Drawn Underline SVG Curve ───────────── */
 
-const STORY: Array<{ title: string; caption: string }> = [
-  {
-    title: 'Farmer sets the price',
-    caption: `${SAMPLE.crop} listed at ₹${SAMPLE.pricePerKg}/kg.`,
-  },
-  {
-    title: 'You chat direct',
-    caption: 'No middlemen. Ask the farmer anything.',
-  },
-  {
-    title: 'You order fresh',
-    caption: `${SAMPLE.orderKg} kg, straight from the field.`,
-  },
-];
+const CurvedUnderline = ({ animated = true }: { animated?: boolean }) => (
+  <svg
+    aria-hidden="true"
+    viewBox="0 0 170 14"
+    fill="none"
+    className="absolute -bottom-2 sm:-bottom-2.5 left-0 w-full h-3 sm:h-3.5 text-brand overflow-visible pointer-events-none"
+  >
+    <motion.path
+      d="M 3 8 C 38 2, 74 12, 118 6 C 142 2.5, 158 5, 167 8"
+      stroke="currentColor"
+      strokeWidth="3.5"
+      strokeLinecap="round"
+      initial={animated ? { pathLength: 0, opacity: 0 } : false}
+      animate={{ pathLength: 1, opacity: 1 }}
+      transition={{ duration: 0.8, delay: 0.35, ease: 'easeOut' }}
+    />
+  </svg>
+);
 
-const focusRing =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background';
+/* ───────────── Search Component ───────────── */
 
-/* ───────────── Connection arc geometry ─────────────
- * The arc runs under the photos from the farmer's centre to the buyer's
- * centre. The travelling dot follows the same cubic bezier, sampled into
- * percentages so it stays aligned at any width.
- */
+interface HeroSearchProps {
+  onTrack?: (event: string, props?: Record<string, unknown>) => void;
+}
 
-const ARC_VIEWBOX_H = 24;
-const ARC_POINTS = [
-  [29, 0],
-  [29, 22],
-  [80, 22],
-  [80, 0],
-] as const;
-const ARC_PATH = `M${ARC_POINTS[0].join(' ')} C ${ARC_POINTS[1].join(
-  ' '
-)}, ${ARC_POINTS[2].join(' ')}, ${ARC_POINTS[3].join(' ')}`;
-
-const sampleArc = (samples: number) => {
-  const xs: string[] = [];
-  const ys: string[] = [];
-  const [p0, p1, p2, p3] = ARC_POINTS;
-  for (let i = 0; i <= samples; i += 1) {
-    const t = i / samples;
-    const u = 1 - t;
-    const b0 = u * u * u;
-    const b1 = 3 * u * u * t;
-    const b2 = 3 * u * t * t;
-    const b3 = t * t * t;
-    const x = b0 * p0[0] + b1 * p1[0] + b2 * p2[0] + b3 * p3[0];
-    const y = b0 * p0[1] + b1 * p1[1] + b2 * p2[1] + b3 * p3[1];
-    xs.push(`${x}%`);
-    ys.push(`${(y / ARC_VIEWBOX_H) * 100}%`);
-  }
-  return { xs, ys };
-};
-const ARC_DOT = sampleArc(16);
-const ARC_MID_Y = `${((0.75 * ARC_POINTS[1][1]) / ARC_VIEWBOX_H) * 100}%`;
-
-/* ───────────── Search ───────────── */
-
-const HeroSearch = ({ onTrack }: { onTrack?: TrackFn }) => {
+const HeroSearch = ({ onTrack }: HeroSearchProps) => {
   const navigate = useNavigate();
-  const reduceMotion = useReducedMotion();
   const [query, setQuery] = useState('');
-  const [hintIndex, setHintIndex] = useState(0);
 
-  // Rotate the hint while the box is empty
-  useEffect(() => {
-    if (reduceMotion || query) return;
-    const id = window.setInterval(
-      () => setHintIndex((i) => (i + 1) % SEARCH_HINTS.length),
-      2600
-    );
-    return () => window.clearInterval(id);
-  }, [reduceMotion, query]);
-
-  const goToSearch = (term: string) => {
-    const trimmed = term.trim();
-    onTrack?.('hero_search', { source: 'form', query: trimmed });
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    const trimmed = query.trim();
+    onTrack?.('hero_search', { query: trimmed });
     navigate(
       trimmed
         ? `${MARKETPLACE_PATH}?${SEARCH_PARAM}=${encodeURIComponent(trimmed)}`
@@ -159,60 +104,35 @@ const HeroSearch = ({ onTrack }: { onTrack?: TrackFn }) => {
     );
   };
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    goToSearch(query);
-  };
-
   return (
     <form
       role="search"
       onSubmit={handleSubmit}
-      className="flex items-stretch rounded-2xl border border-border-strong bg-surface p-1 shadow-sm transition-all focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/30 hover:border-border-strong/90 hover:shadow-md"
+      className="flex items-center w-full rounded-full border border-border-strong/70 dark:border-border-subtle bg-surface p-1.5 sm:p-2 shadow-md shadow-emerald-950/5 hover:shadow-lg transition-all focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/20"
     >
-      <label htmlFor="hero-search" className="sr-only">
-        Search produce, categories or farmers
+      <label htmlFor="hero-farmer-search" className="sr-only">
+        Search a farmer by name
       </label>
+
       <Search
         aria-hidden="true"
-        className="ml-3.5 h-5 w-5 shrink-0 self-center text-foreground-secondary"
+        className="ml-3 sm:ml-4 h-5 w-5 text-foreground-secondary shrink-0"
       />
 
-      <div className="relative min-w-0 flex-1">
-        <input
-          id="hero-search"
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          autoComplete="off"
-          enterKeyHint="search"
-          className="w-full bg-transparent px-3 py-3.5 text-base text-foreground focus:outline-none"
-        />
-        {!query && (
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 flex items-center overflow-hidden px-3 text-base text-foreground-secondary/70"
-          >
-            <span className="whitespace-pre">Search </span>
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.span
-                key={SEARCH_HINTS[hintIndex]}
-                initial={{ y: 12, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: -12, opacity: 0 }}
-                transition={{ duration: 0.22 }}
-                className="truncate"
-              >
-                {SEARCH_HINTS[hintIndex]}
-              </motion.span>
-            </AnimatePresence>
-          </div>
-        )}
-      </div>
+      <input
+        id="hero-farmer-search"
+        type="search"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search a farmer by name"
+        autoComplete="off"
+        enterKeyHint="search"
+        className="w-full bg-transparent px-3 py-2 sm:py-2.5 text-sm sm:text-base text-foreground placeholder:text-foreground-secondary/70 focus:outline-none"
+      />
 
       <button
         type="submit"
-        className={`group inline-flex items-center gap-2 rounded-xl bg-foreground px-5 text-sm font-semibold text-background transition-all hover:bg-foreground/90 active:scale-[0.97] sm:px-6 ${focusRing}`}
+        className="group inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-foreground dark:bg-brand px-5 sm:px-6 py-2.5 sm:py-3 text-sm font-semibold text-background dark:text-white transition-all hover:bg-foreground/90 dark:hover:bg-brand-hover active:scale-[0.97] shrink-0 shadow-sm"
       >
         <span>Search</span>
         <ArrowRight
@@ -225,343 +145,371 @@ const HeroSearch = ({ onTrack }: { onTrack?: TrackFn }) => {
   );
 };
 
-/* ───────────── Story stage (photos + animated connection) ───────────── */
+/* ───────────── Trust Indicators ───────────── */
 
-const chipMotion = {
-  initial: { opacity: 0, y: 10, scale: 0.97 },
-  animate: { opacity: 1, y: 0, scale: 1 },
-  exit: { opacity: 0, y: -6, scale: 0.98 },
-  transition: { type: 'spring' as const, stiffness: 380, damping: 30 },
-};
-const chipClass =
-  'absolute inset-x-2.5 bottom-2.5 sm:inset-x-3 sm:bottom-3 rounded-xl border border-border-subtle bg-background px-3 py-2.5 shadow-md';
-
-const TypingDots = () => (
-  <span className="inline-flex items-center gap-1 py-1" aria-label="Typing">
-    {[0, 1, 2].map((i) => (
-      <motion.span
-        key={i}
-        className="h-1.5 w-1.5 rounded-full bg-foreground-secondary"
-        animate={{ y: [0, -3, 0] }}
-        transition={{ duration: 0.7, repeat: Infinity, delay: i * 0.12 }}
-      />
-    ))}
-  </span>
-);
-
-/** Buyer's message: typing dots first, then the text. */
-const ChatBubble = ({ reduceMotion }: { reduceMotion: boolean | null }) => {
-  const [typed, setTyped] = useState(false);
-  useEffect(() => {
-    const id = window.setTimeout(() => setTyped(true), reduceMotion ? 0 : 1000);
-    return () => window.clearTimeout(id);
-  }, [reduceMotion]);
-
-  return (
-    <>
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-foreground-secondary">
-        You
-      </p>
-      <div className="mt-1 min-h-[22px]">
-        <AnimatePresence mode="wait" initial={false}>
-          {typed ? (
-            <motion.p
-              key="msg"
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2 }}
-              className="text-sm font-medium text-foreground"
-            >
-              Can I get {SAMPLE.orderKg} kg?
-            </motion.p>
-          ) : (
-            <motion.div key="dots" exit={{ opacity: 0 }}>
-              <TypingDots />
-            </motion.div>
-          )}
-        </AnimatePresence>
+const TrustIndicators = () => (
+  <div className="flex flex-wrap sm:flex-nowrap items-center gap-4 sm:gap-6 pt-2">
+    {/* 1. 100% Fresh Produce */}
+    <div className="flex items-center gap-3">
+      <div className="w-10 h-10 rounded-full bg-brand/10 text-brand flex items-center justify-center shrink-0">
+        <Leaf className="w-5 h-5 fill-current/20" aria-hidden="true" />
       </div>
-    </>
-  );
+      <div>
+        <p className="text-sm font-bold text-foreground leading-tight">100%</p>
+        <p className="text-xs font-medium text-foreground-secondary mt-0.5">Fresh Produce</p>
+      </div>
+    </div>
+
+    <div className="hidden sm:block h-8 w-px bg-border-subtle" aria-hidden="true" />
+
+    {/* 2. Fair Price Direct from Farmer */}
+    <div className="flex items-center gap-3">
+      <div className="w-10 h-10 rounded-full bg-brand/10 text-brand flex items-center justify-center shrink-0">
+        <ShieldCheck className="w-5 h-5" aria-hidden="true" />
+      </div>
+      <div>
+        <p className="text-sm font-bold text-foreground leading-tight">Fair Price</p>
+        <p className="text-xs font-medium text-foreground-secondary mt-0.5">Direct from Farmer</p>
+      </div>
+    </div>
+
+    <div className="hidden sm:block h-8 w-px bg-border-subtle" aria-hidden="true" />
+
+    {/* 3. Local & Fast Delivery */}
+    <div className="flex items-center gap-3">
+      <div className="w-10 h-10 rounded-full bg-brand/10 text-brand flex items-center justify-center shrink-0">
+        <Truck className="w-5 h-5" aria-hidden="true" />
+      </div>
+      <div>
+        <p className="text-sm font-bold text-foreground leading-tight">Local &amp; Fast</p>
+        <p className="text-xs font-medium text-foreground-secondary mt-0.5">Delivery</p>
+      </div>
+    </div>
+  </div>
+);
+
+/* ───────────── Visual Storytelling & Animation Section ───────────── */
+
+/**
+ * Coordinated Transaction Animation State Machine:
+ * 'ready'       - Farmer ready with fresh produce, Cart at farmer (0%)
+ * 'to_platform' - Cart smoothly travels from Farmer to Platform (0% -> 50%)
+ * 'processing'  - Platform pulses & validates order, "Packed" stage activates
+ * 'to_buyer'    - Cart smoothly travels from Platform to Buyer (50% -> 100%)
+ * 'delivered'   - Order arrives at Buyer, "Order Placed" highlights, "On the way" activates
+ * 'reset'       - Seamless fade-out and silent position reset without backward snap
+ */
+type AnimationPhase =
+  | 'ready'
+  | 'to_platform'
+  | 'processing'
+  | 'to_buyer'
+  | 'delivered'
+  | 'reset';
+
+const PHASE_DURATIONS: Record<AnimationPhase, number> = {
+  ready: 1400,
+  to_platform: 1800,
+  processing: 1600,
+  to_buyer: 1800,
+  delivered: 2600,
+  reset: 350,
 };
 
-const CheckBadge = () => (
-  <motion.span
-    initial={{ scale: 0 }}
-    animate={{ scale: 1 }}
-    transition={{ type: 'spring', stiffness: 500, damping: 18, delay: 0.1 }}
-    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand"
-  >
-    <Check className="h-3.5 w-3.5 text-foreground" strokeWidth={3} aria-hidden="true" />
-  </motion.span>
-);
+const NEXT_PHASE: Record<AnimationPhase, AnimationPhase> = {
+  ready: 'to_platform',
+  to_platform: 'processing',
+  processing: 'to_buyer',
+  to_buyer: 'delivered',
+  delivered: 'reset',
+  reset: 'ready',
+};
 
-const Photo = ({
-  src,
-  alt,
-  label,
-  active,
-  priority,
-  className,
-  children,
-}: {
-  src: string;
-  alt: string;
-  label: string;
-  active: boolean;
-  priority?: boolean;
-  className: string;
-  children: ReactNode;
-}) => (
-  <figure
-    className={`group relative overflow-hidden rounded-xl border bg-surface transition-[box-shadow,border-color] duration-500 ${active
-        ? 'border-brand shadow-[0_0_0_3px] shadow-brand/20'
-        : 'border-border-subtle'
-      } ${className}`}
-  >
-    <img
-      src={src}
-      alt={alt}
-      decoding="async"
-      {...(priority ? { fetchPriority: 'high' as const } : {})}
-      className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-    />
-    <figcaption className="absolute left-2.5 top-2.5 rounded-md bg-background px-2.5 py-1 text-xs font-semibold text-foreground sm:left-3 sm:top-3">
-      {label}
-    </figcaption>
-    {children}
-  </figure>
-);
-
-const HeroStory = ({ onTrack }: { onTrack?: TrackFn }) => {
+const FarmerBuyerStory = () => {
   const reduceMotion = useReducedMotion();
-  const [step, setStep] = useState<Step>(0);
-  const [paused, setPaused] = useState(false);
+  const [phase, setPhase] = useState<AnimationPhase>('ready');
+  const [isPaused, setIsPaused] = useState(false);
 
-  // Auto-advance. Restarts after every step change (including manual clicks).
+  // Synchronized animation loop
   useEffect(() => {
-    if (paused || reduceMotion) return;
-    const id = window.setTimeout(
-      () => setStep((s) => ((s + 1) % 3) as Step),
-      STEP_MS
-    );
-    return () => window.clearTimeout(id);
-  }, [step, paused, reduceMotion]);
+    if (reduceMotion || isPaused) return;
 
-  const farmerActive = step !== 2;
-  const buyerActive = step !== 0;
-  const filling = !paused && !reduceMotion;
+    const timer = window.setTimeout(() => {
+      setPhase((prev) => NEXT_PHASE[prev]);
+    }, PHASE_DURATIONS[phase]);
+
+    return () => window.clearTimeout(timer);
+  }, [phase, isPaused, reduceMotion]);
+
+  // Position and opacity calculations to avoid backward snap on reset
+  const cartLeft = reduceMotion
+    ? '50%'
+    : phase === 'ready' || phase === 'reset'
+    ? '0%'
+    : phase === 'to_platform' || phase === 'processing'
+    ? '50%'
+    : '100%';
+
+  const cartOpacity = reduceMotion ? 1 : phase === 'reset' ? 0 : 1;
+
+  const cartTransition = reduceMotion
+    ? { duration: 0 }
+    : phase === 'reset'
+    ? { duration: 0.3 }
+    : phase === 'to_platform' || phase === 'to_buyer'
+    ? { duration: 1.6, ease: 'easeInOut' as const }
+    : { duration: 0.4 };
+
+  // Status highlights
+  const isPlatformActive = phase === 'processing';
+  const isBuyerDelivered = phase === 'delivered';
+  const isOrderedActive = phase !== 'reset';
+  const isPackedActive =
+    phase === 'processing' || phase === 'to_buyer' || phase === 'delivered';
+  const isOnTheWayActive = phase === 'delivered';
 
   return (
-    <MotionConfig reducedMotion="user">
-      <div
-        onMouseEnter={() => setPaused(true)}
-        onMouseLeave={() => setPaused(false)}
-        onFocus={() => setPaused(true)}
-        onBlur={() => setPaused(false)}
-      >
-        {/* Photos, bottoms aligned so the connection hangs from both */}
-        <div className="grid grid-cols-12 items-end gap-3 sm:gap-4">
-          <Photo
-            src={farmerImg}
-            alt="A farmer in their field holding a basket of fresh vegetables"
-            label="The grower"
-            active={farmerActive}
-            priority
-            className="col-span-7 aspect-[4/5] rounded-tl-[56px]"
-          >
-            <AnimatePresence mode="wait">
-              {step !== 2 && (
-                <motion.div key="listing" {...chipMotion} className={chipClass}>
-                  <div className="flex items-baseline justify-between gap-2">
-                    <span className="truncate text-sm font-bold text-foreground">
-                      {SAMPLE.crop}
-                    </span>
-                    <motion.span
-                      key={`price-${step}`}
-                      initial={{ scale: step === 0 ? 1.25 : 1 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: 'spring', stiffness: 400, damping: 14 }}
-                      className="shrink-0 text-sm font-bold text-brand tabular-nums"
-                    >
-                      ₹{SAMPLE.pricePerKg}/kg
-                    </motion.span>
-                  </div>
-                  <p className="mt-0.5 truncate text-xs text-foreground-secondary">
-                    {SAMPLE.readyKg} kg ready · {SAMPLE.farm}
-                  </p>
-                </motion.div>
-              )}
-              {step === 2 && (
-                <motion.div
-                  key="new-order"
-                  {...chipMotion}
-                  className={`${chipClass} flex items-center gap-2.5`}
-                >
-                  <CheckBadge />
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-foreground">
-                      New order · {SAMPLE.orderKg} kg
-                    </p>
-                    <p className="truncate text-xs text-foreground-secondary">
-                      ₹{SAMPLE_TOTAL.toLocaleString('en-IN')}, direct to you
-                    </p>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </Photo>
+    <div
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onFocus={() => setIsPaused(true)}
+      onBlur={() => setIsPaused(false)}
+      className="relative w-full max-w-[620px] mx-auto flex flex-col items-center select-none"
+    >
+      {/* ── Main Horizontal Journey Flow: Farmer → Platform → Buyer ── */}
+      <div className="relative z-10 w-full flex items-start justify-between gap-2 sm:gap-4 md:gap-5 px-1">
 
-          <Photo
-            src={buyerImg}
-            alt="A young buyer ordering fresh produce on their phone"
-            label="You"
-            active={buyerActive}
-            className="col-span-5 aspect-[3/4] rounded-tr-[56px]"
-          >
-            <AnimatePresence mode="wait">
-              {step === 1 && (
-                <motion.div key="chat" {...chipMotion} className={chipClass}>
-                  <ChatBubble reduceMotion={reduceMotion} />
-                </motion.div>
-              )}
-              {step === 2 && (
-                <motion.div
-                  key="ordered"
-                  {...chipMotion}
-                  className={`${chipClass} flex items-center gap-2`}
-                >
-                  <CheckBadge />
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-foreground">
-                      Order placed
-                    </p>
-                    <p className="truncate text-xs text-foreground-secondary tabular-nums">
-                      {SAMPLE.orderKg} kg · ₹{SAMPLE_TOTAL.toLocaleString('en-IN')}
-                    </p>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </Photo>
+        {/* ───────────── 1. Farmer Column (Image Card + Info Card Placed at Bottom) ───────────── */}
+        <div className="flex flex-col items-center w-[155px] xs:w-[185px] sm:w-[220px] md:w-[245px] lg:w-[260px] shrink-0">
+          {/* Portrait Image Card */}
+          <div className="relative w-full h-[230px] xs:h-[265px] sm:h-[310px] md:h-[345px] lg:h-[365px] rounded-3xl overflow-hidden bg-[#F0F5F2] dark:bg-surface border border-border-subtle/90 dark:border-border-subtle shadow-md shadow-emerald-950/5 transition-transform duration-300 hover:scale-[1.01]">
+            {/* Top Floating Status Pill */}
+            <div className="absolute top-3 left-3 sm:top-3.5 sm:left-3.5 z-20 whitespace-nowrap px-2.5 sm:px-3 py-1 rounded-full bg-white/95 dark:bg-surface/95 backdrop-blur-md border border-black/5 dark:border-white/10 shadow-xs flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-foreground">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              </span>
+              <span>Farmer Online</span>
+            </div>
+
+            {/* Farmer Photo - 100% visible, completely unobstructed */}
+            <img
+              src={farmerImg}
+              alt="Farmer holding fresh vegetables"
+              className="w-full h-full object-cover object-[center_top]"
+            />
+          </div>
+
+          {/* Fresh Vegetables Info Card - Placed cleanly at the bottom of the image card */}
+          <div className="w-full mt-2.5 sm:mt-3 p-2.5 sm:p-3 rounded-2xl bg-white/95 dark:bg-surface/95 backdrop-blur-md border border-border-subtle/80 dark:border-border-subtle shadow-md shadow-emerald-950/5 flex items-center justify-between transition-all">
+            <div className="flex items-center gap-2 min-w-0 pr-1">
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[3]" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[11px] sm:text-xs md:text-sm font-bold text-foreground leading-tight truncate">
+                  Fresh Vegetables
+                </p>
+                <p className="text-[10px] sm:text-xs font-semibold text-brand mt-0.5 tabular-nums truncate">
+                  ₹34/kg · direct to you
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              aria-label="Add to favorites"
+              className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-foreground-secondary/60 hover:text-danger hover:bg-danger/10 transition-colors shrink-0"
+            >
+              <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </button>
+          </div>
         </div>
 
-        {/* Direct connection: farmer → you, nothing in between */}
-        <div className="relative h-[72px]" aria-hidden="true">
-          <svg
-            viewBox={`0 0 100 ${ARC_VIEWBOX_H}`}
-            preserveAspectRatio="none"
-            fill="none"
-            className="absolute inset-0 h-full w-full overflow-visible"
-          >
-            <motion.path
-              d={ARC_PATH}
-              stroke="currentColor"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeDasharray="2 7"
-              vectorEffect="non-scaling-stroke"
-              className={`transition-colors duration-500 ${step === 1 ? 'text-brand' : 'text-border-strong'
-                }`}
-              animate={
-                step === 1 && !reduceMotion
-                  ? { strokeDashoffset: [0, -18] }
-                  : { strokeDashoffset: 0 }
-              }
-              transition={
-                step === 1 && !reduceMotion
-                  ? { duration: 0.9, ease: 'linear', repeat: Infinity }
-                  : { duration: 0 }
-              }
+        {/* ───────────── 2. Connection Line & Clean Platform Hub ───────────── */}
+        <div className="relative flex-1 flex flex-col items-center justify-center px-1 sm:px-2 min-w-[65px] sm:min-w-[90px] md:min-w-[110px] self-start mt-[85px] xs:mt-[100px] sm:mt-[120px] md:mt-[135px] lg:mt-[145px]">
+          {/* Horizontal Track & Traveling Cart */}
+          <div className="relative w-full flex items-center justify-center">
+            {/* Dotted Connection Track */}
+            <div
+              className="w-full h-0 border-t-2 border-dashed border-brand/40 dark:border-brand/30"
+              aria-hidden="true"
             />
-          </svg>
 
-          {step === 1 && !reduceMotion && (
-            <motion.span
-              key="dot"
-              className="absolute -ml-[5px] -mt-[5px] h-2.5 w-2.5 rounded-full bg-brand ring-4 ring-brand/20"
-              style={{ left: ARC_DOT.xs[0], top: ARC_DOT.ys[0] }}
+            {/* Directional Arrow pointing into Buyer Card */}
+            <div className="absolute -right-1 text-brand pointer-events-none" aria-hidden="true">
+              <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
+            </div>
+
+            {/* Traveling Shopping Cart Indicator */}
+            <motion.div
+              className="absolute -top-3.5 sm:-top-4 z-30 pointer-events-none"
+              initial={false}
               animate={{
-                left: ARC_DOT.xs,
-                top: ARC_DOT.ys,
-                opacity: [0, 1, 1, 1, 0],
+                left: cartLeft,
+                x: '-50%',
+                opacity: cartOpacity,
               }}
-              transition={{
-                left: { duration: 1.9, ease: 'linear', delay: 0.15 },
-                top: { duration: 1.9, ease: 'linear', delay: 0.15 },
-                opacity: {
-                  duration: 1.9,
-                  times: [0, 0.08, 0.5, 0.92, 1],
-                  delay: 0.15,
-                },
-              }}
-            />
-          )}
+              transition={cartTransition}
+            >
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white dark:bg-surface border-2 border-brand text-brand shadow-md shadow-brand/15 flex items-center justify-center">
+                <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.2]" />
+              </div>
+            </motion.div>
+          </div>
 
-          <span
-            className={`absolute left-[54.5%] -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border bg-background px-3 py-1 text-xs font-semibold transition-colors duration-500 ${step === 1
-                ? 'border-brand text-foreground'
-                : 'border-border-subtle text-foreground-secondary'
-              }`}
-            style={{ top: ARC_MID_Y }}
+          {/* Small Clean Branded Platform Hub */}
+          <motion.div
+            className={`relative z-10 mt-3 sm:mt-3.5 w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-white/95 dark:bg-surface/95 backdrop-blur-md border flex flex-col items-center justify-center p-1.5 transition-all duration-300 ${
+              isPlatformActive
+                ? 'border-brand ring-4 ring-brand/20 shadow-lg shadow-brand/20 scale-105'
+                : 'border-border-subtle shadow-sm'
+            }`}
+            animate={
+              isPlatformActive && !reduceMotion
+                ? { scale: [1, 1.08, 1] }
+                : { scale: 1 }
+            }
+            transition={{ duration: 0.6, repeat: isPlatformActive ? Infinity : 0 }}
           >
-            Direct · no middlemen
+            <DoubleLeafIcon className="w-5 h-5 sm:w-6 sm:h-6 text-brand" />
+          </motion.div>
+          <span className="text-[9px] sm:text-[11px] font-semibold text-foreground-secondary mt-1 whitespace-nowrap">
+            Our Platform
           </span>
         </div>
 
-        {/* Step controls: also the timeline progress */}
-        <ol
-          aria-label="How Farmket works"
-          className="mt-1 grid grid-cols-3 gap-3 sm:gap-4"
-        >
-          {STORY.map((item, i) => {
-            const active = step === i;
-            return (
-              <li key={item.title}>
-                <button
-                  type="button"
-                  aria-current={active ? 'step' : undefined}
-                  onClick={() => {
-                    setStep(i as Step);
-                    onTrack?.('hero_story_step', { step: i + 1 });
-                  }}
-                  className={`block w-full rounded-sm text-left ${focusRing}`}
-                >
-                  <span className="relative block h-0.5 w-full overflow-hidden rounded-full bg-border-subtle">
-                    {active && (
-                      <motion.span
-                        key={`${step}-${filling}`}
-                        className="absolute inset-y-0 left-0 bg-brand"
-                        initial={{ width: filling ? '0%' : '100%' }}
-                        animate={{ width: '100%' }}
-                        transition={{
-                          duration: filling ? STEP_MS / 1000 : 0,
-                          ease: 'linear',
-                        }}
-                      />
-                    )}
-                  </span>
-                  <span
-                    className={`mt-2.5 block text-xs font-semibold transition-colors sm:text-sm ${active ? 'text-foreground' : 'text-foreground-secondary'
-                      }`}
-                  >
-                    <span className="tabular-nums">{i + 1}. </span>
-                    {item.title}
-                  </span>
-                  <span className="mt-1 hidden text-xs leading-snug text-foreground-secondary sm:block">
-                    {item.caption}
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ol>
+        {/* ───────────── 3. Buyer Column (Image Card + Info Card Placed at Bottom) ───────────── */}
+        <div className="flex flex-col items-center w-[145px] xs:w-[170px] sm:w-[200px] md:w-[225px] lg:w-[240px] shrink-0">
+          {/* Portrait Image Card */}
+          <div
+            className={`relative w-full h-[230px] xs:h-[265px] sm:h-[310px] md:h-[345px] lg:h-[365px] rounded-3xl overflow-hidden bg-[#F2F6F3] dark:bg-surface border-2 transition-all duration-500 shadow-md shadow-emerald-950/8 hover:scale-[1.01] ${
+              isBuyerDelivered
+                ? 'border-brand ring-2 ring-brand/30'
+                : 'border-emerald-900/80 dark:border-brand/70'
+            }`}
+          >
+            {/* Top Floating Buyer Pill */}
+            <div className="absolute top-3 left-3 sm:top-3.5 sm:left-3.5 z-20 whitespace-nowrap px-2.5 sm:px-3 py-1 rounded-full bg-white/95 dark:bg-surface/95 backdrop-blur-md border border-black/5 dark:border-white/10 shadow-xs flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-foreground">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span>Buyer</span>
+            </div>
+
+            {/* Buyer Photo - 100% visible, completely unobstructed */}
+            <img
+              src={buyerImg}
+              alt="Customer ordering produce on smartphone"
+              className="w-full h-full object-cover object-[50%_top]"
+            />
+          </div>
+
+          {/* Order Placed Confirmation Card - Placed cleanly at the bottom of the image card */}
+          <motion.div
+            initial={false}
+            animate={{
+              opacity: isBuyerDelivered || reduceMotion ? 1 : 0.45,
+              scale: isBuyerDelivered && !reduceMotion ? [1, 1.02, 1] : 1,
+            }}
+            transition={{ duration: 0.35 }}
+            className={`w-full mt-2.5 sm:mt-3 p-2.5 sm:p-3 rounded-2xl bg-white/95 dark:bg-surface/95 backdrop-blur-md border transition-all shadow-md shadow-emerald-950/5 flex items-center gap-2 ${
+              isBuyerDelivered
+                ? 'border-brand/60 shadow-brand/10'
+                : 'border-border-subtle/80 dark:border-border-subtle'
+            }`}
+          >
+            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+              <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[3]" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] sm:text-xs md:text-sm font-bold text-foreground leading-tight truncate">
+                Order Placed!
+              </p>
+              <p className="text-[10px] sm:text-xs text-foreground-secondary leading-tight mt-0.5 truncate">
+                Fresh produce on the way
+              </p>
+            </div>
+          </motion.div>
+        </div>
       </div>
-    </MotionConfig>
+
+      {/* ───────────── 4. Sequential Delivery Progress Bar ───────────── */}
+      <div className="w-full mt-7 pt-4 border-t border-border-subtle/80 grid grid-cols-3 gap-2 sm:gap-4 md:gap-6">
+        {/* Step 1: Ordered */}
+        <div className="flex flex-col">
+          <div className="relative h-1 w-full rounded-full overflow-hidden bg-border-subtle mb-2">
+            <motion.div
+              className="h-full bg-brand"
+              initial={false}
+              animate={{ width: isOrderedActive ? '100%' : '0%' }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+            />
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span
+              className={`text-[11px] sm:text-xs md:text-sm font-bold transition-colors ${
+                isOrderedActive ? 'text-foreground' : 'text-foreground-secondary/70'
+              }`}
+            >
+              1. Ordered
+            </span>
+          </div>
+          <p className="text-[10px] sm:text-xs text-foreground-secondary mt-0.5 hidden xs:block truncate">
+            Direct from farmer
+          </p>
+        </div>
+
+        {/* Step 2: Packed */}
+        <div className="flex flex-col">
+          <div className="relative h-1 w-full rounded-full overflow-hidden bg-border-subtle mb-2">
+            <motion.div
+              className="h-full bg-brand"
+              initial={false}
+              animate={{ width: isPackedActive ? '100%' : '0%' }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+            />
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span
+              className={`text-[11px] sm:text-xs md:text-sm font-bold transition-colors ${
+                isPackedActive ? 'text-foreground' : 'text-foreground-secondary/70'
+              }`}
+            >
+              2. Packed
+            </span>
+          </div>
+          <p className="text-[10px] sm:text-xs text-foreground-secondary mt-0.5 hidden xs:block truncate">
+            Quality confirmed
+          </p>
+        </div>
+
+        {/* Step 3: On the way */}
+        <div className="flex flex-col">
+          <div className="relative h-1 w-full rounded-full overflow-hidden bg-border-subtle mb-2">
+            <motion.div
+              className="h-full bg-brand"
+              initial={false}
+              animate={{ width: isOnTheWayActive ? '100%' : '0%' }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+            />
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span
+              className={`text-[11px] sm:text-xs md:text-sm font-bold transition-colors ${
+                isOnTheWayActive ? 'text-foreground' : 'text-foreground-secondary/70'
+              }`}
+            >
+              3. On the way
+            </span>
+          </div>
+          <p className="text-[10px] sm:text-xs text-foreground-secondary mt-0.5 hidden xs:block truncate">
+            Straight to buyer
+          </p>
+        </div>
+      </div>
+    </div>
   );
 };
 
-/* ───────────── Hero ───────────── */
+/* ───────────── Main Hero Section Export ───────────── */
 
 export const HeroSection = ({ stats, onTrack }: HeroSectionProps) => {
   const reduceMotion = useReducedMotion();
@@ -578,64 +526,53 @@ export const HeroSection = ({ stats, onTrack }: HeroSectionProps) => {
   return (
     <section
       aria-labelledby="hero-heading"
-      className="relative w-full overflow-hidden border-b border-border-subtle bg-background font-sans"
+      className="relative w-full overflow-hidden border-b border-border-subtle bg-[#F4F8F5] dark:bg-background font-sans transition-colors duration-300"
     >
-      {/* Subtle ambient lighting */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full bg-brand/5 blur-3xl"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -bottom-32 right-12 h-96 w-96 rounded-full bg-brand/5 blur-3xl"
-      />
+      <div className="relative mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20 xl:py-24">
+        <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-8 xl:gap-12">
+          {/* ───────────── Left Section: Hero Content ───────────── */}
+          <div className="lg:col-span-6 xl:col-span-6 flex flex-col">
+            {/* Eyebrow badge with horizontal green accent line */}
+            <div className="mb-4 sm:mb-5 flex items-center gap-2.5">
+              <span className="w-5 sm:w-6 h-0.5 bg-brand rounded-full shrink-0" aria-hidden="true" />
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-foreground-secondary">
+                Farm-to-buyer marketplace
+              </p>
+            </div>
 
-      <div className="relative mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
-        <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-8 xl:gap-14">
-          {/* ───────────── Left: message + primary action ───────────── */}
-          <div className="lg:col-span-6 xl:col-span-6">
-            <p className="mb-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.14em] text-foreground-secondary">
-              <span aria-hidden="true" className="h-px w-8 bg-brand" />
-              Farm-to-buyer marketplace
-            </p>
-
+            {/* Three-line main heading */}
             <h1
               id="hero-heading"
-              className="font-display text-[clamp(2.5rem,4.8vw,4.25rem)] font-bold leading-[1.06] tracking-tight text-foreground [text-wrap:balance]"
+              className="font-display text-[clamp(2.4rem,4.5vw,4.1rem)] font-extrabold leading-[1.08] tracking-tight text-foreground [text-wrap:balance]"
             >
-              Buy it from the{' '}
-              <span className="relative inline-block">
+              Buy it from
+              <br />
+              the{' '}
+              <span className="relative inline-block text-brand">
                 farmer
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 200 14"
-                  preserveAspectRatio="none"
-                  fill="none"
-                  className="absolute -bottom-1.5 left-0 h-3 w-full text-brand"
-                >
-                  <motion.path
-                    d="M3 9 C 40 2, 72 13, 112 7 S 172 3, 197 8"
-                    stroke="currentColor"
-                    strokeWidth="3.5"
-                    strokeLinecap="round"
-                    initial={reduceMotion ? false : { pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ duration: 0.7, delay: 0.4, ease: 'easeOut' }}
-                  />
-                </svg>
-              </span>{' '}
+                <CurvedUnderline animated={!reduceMotion} />
+              </span>
+              <br />
               who grew it.
             </h1>
 
-            <p className="mt-6 max-w-lg text-lg leading-relaxed text-foreground-secondary">
-              Farmers set their own price. You order fresh produce straight
-              from the field, or reserve a crop while it&apos;s still growing.
+            {/* Subtitle description */}
+            <p className="mt-5 sm:mt-6 max-w-xl text-base sm:text-lg leading-relaxed text-foreground-secondary">
+              Farmers set their own price. You order fresh produce straight from
+              the field, or reserve a crop while it&apos;s still growing.
             </p>
 
-            <div className="mt-8 max-w-xl">
+            {/* Search component */}
+            <div className="mt-7 sm:mt-8 max-w-xl">
               <HeroSearch onTrack={onTrack} />
             </div>
 
+            {/* 3 Compact Trust Indicators */}
+            <div className="mt-8 sm:mt-10 max-w-xl">
+              <TrustIndicators />
+            </div>
+
+            {/* Optional Platform Social Proof (when passed) */}
             {proof.length > 0 && (
               <p className="mt-6 text-sm text-foreground-secondary">
                 {proof.join('  ·  ')}
@@ -643,9 +580,9 @@ export const HeroSection = ({ stats, onTrack }: HeroSectionProps) => {
             )}
           </div>
 
-          {/* ───────────── Right: the story between grower and you ───────────── */}
-          <div className="mx-auto w-full max-w-[560px] lg:col-span-6 lg:max-w-none lg:pl-6 xl:pl-10">
-            <HeroStory onTrack={onTrack} />
+          {/* ───────────── Right Section: Farmer-to-Buyer Visual Experience ───────────── */}
+          <div className="lg:col-span-6 xl:col-span-6 flex items-center justify-center w-full">
+            <FarmerBuyerStory />
           </div>
         </div>
       </div>
