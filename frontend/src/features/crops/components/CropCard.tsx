@@ -6,8 +6,10 @@ import { openStageUpdateModal, openCropDetail } from '../cropsSlice';
 import { motion } from 'framer-motion';
 import { CropLifecycleStepper } from './CropLifecycleStepper';
 import { getHarvestTiming, formatCropQuantity } from '../utils/cropUtils';
+import { Button } from '@/components/ui';
+import { cn } from '@/lib/utils/cn';
 
-interface CropCardProps {
+export interface CropCardProps {
   crop: CropGrowth;
   index?: number;
   onViewDetails?: (id: number) => void;
@@ -50,9 +52,18 @@ export const CropCard: React.FC<CropCardProps> = ({ crop, index = 0, onViewDetai
       initial={{ opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-20px' }}
-      transition={{ duration: 0.3, ease: 'easeOut', delay: Math.min(index * 0.05, 0.3) }}
+      transition={{ duration: 0.3, ease: 'easeOut', delay: Math.min(index * 0.04, 0.25) }}
       onClick={handleViewDetails}
-      className="group relative flex flex-col rounded-2xl bg-surface border border-border-subtle overflow-hidden shadow-xs hover:shadow-lg hover:border-brand/40 transition-all duration-200 cursor-pointer"
+      className="group relative flex flex-col rounded-2xl bg-surface border border-border-subtle overflow-hidden shadow-xs hover:shadow-lg hover:border-brand/40 transition-all duration-200 cursor-pointer focus-within:ring-2 focus-within:ring-brand/20"
+      tabIndex={0}
+      role="article"
+      aria-label={`Crop ${cropName}`}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleViewDetails();
+        }
+      }}
     >
       {/* 1. Header Banner / Thumbnail */}
       <div className="relative h-36 w-full overflow-hidden bg-surface-elevated shrink-0">
@@ -65,13 +76,13 @@ export const CropCard: React.FC<CropCardProps> = ({ crop, index = 0, onViewDetai
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-brand/10 via-surface to-brand/5 p-4 text-center">
-            <span className="text-3xl mb-1">🌱</span>
+            <span className="text-3xl mb-1 select-none">🌱</span>
             <span className="text-xs font-semibold text-muted">Farmket Verified Crop</span>
           </div>
         )}
 
         {/* Gradient backdrop for overlay badges */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/25 pointer-events-none" />
 
         {/* Top Badges Row */}
         <div className="absolute top-3 inset-x-3 flex items-center justify-between pointer-events-none">
@@ -85,7 +96,7 @@ export const CropCard: React.FC<CropCardProps> = ({ crop, index = 0, onViewDetai
           </div>
 
           {crop.organic && (
-            <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold backdrop-blur-md bg-brand text-white shadow-xs">
+            <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold backdrop-blur-md bg-brand text-on-brand shadow-xs">
               <Leaf className="w-3.5 h-3.5" />
               Organic
             </span>
@@ -95,7 +106,8 @@ export const CropCard: React.FC<CropCardProps> = ({ crop, index = 0, onViewDetai
         {/* Bottom thumbnail tag: Timing pill */}
         <div className="absolute bottom-2.5 left-3 pointer-events-none">
           <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold backdrop-blur-md shadow-xs border ${
+            className={cn(
+              'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold backdrop-blur-md shadow-xs border',
               timing.isOverdue
                 ? 'bg-danger/90 text-white border-danger/40'
                 : timing.isToday
@@ -103,7 +115,7 @@ export const CropCard: React.FC<CropCardProps> = ({ crop, index = 0, onViewDetai
                 : timing.isHarvested
                 ? 'bg-success/90 text-white border-success/40'
                 : 'bg-surface/90 text-foreground border-white/20'
-            }`}
+            )}
           >
             {timing.isOverdue ? (
               <AlertCircle className="w-3.5 h-3.5" />
@@ -194,31 +206,37 @@ export const CropCard: React.FC<CropCardProps> = ({ crop, index = 0, onViewDetai
 
         {/* 3. Action Buttons Row */}
         <div className="pt-2 border-t border-border-subtle flex items-center gap-2">
-          <button
+          <Button
             type="button"
+            variant="brand"
+            size="sm"
             onClick={handleUpdateStage}
             disabled={isHarvested}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-semibold bg-brand text-white hover:bg-brand-hover active:scale-[0.98] transition-all shadow-xs disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer min-h-[40px]"
+            leftIcon={<Activity className="w-3.5 h-3.5" />}
+            className="flex-1 font-bold h-10 rounded-xl"
             title={isHarvested ? 'Crop cycle completed' : 'Update lifecycle stage'}
           >
-            <Activity className="w-3.5 h-3.5" />
             Update Stage
-          </button>
+          </Button>
 
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="sm"
             onClick={(e) => {
               e.stopPropagation();
               handleViewDetails();
             }}
-            className="flex items-center justify-center gap-1 px-3 py-2.5 rounded-xl text-xs font-semibold bg-surface hover:bg-surface-elevated text-foreground border border-border-strong hover:border-brand transition-all cursor-pointer min-h-[40px]"
+            rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+            className="font-semibold h-10 rounded-xl px-3.5"
             title="View full crop details & history"
           >
             Details
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
+          </Button>
         </div>
       </div>
     </motion.div>
   );
 };
+
+export default CropCard;

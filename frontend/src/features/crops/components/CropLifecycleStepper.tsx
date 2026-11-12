@@ -1,8 +1,9 @@
 import React from 'react';
 import type { CropStage } from '@/types/crops';
 import { Sprout, Leaf, Wheat, PackageCheck, Check } from 'lucide-react';
+import { cn } from '@/lib/utils/cn';
 
-interface CropLifecycleStepperProps {
+export interface CropLifecycleStepperProps {
   currentStage: CropStage | string;
   className?: string;
   compact?: boolean;
@@ -36,7 +37,7 @@ export const CropLifecycleStepper: React.FC<CropLifecycleStepperProps> = ({
     const pct = Math.round(((activeIndex + 1) / STAGES.length) * 100);
 
     return (
-      <div className={`space-y-1.5 ${className}`}>
+      <div className={cn('space-y-1.5', className)}>
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center gap-1.5 font-semibold text-foreground">
             <ActiveIcon className="w-3.5 h-3.5 text-brand" />
@@ -48,20 +49,21 @@ export const CropLifecycleStepper: React.FC<CropLifecycleStepperProps> = ({
         </div>
 
         {/* Multi-segment mini bar */}
-        <div className="grid grid-cols-4 gap-1 h-1.5 w-full">
+        <div className="grid grid-cols-4 gap-1 h-1.5 w-full" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
           {STAGES.map((s, idx) => {
             const isDone = idx < activeIndex;
             const isCurrent = idx === activeIndex;
             return (
               <div
                 key={s.id}
-                className={`h-full rounded-full transition-colors ${
+                className={cn(
+                  'h-full rounded-full transition-colors',
                   isDone
                     ? 'bg-brand'
                     : isCurrent
                     ? 'bg-brand shadow-xs'
-                    : 'bg-border-subtle'
-                }`}
+                    : 'bg-border-subtle dark:bg-surface-elevated'
+                )}
               />
             );
           })}
@@ -71,59 +73,66 @@ export const CropLifecycleStepper: React.FC<CropLifecycleStepperProps> = ({
   }
 
   return (
-    <div className={`w-full ${className}`}>
-      <div className="relative flex items-center justify-between">
+    <div className={cn('w-full', className)}>
+      <nav aria-label="Crop Growth Lifecycle" className="relative flex items-center justify-between">
         {/* Connecting track lines behind circles */}
-        <div className="absolute left-3 right-3 top-3.5 h-0.5 bg-border-subtle z-0" />
+        <div className="absolute left-3.5 right-3.5 top-3.5 h-0.5 bg-border-subtle dark:bg-surface-elevated z-0" />
         <div
-          className="absolute left-3 top-3.5 h-0.5 bg-brand z-0 transition-all duration-500"
+          className="absolute left-3.5 top-3.5 h-0.5 bg-brand z-0 transition-all duration-500 ease-out"
           style={{
-            width: `calc(${(activeIndex / (STAGES.length - 1)) * 100}% - 6px)`,
+            width: `calc(${(activeIndex / (STAGES.length - 1)) * 100}% - 7px)`,
           }}
         />
 
-        {STAGES.map((stage, idx) => {
-          const isDone = idx < activeIndex;
-          const isCurrent = idx === activeIndex;
-          const Icon = stage.icon;
+        <ol className="flex items-center justify-between w-full relative z-10">
+          {STAGES.map((stage, idx) => {
+            const isDone = idx < activeIndex;
+            const isCurrent = idx === activeIndex;
+            const Icon = stage.icon;
 
-          return (
-            <div
-              key={stage.id}
-              className="relative z-10 flex flex-col items-center group cursor-default"
-            >
-              <div
-                className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 border-2 ${
-                  isDone
-                    ? 'bg-brand border-brand text-white'
-                    : isCurrent
-                    ? 'bg-surface border-brand text-brand ring-4 ring-brand/15 shadow-xs'
-                    : 'bg-surface-elevated border-border-strong text-muted'
-                }`}
-                title={`${stage.label} stage`}
+            return (
+              <li
+                key={stage.id}
+                aria-current={isCurrent ? 'step' : undefined}
+                className="flex flex-col items-center group cursor-default"
               >
-                {isDone ? (
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                ) : (
-                  <Icon className="w-3.5 h-3.5" />
-                )}
-              </div>
+                <div
+                  className={cn(
+                    'w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 border-2 text-xs',
+                    isDone
+                      ? 'bg-brand border-brand text-on-brand shadow-2xs'
+                      : isCurrent
+                      ? 'bg-surface border-brand text-brand ring-4 ring-brand/15 shadow-xs font-bold'
+                      : 'bg-surface-elevated border-border-strong text-muted'
+                  )}
+                  title={`${stage.label} stage`}
+                >
+                  {isDone ? (
+                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  ) : (
+                    <Icon className="w-3.5 h-3.5" />
+                  )}
+                </div>
 
-              <span
-                className={`text-[11px] font-semibold mt-1.5 transition-colors whitespace-nowrap ${
-                  isCurrent
-                    ? 'text-brand font-bold'
-                    : isDone
-                    ? 'text-foreground'
-                    : 'text-muted'
-                }`}
-              >
-                {stage.shortLabel}
-              </span>
-            </div>
-          );
-        })}
-      </div>
+                <span
+                  className={cn(
+                    'text-[11px] font-semibold mt-1.5 transition-colors whitespace-nowrap text-center',
+                    isCurrent
+                      ? 'text-brand font-bold'
+                      : isDone
+                      ? 'text-foreground'
+                      : 'text-muted'
+                  )}
+                >
+                  {stage.shortLabel}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+      </nav>
     </div>
   );
 };
+
+export default CropLifecycleStepper;

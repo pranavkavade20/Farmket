@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { closeCropDetail, openStageUpdateModal } from '../cropsSlice';
 import {
@@ -17,11 +17,14 @@ import {
   Users,
   AlertCircle,
   FileText,
+  Sparkles,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { CropLifecycleStepper } from './CropLifecycleStepper';
 import { getHarvestTiming, formatCropQuantity } from '../utils/cropUtils';
+import { Button } from '@/components/ui';
+import { cn } from '@/lib/utils/cn';
 
 export const CropDetailDrawer: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -34,9 +37,9 @@ export const CropDetailDrawer: React.FC = () => {
   const [approveReservation, { isLoading: isApproving }] = useApproveReservationMutation();
   const [rejectReservation, { isLoading: isRejecting }] = useRejectReservationMutation();
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     dispatch(closeCropDetail());
-  };
+  }, [dispatch]);
 
   const handleOpenStageModal = () => {
     if (selectedDetailCropId) {
@@ -44,10 +47,22 @@ export const CropDetailDrawer: React.FC = () => {
     }
   };
 
+  // Keyboard Escape listener
+  useEffect(() => {
+    if (!isDetailDrawerOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isDetailDrawerOpen, handleClose]);
+
   const handleApprove = async (resId: number, buyerName: string) => {
     try {
       await approveReservation(resId).unwrap();
-      toast.success(`Reservation from ${buyerName} approved`);
+      toast.success(`Reservation for ${buyerName} approved!`);
     } catch {
       toast.error('Failed to approve reservation');
     }
@@ -56,7 +71,7 @@ export const CropDetailDrawer: React.FC = () => {
   const handleReject = async (resId: number, buyerName: string) => {
     try {
       await rejectReservation(resId).unwrap();
-      toast.success(`Reservation from ${buyerName} rejected`);
+      toast.success(`Reservation for ${buyerName} rejected`);
     } catch {
       toast.error('Failed to reject reservation');
     }
@@ -77,7 +92,7 @@ export const CropDetailDrawer: React.FC = () => {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 overflow-hidden flex justify-end">
+      <div className="fixed inset-0 z-50 overflow-hidden flex justify-end" role="dialog" aria-modal="true" aria-label={cropName}>
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -85,7 +100,7 @@ export const CropDetailDrawer: React.FC = () => {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
           onClick={handleClose}
-          className="fixed inset-0 bg-black/50 backdrop-blur-xs"
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs"
         />
 
         {/* Drawer Panel */}
@@ -93,7 +108,7 @@ export const CropDetailDrawer: React.FC = () => {
           initial={{ x: '100%' }}
           animate={{ x: 0 }}
           exit={{ x: '100%' }}
-          transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+          transition={{ type: 'spring', damping: 26, stiffness: 240 }}
           className="relative w-full max-w-2xl bg-surface border-l border-border-subtle shadow-2xl h-full flex flex-col z-10 overflow-hidden"
         >
           {/* Header */}
@@ -107,21 +122,19 @@ export const CropDetailDrawer: React.FC = () => {
                   {cropName}
                 </h2>
                 <p className="text-xs text-muted">
-                  Crop ID #{crop?.id} • Farmer: {crop?.farmer_name || 'You'}
+                  Crop Cycle #{crop?.id} • Farmer: {crop?.farmer_name || 'You'}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handleClose}
-                className="p-2 text-muted hover:text-foreground rounded-xl hover:bg-surface-elevated transition-colors cursor-pointer"
-                aria-label="Close drawer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={handleClose}
+              className="p-2 text-muted hover:text-foreground rounded-xl hover:bg-surface-elevated transition-colors cursor-pointer"
+              aria-label="Close drawer"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
 
           {/* Drawer Body Scroll */}
@@ -136,13 +149,13 @@ export const CropDetailDrawer: React.FC = () => {
               <>
                 {/* 1. Hero Image & Overview Status Banner */}
                 <div className="relative rounded-2xl overflow-hidden bg-surface-elevated border border-border-subtle">
-                  <div className="h-44 w-full relative">
+                  <div className="h-48 w-full relative">
                     {imageUrl ? (
                       <img src={imageUrl} alt={cropName} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-brand/10 via-surface to-brand/5">
-                        <span className="text-4xl mb-1">🌱</span>
-                        <span className="text-xs font-semibold text-muted">Verified Farm Crop</span>
+                        <span className="text-4xl mb-1 select-none">🌱</span>
+                        <span className="text-xs font-semibold text-muted">Farmket Verified Crop</span>
                       </div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -156,9 +169,9 @@ export const CropDetailDrawer: React.FC = () => {
                       </span>
 
                       {crop.organic && (
-                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-brand text-white shadow-xs flex items-center gap-1">
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-brand text-on-brand shadow-xs flex items-center gap-1">
                           <Leaf className="w-3.5 h-3.5" />
-                          Organic Certified
+                          Organic
                         </span>
                       )}
                     </div>
@@ -177,17 +190,17 @@ export const CropDetailDrawer: React.FC = () => {
                         </span>
                       </div>
                       <span className="text-xs text-muted font-medium">
-                        Expected: {timing.formattedDate}
+                        Target Date: {timing.formattedDate}
                       </span>
                     </div>
                   )}
                 </div>
 
                 {/* 2. Lifecycle Stepper Section */}
-                <div className="p-4 rounded-2xl bg-surface-elevated border border-border-subtle space-y-3">
+                <div className="p-5 rounded-2xl bg-surface-elevated border border-border-subtle space-y-3">
                   <div className="flex items-center justify-between">
                     <h3 className="text-xs uppercase tracking-wider font-bold text-muted">
-                      Growth Lifecycle
+                      Growth Lifecycle Progress
                     </h3>
                     <span className="text-xs font-bold text-brand">
                       {crop.progress}% Stage Complete
@@ -202,21 +215,21 @@ export const CropDetailDrawer: React.FC = () => {
                     Production & Yield Metrics
                   </h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    <div className="p-3 rounded-xl bg-surface-elevated border border-border-subtle">
+                    <div className="p-3.5 rounded-xl bg-surface-elevated border border-border-subtle">
                       <p className="text-[11px] font-medium text-muted mb-0.5">Sowing Date</p>
                       <p className="text-sm font-bold text-foreground">
                         {new Date(crop.sowing_date).toLocaleDateString()}
                       </p>
                     </div>
 
-                    <div className="p-3 rounded-xl bg-surface-elevated border border-border-subtle">
+                    <div className="p-3.5 rounded-xl bg-surface-elevated border border-border-subtle">
                       <p className="text-[11px] font-medium text-muted mb-0.5">Expected Yield</p>
                       <p className="text-sm font-bold text-foreground">
                         {formatCropQuantity(crop.expected_quantity, unit)}
                       </p>
                     </div>
 
-                    <div className="p-3 rounded-xl bg-surface-elevated border border-border-subtle">
+                    <div className="p-3.5 rounded-xl bg-surface-elevated border border-border-subtle">
                       <p className="text-[11px] font-medium text-muted mb-0.5">Available Yield</p>
                       <p className="text-sm font-bold text-brand">
                         {formatCropQuantity(crop.available_quantity, unit)}
@@ -227,9 +240,9 @@ export const CropDetailDrawer: React.FC = () => {
 
                 {/* 4. Notes if available */}
                 {crop.notes && (
-                  <div className="p-3.5 rounded-xl bg-surface border border-border-subtle">
+                  <div className="p-4 rounded-xl bg-surface border border-border-subtle">
                     <p className="text-xs font-semibold text-muted mb-1 flex items-center gap-1.5">
-                      <FileText className="w-3.5 h-3.5" /> Field Notes
+                      <FileText className="w-3.5 h-3.5 text-brand" /> Field Observations & Notes
                     </p>
                     <p className="text-xs text-foreground leading-relaxed whitespace-pre-wrap">
                       {crop.notes}
@@ -251,19 +264,20 @@ export const CropDetailDrawer: React.FC = () => {
                     </div>
 
                     {pendingReservations.length > 0 && (
-                      <span className="text-xs font-bold text-warning">
+                      <span className="text-xs font-bold text-warning flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5" />
                         {pendingReservations.length} action required
                       </span>
                     )}
                   </div>
 
                   {crop.reservations && crop.reservations.length > 0 ? (
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                       {/* Pending requests first */}
                       {pendingReservations.map((res) => (
                         <div
                           key={res.id}
-                          className="p-3.5 rounded-xl bg-warning-muted/30 border border-warning/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+                          className="p-3.5 rounded-xl bg-warning-muted/20 border border-warning/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
                         >
                           <div>
                             <div className="flex items-center gap-2">
@@ -281,24 +295,28 @@ export const CropDetailDrawer: React.FC = () => {
                           </div>
 
                           <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
-                            <button
+                            <Button
                               type="button"
+                              variant="outline"
+                              size="sm"
                               onClick={() => handleReject(res.id, res.buyer_name)}
                               disabled={isRejecting || isApproving}
-                              className="flex-1 sm:flex-none px-3 py-1.5 text-xs font-semibold text-danger bg-danger/10 hover:bg-danger/20 rounded-lg transition-colors flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
+                              leftIcon={<XCircle className="w-3.5 h-3.5 text-danger" />}
+                              className="flex-1 sm:flex-none text-danger border-danger/30 hover:bg-danger-muted"
                             >
-                              <XCircle className="w-3.5 h-3.5" />
                               Reject
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                               type="button"
+                              variant="brand"
+                              size="sm"
                               onClick={() => handleApprove(res.id, res.buyer_name)}
                               disabled={isRejecting || isApproving}
-                              className="flex-1 sm:flex-none px-3 py-1.5 text-xs font-semibold text-white bg-brand hover:bg-brand-hover rounded-lg transition-colors flex items-center justify-center gap-1 shadow-xs cursor-pointer disabled:opacity-50"
+                              leftIcon={<CheckCircle2 className="w-3.5 h-3.5" />}
+                              className="flex-1 sm:flex-none font-bold"
                             >
-                              <CheckCircle2 className="w-3.5 h-3.5" />
                               Approve
-                            </button>
+                            </Button>
                           </div>
                         </div>
                       ))}
@@ -318,13 +336,14 @@ export const CropDetailDrawer: React.FC = () => {
                             </p>
                           </div>
                           <span
-                            className={`px-2 py-0.5 rounded-full font-semibold text-[10px] ${
+                            className={cn(
+                              'px-2 py-0.5 rounded-full font-semibold text-[10px]',
                               res.reservation_status === 'CONFIRMED'
                                 ? 'bg-success-muted text-success border border-success/20'
                                 : res.reservation_status === 'CANCELLED'
                                 ? 'bg-danger-muted text-danger border border-danger/20'
                                 : 'bg-surface-elevated text-muted'
-                            }`}
+                            )}
                           >
                             {res.reservation_status}
                           </span>
@@ -345,7 +364,7 @@ export const CropDetailDrawer: React.FC = () => {
                 <div className="space-y-3 pt-2">
                   <h3 className="text-sm font-display font-bold text-foreground flex items-center gap-2">
                     <Clock className="w-4 h-4 text-brand" />
-                    Lifecycle Timeline & Updates
+                    Lifecycle Timeline & Historical Milestones
                   </h3>
 
                   {crop.stage_history && crop.stage_history.length > 0 ? (
@@ -386,25 +405,26 @@ export const CropDetailDrawer: React.FC = () => {
 
           {/* Drawer Footer Actions */}
           <div className="p-4 sm:p-5 border-t border-border-subtle bg-surface shrink-0 flex items-center gap-3">
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={handleClose}
-              className="px-4 py-2.5 rounded-xl border border-border-strong text-foreground text-xs font-semibold hover:bg-surface-elevated transition-colors cursor-pointer"
+              className="rounded-xl px-4"
             >
               Close
-            </button>
+            </Button>
 
             {crop && crop.stage !== 'HARVESTED' && (
-              <button
+              <Button
                 type="button"
-                onClick={() => {
-                  handleOpenStageModal();
-                }}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand hover:bg-brand-hover text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
+                variant="brand"
+                onClick={handleOpenStageModal}
+                leftIcon={<Activity className="w-4 h-4" />}
+                rightIcon={<Sparkles className="w-3.5 h-3.5 opacity-80" />}
+                className="flex-1 rounded-xl font-bold shadow-xs"
               >
-                <Activity className="w-4 h-4" />
                 Update Growth Stage
-              </button>
+              </Button>
             )}
           </div>
         </motion.div>
@@ -412,3 +432,5 @@ export const CropDetailDrawer: React.FC = () => {
     </AnimatePresence>
   );
 };
+
+export default CropDetailDrawer;

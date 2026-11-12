@@ -1,20 +1,44 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useSEO } from '@/hooks';
 import { ProductCard, productService } from '@/features/products';
-import { ProductCardSkeleton, Button, Container, Grid, Checkbox, EmptyState } from '@/components/ui';
+import {
+  ProductCardSkeleton,
+  Button,
+  Container,
+  Checkbox,
+  EmptyState,
+  Badge,
+} from '@/components/ui';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search,  X,  Filter, ChevronDown, Check } from 'lucide-react';
+import {
+  Search,
+  X,
+  ChevronDown,
+  Check,
+  RotateCcw,
+  Sparkles,
+  ChevronLeft,
+  ChevronRight,
+  SlidersHorizontal,
+  Layers,
+} from 'lucide-react';
 import type { Product, Category } from '@/types';
 import { useCart } from '@/features/buyer';
 import { useAuth } from '@/features/auth';
-import { toast } from "sonner";
+import { toast } from 'sonner';
 import axios from 'axios';
 import { cn } from '@/lib/utils/cn';
 
 type SortOption = 'price' | '-price' | '-created_at' | '-views';
 
-// Helper hook for debouncing
+const SORT_OPTIONS: { label: string; value: SortOption }[] = [
+  { label: 'Newest Harvests', value: '-created_at' },
+  { label: 'Price: Low to High', value: 'price' },
+  { label: 'Price: High to Low', value: '-price' },
+  { label: 'Most Popular', value: '-views' },
+];
+
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
   useEffect(() => {
@@ -43,72 +67,127 @@ const FilterSidebar = ({
   organicOnly,
   setOrganicOnly,
   activeFilterCount,
-  clearFilters
+  clearFilters,
 }: FilterSidebarProps) => (
-  <div className={cn("flex flex-col gap-8", className)}>
-    {/* Categories */}
+  <div className={cn('flex flex-col gap-6', className)}>
+    {/* Categories Filter */}
     <div>
-      <h3 className="text-xs font-bold text-foreground-secondary mb-4 uppercase tracking-widest">Categories</h3>
-      <div className="space-y-1.5 flex flex-col">
+      <div className="flex items-center justify-between mb-3 px-1">
+        <h3 className="text-xs font-bold text-foreground-secondary uppercase tracking-wider">
+          Categories
+        </h3>
+        {selectedCategory && (
+          <button
+            type="button"
+            onClick={() => setSelectedCategory('')}
+            className="text-[11px] font-semibold text-brand hover:underline cursor-pointer"
+          >
+            Reset
+          </button>
+        )}
+      </div>
+
+      <div className="space-y-1 flex flex-col">
         <button
+          type="button"
           onClick={() => setSelectedCategory('')}
           className={cn(
-            "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all font-semibold text-left",
-            !selectedCategory ? "bg-brand text-brand-foreground shadow-sm" : "text-foreground-secondary hover:bg-state-hover"
+            'flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all text-left cursor-pointer',
+            !selectedCategory
+              ? 'bg-brand text-on-brand shadow-xs'
+              : 'text-foreground-secondary hover:text-foreground hover:bg-state-hover'
           )}
         >
-          <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0", !selectedCategory ? "bg-white/20" : "bg-surface-elevated")}>
-            <span className="text-base">🌾</span>
-          </div>
-          <span>All Products</span>
-        </button>
-        {categories.map((cat) => (
-          <button
-            key={cat.slug}
-            onClick={() => setSelectedCategory(cat.slug)}
+          <div
             className={cn(
-              "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all font-semibold text-left",
-              selectedCategory === cat.slug ? "bg-brand text-brand-foreground shadow-sm" : "text-foreground-secondary hover:bg-state-hover"
+              'w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-sm transition-colors',
+              !selectedCategory ? 'bg-white/20 text-white' : 'bg-surface-elevated text-brand'
             )}
           >
-            <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0 overflow-hidden", selectedCategory === cat.slug ? "bg-white/20" : "bg-surface-elevated")}>
-              {cat.image ? (
-                <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
-              ) : (
-                <span className={cn("text-xs font-bold", selectedCategory === cat.slug ? "text-white" : "text-foreground-secondary")}>{cat.name.charAt(0)}</span>
+            <Layers className="h-4 w-4" />
+          </div>
+          <span className="truncate">All Categories</span>
+        </button>
+
+        {categories.map((cat) => {
+          const isSelected = selectedCategory === cat.slug;
+          return (
+            <button
+              key={cat.slug}
+              type="button"
+              onClick={() => setSelectedCategory(cat.slug)}
+              className={cn(
+                'flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all text-left cursor-pointer',
+                isSelected
+                  ? 'bg-brand text-on-brand shadow-xs'
+                  : 'text-foreground-secondary hover:text-foreground hover:bg-state-hover'
               )}
-            </div>
-            <span className="truncate">{cat.name}</span>
-          </button>
-        ))}
+            >
+              <div
+                className={cn(
+                  'w-7 h-7 rounded-lg flex items-center justify-center shrink-0 overflow-hidden text-xs font-bold transition-colors',
+                  isSelected ? 'bg-white/20 text-white' : 'bg-surface-elevated text-foreground-secondary'
+                )}
+              >
+                {cat.image ? (
+                  <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
+                ) : (
+                  <span>{cat.name.charAt(0)}</span>
+                )}
+              </div>
+              <span className="truncate flex-1">{cat.name}</span>
+              {typeof cat.product_count === 'number' && (
+                <span
+                  className={cn(
+                    'text-[10px] font-bold px-1.5 py-0.5 rounded-full',
+                    isSelected ? 'bg-white/20 text-white' : 'bg-surface-elevated text-muted'
+                  )}
+                >
+                  {cat.product_count}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
 
-    {/* Quality */}
-    <div className="px-1">
-      <h3 className="text-xs font-bold text-foreground-secondary mb-3 uppercase tracking-widest">Quality</h3>
+    {/* Quality & Certification */}
+    <div className="pt-4 border-t border-border-subtle px-1">
+      <h3 className="text-xs font-bold text-foreground-secondary mb-3 uppercase tracking-wider">
+        Farming Standards
+      </h3>
       <Checkbox
         id="organic-filter"
         checked={organicOnly}
         onChange={(checked) => setOrganicOnly(checked)}
-        label="Organic Only"
-        description="Show only organically certified harvests"
+        label="Certified Organic Only"
+        description="Harvested with verified zero chemical inputs"
       />
     </div>
 
-    {/* Reset */}
+    {/* Clear all active filters */}
     {activeFilterCount > 0 && (
-      <Button variant="danger" size="md" onClick={clearFilters} className="w-full gap-2 rounded-xl mt-4">
-        <X className="h-4 w-4" /> Clear Filters
-      </Button>
+      <div className="pt-2">
+        <Button
+          variant="outline"
+          size="sm"
+          fullWidth
+          onClick={clearFilters}
+          className="gap-2 font-bold"
+        >
+          <RotateCcw className="h-3.5 w-3.5" />
+          Reset All Filters ({activeFilterCount})
+        </Button>
+      </div>
     )}
   </div>
 );
 
 const Marketplace = () => {
   useSEO({
-    title: 'Marketplace',
-    description: 'Browse fresh, organic farm produce from verified farmers across India.',
+    title: 'Marketplace | Farmket',
+    description: 'Browse fresh, organic farm produce direct from verified farmers across India.',
   });
 
   const { addToCart } = useCart();
@@ -116,44 +195,71 @@ const Marketplace = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
-  // Filters
-  const [searchParams] = useSearchParams();
-  const [search, setSearch] = useState(searchParams.get('search') || '');
-  const debouncedSearch = useDebounce(search, 500); // 500ms debounce
-  const [selectedCategory, setSelectedCategory] = useState('');
+
+  // Search params sync
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialSearch = searchParams.get('search') || '';
+  const initialCategory = searchParams.get('category') || '';
+
+  const [search, setSearch] = useState(initialSearch);
+  const debouncedSearch = useDebounce(search, 400);
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [organicOnly, setOrganicOnly] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('-created_at');
-  
+  const [page, setPage] = useState(1);
+
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [total, setTotal] = useState(0);
+  const sortDropdownRef = useRef<HTMLDivElement>(null);
 
-  const sortOptions: { label: string; value: SortOption }[] = [
-    { label: 'Newest First', value: '-created_at' },
-    { label: 'Price: Low to High', value: 'price' },
-    { label: 'Price: High to Low', value: '-price' },
-  ];
+  const pageSize = 12;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
+  // Close sort popover on click outside
   useEffect(() => {
-    productService.getCategories()
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sortDropdownRef.current && !sortDropdownRef.current.contains(event.target as Node)) {
+        setIsSortOpen(false);
+      }
+    };
+    if (isSortOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isSortOpen]);
+
+  // Load Categories on mount
+  useEffect(() => {
+    productService
+      .getCategories()
       .then(setCategories)
-      .catch(() => { /* silent */ });
+      .catch(() => {
+        /* silent */
+      });
   }, []);
 
+  // Sync state to search params
+  useEffect(() => {
+    const nextParams = new URLSearchParams();
+    if (debouncedSearch.trim()) nextParams.set('search', debouncedSearch.trim());
+    if (selectedCategory) nextParams.set('category', selectedCategory);
+    setSearchParams(nextParams, { replace: true });
+  }, [debouncedSearch, selectedCategory, setSearchParams]);
+
+  // Fetch Products
   useEffect(() => {
     let cancelled = false;
 
     const fetchProducts = async () => {
-      // We keep this to catch debounced search changes, but for category/organic clicks
-      // isLoading is already set to true synchronously to prevent UI flash.
       setIsLoading(true);
-      
+
       const params = {
-        ...(selectedCategory ? { 'category__slug': selectedCategory } : {}),
+        ...(selectedCategory ? { category__slug: selectedCategory } : {}),
         ...(organicOnly ? { is_organic: true } : {}),
         ...(debouncedSearch.trim() ? { search: debouncedSearch.trim() } : {}),
         ordering: sortBy,
+        page,
       };
 
       try {
@@ -165,7 +271,7 @@ const Marketplace = () => {
       } catch (err) {
         if (!cancelled) {
           if (!axios.isAxiosError(err) || err.response?.status !== 401) {
-            toast.error('Failed to load products');
+            toast.error('Failed to load marketplace products');
           }
         }
       } finally {
@@ -177,185 +283,436 @@ const Marketplace = () => {
 
     fetchProducts();
 
-    return () => { cancelled = true; };
-  }, [debouncedSearch, selectedCategory, organicOnly, sortBy]);
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedSearch, selectedCategory, organicOnly, sortBy, page]);
+
+  // Reset page when major filters change
+  const handleCategoryChange = (cat: string) => {
+    setPage(1);
+    setSelectedCategory(cat);
+  };
+
+  const handleOrganicChange = (val: boolean) => {
+    setPage(1);
+    setOrganicOnly(val);
+  };
+
+  const handleSortChange = (opt: SortOption) => {
+    setPage(1);
+    setSortBy(opt);
+    setIsSortOpen(false);
+  };
+
+  const clearFilters = () => {
+    setPage(1);
+    setSearch('');
+    setSelectedCategory('');
+    setOrganicOnly(false);
+    setSortBy('-created_at');
+  };
 
   const handleAddToCart = async (product: Product) => {
     if (!user) {
-      toast.error('Please log in to add items to cart', { icon: '🔒' });
+      toast.error('Please log in to add items to your basket', { icon: '🔒' });
       return;
     }
     await addToCart(product);
   };
 
-  const clearFilters = () => {
-    setIsLoading(true);
-    setSearch('');
-    setSelectedCategory('');
-    setOrganicOnly(false);
-  };
+  const activeFilterCount =
+    (organicOnly ? 1 : 0) + (selectedCategory ? 1 : 0) + (search.trim() ? 1 : 0);
 
-  const activeFilterCount = (organicOnly ? 1 : 0) + (selectedCategory ? 1 : 0) + (search ? 1 : 0);
+  const selectedSortLabel = useMemo(
+    () => SORT_OPTIONS.find((o) => o.value === sortBy)?.label || 'Sort By',
+    [sortBy]
+  );
 
   return (
-    <Container className="py-8 min-h-screen flex flex-col">
-
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 shrink-0">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-display font-bold text-foreground tracking-tight mb-2">Marketplace</h1>
-          <p className="text-base text-foreground-secondary">
-            {isLoading ? 'Loading fresh produce...' : `Showing ${total} product${total !== 1 ? 's' : ''}`}
+    <Container className="py-6 sm:py-8 min-h-screen flex flex-col gap-6">
+      {/* Discovery Hero & Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-2 border-b border-border-subtle">
+        <div className="space-y-1.5 max-w-2xl">
+          <div className="flex items-center gap-2">
+            <Badge variant="brand" size="sm" dot>
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Direct Farm Marketplace</span>
+            </Badge>
+          </div>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-display font-bold text-foreground tracking-tight">
+            Explore Fresh Harvests
+          </h1>
+          <p className="text-xs sm:text-sm font-medium text-foreground-secondary">
+            {isLoading
+              ? 'Loading farm harvest catalog...'
+              : `Discovered ${total} harvest${total !== 1 ? 's' : ''} available directly from farmers`}
           </p>
         </div>
-        
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <div className="relative w-full md:w-80">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-foreground-secondary" />
+
+        {/* Global Search & Action Controls */}
+        <div className="flex items-center gap-2.5 w-full md:w-auto">
+          {/* Search Bar */}
+          <div className="relative flex-1 md:w-72 sm:md:w-80">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted pointer-events-none" />
             <input
               type="text"
-              placeholder="Search produce..."
+              placeholder="Search produce, farmer, crop..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-full border border-border-strong bg-surface py-3 pl-12 pr-6 text-sm font-medium shadow-sm transition-all focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+              onChange={(e) => {
+                setPage(1);
+                setSearch(e.target.value);
+              }}
+              className="w-full h-11 rounded-xl border border-border-strong bg-surface py-2 pl-10 pr-9 text-xs sm:text-sm font-medium shadow-xs text-foreground placeholder:text-muted/70 transition-all focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/15"
             />
+            {search && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch('');
+                  setPage(1);
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted hover:text-foreground transition-colors cursor-pointer"
+                aria-label="Clear search"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
-          <div className="relative hidden sm:block">
+
+          {/* Sort Dropdown */}
+          <div className="relative hidden sm:block" ref={sortDropdownRef}>
             <button
-              onClick={() => setIsSortOpen(!isSortOpen)}
-              className="flex items-center justify-between w-48 rounded-full border border-border-strong bg-surface px-5 py-3 text-sm font-medium shadow-sm transition-all focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand hover:bg-state-hover"
+              type="button"
+              onClick={() => setIsSortOpen((prev) => !prev)}
+              aria-haspopup="listbox"
+              aria-expanded={isSortOpen}
+              className="flex items-center justify-between gap-2 h-11 min-w-[170px] rounded-xl border border-border-strong bg-surface px-3.5 text-xs sm:text-sm font-semibold shadow-xs transition-all hover:bg-state-hover focus-ring cursor-pointer"
             >
-              <span className="truncate">{sortOptions.find(o => o.value === sortBy)?.label}</span>
-              <ChevronDown className={cn("h-4 w-4 text-foreground-secondary transition-transform duration-300", isSortOpen && "rotate-180")} />
+              <span className="truncate">{selectedSortLabel}</span>
+              <ChevronDown
+                className={cn(
+                  'h-4 w-4 text-foreground-secondary transition-transform duration-200 shrink-0',
+                  isSortOpen && 'rotate-180 text-brand'
+                )}
+              />
             </button>
 
             <AnimatePresence>
               {isSortOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setIsSortOpen(false)} />
-                  <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="absolute right-0 mt-2 w-56 rounded-2xl bg-surface p-1.5 shadow-xl border border-border-subtle z-50 overflow-hidden"
-                  >
-                    {sortOptions.map((option) => (
+                <motion.div
+                  initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                  transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                  role="listbox"
+                  className="absolute right-0 mt-2 w-52 rounded-2xl bg-surface p-1.5 shadow-xl border border-border-strong z-50 overflow-hidden origin-top-right"
+                >
+                  {SORT_OPTIONS.map((option) => {
+                    const isSelected = sortBy === option.value;
+                    return (
                       <button
                         key={option.value}
-                        onClick={() => {
-                          setIsLoading(true);
-                          setSortBy(option.value);
-                          setIsSortOpen(false);
-                        }}
+                        type="button"
+                        role="option"
+                        aria-selected={isSelected}
+                        onClick={() => handleSortChange(option.value)}
                         className={cn(
-                          "w-full flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
-                          sortBy === option.value
-                            ? "bg-brand-muted text-brand font-semibold"
-                            : "text-foreground-secondary hover:bg-state-hover"
+                          'w-full flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition-colors cursor-pointer',
+                          isSelected
+                            ? 'bg-brand/10 text-brand font-bold'
+                            : 'text-foreground hover:bg-state-hover'
                         )}
                       >
-                        {option.label}
-                        {sortBy === option.value && <Check className="h-4 w-4" />}
+                        <span>{option.label}</span>
+                        {isSelected && <Check className="h-3.5 w-3.5 text-brand" />}
                       </button>
-                    ))}
-                  </motion.div>
-                </>
+                    );
+                  })}
+                </motion.div>
               )}
             </AnimatePresence>
           </div>
-          <Button variant="outline" className="lg:hidden rounded-full h-[46px] w-[46px] p-0 border-border-strong bg-surface" onClick={() => setShowMobileFilters(true)}>
-            <Filter className="h-5 w-5" />
+
+          {/* Mobile Filter Toggle */}
+          <Button
+            type="button"
+            variant="outline"
+            size="md"
+            className="lg:hidden h-11 px-3 gap-1.5 font-bold"
+            onClick={() => setShowMobileFilters(true)}
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            <span className="text-xs">Filters</span>
+            {activeFilterCount > 0 && (
+              <span className="h-4 min-w-[16px] px-1 rounded-full bg-brand text-on-brand text-[10px] font-bold flex items-center justify-center">
+                {activeFilterCount}
+              </span>
+            )}
           </Button>
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8 items-start flex-1 min-h-[600px]">
-        {/* Desktop Sidebar */}
-        <aside className="hidden lg:block w-72 shrink-0 sticky top-28">
-          <div className="rounded-2xl border border-border-subtle bg-surface p-6 shadow-sm">
+      {/* Horizontal Category Quick-Chips Bar */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+        <button
+          type="button"
+          onClick={() => handleCategoryChange('')}
+          className={cn(
+            'px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-150 cursor-pointer shrink-0 border',
+            !selectedCategory
+              ? 'bg-brand text-on-brand border-brand shadow-xs font-bold'
+              : 'border-border-subtle bg-surface text-foreground-secondary hover:text-foreground hover:border-border-strong'
+          )}
+        >
+          All Produce
+        </button>
+
+        {categories.map((cat) => {
+          const isSelected = selectedCategory === cat.slug;
+          return (
+            <button
+              key={cat.slug}
+              type="button"
+              onClick={() => handleCategoryChange(cat.slug)}
+              className={cn(
+                'px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-150 cursor-pointer shrink-0 border flex items-center gap-1.5',
+                isSelected
+                  ? 'bg-brand text-on-brand border-brand shadow-xs font-bold'
+                  : 'border-border-subtle bg-surface text-foreground-secondary hover:text-foreground hover:border-border-strong'
+              )}
+            >
+              <span>{cat.name}</span>
+              {typeof cat.product_count === 'number' && (
+                <span
+                  className={cn(
+                    'text-[10px] px-1.5 py-0.2 rounded-full font-bold',
+                    isSelected ? 'bg-white/20 text-white' : 'bg-surface-elevated text-muted'
+                  )}
+                >
+                  {cat.product_count}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Main Catalog View: Sidebar + Grid */}
+      <div className="flex flex-col lg:flex-row gap-8 items-start flex-1 min-h-[500px]">
+        {/* Desktop Sticky Filter Sidebar */}
+        <aside className="hidden lg:block w-64 shrink-0 sticky top-24">
+          <div className="rounded-2xl border border-border-subtle bg-surface p-5 shadow-xs">
             <FilterSidebar
               categories={categories}
               selectedCategory={selectedCategory}
-              setSelectedCategory={(val) => {
-                setIsLoading(true);
-                setSelectedCategory(val);
-              }}
+              setSelectedCategory={handleCategoryChange}
               organicOnly={organicOnly}
-              setOrganicOnly={(val) => {
-                setIsLoading(true);
-                setOrganicOnly(val);
-              }}
+              setOrganicOnly={handleOrganicChange}
               activeFilterCount={activeFilterCount}
               clearFilters={clearFilters}
             />
           </div>
         </aside>
 
-        {/* Mobile Drawer */}
+        {/* Mobile Filter Drawer */}
         <AnimatePresence>
           {showMobileFilters && (
             <>
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 lg:hidden" onClick={() => setShowMobileFilters(false)} />
-              <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="fixed inset-y-0 right-0 w-full max-w-sm bg-surface shadow-2xl z-50 p-6 overflow-y-auto lg:hidden flex flex-col rounded-l-3xl">
-                <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-xl font-display font-bold text-foreground">Filters</h2>
-                  <button onClick={() => setShowMobileFilters(false)} className="h-10 w-10 bg-surface-elevated rounded-full flex items-center justify-center hover:bg-state-hover text-foreground-secondary transition-all">
-                    <X className="h-5 w-5" />
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-background/60 backdrop-blur-sm z-50 lg:hidden"
+                onClick={() => setShowMobileFilters(false)}
+              />
+              <motion.div
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+                className="fixed inset-y-0 right-0 w-full max-w-xs sm:max-w-sm bg-surface shadow-2xl z-50 p-6 overflow-y-auto lg:hidden flex flex-col rounded-l-3xl border-l border-border-subtle"
+              >
+                <div className="flex items-center justify-between pb-4 border-b border-border-subtle mb-6">
+                  <div className="flex items-center gap-2">
+                    <SlidersHorizontal className="h-4 w-4 text-brand" />
+                    <h2 className="text-base font-display font-bold text-foreground">
+                      Filter Catalog
+                    </h2>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowMobileFilters(false)}
+                    className="p-1.5 rounded-lg text-foreground-secondary hover:text-foreground hover:bg-state-hover transition-colors focus-ring"
+                    aria-label="Close filters"
+                  >
+                    <X className="h-4 w-4" />
                   </button>
                 </div>
+
+                {/* Mobile Sort options inside drawer */}
+                <div className="mb-6 sm:hidden">
+                  <h3 className="text-xs font-bold text-foreground-secondary uppercase tracking-wider mb-2">
+                    Sort Harvests
+                  </h3>
+                  <div className="grid grid-cols-1 gap-1.5">
+                    {SORT_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => handleSortChange(opt.value)}
+                        className={cn(
+                          'flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-left transition-colors',
+                          sortBy === opt.value
+                            ? 'bg-brand/10 text-brand font-bold'
+                            : 'text-foreground hover:bg-state-hover'
+                        )}
+                      >
+                        <span>{opt.label}</span>
+                        {sortBy === opt.value && <Check className="h-3.5 w-3.5 text-brand" />}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <FilterSidebar
                   className="flex-1"
                   categories={categories}
                   selectedCategory={selectedCategory}
-                  setSelectedCategory={(val) => {
-                    setIsLoading(true);
-                    setSelectedCategory(val);
-                  }}
+                  setSelectedCategory={handleCategoryChange}
                   organicOnly={organicOnly}
-                  setOrganicOnly={(val) => {
-                    setIsLoading(true);
-                    setOrganicOnly(val);
-                  }}
+                  setOrganicOnly={handleOrganicChange}
                   activeFilterCount={activeFilterCount}
                   clearFilters={clearFilters}
                 />
-                <div className="mt-8 pt-6 border-t border-border-subtle">
-                  <Button variant="primary" className="w-full py-3.5 rounded-xl text-sm" onClick={() => setShowMobileFilters(false)}>Show Products</Button>
+
+                <div className="mt-8 pt-4 border-t border-border-subtle">
+                  <Button
+                    type="button"
+                    variant="brand"
+                    size="lg"
+                    fullWidth
+                    onClick={() => setShowMobileFilters(false)}
+                    className="font-bold shadow-brand/20"
+                  >
+                    View Harvests
+                  </Button>
                 </div>
               </motion.div>
             </>
           )}
         </AnimatePresence>
 
-        {/* Product Grid */}
-        <div className="flex-1 w-full min-h-[800px] flex flex-col">
+        {/* Product Cards Grid & Empty States */}
+        <div className="flex-1 w-full flex flex-col">
           {isLoading ? (
-            <Grid cols="auto-fit" gap="md">
-              {Array.from({ length: 12 }).map((_, i) => <ProductCardSkeleton key={i} />)}
-            </Grid>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              {Array.from({ length: 9 }).map((_, i) => (
+                <ProductCardSkeleton key={i} />
+              ))}
+            </div>
           ) : products.length === 0 ? (
-            <div className="flex-1 w-full flex items-center justify-center py-16 px-4 rounded-3xl border border-dashed border-border-strong bg-surface">
+            <div className="flex-1 w-full flex items-center justify-center py-16 px-4 rounded-3xl border border-dashed border-border-strong bg-surface/50">
               <EmptyState
-                icon={<Search className="h-8 w-8 text-muted" />}
-                title="No products found"
-                description="We couldn't find any products matching your current filters. Try adjusting your search criteria."
+                icon={<Search className="h-8 w-8 text-brand" />}
+                title="No farm harvests found"
+                description="We couldn't find any produce matching your current filters. Try changing your search keywords or resetting filters."
                 action={{
-                  label: "Clear All Filters",
-                  onClick: clearFilters
+                  label: 'Clear All Filters',
+                  onClick: clearFilters,
                 }}
               />
             </div>
           ) : (
-            <Grid cols="auto-fit" gap="md">
-              <AnimatePresence>
-                {products.map((product, i) => (
-                  <motion.div key={product.id} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.4, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}>
-                    <ProductCard product={product} onAddToCart={handleAddToCart} />
-                  </motion.div>
+            <div className="space-y-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                {products.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onAddToCart={handleAddToCart}
+                  />
                 ))}
-              </AnimatePresence>
-            </Grid>
+              </div>
+
+              {/* Modernized Catalog Pagination */}
+              {totalPages > 1 && (
+                <div className="pt-6 border-t border-border-subtle flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <p className="text-xs font-medium text-foreground-secondary">
+                    Showing {(page - 1) * pageSize + 1} to{' '}
+                    {Math.min(page * pageSize, total)} of {total} harvests
+                  </p>
+
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={page <= 1}
+                      onClick={() => {
+                        setPage((p) => Math.max(1, p - 1));
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className="px-2.5 h-8 gap-1 font-semibold"
+                    >
+                      <ChevronLeft className="h-3.5 w-3.5" />
+                      <span>Previous</span>
+                    </Button>
+
+                    <div className="flex items-center gap-1 px-1">
+                      {Array.from({ length: totalPages }, (_, idx) => idx + 1)
+                        .filter(
+                          (p) =>
+                            p === 1 ||
+                            p === totalPages ||
+                            (p >= page - 1 && p <= page + 1)
+                        )
+                        .map((p, i, arr) => {
+                          const prevPage = arr[i - 1];
+                          const hasGap = prevPage && p - prevPage > 1;
+                          return (
+                            <div key={p} className="flex items-center">
+                              {hasGap && (
+                                <span className="px-1.5 text-xs text-muted">…</span>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setPage(p);
+                                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
+                                className={cn(
+                                  'h-8 w-8 rounded-lg text-xs font-bold transition-colors cursor-pointer',
+                                  p === page
+                                    ? 'bg-brand text-on-brand shadow-xs'
+                                    : 'text-foreground-secondary hover:bg-state-hover hover:text-foreground'
+                                )}
+                              >
+                                {p}
+                              </button>
+                            </div>
+                          );
+                        })}
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={page >= totalPages}
+                      onClick={() => {
+                        setPage((p) => Math.min(totalPages, p + 1));
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className="px-2.5 h-8 gap-1 font-semibold"
+                    >
+                      <span>Next</span>
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>

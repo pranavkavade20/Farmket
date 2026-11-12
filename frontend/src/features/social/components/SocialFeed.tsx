@@ -1,21 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useGetFeedQuery } from '../api/socialApi';
 import { FeedCard } from './FeedCard';
 import { PostComposer } from './PostComposer';
 import { CommentPanel } from './CommentPanel';
 import { useAppSelector } from '@/app/hooks';
-import { Loader2, Newspaper } from 'lucide-react';
+import { Loader2, Plus, Sparkles, Sprout, Tag, Pin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Container, EmptyState } from '@/components/ui';
+import { EmptyState, Skeleton, Button } from '@/components/ui';
 import type { Post, Product } from '@/types';
+
+type FeedFilter = 'all' | 'prebooking' | 'harvest' | 'organic' | 'pinned';
 
 export const SocialFeed: React.FC = () => {
   const [cursor, setCursor] = useState<string | void>(undefined);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [activeFilter, setActiveFilter] = useState<FeedFilter>('all');
   const { data, isFetching } = useGetFeedQuery(cursor);
-  const { user } = useAppSelector(state => state.auth);
-  
+  const { user } = useAppSelector((state) => state.auth);
+  const navigate = useNavigate();
+
   const [showComposer, setShowComposer] = useState(false);
   const [activeCommentPostId, setActiveCommentPostId] = useState<number | null>(null);
 
@@ -23,7 +27,7 @@ export const SocialFeed: React.FC = () => {
     if (data && data.results) {
       if (cursor) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        setPosts(prev => {
+        setPosts((prev) => {
           const newPosts = data.results.filter(
             (newPost: Post) => !prev.some((p: Post) => p.id === newPost.id)
           );
@@ -36,14 +40,21 @@ export const SocialFeed: React.FC = () => {
   }, [data, cursor]);
 
   const handleScroll = () => {
-    if (window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight || isFetching) {
+    if (
+      window.innerHeight + document.documentElement.scrollTop <
+        document.documentElement.offsetHeight - 200 ||
+      isFetching
+    ) {
       return;
     }
     if (data?.next) {
-      // Extract cursor from URL
-      const url = new URL(data.next);
-      const nextCursor = url.searchParams.get('cursor');
-      if (nextCursor) setCursor(nextCursor);
+      try {
+        const url = new URL(data.next);
+        const nextCursor = url.searchParams.get('cursor');
+        if (nextCursor) setCursor(nextCursor);
+      } catch {
+        // ignore invalid URL
+      }
     }
   };
 
@@ -53,67 +64,105 @@ export const SocialFeed: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, isFetching]);
 
-  const navigate = useNavigate();
-
   const handleBuyNowClick = (product: Product) => {
-    // Navigate to the marketplace product details page using slug
-    navigate(`/marketplace/${product.slug}`);
+    if (product.slug) {
+      navigate(`/marketplace/${product.slug}`);
+    }
   };
 
-  useEffect(() => {
-    if (activeCommentPostId) {
-      setTimeout(() => {
-        const el = document.getElementById(`post-${activeCommentPostId}`);
-        if (el) {
-          const y = el.getBoundingClientRect().top + window.scrollY - 30; // 30px padding from top
-          window.scrollTo({ top: y, behavior: 'smooth' });
-        }
-      }, 150); // allow layout transition to occur first
-    }
-  }, [activeCommentPostId]);
+  // Client-side filtering by category / hashtag / pinned status
+  const filteredPosts = useMemo(() => {
+    return posts.filter((post) => {
+      if (activeFilter === 'pinned') return post.is_pinned;
+      if (activeFilter === 'prebooking') return post.product?.is_prebookable;
+      if (activeFilter === 'harvest') {
+        return (
+          Boolean(post.product?.crop_stage) ||
+          post.hashtags?.some((t) => t.toLowerCase().includes('harvest')) ||
+          post.title?.toLowerCase().includes('harvest')
+        );
+      }
+      if (activeFilter === 'organic') {
+        return (
+          post.hashtags?.some((t) => t.toLowerCase().includes('organic')) ||
+          post.description?.toLowerCase().includes('organic')
+        );
+      }
+      return true;
+    });
+  }, [posts, activeFilter]);
+
+  const filterTabs = [
+    { key: 'all' as FeedFilter, label: 'All Stories', icon: Sparkles },
+    { key: 'prebooking' as FeedFilter, label: 'Pre-Bookings', icon: Tag },
+    { key: 'harvest' as FeedFilter, label: 'Harvest Ready', icon: Sprout },
+    { key: 'pinned' as FeedFilter, label: 'Announcements', icon: Pin },
+  ];
 
   return (
-    <Container maxWidth="reading" className="py-8 px-0 sm:px-0">
-      {/* Floating Action Button & Modal for Farmers */}
+    <div className="max-w-2xl mx-auto px-4 sm:px-0 relative">
+      {/* Category Filter Pills */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-4 custom-scrollbar select-none">
+        {filterTabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeFilter === tab.key;
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setActiveFilter(tab.key)}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap border ${
+                isActive
+                  ? 'bg-brand text-on-brand border-brand shadow-xs'
+                  : 'bg-surface hover:bg-surface-elevated text-foreground-secondary border-border-subtle'
+              }`}
+            >
+              <Icon size={13} className={isActive ? 'text-on-brand' : 'text-muted'} />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Floating Action Button for Verified Farmers */}
       {user?.user_type === 'farmer' && (
         <>
           <AnimatePresence>
             {!showComposer && (
               <motion.button
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0 }}
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowComposer(true)}
-                className="fixed bottom-6 right-6 md:bottom-10 md:right-10 h-16 w-16 bg-brand hover:bg-brand-hover text-white rounded-full shadow-xl flex items-center justify-center z-40 transition-all border-4 border-surface focus-ring"
-                aria-label="Create new post"
+                className="fixed bottom-6 right-6 md:bottom-10 md:right-10 h-14 w-14 sm:h-16 sm:w-16 bg-brand hover:bg-brand-hover text-on-brand rounded-full shadow-2xl flex items-center justify-center z-40 transition-all border-4 border-surface group"
+                title="Create a new farm update"
+                aria-label="Create a new farm update"
               >
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
+                <Plus size={28} className="transition-transform group-hover:rotate-90 duration-200" />
               </motion.button>
             )}
           </AnimatePresence>
 
+          {/* Post Composer Modal */}
           <AnimatePresence>
             {showComposer && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4"
                 onClick={(e) => {
                   if (e.target === e.currentTarget) setShowComposer(false);
                 }}
               >
-                <PostComposer 
-                  onClose={() => setShowComposer(false)} 
+                <PostComposer
+                  onClose={() => setShowComposer(false)}
                   onSuccess={() => {
                     setShowComposer(false);
-                    setCursor(undefined); // Reset feed
-                  }} 
+                    setCursor(undefined); // Reset feed to top
+                  }}
                 />
               </motion.div>
             )}
@@ -121,66 +170,96 @@ export const SocialFeed: React.FC = () => {
         </>
       )}
 
-      {/* Feed */}
-      <div className={`space-y-8 mx-auto transition-all duration-300 ${activeCommentPostId ? 'max-w-5xl' : 'max-w-2xl'}`}>
-        {posts.map((post, index) => (
-          <div key={`${post.id}-${index}`} id={`post-${post.id}`} className={`flex flex-col md:flex-row gap-4 lg:gap-6 items-start justify-center transition-all duration-500 ${activeCommentPostId === post.id ? 'md:h-[85vh]' : ''}`}>
-            {/* Feed Card */}
-            <div className={`transition-all duration-300 w-full mx-auto ${activeCommentPostId === post.id ? 'md:w-[500px] lg:w-[600px] flex-shrink-0 md:mx-0 h-full' : 'max-w-2xl'}`}>
-              <FeedCard 
-                post={post} 
-                onCommentClick={(id) => setActiveCommentPostId(activeCommentPostId === id ? null : id)} 
-                onBuyNowClick={handleBuyNowClick}
-                isActive={activeCommentPostId === post.id}
-              />
-            </div>
-            
-            {/* Desktop Inline Comment Panel */}
-            <AnimatePresence>
-              {activeCommentPostId === post.id && (
-                <motion.div 
-                  initial={{ opacity: 0, width: 0, x: -20 }}
-                  animate={{ opacity: 1, width: '100%', maxWidth: '400px', x: 0 }}
-                  exit={{ opacity: 0, width: 0, x: -20 }}
-                  className="hidden md:block flex-shrink-0 h-full w-[350px] lg:w-[400px]"
-                >
-                  <CommentPanel 
-                    postId={activeCommentPostId} 
-                    isOpen={true} 
-                    onClose={() => setActiveCommentPostId(null)} 
-                    isInline={true}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+      {/* Feed Cards Column */}
+      <div className="space-y-6">
+        {filteredPosts.map((post) => (
+          <FeedCard
+            key={post.id}
+            post={post}
+            onCommentClick={(id) =>
+              setActiveCommentPostId(activeCommentPostId === id ? null : id)
+            }
+            onBuyNowClick={handleBuyNowClick}
+            isActive={activeCommentPostId === post.id}
+          />
         ))}
       </div>
 
-      {/* Loading state */}
-      {isFetching && (
-        <div className="flex justify-center py-8">
-          <Loader2 className="animate-spin text-brand" size={32} />
+      {/* Realistic Skeletons while Initial Fetch */}
+      {isFetching && posts.length === 0 && (
+        <div className="space-y-6">
+          {[1, 2].map((i) => (
+            <div
+              key={i}
+              className="bg-surface rounded-3xl p-5 border border-border-subtle space-y-4"
+            >
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-11 w-11 rounded-full flex-shrink-0" />
+                <div className="space-y-2 flex-1">
+                  <Skeleton className="h-4 w-32 rounded-md" />
+                  <Skeleton className="h-3 w-24 rounded-md" />
+                </div>
+              </div>
+              <Skeleton className="h-4 w-3/4 rounded-md" />
+              <Skeleton className="h-3 w-full rounded-md" />
+              <Skeleton className="h-64 sm:h-80 w-full rounded-2xl" />
+              <div className="flex justify-between items-center pt-2">
+                <div className="flex gap-4">
+                  <Skeleton className="h-6 w-12 rounded-full" />
+                  <Skeleton className="h-6 w-12 rounded-full" />
+                  <Skeleton className="h-6 w-12 rounded-full" />
+                </div>
+                <Skeleton className="h-6 w-8 rounded-full" />
+              </div>
+            </div>
+          ))}
         </div>
       )}
-      
-      {!isFetching && posts.length === 0 && (
-        <EmptyState
-          icon={<Newspaper className="h-8 w-8" />}
-          title="No farm updates yet"
-          description="Farmers haven't posted any harvest updates yet. Check back soon or follow your favorite producers."
-        />
+
+      {/* Empty State */}
+      {!isFetching && filteredPosts.length === 0 && (
+        <div className="py-12">
+          <EmptyState
+            title={
+              activeFilter === 'all'
+                ? 'No farm stories yet'
+                : `No stories found for ${activeFilter}`
+            }
+            description={
+              user?.user_type === 'farmer'
+                ? 'Be the first producer to share crop growth updates, harvest schedules, and farming milestones with buyers.'
+                : 'Producers haven’t posted any updates under this filter yet. Check back soon for fresh harvest announcements.'
+            }
+            action={
+              user?.user_type === 'farmer' ? (
+                <Button variant="brand" onClick={() => setShowComposer(true)} leftIcon={<Plus size={16} />}>
+                  Share First Update
+                </Button>
+              ) : (
+                <Button variant="outline" onClick={() => setActiveFilter('all')}>
+                  View All Updates
+                </Button>
+              )
+            }
+          />
+        </div>
       )}
 
-      {/* Mobile Modal Comment Panel */}
-      <div className="md:hidden">
-        <CommentPanel 
-          postId={activeCommentPostId} 
-          isOpen={activeCommentPostId !== null} 
-          onClose={() => setActiveCommentPostId(null)} 
-          isInline={false}
-        />
-      </div>
-    </Container>
+      {/* Infinite Scroll Fetching Indicator */}
+      {isFetching && posts.length > 0 && (
+        <div className="flex items-center justify-center gap-2 py-8 text-xs font-semibold text-muted">
+          <Loader2 className="animate-spin text-brand" size={20} />
+          <span>Loading more farm stories...</span>
+        </div>
+      )}
+
+      {/* Comment Slide-Over Panel */}
+      <CommentPanel
+        postId={activeCommentPostId}
+        isOpen={activeCommentPostId !== null}
+        onClose={() => setActiveCommentPostId(null)}
+        isInline={false}
+      />
+    </div>
   );
 };

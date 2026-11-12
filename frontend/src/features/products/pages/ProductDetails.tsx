@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useSEO } from '@/hooks';
-import { Button, Container } from '@/components/ui';
+import { Button, Container, Badge } from '@/components/ui';
 import { productService } from '@/features/products';
-import type { Product} from '@/types';
+import type { Product } from '@/types';
 import CropTimeline from '@/features/products/components/CropTimeline';
 import { HarvestCountdown } from '@/features/products/components/HarvestCountdown';
 import { CropProgressBar } from '@/features/products/components/CropProgressBar';
@@ -13,11 +13,24 @@ import { ReservationModal } from '@/features/products/components/ReservationModa
 import { WaitlistModal } from '@/features/products/components/WaitlistModal';
 import { useCart } from '@/features/buyer';
 import { useAuth } from '@/features/auth';
-import { toast } from "sonner";
+import { toast } from 'sonner';
 import api from '@/lib/api';
-import { 
-  Star, MapPin, Truck, ShieldCheck, Leaf, 
-  Minus, Plus, ShoppingCart, Heart, MessageSquare
+import {
+  Star,
+  MapPin,
+  Truck,
+  ShieldCheck,
+  Leaf,
+  Minus,
+  Plus,
+  ShoppingCart,
+  Heart,
+  MessageSquare,
+  Calendar,
+  ArrowLeft,
+  BadgeCheck,
+  Sprout,
+  Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 
@@ -30,7 +43,7 @@ const ProductDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
-  
+
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
@@ -39,36 +52,45 @@ const ProductDetails = () => {
   // Modals
   const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
   const [isWaitlistModalOpen, setIsWaitlistModalOpen] = useState(false);
-  
+
   const { addToCart } = useCart();
   const { user } = useAuth();
 
   useSEO({
-    title: product ? `${product.name} - Farmket` : 'Product Details',
-    description: product?.description.slice(0, 160) || 'View product details on Farmket.',
+    title: product ? `${product.name} | Farmket Marketplace` : 'Harvest Details | Farmket',
+    description: product?.description.slice(0, 160) || 'View product and harvest details on Farmket.',
   });
 
   useEffect(() => {
-    if (id) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setIsLoading(true);
-      productService.getProduct(id)
-        .then(async (prod) => {
-          setProduct(prod);
-          setIsFollowing(prod.is_following);
-          setQuantity(prod.minimum_order || 1);
-          if (prod.active_crop_growth_id) {
-            try {
-              const res = await api.get(`/crops/crop-growths/${prod.active_crop_growth_id}/`);
-              setGrowthDetails(res.data);
-            } catch (err) {
-              console.error('Failed to load growth details', err);
-            }
+    if (!id) return;
+    let isMounted = true;
+
+    productService
+      .getProduct(id)
+      .then(async (prod) => {
+        if (!isMounted) return;
+        setProduct(prod);
+        setIsFollowing(prod.is_following);
+        setQuantity(prod.minimum_order || 1);
+        if (prod.active_crop_growth_id) {
+          try {
+            const res = await api.get(`/crops/crop-growths/${prod.active_crop_growth_id}/`);
+            if (isMounted) setGrowthDetails(res.data);
+          } catch (err) {
+            console.error('Failed to load growth details', err);
           }
-        })
-        .catch(() => toast.error('Failed to load product details'))
-        .finally(() => setIsLoading(false));
-    }
+        }
+      })
+      .catch(() => {
+        if (isMounted) toast.error('Failed to load product details');
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
 
   const handleAddToCart = async () => {
@@ -123,38 +145,84 @@ const ProductDetails = () => {
     }
   };
 
+  const formattedPrice = useMemo(() => {
+    if (!product) return '₹0';
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 2,
+    }).format(parseFloat(product.price || '0'));
+  }, [product]);
+
+  const { avgRating, reviewsCount } = useMemo(() => {
+    if (product && product.reviews && product.reviews.length > 0) {
+      const sum = product.reviews.reduce((s, r) => s + (r.rating || 0), 0);
+      return {
+        avgRating: (sum / product.reviews.length).toFixed(1),
+        reviewsCount: product.reviews.length,
+      };
+    }
+    return { avgRating: null, reviewsCount: 0 };
+  }, [product]);
+
   if (isLoading) {
-    return <Container className="py-20 text-center animate-pulse text-foreground-secondary">Loading product details...</Container>;
+    return (
+      <Container className="py-24 text-center">
+        <div className="flex flex-col items-center justify-center gap-3">
+          <Sprout className="h-10 w-10 text-brand animate-pulse" />
+          <p className="text-sm font-semibold text-foreground-secondary">
+            Loading harvest details...
+          </p>
+        </div>
+      </Container>
+    );
   }
 
   if (!product) {
     return (
-      <Container className="py-32 text-center">
-        <h2 className="text-2xl font-bold text-foreground mb-4">Product Not Found</h2>
+      <Container className="py-24 text-center">
+        <h2 className="text-2xl font-bold font-display text-foreground mb-3">
+          Harvest Listing Not Found
+        </h2>
+        <p className="text-sm text-foreground-secondary mb-6">
+          This product may have been unlisted or the URL may be incorrect.
+        </p>
         <Link to="/marketplace">
-          <Button>Back to Marketplace</Button>
+          <Button variant="brand" size="md">
+            Return to Marketplace
+          </Button>
         </Link>
       </Container>
     );
   }
 
-  const images = product.images.length > 0 ? product.images.map(img => img.image) : [];
-  const avgRating = product.reviews.length > 0 ? (product.reviews.reduce((sum, r) => sum + r.rating, 0) / product.reviews.length).toFixed(1) : '4.8';
-  const reviewsCount = product.reviews.length > 0 ? product.reviews.length : 124;
+  const images = product.images.length > 0 ? product.images.map((img) => img.image) : [];
 
   const renderCTA = () => {
     if (!user) {
       return (
-        <Button className="flex-1 h-16 text-lg rounded-full font-bold tracking-wide" onClick={() => navigate('/login')}>
-          LOG IN TO CONTINUE
+        <Button
+          variant="brand"
+          size="lg"
+          fullWidth
+          className="font-bold shadow-brand/20"
+          onClick={() => navigate('/login')}
+        >
+          Sign In to Buy
         </Button>
       );
     }
 
     if (user.user_type === 'farmer' || user.user_type === 'admin') {
       return (
-        <Button className="flex-1 h-16 text-lg rounded-full font-bold tracking-wide bg-surface-elevated text-foreground-secondary cursor-not-allowed border border-border-subtle hover:bg-surface-elevated" disabled>
-          {user.user_type === 'farmer' ? 'FARMERS CANNOT BUY' : 'ADMINS CANNOT BUY'}
+        <Button
+          variant="outline"
+          size="lg"
+          fullWidth
+          className="font-bold text-muted bg-surface-elevated/40 cursor-not-allowed"
+          disabled
+        >
+          {user.user_type === 'farmer' ? 'Farmers Cannot Buy' : 'Admins Cannot Buy'}
         </Button>
       );
     }
@@ -162,141 +230,276 @@ const ProductDetails = () => {
     switch (product.market_state) {
       case 'AVAILABLE_NOW':
         return (
-          <Button variant="primary" className="flex-1 h-16 text-lg gap-3 rounded-full font-bold tracking-wide" onClick={handleAddToCart}>
-            <ShoppingCart className="h-6 w-6" /> BUY NOW
+          <Button
+            variant="brand"
+            size="lg"
+            fullWidth
+            className="gap-2 font-bold shadow-brand/25"
+            onClick={handleAddToCart}
+          >
+            <ShoppingCart className="h-5 w-5" /> Buy Now
           </Button>
         );
       case 'LOW_STOCK':
         return (
-          <Button className="flex-1 h-16 text-lg gap-3 rounded-full font-bold tracking-wide bg-orange-600 hover:bg-orange-700 text-white" onClick={handleAddToCart}>
-            <ShoppingCart className="h-6 w-6" /> BUY NOW - LIMITED STOCK
+          <Button
+            variant="brand"
+            size="lg"
+            fullWidth
+            className="gap-2 font-bold shadow-brand/25 bg-amber-600 hover:bg-amber-700"
+            onClick={handleAddToCart}
+          >
+            <ShoppingCart className="h-5 w-5" /> Buy Now (Low Stock)
           </Button>
         );
       case 'READY_FOR_PREBOOKING':
         return (
-          <Button className="flex-1 h-16 text-lg gap-3 rounded-full font-bold tracking-wide bg-brand hover:bg-brand-hover text-brand-foreground" onClick={() => setIsReservationModalOpen(true)}>
-            RESERVE HARVEST
+          <Button
+            variant="brand"
+            size="lg"
+            fullWidth
+            className="gap-2 font-bold shadow-brand/25"
+            onClick={() => setIsReservationModalOpen(true)}
+          >
+            <Calendar className="h-5 w-5" /> Reserve Harvest
           </Button>
         );
       case 'READY_TO_HARVEST':
         return (
-          <Button className="flex-1 h-16 text-lg gap-3 rounded-full font-bold tracking-wide bg-purple-600 hover:bg-purple-700 text-white" onClick={() => setIsReservationModalOpen(true)}>
-            RESERVE PRIORITY HARVEST
+          <Button
+            variant="brand"
+            size="lg"
+            fullWidth
+            className="gap-2 font-bold shadow-brand/25"
+            onClick={() => setIsReservationModalOpen(true)}
+          >
+            <Calendar className="h-5 w-5" /> Priority Harvest Reservation
           </Button>
         );
       case 'SOLD_OUT':
         return (
-          <Button className="flex-1 h-16 text-lg gap-3 rounded-full font-bold tracking-wide bg-foreground hover:bg-foreground/90 text-surface" onClick={() => setIsWaitlistModalOpen(true)}>
-            JOIN WAITING LIST
+          <Button
+            variant="outline"
+            size="lg"
+            fullWidth
+            className="font-bold"
+            onClick={() => setIsWaitlistModalOpen(true)}
+          >
+            Join Waiting List
           </Button>
         );
       default:
         return (
-          <Button className="flex-1 h-16 text-lg gap-3 rounded-full font-bold tracking-wide bg-surface-elevated text-foreground-secondary border border-border-subtle" disabled>
-            UNAVAILABLE
+          <Button
+            variant="outline"
+            size="lg"
+            fullWidth
+            disabled
+            className="font-bold text-muted"
+          >
+            Unavailable
           </Button>
         );
     }
   };
 
   return (
-    <Container maxWidth="wide" className="py-12 min-h-screen">
-      {/* Breadcrumb */}
-      <nav className="flex items-center gap-3 text-sm font-semibold text-foreground-secondary mb-10">
-        <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
-        <span>/</span>
-        <Link to="/marketplace" className="hover:text-foreground transition-colors">Marketplace</Link>
-        <span>/</span>
-        <span className="text-foreground font-medium">{product.category_name}</span>
-      </nav>
+    <Container maxWidth="wide" className="py-6 sm:py-10 min-h-screen">
+      {/* Back button & Breadcrumbs */}
+      <div className="mb-6 flex flex-col gap-2">
+        <Link
+          to="/marketplace"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-foreground-secondary hover:text-brand transition-colors group w-fit"
+        >
+          <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
+          <span>Back to Marketplace</span>
+        </Link>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 mb-20">
-        {/* Image Gallery */}
-        <div className="space-y-6">
-          <div className="aspect-square rounded-3xl overflow-hidden bg-surface-elevated relative flex items-center justify-center p-12 border border-border-subtle">
-            <img src={images[activeImage]} alt={product.name} className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal transition-transform duration-500 hover:scale-110" />
-            <div className="absolute top-8 left-8 flex flex-col gap-2">
-              <ProductStatusBadge product={product} className="px-4 py-2 text-sm shadow-xl" />
+        <nav
+          aria-label="Breadcrumb"
+          className="flex items-center gap-2 text-xs font-medium text-foreground-secondary"
+        >
+          <Link to="/" className="hover:text-foreground transition-colors">
+            Home
+          </Link>
+          <span>/</span>
+          <Link to="/marketplace" className="hover:text-foreground transition-colors">
+            Marketplace
+          </Link>
+          <span>/</span>
+          <span className="text-foreground font-semibold truncate max-w-xs">
+            {product.name}
+          </span>
+        </nav>
+      </div>
+
+      {/* Hero Section: Gallery (Left) & Info (Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 mb-16">
+        {/* Left: Image Gallery */}
+        <div className="space-y-4">
+          <div className="aspect-[4/3] sm:aspect-square rounded-2xl overflow-hidden bg-surface-elevated/40 border border-border-subtle relative flex items-center justify-center p-6 sm:p-10 shadow-xs">
+            {images.length > 0 ? (
+              <img
+                src={images[activeImage]}
+                alt={product.name}
+                className="w-full h-full object-contain transition-transform duration-500 ease-out hover:scale-105"
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center text-muted">
+                <Sprout className="h-16 w-16 stroke-1" />
+                <span className="text-xs font-semibold mt-2">Farm Harvest</span>
+              </div>
+            )}
+
+            {/* Overlay Badges */}
+            <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
+              <ProductStatusBadge product={product} className="shadow-xs" />
               {product.is_organic && (
-                <div className="bg-foreground text-surface px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 shadow-xl tracking-widest uppercase">
-                  <Leaf className="h-4 w-4" /> ORGANIC
-                </div>
+                <Badge variant="brand" size="sm" dot className="shadow-xs">
+                  <Leaf className="h-3 w-3 mr-1" />
+                  Certified Organic
+                </Badge>
               )}
             </div>
           </div>
+
+          {/* Thumbnails Row */}
           {images.length > 1 && (
-            <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
+            <div className="flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
               {images.map((img, idx) => (
                 <button
                   key={idx}
+                  type="button"
                   onClick={() => setActiveImage(idx)}
                   className={cn(
-                    "relative h-24 w-24 shrink-0 rounded-2xl overflow-hidden border-2 transition-all p-2 bg-surface-elevated",
-                    activeImage === idx ? "border-brand shadow-md" : "border-transparent opacity-60 hover:opacity-100 hover:-translate-y-1"
+                    'relative h-18 w-18 shrink-0 rounded-xl overflow-hidden border-2 transition-all p-1 bg-surface cursor-pointer',
+                    activeImage === idx
+                      ? 'border-brand shadow-xs ring-2 ring-brand/20'
+                      : 'border-border-subtle opacity-70 hover:opacity-100 hover:border-border-strong'
                   )}
+                  aria-label={`View image ${idx + 1}`}
                 >
-                  <img src={img} alt={`Thumbnail ${idx}`} className="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal rounded-xl" />
+                  <img
+                    src={img}
+                    alt={`${product.name} thumbnail ${idx + 1}`}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
                 </button>
               ))}
             </div>
           )}
         </div>
 
-        {/* Product Info */}
-        <div className="flex flex-col justify-center">
-          <div className="mb-8">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-foreground mb-6 tracking-tight leading-[1.1]">{product.name}</h1>
-            
-            <div className="flex flex-wrap items-center gap-4 mb-8">
-              <div className="flex items-center gap-1.5 bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500 px-3 py-1.5 rounded-full font-bold text-sm">
-                <Star className="h-4 w-4 fill-current" />
-                {avgRating} ({reviewsCount} reviews)
-              </div>
-              <div className="flex items-center gap-2 text-foreground-secondary font-semibold text-sm bg-surface-elevated border border-border-subtle px-3 py-1.5 rounded-full">
-                <MapPin className="h-4 w-4 text-foreground" /> {product.farmer_name}
+        {/* Right: Product Info & Commerce Actions */}
+        <div className="flex flex-col justify-start">
+          <div className="mb-6">
+            <span className="text-xs font-bold uppercase tracking-wider text-brand mb-1.5 inline-block">
+              {product.category_name || 'Farm Produce'}
+            </span>
+
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-display font-bold text-foreground mb-3 tracking-tight">
+              {product.name}
+            </h1>
+
+            {/* Ratings & Farmer Attribution Row */}
+            <div className="flex flex-wrap items-center gap-3 mb-5">
+              {avgRating ? (
+                <div className="flex items-center gap-1.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 px-3 py-1 rounded-full font-bold text-xs">
+                  <Star className="h-3.5 w-3.5 fill-current" />
+                  <span>
+                    {avgRating} ({reviewsCount} review{reviewsCount !== 1 ? 's' : ''})
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1.5 bg-brand/10 text-brand px-3 py-1 rounded-full font-bold text-xs">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  <span>Fresh Harvest • New</span>
+                </div>
+              )}
+
+              <div className="flex items-center gap-1.5 text-foreground-secondary font-semibold text-xs bg-surface-elevated/70 border border-border-subtle px-3 py-1 rounded-full">
+                <MapPin className="h-3.5 w-3.5 text-brand" />
+                <span title={product.farmer_name || 'Verified Farmer'}>
+                  {product.farmer_name || 'Verified Farmer'}
+                </span>
+                <BadgeCheck className="h-3.5 w-3.5 text-brand" />
               </div>
             </div>
 
-            <div className="flex items-end gap-3 mt-4">
-              <span className="text-5xl lg:text-6xl font-display font-bold text-foreground">₹{product.price}</span>
-              <span className="text-xl text-foreground-secondary font-medium mb-1.5">/ {product.unit}</span>
+            {/* Pricing Section */}
+            <div className="flex items-baseline gap-2 pb-5 border-b border-border-subtle">
+              <span className="text-3xl sm:text-4xl font-display font-extrabold text-foreground">
+                {formattedPrice}
+              </span>
+              <span className="text-sm font-bold text-foreground-secondary">
+                / {product.unit}
+              </span>
+              <span className="ml-auto text-xs font-medium text-foreground-secondary">
+                {product.is_available && product.in_stock
+                  ? `${product.available_quantity} ${product.unit} available in stock`
+                  : 'Currently not in stock'}
+              </span>
             </div>
           </div>
 
-          <div className="mb-8">
-            <h3 className="text-sm font-bold text-foreground-secondary uppercase tracking-widest mb-4">Description</h3>
-            <p className="text-foreground-secondary leading-relaxed text-base md:text-lg font-medium max-w-2xl">
-              {product.description || 'Freshly harvested produce delivered directly to your doorstep. Grown with care and sustainable farming practices to ensure the best quality and taste.'}
+          {/* Description */}
+          <div className="mb-6">
+            <h3 className="text-xs font-bold text-foreground-secondary uppercase tracking-wider mb-2">
+              About This Harvest
+            </h3>
+            <p className="text-foreground-secondary leading-relaxed text-sm sm:text-base font-normal">
+              {product.description ||
+                'Freshly harvested agricultural produce delivered straight from the farm to your doorstep. Grown with dedication and sustainable farm management.'}
             </p>
           </div>
 
-          {/* Harvest Information Card */}
-          {(product.market_state !== 'AVAILABLE_NOW' && product.active_crop_growth_id) && (
-            <div className="mb-8 bg-brand-muted/30 rounded-[2rem] p-6 border border-brand/20">
-              <div className="flex justify-between items-start mb-6">
+          {/* Crop Growth & Pre-booking card if linked */}
+          {product.market_state !== 'AVAILABLE_NOW' && product.active_crop_growth_id && (
+            <div className="mb-6 bg-brand/5 dark:bg-brand/10 rounded-2xl p-5 border border-brand/20">
+              <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-lg font-bold text-foreground mb-1">Harvest Information</h3>
-                  <p className="text-sm text-foreground-secondary">Live details on crop progress</p>
+                  <h3 className="text-sm font-bold text-foreground font-display">
+                    Crop Growth & Pre-booking
+                  </h3>
+                  <p className="text-xs text-foreground-secondary">
+                    Real-time status of this harvest batch
+                  </p>
                 </div>
-                {product.harvest_countdown > 0 && <HarvestCountdown days={product.harvest_countdown} />}
+                {product.harvest_countdown > 0 && (
+                  <HarvestCountdown days={product.harvest_countdown} />
+                )}
               </div>
-              
-              <CropProgressBar progress={product.progress} stage={product.stage} className="mb-6" />
 
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-surface rounded-xl p-4 shadow-sm border border-border-subtle">
-                  <p className="text-xs text-foreground-secondary font-bold uppercase mb-1">Reserved</p>
-                  <p className="text-lg font-bold text-foreground">{product.reserved_quantity} {product.unit}</p>
+              <CropProgressBar
+                progress={product.progress}
+                stage={product.stage}
+                className="mb-4"
+              />
+
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="bg-surface rounded-xl p-3 shadow-xs border border-border-subtle">
+                  <p className="text-[10px] text-foreground-secondary font-bold uppercase mb-0.5">
+                    Reserved
+                  </p>
+                  <p className="text-sm sm:text-base font-bold text-foreground">
+                    {product.reserved_quantity} {product.unit}
+                  </p>
                 </div>
-                <div className="bg-surface rounded-xl p-4 shadow-sm border border-border-subtle">
-                  <p className="text-xs text-foreground-secondary font-bold uppercase mb-1">Available</p>
-                  <p className="text-lg font-bold text-foreground">{product.available_quantity} {product.unit}</p>
+                <div className="bg-surface rounded-xl p-3 shadow-xs border border-border-subtle">
+                  <p className="text-[10px] text-foreground-secondary font-bold uppercase mb-0.5">
+                    Remaining
+                  </p>
+                  <p className="text-sm sm:text-base font-bold text-foreground">
+                    {product.available_quantity} {product.unit}
+                  </p>
                 </div>
               </div>
 
               {product.reservation_count > 0 && (
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-brand/20">
-                  <span className="text-sm font-medium text-foreground-secondary">{product.reservation_count} buyers already reserved this crop</span>
+                <div className="flex items-center justify-between pt-3 border-t border-brand/20">
+                  <span className="text-xs font-medium text-foreground-secondary">
+                    {product.reservation_count} buyers currently reserved
+                  </span>
                   <DemandMeter reservationCount={product.reservation_count} />
                 </div>
               )}
@@ -304,170 +507,276 @@ const ProductDetails = () => {
           )}
 
           {growthDetails && growthDetails.stage_history && (
-            <div className="mb-10 bg-surface rounded-3xl p-8 shadow-sm border border-border-subtle">
-               <CropTimeline currentStage={product.stage} history={growthDetails.stage_history} />
+            <div className="mb-6 bg-surface rounded-2xl p-5 shadow-xs border border-border-subtle">
+              <CropTimeline
+                currentStage={product.stage}
+                history={growthDetails.stage_history}
+              />
             </div>
           )}
 
-          {/* Actions */}
-          <div className="flex flex-col gap-4 mt-auto">
-            {['AVAILABLE_NOW', 'LOW_STOCK'].includes(product.market_state) && user?.user_type !== 'farmer' && user?.user_type !== 'admin' ? (
-              <div className="flex items-center gap-4 mb-2">
-                <div className="flex items-center bg-surface-elevated border border-border-subtle rounded-full h-16 p-2">
-                  <button 
-                    onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                    className="h-12 w-12 rounded-full bg-surface border border-border-subtle flex items-center justify-center text-foreground shadow-sm hover:scale-105 transition-transform disabled:opacity-50"
+          {/* Action Row */}
+          <div className="flex flex-col gap-3 mt-auto">
+            {['AVAILABLE_NOW', 'LOW_STOCK'].includes(product.market_state) &&
+              user?.user_type !== 'farmer' &&
+              user?.user_type !== 'admin' ? (
+              <div className="flex items-center gap-3">
+                {/* Quantity Stepper */}
+                <div className="flex items-center bg-surface border border-border-strong rounded-xl h-12 p-1 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                    className="h-10 w-9 rounded-lg bg-surface-elevated text-foreground flex items-center justify-center hover:bg-state-hover transition-colors cursor-pointer"
+                    aria-label="Decrease quantity"
                   >
-                    <Minus className="h-5 w-5" />
+                    <Minus className="h-4 w-4" />
                   </button>
-                  <span className="w-16 text-center font-bold text-xl text-foreground">{quantity}</span>
-                  <button 
-                    onClick={() => setQuantity(q => q + 1)}
-                    className="h-12 w-12 rounded-full bg-surface border border-border-subtle flex items-center justify-center text-foreground shadow-sm hover:scale-105 transition-transform disabled:opacity-50"
+                  <span className="w-12 text-center font-bold text-sm text-foreground">
+                    {quantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setQuantity((q) => q + 1)}
+                    className="h-10 w-9 rounded-lg bg-surface-elevated text-foreground flex items-center justify-center hover:bg-state-hover transition-colors cursor-pointer"
+                    aria-label="Increase quantity"
                   >
-                    <Plus className="h-5 w-5" />
+                    <Plus className="h-4 w-4" />
                   </button>
                 </div>
-                {renderCTA()}
+
+                <div className="flex-1">{renderCTA()}</div>
               </div>
             ) : (
-              <div className="w-full">
-                {renderCTA()}
-              </div>
+              <div className="w-full">{renderCTA()}</div>
             )}
-            
+
             {user?.user_type !== 'farmer' && (
-              <div className="flex flex-col sm:flex-row items-center gap-4 mt-2">
-                <Button variant="outline" className={cn("flex-1 h-14 w-full gap-2 rounded-full font-bold", isFollowing ? 'text-danger border-danger-muted bg-danger-muted' : 'text-foreground-secondary hover:text-foreground')} onClick={handleFollowToggle}>
-                  <Heart className={cn("h-5 w-5", isFollowing ? 'fill-current' : '')} /> {isFollowing ? 'Following' : 'Follow Crop'}
-                </Button>
-                <Button 
-                  variant="secondary" 
-                  className="flex-1 h-14 w-full gap-2 rounded-full font-bold bg-success-muted text-success hover:bg-success-muted/80"
-                  onClick={() => navigate('/messages', { state: { userId: product.farmer } })}
+              <div className="flex flex-col sm:flex-row items-center gap-2.5">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="md"
+                  fullWidth
+                  className={cn(
+                    'gap-2 font-bold',
+                    isFollowing
+                      ? 'text-danger border-danger/30 bg-danger/10'
+                      : 'text-foreground-secondary hover:text-foreground'
+                  )}
+                  onClick={handleFollowToggle}
                 >
-                  <MessageSquare className="h-5 w-5" /> Chat with Farmer
+                  <Heart className={cn('h-4 w-4', isFollowing && 'fill-current')} />
+                  <span>{isFollowing ? 'Following Harvest' : 'Follow Harvest'}</span>
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="md"
+                  fullWidth
+                  className="gap-2 font-bold text-foreground-secondary hover:text-foreground"
+                  onClick={() =>
+                    navigate('/messages', { state: { userId: product.farmer } })
+                  }
+                >
+                  <MessageSquare className="h-4 w-4 text-brand" />
+                  <span>Message Farmer</span>
                 </Button>
               </div>
             )}
           </div>
 
-          {/* Guarantees */}
-          <div className="grid grid-cols-2 gap-6 mt-12 pt-10 border-t border-border-strong">
-            <div className="flex items-center gap-4">
-              <div className="h-14 w-14 rounded-full bg-info-muted text-info flex items-center justify-center shrink-0">
-                <Truck className="h-6 w-6" />
+          {/* Quality Guarantees */}
+          <div className="grid grid-cols-2 gap-4 mt-8 pt-6 border-t border-border-subtle">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center shrink-0">
+                <Truck className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="text-base font-bold text-foreground">Fast Delivery</h4>
-                <p className="text-sm text-foreground-secondary font-medium">Dispatched in 24h</p>
+                <h4 className="text-xs font-bold text-foreground">Fast Dispatch</h4>
+                <p className="text-[11px] text-foreground-secondary font-medium">Direct from farm</p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="h-14 w-14 rounded-full bg-success-muted text-success flex items-center justify-center shrink-0">
-                <ShieldCheck className="h-6 w-6" />
+
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center shrink-0">
+                <ShieldCheck className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="text-base font-bold text-foreground">Quality Promise</h4>
-                <p className="text-sm text-foreground-secondary font-medium">100% fresh guarantee</p>
+                <h4 className="text-xs font-bold text-foreground">Fresh Quality</h4>
+                <p className="text-[11px] text-foreground-secondary font-medium">100% verified harvest</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Reviews Section */}
-      <div className="mt-24 border-t border-border-strong pt-20">
-        <h2 className="text-3xl font-display font-bold text-foreground mb-10 tracking-tight">Customer Reviews</h2>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
-          {/* Review List */}
-          <div className="lg:col-span-2 space-y-6">
+      {/* Customer Reviews Section */}
+      <div className="pt-12 border-t border-border-subtle">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-8">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-display font-bold text-foreground tracking-tight">
+              Customer Reviews & Feedback
+            </h2>
+            <p className="text-xs sm:text-sm font-medium text-foreground-secondary">
+              Genuine experiences from verified buyers who received this produce
+            </p>
+          </div>
+
+          {avgRating && (
+            <div className="flex items-center gap-2 bg-surface p-2 px-3.5 rounded-xl border border-border-subtle shadow-xs">
+              <div className="flex items-center text-amber-500">
+                <Star className="h-4 w-4 fill-current" />
+              </div>
+              <span className="text-sm font-bold text-foreground">{avgRating}</span>
+              <span className="text-xs text-foreground-secondary">({reviewsCount} reviews)</span>
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Reviews List */}
+          <div className="lg:col-span-2 space-y-4">
             {product.reviews.length === 0 ? (
-              <div className="p-12 text-center bg-surface-elevated rounded-3xl border border-border-subtle">
-                 <p className="text-foreground-secondary font-bold text-lg">No reviews yet. Be the first to review!</p>
+              <div className="p-8 text-center bg-surface rounded-2xl border border-dashed border-border-strong">
+                <p className="text-foreground-secondary font-semibold text-sm">
+                  No reviews for this harvest yet. Be the first to share your experience!
+                </p>
               </div>
             ) : (
               product.reviews.map((rev) => (
-                <div key={rev.id} className="bg-surface p-8 rounded-3xl shadow-sm border border-border-subtle transition-all hover:shadow-md hover:-translate-y-1">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="font-bold text-foreground text-lg">{rev.buyer_name}</span>
-                    <span className="text-sm font-semibold text-foreground-secondary">
-                      {new Date(rev.created_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}
+                <div
+                  key={rev.id}
+                  className="bg-surface p-5 sm:p-6 rounded-2xl shadow-xs border border-border-subtle transition-all"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-bold text-foreground text-sm font-display">
+                      {rev.buyer_name || 'Verified Buyer'}
+                    </span>
+                    <span className="text-xs font-medium text-foreground-secondary">
+                      {new Date(rev.created_at).toLocaleDateString('en-IN', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })}
                     </span>
                   </div>
-                  <div className="flex gap-1.5 mb-4 bg-surface-elevated w-fit px-3 py-1.5 rounded-full border border-border-subtle">
+
+                  <div className="flex gap-1 mb-3 text-amber-400">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`h-4 w-4 ${i < rev.rating ? 'fill-yellow-400 text-yellow-400' : 'text-border-strong'}`} />
+                      <Star
+                        key={i}
+                        className={cn(
+                          'h-3.5 w-3.5',
+                          i < rev.rating
+                            ? 'fill-amber-400 text-amber-400'
+                            : 'text-border-strong'
+                        )}
+                      />
                     ))}
                   </div>
-                  <p className="text-foreground-secondary text-base font-medium leading-relaxed">{rev.comment}</p>
+
+                  <p className="text-foreground-secondary text-sm font-normal leading-relaxed">
+                    {rev.comment}
+                  </p>
                 </div>
               ))
             )}
           </div>
 
-          {/* Write a Review Form */}
-          <div className="h-fit sticky top-32 bg-surface-elevated p-10 rounded-3xl shadow-sm border border-border-subtle">
-            <h3 className="text-2xl font-display font-bold text-foreground mb-8 tracking-tight">Write a Review</h3>
+          {/* Write a Review Card */}
+          <div className="h-fit lg:sticky lg:top-24 bg-surface p-6 rounded-2xl shadow-xs border border-border-subtle">
+            <h3 className="text-base font-display font-bold text-foreground mb-4">
+              Write a Review
+            </h3>
+
             {user ? (
               user.id === product.farmer ? (
-                <div className="text-center py-10">
-                  <p className="text-foreground-secondary font-bold">You cannot review your own product.</p>
+                <div className="text-center py-6">
+                  <p className="text-xs text-foreground-secondary font-medium">
+                    You cannot review your own harvest listing.
+                  </p>
                 </div>
               ) : (
-                <form onSubmit={handleSubmitReview} className="space-y-6">
+                <form onSubmit={handleSubmitReview} className="space-y-4">
                   <div>
-                    <label className="block text-xs font-bold text-foreground-secondary mb-3 uppercase tracking-widest">Your Rating</label>
-                    <div className="flex gap-2">
+                    <label className="block text-xs font-bold text-foreground-secondary uppercase tracking-wider mb-2">
+                      Your Rating
+                    </label>
+                    <div className="flex gap-1.5">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
                           key={star}
                           type="button"
                           onClick={() => setRating(star)}
-                          className="focus:outline-none hover:scale-110 transition-transform"
+                          className="p-1 focus:outline-none hover:scale-110 transition-transform cursor-pointer"
+                          aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
                         >
-                          <Star className={`h-8 w-8 transition-colors ${star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-border-strong'}`} />
+                          <Star
+                            className={cn(
+                              'h-6 w-6 transition-colors',
+                              star <= rating
+                                ? 'fill-amber-400 text-amber-400'
+                                : 'text-border-strong'
+                            )}
+                          />
                         </button>
                       ))}
                     </div>
                   </div>
+
                   <div>
-                    <label className="block text-xs font-bold text-foreground-secondary mb-3 uppercase tracking-widest">Your Review</label>
+                    <label className="block text-xs font-bold text-foreground-secondary uppercase tracking-wider mb-2">
+                      Your Comment
+                    </label>
                     <textarea
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
-                      rows={5}
-                      placeholder="Share your experience..."
-                      className="w-full rounded-2xl border border-border-subtle bg-surface px-6 py-5 text-sm font-medium text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-1 focus:ring-brand transition-all shadow-sm resize-none"
+                      rows={4}
+                      placeholder="Share details about produce freshness, packaging, and quality..."
+                      className="w-full rounded-xl border border-border-strong bg-background p-3 text-xs sm:text-sm font-medium text-foreground placeholder:text-muted/70 focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15 transition-all resize-none"
                     />
                   </div>
-                  <Button type="submit" variant="primary" className="w-full h-14 rounded-full font-bold text-base" isLoading={isSubmittingReview}>Submit Review</Button>
+
+                  <Button
+                    type="submit"
+                    variant="brand"
+                    size="md"
+                    fullWidth
+                    className="font-bold shadow-brand/20"
+                    isLoading={isSubmittingReview}
+                  >
+                    Submit Review
+                  </Button>
                 </form>
               )
             ) : (
-              <div className="text-center py-10">
-                <p className="text-foreground-secondary mb-6 font-bold">You must be logged in to write a review.</p>
-                <Link to="/login">
-                  <Button variant="primary" className="h-14 px-8 rounded-full font-bold">Log In to Review</Button>
+              <div className="text-center py-6 space-y-4">
+                <p className="text-xs text-foreground-secondary font-medium">
+                  Please sign in to share a review for this harvest.
+                </p>
+                <Link to="/login" className="block w-full">
+                  <Button variant="brand" size="md" fullWidth className="font-bold">
+                    Sign In to Review
+                  </Button>
                 </Link>
               </div>
             )}
           </div>
         </div>
       </div>
-      
-      {/* Modals */}
-      <ReservationModal 
-        product={product} 
-        isOpen={isReservationModalOpen} 
-        onClose={() => setIsReservationModalOpen(false)} 
+
+      {/* Reservation & Waitlist Modals */}
+      <ReservationModal
+        product={product}
+        isOpen={isReservationModalOpen}
+        onClose={() => setIsReservationModalOpen(false)}
       />
-      
-      <WaitlistModal 
-        product={product} 
-        isOpen={isWaitlistModalOpen} 
-        onClose={() => setIsWaitlistModalOpen(false)} 
+
+      <WaitlistModal
+        product={product}
+        isOpen={isWaitlistModalOpen}
+        onClose={() => setIsWaitlistModalOpen(false)}
       />
     </Container>
   );

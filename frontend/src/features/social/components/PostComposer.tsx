@@ -1,11 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { motion} from 'framer-motion';
-import { Image as ImageIcon, Video,  MapPin, Tag, Package, X, Check } from 'lucide-react';
+import { motion } from 'framer-motion';
+import {
+  Image as ImageIcon,
+  Video,
+  MapPin,
+  Tag,
+  Package,
+  X,
+  Check,
+  Pin,
+  Sparkles,
+  ShieldCheck,
+} from 'lucide-react';
 import { useCreatePostMutation, useUpdatePostMutation } from '../api/socialApi';
 import { productService } from '@/features/products/services/productService';
 import { useAppSelector } from '@/app/hooks';
 import type { Post, Product } from '@/types';
-import { Button } from '@/components/ui';
+import { Button, Badge } from '@/components/ui';
+import { MEDIA_BASE_URL } from '@/config/env';
+import { toast } from 'sonner';
 
 interface PostComposerProps {
   onSuccess?: () => void;
@@ -13,8 +26,18 @@ interface PostComposerProps {
   existingPost?: Post; // For edit mode
 }
 
-export const PostComposer: React.FC<PostComposerProps> = ({ onSuccess, onClose, existingPost }) => {
-  const { user } = useAppSelector(state => state.auth);
+const resolveMediaUrl = (url?: string) => {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  return `${MEDIA_BASE_URL}${url}`;
+};
+
+export const PostComposer: React.FC<PostComposerProps> = ({
+  onSuccess,
+  onClose,
+  existingPost,
+}) => {
+  const { user } = useAppSelector((state) => state.auth);
   const [createPost, { isLoading: isCreating }] = useCreatePostMutation();
   const [updatePost, { isLoading: isUpdating }] = useUpdatePostMutation();
   const isLoading = isCreating || isUpdating;
@@ -25,55 +48,107 @@ export const PostComposer: React.FC<PostComposerProps> = ({ onSuccess, onClose, 
   const [title, setTitle] = useState(existingPost?.title || '');
   const [description, setDescription] = useState(existingPost?.description || '');
   const [location, setLocation] = useState(existingPost?.location || '');
-  const [productId, setProductId] = useState(existingPost?.product?.id || '');
-  
+  const [productId, setProductId] = useState<number | string>(existingPost?.product?.id || '');
+  const [isPinned, setIsPinned] = useState(existingPost?.is_pinned || false);
+  const [hashtagInput, setHashtagInput] = useState('');
+  const [hashtags, setHashtags] = useState<string[]>(existingPost?.hashtags || []);
+
   // New media files added by user
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
-  const [previews, setPreviews] = useState<string[]>([]);
-  
+  const [previews, setPreviews] = useState<{ url: string; type: 'image' | 'video' }[]>([]);
+
   // Existing media tracking
-  const [existingMedia, setExistingMedia] = useState<{ id: number; file: string; type: string }[]>(existingPost?.media || []);
+  const [existingMedia, setExistingMedia] = useState<
+    { id: number; file: string; type: string }[]
+  >(existingPost?.media || []);
   const [mediaToDelete, setMediaToDelete] = useState<number[]>([]);
 
+  // Fetch farmer products
   useEffect(() => {
     if (user?.id) {
-      productService.getProducts({ farmer: user.id })
-        .then(res => setProducts(res.results || []))
-        .catch(err => console.error('Failed to load products', err));
+      productService
+        .getProducts({ farmer: user.id })
+        .then((res) => setProducts(res.results || []))
+        .catch((err) => console.error('Failed to load farmer products', err));
     }
   }, [user?.id]);
-  
+
+  // Handle ESC key to close
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && onClose) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
-      setMediaFiles(prev => [...prev, ...filesArray]);
-      
-      const newPreviews = filesArray.map(file => URL.createObjectURL(file));
-      setPreviews(prev => [...prev, ...newPreviews]);
+      setMediaFiles((prev) => [...prev, ...filesArray]);
+
+      const newPreviews = filesArray.map((file) => ({
+        url: URL.createObjectURL(file),
+        type: (file.type.startsWith('video') ? 'video' : 'image') as 'image' | 'video',
+      }));
+      setPreviews((prev) => [...prev, ...newPreviews]);
     }
+    e.target.value = '';
   };
 
   const removeNewFile = (index: number) => {
-    setMediaFiles(prev => prev.filter((_, i) => i !== index));
-    setPreviews(prev => prev.filter((_, i) => i !== index));
+    if (previews[index]?.url) {
+      URL.revokeObjectURL(previews[index].url);
+    }
+    setMediaFiles((prev) => prev.filter((_, i) => i !== index));
+    setPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   const removeExistingFile = (mediaId: number) => {
-    setExistingMedia(prev => prev.filter(m => m.id !== mediaId));
-    setMediaToDelete(prev => [...prev, mediaId]);
+    setExistingMedia((prev) => prev.filter((m) => m.id !== mediaId));
+    setMediaToDelete((prev) => [...prev, mediaId]);
+  };
+
+  const handleAddHashtag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      const cleaned = hashtagInput.trim().replace(/^#/, '').toLowerCase();
+      if (cleaned && !hashtags.includes(cleaned)) {
+        setHashtags((prev) => [...prev, cleaned]);
+      }
+      setHashtagInput('');
+    }
+  };
+
+  const removeHashtag = (tagToRemove: string) => {
+    setHashtags((prev) => prev.filter((t) => t !== tagToRemove));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!description.trim() && !title.trim() && mediaFiles.length === 0 && existingMedia.length === 0) {
+      toast.error('Please enter a description or upload media before publishing.');
+      return;
+    }
+
     const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('location', location);
-    if (productId) formData.append('product_id', String(productId));
-    
-    // For updates, passing empty product_id removes it.
-    if (existingPost && !productId) {
+    formData.append('title', title.trim());
+    formData.append('description', description.trim());
+    formData.append('location', location.trim());
+    formData.append('is_pinned', String(isPinned));
+
+    if (productId) {
+      formData.append('product_id', String(productId));
+    } else if (existingPost && !productId) {
       formData.append('product_id', '');
+    }
+
+    if (hashtags.length > 0) {
+      hashtags.forEach((tag, idx) => {
+        formData.append(`hashtags[${idx}]`, tag);
+      });
     }
 
     mediaFiles.forEach((file, index) => {
@@ -87,149 +162,315 @@ export const PostComposer: React.FC<PostComposerProps> = ({ onSuccess, onClose, 
     try {
       if (existingPost) {
         await updatePost({ id: existingPost.id, data: formData }).unwrap();
+        toast.success('Post updated successfully');
       } else {
         await createPost(formData).unwrap();
+        toast.success('Harvest story published to community feed! 🎉');
       }
       onSuccess?.();
       onClose?.();
     } catch (err) {
       console.error('Failed to save post:', err);
+      toast.error('Failed to publish post. Please check your network and try again.');
     }
   };
 
+  const farmerName =
+    user?.first_name || user?.username
+      ? `${user?.first_name || ''} ${user?.last_name || ''}`.trim()
+      : 'Farmer';
+  const farmerInitials = farmerName.charAt(0).toUpperCase();
+
+  const selectedProduct = products.find((p) => String(p.id) === String(productId));
+
   return (
-    <motion.div 
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="bg-surface rounded-2xl shadow-xl border border-border-subtle overflow-hidden max-w-2xl w-full mx-auto max-h-[90vh] flex flex-col"
+    <motion.div
+      initial={{ opacity: 0, scale: 0.96, y: 15 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.96, y: 15 }}
+      transition={{ duration: 0.18, ease: 'easeOut' }}
+      className="bg-surface rounded-3xl shadow-2xl border border-border-subtle overflow-hidden max-w-2xl w-full mx-auto max-h-[90vh] flex flex-col"
     >
-      <div className="p-6 border-b border-border-subtle flex justify-between items-center bg-surface-elevated shrink-0">
-        <h2 className="text-xl font-bold text-foreground">{existingPost ? 'Edit Post' : 'Create New Post'}</h2>
+      {/* Header */}
+      <div className="p-5 border-b border-border-subtle flex justify-between items-center bg-surface-elevated/40 shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 rounded-xl bg-brand-muted/30 text-brand">
+            <Sparkles size={18} />
+          </div>
+          <div>
+            <h2 className="text-base font-extrabold text-foreground">
+              {existingPost ? 'Edit Farm Update' : 'Publish Farm Story'}
+            </h2>
+            <p className="text-xs text-muted">
+              Share real-time crop milestones and harvest announcements
+            </p>
+          </div>
+        </div>
+
         {onClose && (
-          <button onClick={onClose} className="text-muted hover:text-foreground">
-            <X size={24} />
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1.5 rounded-full text-muted hover:text-foreground hover:bg-surface-elevated transition-colors"
+            aria-label="Close composer"
+          >
+            <X size={20} />
           </button>
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto custom-scrollbar flex-1">
-        {/* Main Content Area */}
-        <div className="flex gap-4 items-start">
-          <div className="h-10 w-10 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex-shrink-0 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold">
-            You
+      <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-5 overflow-y-auto custom-scrollbar flex-1">
+        {/* Author Strip */}
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-full bg-brand text-on-brand flex items-center justify-center font-bold text-sm shadow-xs flex-shrink-0">
+            {farmerInitials}
           </div>
-          <div className="flex-1 space-y-4">
-            <input 
-              type="text" 
-              placeholder="Post Title (optional)" 
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-transparent border-none text-lg font-semibold placeholder-muted focus:ring-0 p-0 text-foreground"
-            />
-            <textarea 
-              placeholder="What are you harvesting today?" 
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-transparent border-none resize-none placeholder-muted focus:ring-0 p-0 text-foreground min-h-[100px]"
-            />
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="font-bold text-sm text-foreground">{farmerName}</span>
+              <Badge variant="brand" size="sm" className="gap-1 py-0 text-[10px]">
+                <ShieldCheck className="h-3 w-3" />
+                <span>Verified Producer</span>
+              </Badge>
+            </div>
+            <p className="text-[11px] text-muted">Posting publicly to Farmket Community</p>
           </div>
         </div>
 
-        {/* Media Previews */}
+        {/* Title Input */}
+        <div>
+          <input
+            type="text"
+            placeholder="Post Title (e.g. Fresh Organic Tomatoes Harvest This Week)"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full bg-transparent border-b border-border-subtle pb-2 text-base sm:text-lg font-bold placeholder:text-muted focus:outline-none focus:border-brand text-foreground transition-colors"
+          />
+        </div>
+
+        {/* Description Textarea */}
+        <div>
+          <textarea
+            placeholder="What are you harvesting or preparing on the farm today? Describe the yield, soil condition, or expected availability..."
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={4}
+            className="w-full bg-surface-elevated/40 border border-border-subtle rounded-2xl p-4 text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent resize-none leading-relaxed transition-all"
+          />
+        </div>
+
+        {/* Hashtags Input & Chips */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Tag size={15} className="text-muted flex-shrink-0" />
+            <input
+              type="text"
+              placeholder="Add hashtags (press Enter or comma, e.g. organic, wheat, farmfresh)"
+              value={hashtagInput}
+              onChange={(e) => setHashtagInput(e.target.value)}
+              onKeyDown={handleAddHashtag}
+              className="flex-1 bg-transparent text-xs text-foreground placeholder:text-muted focus:outline-none"
+            />
+          </div>
+
+          {hashtags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {hashtags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-brand-muted/20 text-brand text-xs font-bold border border-brand/20"
+                >
+                  <span>#{tag}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeHashtag(tag)}
+                    className="hover:text-danger ml-0.5"
+                    aria-label={`Remove tag ${tag}`}
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Media Preview Tray */}
         {(existingMedia.length > 0 || previews.length > 0) && (
-          <div className="flex gap-3 overflow-x-auto pb-2">
-            {existingMedia.map((media: { id: number; file: string; type: string }) => (
-              <div key={`existing-${media.id}`} className="relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden group">
-                {media.type === 'video' ? (
-                  <video src={media.file} className="w-full h-full object-cover" />
-                ) : (
-                  <img src={media.file} alt="preview" className="w-full h-full object-cover" />
-                )}
-                <button 
-                  type="button"
-                  onClick={() => removeExistingFile(media.id)}
-                  className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+          <div className="space-y-2 pt-1">
+            <span className="text-xs font-bold text-foreground-secondary uppercase tracking-wider">
+              Attached Media ({existingMedia.length + previews.length})
+            </span>
+
+            <div className="flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
+              {/* Existing Media */}
+              {existingMedia.map((media) => (
+                <div
+                  key={`existing-${media.id}`}
+                  className="relative w-24 h-24 flex-shrink-0 rounded-2xl overflow-hidden group border border-border-subtle bg-black"
                 >
-                  <X size={14} />
-                </button>
-              </div>
-            ))}
-            {previews.map((preview, i) => (
-              <div key={`new-${i}`} className="relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden group">
-                <img src={preview} alt="preview" className="w-full h-full object-cover" />
-                <button 
-                  type="button"
-                  onClick={() => removeNewFile(i)}
-                  className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                  {media.type === 'video' ? (
+                    <video src={resolveMediaUrl(media.file)} className="w-full h-full object-cover" />
+                  ) : (
+                    <img
+                      src={resolveMediaUrl(media.file)}
+                      alt="preview"
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => removeExistingFile(media.id)}
+                    className="absolute top-1.5 right-1.5 bg-black/70 hover:bg-danger text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Remove media"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ))}
+
+              {/* Newly Staged Previews */}
+              {previews.map((preview, i) => (
+                <div
+                  key={`new-${i}`}
+                  className="relative w-24 h-24 flex-shrink-0 rounded-2xl overflow-hidden group border border-border-subtle bg-black"
                 >
-                  <X size={14} />
-                </button>
-              </div>
-            ))}
+                  {preview.type === 'video' ? (
+                    <video src={preview.url} className="w-full h-full object-cover" />
+                  ) : (
+                    <img src={preview.url} alt="preview" className="w-full h-full object-cover" />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => removeNewFile(i)}
+                    className="absolute top-1.5 right-1.5 bg-black/70 hover:bg-danger text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Remove media"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
-        {/* Pin Product Details */}
-        <div className="bg-surface-elevated rounded-xl p-4 space-y-4 border border-border-subtle">
-          <h3 className="text-sm font-semibold text-foreground-secondary uppercase tracking-wider mb-2">Pin Your Product (Optional)</h3>
-          
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Package size={16} className="text-muted" />
-            </div>
-            <select
-              value={productId}
-              onChange={(e) => setProductId(e.target.value)}
-              className="pl-9 w-full rounded-lg border-border-subtle bg-surface focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm text-foreground"
-            >
-              <option value="">Select a product to pin...</option>
-              {products.map((prod: Product) => (
-                <option key={prod.id} value={prod.id}>
-                  {prod.name} ({prod.market_state?.replace(/_/g, ' ') || 'Ready'}) - ₹{prod.price}
-                </option>
-              ))}
-            </select>
+        {/* Pin Produce & Location Settings Box */}
+        <div className="bg-surface-elevated/70 rounded-2xl p-4 sm:p-5 space-y-4 border border-border-subtle">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+              <Package size={15} className="text-brand" />
+              <span>Link Harvest Produce (Optional)</span>
+            </span>
+            {selectedProduct && (
+              <Badge variant="brand" size="sm">
+                ₹{selectedProduct.price} / {selectedProduct.unit || 'kg'}
+              </Badge>
+            )}
           </div>
-          
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <MapPin size={16} className="text-muted" />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Product Selector */}
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted">
+                <Package size={16} />
+              </div>
+              <select
+                value={productId}
+                onChange={(e) => setProductId(e.target.value)}
+                className="pl-9 w-full rounded-xl border border-border-subtle bg-surface py-2.5 text-xs sm:text-sm text-foreground focus:ring-2 focus:ring-brand focus:outline-none"
+              >
+                <option value="">Select produce from your farm...</option>
+                {products.map((prod) => (
+                  <option key={prod.id} value={prod.id}>
+                    {prod.name} (₹{prod.price}/{prod.unit || 'kg'})
+                  </option>
+                ))}
+              </select>
             </div>
-            <input 
-              type="text" 
-              placeholder="Location" 
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="pl-9 w-full rounded-lg border-border-subtle bg-surface focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
+
+            {/* Farm Location */}
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted">
+                <MapPin size={16} />
+              </div>
+              <input
+                type="text"
+                placeholder="Farm Location (e.g. Pune, MH)"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="pl-9 w-full rounded-xl border border-border-subtle bg-surface py-2.5 text-xs sm:text-sm text-foreground focus:ring-2 focus:ring-brand focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Pinned to Top Switch */}
+          <label className="flex items-center gap-2.5 cursor-pointer select-none pt-1">
+            <input
+              type="checkbox"
+              checked={isPinned}
+              onChange={(e) => setIsPinned(e.target.checked)}
+              className="h-4 w-4 rounded-md border-border-subtle text-brand focus:ring-brand"
             />
-          </div>
+            <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+              <Pin size={13} className={isPinned ? 'text-brand rotate-45' : 'text-muted'} />
+              <span>Pin this announcement to top of your profile</span>
+            </span>
+          </label>
         </div>
 
-        {/* Bottom Actions */}
-        <div className="flex items-center justify-between pt-4 border-t border-border-subtle">
-          <div className="flex items-center space-x-2">
-            <label className="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-full cursor-pointer transition-colors">
-              <ImageIcon size={22} />
-              <input type="file" multiple accept="image/*" className="hidden" onChange={handleFileChange} />
+        {/* Footer Actions */}
+        <div className="flex items-center justify-between pt-3 border-t border-border-subtle">
+          {/* Media Attach Triggers */}
+          <div className="flex items-center gap-1.5">
+            <label
+              className="p-2 text-brand hover:bg-brand-muted/20 rounded-xl cursor-pointer transition-colors flex items-center gap-1.5 text-xs font-bold"
+              title="Add Photos"
+            >
+              <ImageIcon size={18} />
+              <span className="hidden sm:inline">Add Photo</span>
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
             </label>
-            <label className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-full cursor-pointer transition-colors">
-              <Video size={22} />
-              <input type="file" multiple accept="video/*" className="hidden" onChange={handleFileChange} />
+
+            <label
+              className="p-2 text-blue-500 hover:bg-blue-500/10 rounded-xl cursor-pointer transition-colors flex items-center gap-1.5 text-xs font-bold"
+              title="Add Video"
+            >
+              <Video size={18} />
+              <span className="hidden sm:inline">Add Video</span>
+              <input
+                type="file"
+                multiple
+                accept="video/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
             </label>
-            <button type="button" className="p-2 text-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-full transition-colors">
-              <Tag size={22} />
-            </button>
           </div>
-          <Button 
-            disabled={isLoading || !description}
-            isLoading={isLoading}
-            type="submit"
-            variant="primary"
-            className="rounded-full shadow-md px-6 py-2"
-          >
-            {!isLoading && <><Check size={18} className="mr-2" /> Post</>}
-          </Button>
+
+          {/* Submit Button */}
+          <div className="flex items-center gap-2">
+            {onClose && (
+              <Button type="button" variant="ghost" size="sm" onClick={onClose}>
+                Cancel
+              </Button>
+            )}
+            <Button
+              type="submit"
+              variant="brand"
+              size="sm"
+              disabled={isLoading || (!description.trim() && !title.trim())}
+              isLoading={isLoading}
+              leftIcon={!isLoading ? <Check size={16} /> : undefined}
+            >
+              {existingPost ? 'Save Changes' : 'Publish Story'}
+            </Button>
+          </div>
         </div>
       </form>
     </motion.div>

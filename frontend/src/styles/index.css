@@ -29,26 +29,42 @@
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
-  /* Surfaces & text */
+  /* Surfaces & Canvas */
   --color-background: var(--bg-main);
   --color-main: var(--bg-main);
   --color-surface: var(--bg-surface);
   --color-surface-elevated: var(--bg-surface-elevated);
 
+  /* Text & Foreground */
   --color-foreground: var(--text-primary);
   --color-foreground-secondary: var(--text-secondary);
   --color-muted: var(--text-muted);
+  --color-muted-foreground: var(--text-muted);
 
+  /* Borders & Inputs */
+  --color-border: var(--border-subtle);
   --color-border-subtle: var(--border-subtle);
   --color-border-strong: var(--border-strong);
+  --color-input: var(--border-strong);
+  --color-ring: var(--brand-primary);
 
-  /* Brand */
+  /* Brand & Primary Semantic Tokens */
   --color-brand: var(--brand-primary);
   --color-brand-hover: var(--brand-hover);
   --color-brand-active: var(--brand-active);
   --color-brand-muted: var(--brand-muted);
   --color-brand-vivid: var(--brand-vivid);
   --color-on-brand: var(--text-on-brand);
+  --color-brand-foreground: var(--text-on-brand);
+
+  --color-primary: var(--brand-primary);
+  --color-primary-hover: var(--brand-hover);
+  --color-primary-active: var(--brand-active);
+  --color-primary-foreground: var(--text-on-brand);
+
+  /* Secondary Semantic Tokens */
+  --color-secondary: var(--bg-surface-elevated);
+  --color-secondary-foreground: var(--text-primary);
 
   /* Accents (each has a soft tint for badges, chips, and card backgrounds) */
   --color-accent-yellow: var(--accent-yellow);
@@ -82,13 +98,15 @@
   --color-cat-pulse: var(--accent-berry);
   --color-cat-pulse-muted: var(--accent-berry-muted);
 
-  /* Status */
+  /* Status & Semantic Feedback */
   --color-success: var(--semantic-success);
   --color-success-muted: var(--semantic-success-muted);
   --color-warning: var(--semantic-warning);
   --color-warning-muted: var(--semantic-warning-muted);
   --color-danger: var(--semantic-danger);
   --color-danger-muted: var(--semantic-danger-muted);
+  --color-error: var(--semantic-danger);
+  --color-error-muted: var(--semantic-danger-muted);
   --color-info: var(--semantic-info);
   --color-info-muted: var(--semantic-info-muted);
 
@@ -131,10 +149,12 @@
   --radius-3xl: 1.75rem;
   --radius-full: 9999px;
 
-  /* Shadows: soft, with a green tint; coloured shadows give CTAs life */
+  /* Shadows: soft, with an emerald tint; coloured shadows give CTAs life */
+  --shadow-xs: 0 1px 2px rgba(14, 40, 24, 0.04);
   --shadow-sm: 0 1px 2px rgba(14, 40, 24, 0.06);
   --shadow-md: 0 4px 10px -2px rgba(14, 40, 24, 0.09), 0 2px 4px -2px rgba(14, 40, 24, 0.05);
   --shadow-lg: 0 16px 32px -8px rgba(14, 40, 24, 0.14), 0 6px 12px -6px rgba(14, 40, 24, 0.07);
+  --shadow-xl: 0 24px 48px -12px rgba(14, 40, 24, 0.18), 0 12px 24px -8px rgba(14, 40, 24, 0.08);
   --shadow-glow: 0 0 32px rgba(18, 166, 80, 0.30);
   --shadow-brand: 0 8px 20px -6px rgba(9, 133, 65, 0.50);
   --shadow-sun: 0 8px 20px -6px rgba(255, 107, 44, 0.45);
@@ -143,6 +163,16 @@
   --animate-fade-in: fadeIn 0.3s ease-out;
   --animate-slide-up: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   --animate-scale-in: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-shimmer: shimmer 2s infinite linear;
+
+  @keyframes shimmer {
+    from {
+      background-position: -200% 0;
+    }
+    to {
+      background-position: 200% 0;
+    }
+  }
 
   @keyframes fadeIn {
     from {
@@ -479,5 +509,38 @@
   /* Focus utilities */
   .focus-ring {
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-shadow;
+  }
+
+  /* Shimmer Wave for Skeletons */
+  .shimmer-wave {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.15) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.8s infinite linear;
+  }
+
+  /* Mobile ergonomic touch target (min 44px) */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Custom subtle scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-border-strong rounded-full;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted;
   }
 }

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useGetCropsQuery } from '../cropsApi';
 import { CropCard } from '../components/CropCard';
 import { CropTable } from '../components/CropTable';
@@ -24,28 +24,30 @@ import {
   Layers,
   ArrowUpRight,
   RefreshCw,
+  ChevronDown,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { Button, Alert } from '@/components/ui';
+import { Link, useNavigate } from 'react-router-dom';
+import { Button, Alert, PageHeader, Badge, EmptyState } from '@/components/ui';
 import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils/cn';
 
 const SkeletonCard = ({ index = 0 }: { index?: number }) => (
   <motion.div
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.3, delay: index * 0.05 }}
-    className="bg-surface rounded-2xl border border-border-subtle overflow-hidden flex flex-col h-[380px] shadow-xs"
+    transition={{ duration: 0.25, delay: index * 0.04 }}
+    className="bg-surface rounded-2xl border border-border-subtle overflow-hidden flex flex-col h-[390px] shadow-xs"
   >
-    <div className="h-36 bg-surface-elevated animate-pulse w-full" />
-    <div className="flex-1 p-4 sm:p-5 flex flex-col justify-between space-y-3">
+    <div className="h-40 bg-surface-elevated animate-pulse w-full" />
+    <div className="flex-1 p-5 flex flex-col justify-between space-y-3">
       <div>
         <div className="h-5 w-2/3 bg-surface-elevated rounded-md animate-pulse mb-2" />
         <div className="h-3.5 w-1/3 bg-surface-elevated rounded-md animate-pulse mb-4" />
-        <div className="h-8 w-full bg-surface-elevated rounded-lg animate-pulse mb-3" />
+        <div className="h-2 w-full bg-surface-elevated rounded-full animate-pulse mb-3" />
       </div>
-      <div className="grid grid-cols-2 gap-2">
-        <div className="h-12 bg-surface-elevated rounded-xl animate-pulse" />
-        <div className="h-12 bg-surface-elevated rounded-xl animate-pulse" />
+      <div className="grid grid-cols-2 gap-2.5">
+        <div className="h-14 bg-surface-elevated rounded-xl animate-pulse" />
+        <div className="h-14 bg-surface-elevated rounded-xl animate-pulse" />
       </div>
       <div className="h-10 bg-surface-elevated rounded-xl animate-pulse" />
     </div>
@@ -54,12 +56,35 @@ const SkeletonCard = ({ index = 0 }: { index?: number }) => (
 
 export default function FarmerCropDashboard() {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { data: crops, isLoading, error, refetch } = useGetCropsQuery();
 
   const [view, setView] = useState<'grid' | 'table' | 'calendar'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStage, setFilterStage] = useState('ALL');
   const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
+  const addMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close add menu on outside click or Escape key
+  useEffect(() => {
+    if (!isAddMenuOpen) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (addMenuRef.current && !addMenuRef.current.contains(event.target as Node)) {
+        setIsAddMenuOpen(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsAddMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isAddMenuOpen]);
 
   // 1. Calculate Analytics for Overview Strip
   const analytics = useMemo(() => {
@@ -148,80 +173,83 @@ export default function FarmerCropDashboard() {
 
   return (
     <div className="w-full space-y-6 sm:space-y-8">
-      {/* 1. Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border-subtle pb-5">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-brand/10 text-brand flex items-center justify-center shrink-0">
-              <Sprout className="w-4 h-4" />
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground tracking-tight">
-              My Crops
-            </h1>
-          </div>
-          <p className="text-xs sm:text-sm font-medium text-foreground-secondary mt-1">
-            Track your crops, monitor growth, and manage upcoming harvests.
-          </p>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2.5 w-full sm:w-auto relative">
-          <Button
-            variant="outline"
-            onClick={() => dispatch(openAddTrackingModal())}
-            className="flex-1 sm:flex-none text-xs sm:text-sm h-10 px-4 rounded-xl gap-2 font-semibold"
-          >
-            <Layers className="w-4 h-4 text-brand" />
-            Track Existing Crop
-          </Button>
-
-          <div className="relative flex-1 sm:flex-none">
+      {/* 1. Header with PageHeader primitive */}
+      <PageHeader
+        title="My Crop Lifecycles"
+        description="Monitor growth stages, forecast harvest dates, and manage pre-booking demand."
+        badge={
+          <Badge variant="brand" className="font-bold">
+            {analytics.total} {analytics.total === 1 ? 'Crop' : 'Crops'}
+          </Badge>
+        }
+        actions={
+          <div className="flex items-center gap-2.5 w-full sm:w-auto relative" ref={addMenuRef}>
             <Button
-              variant="brand"
-              onClick={() => setIsAddMenuOpen(!isAddMenuOpen)}
-              className="w-full sm:w-auto text-xs sm:text-sm h-10 px-4 rounded-xl gap-1.5 font-bold shadow-xs"
+              variant="outline"
+              onClick={() => dispatch(openAddTrackingModal())}
+              className="flex-1 sm:flex-none h-10 px-4 rounded-xl gap-2 font-semibold"
             >
-              <Plus className="w-4 h-4" />
-              Add Crop
+              <Layers className="w-4 h-4 text-brand" />
+              <span>Track Existing Crop</span>
             </Button>
 
-            {/* Quick Choice Dropdown */}
-            {isAddMenuOpen && (
-              <div
-                className="absolute right-0 top-12 z-30 w-56 bg-surface rounded-2xl shadow-xl border border-border-subtle p-2 space-y-1 animate-in fade-in slide-in-from-top-2 duration-150"
-                onClick={() => setIsAddMenuOpen(false)}
+            <div className="relative flex-1 sm:flex-none">
+              <Button
+                variant="brand"
+                onClick={() => setIsAddMenuOpen((prev) => !prev)}
+                className="w-full sm:w-auto h-10 px-4 rounded-xl gap-1.5 font-bold shadow-xs"
+                aria-haspopup="true"
+                aria-expanded={isAddMenuOpen}
               >
-                <button
-                  type="button"
-                  onClick={() => dispatch(openAddTrackingModal())}
-                  className="w-full flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-surface-elevated text-left text-xs font-semibold text-foreground transition-colors cursor-pointer"
-                >
-                  <div className="w-7 h-7 rounded-lg bg-brand/10 text-brand flex items-center justify-center shrink-0">
-                    <Layers className="w-3.5 h-3.5" />
-                  </div>
-                  <div>
-                    <p className="text-foreground">Track Existing Product</p>
-                    <p className="text-[10px] text-muted">From existing catalog</p>
-                  </div>
-                </button>
+                <Plus className="w-4 h-4" />
+                <span>Add Crop</span>
+                <ChevronDown className={cn('w-3.5 h-3.5 transition-transform', isAddMenuOpen && 'rotate-180')} />
+              </Button>
 
-                <Link
-                  to="/dashboard/products/new"
-                  className="w-full flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-surface-elevated text-left text-xs font-semibold text-foreground transition-colors"
+              {/* Quick Choice Dropdown */}
+              {isAddMenuOpen && (
+                <div
+                  className="absolute right-0 top-12 z-30 w-60 bg-surface rounded-2xl shadow-xl border border-border-subtle p-2 space-y-1 animate-in fade-in slide-in-from-top-2 duration-150"
+                  role="menu"
                 >
-                  <div className="w-7 h-7 rounded-lg bg-info/10 text-info flex items-center justify-center shrink-0">
-                    <ArrowUpRight className="w-3.5 h-3.5" />
-                  </div>
-                  <div>
-                    <p className="text-foreground">Create New Product & Track</p>
-                    <p className="text-[10px] text-muted">Add new farm listing</p>
-                  </div>
-                </Link>
-              </div>
-            )}
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setIsAddMenuOpen(false);
+                      dispatch(openAddTrackingModal());
+                    }}
+                    className="w-full flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-surface-elevated text-left text-xs font-semibold text-foreground transition-colors cursor-pointer group"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-brand/10 text-brand flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <Layers className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-foreground font-bold">Track Existing Product</p>
+                      <p className="text-[11px] text-muted truncate">From current catalog listings</p>
+                    </div>
+                  </button>
+
+                  <Link
+                    to="/dashboard/products/new"
+                    role="menuitem"
+                    onClick={() => setIsAddMenuOpen(false)}
+                    className="w-full flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-surface-elevated text-left text-xs font-semibold text-foreground transition-colors group"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-info/10 text-info flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <ArrowUpRight className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-foreground font-bold">Create New Product</p>
+                      <p className="text-[11px] text-muted truncate">Create & track a new harvest</p>
+                    </div>
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* 2. Crop Overview Strip */}
       <CropOverviewStrip
@@ -263,28 +291,38 @@ export default function FarmerCropDashboard() {
           </div>
 
           {/* View Mode Toggle */}
-          <div className="flex items-center self-end sm:self-auto gap-1 bg-surface border border-border-subtle p-1 rounded-xl shadow-2xs">
+          <div
+            role="tablist"
+            aria-label="Crop display modes"
+            className="flex items-center self-end sm:self-auto gap-1 bg-surface border border-border-subtle p-1 rounded-xl shadow-2xs"
+          >
             <button
               type="button"
+              role="tab"
+              aria-selected={view === 'grid'}
               onClick={() => setView('grid')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer',
                 view === 'grid'
-                  ? 'bg-surface-elevated text-brand shadow-xs border border-border-subtle'
-                  : 'text-muted hover:text-foreground'
-              }`}
-              title="Card Grid"
+                  ? 'bg-surface-elevated text-brand shadow-xs border border-border-subtle font-bold'
+                  : 'text-muted hover:text-foreground border border-transparent'
+              )}
+              title="Card Grid View"
             >
               <LayoutGrid className="w-3.5 h-3.5" />
               <span>Cards</span>
             </button>
             <button
               type="button"
+              role="tab"
+              aria-selected={view === 'table'}
               onClick={() => setView('table')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer',
                 view === 'table'
-                  ? 'bg-surface-elevated text-brand shadow-xs border border-border-subtle'
-                  : 'text-muted hover:text-foreground'
-              }`}
+                  ? 'bg-surface-elevated text-brand shadow-xs border border-border-subtle font-bold'
+                  : 'text-muted hover:text-foreground border border-transparent'
+              )}
               title="Table View"
             >
               <List className="w-3.5 h-3.5" />
@@ -292,12 +330,15 @@ export default function FarmerCropDashboard() {
             </button>
             <button
               type="button"
+              role="tab"
+              aria-selected={view === 'calendar'}
               onClick={() => setView('calendar')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer',
                 view === 'calendar'
-                  ? 'bg-surface-elevated text-brand shadow-xs border border-border-subtle'
-                  : 'text-muted hover:text-foreground'
-              }`}
+                  ? 'bg-surface-elevated text-brand shadow-xs border border-border-subtle font-bold'
+                  : 'text-muted hover:text-foreground border border-transparent'
+              )}
               title="Harvest Schedule"
             >
               <CalendarIcon className="w-3.5 h-3.5" />
@@ -321,17 +362,19 @@ export default function FarmerCropDashboard() {
                 key={chip.id}
                 type="button"
                 onClick={() => setFilterStage(chip.id)}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full font-semibold transition-all cursor-pointer shrink-0 border ${
+                className={cn(
+                  'flex items-center gap-1.5 px-3.5 py-1.5 rounded-full font-semibold transition-all cursor-pointer shrink-0 border',
                   isActive
-                    ? 'bg-foreground text-background border-foreground shadow-xs'
+                    ? 'bg-brand text-on-brand border-brand shadow-xs'
                     : 'bg-surface text-foreground-secondary border-border-strong hover:bg-surface-elevated hover:text-foreground'
-                }`}
+                )}
               >
                 <span>{chip.label}</span>
                 <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-                    isActive ? 'bg-background/20 text-background' : 'bg-surface-elevated text-muted'
-                  }`}
+                  className={cn(
+                    'text-[10px] px-1.5 py-0.5 rounded-full font-bold',
+                    isActive ? 'bg-black/15 text-white' : 'bg-surface-elevated text-muted'
+                  )}
                 >
                   {chip.count}
                 </span>
@@ -368,52 +411,41 @@ export default function FarmerCropDashboard() {
               <>
                 {crops && crops.length === 0 ? (
                   /* Full Empty State: No crops at all */
-                  <div className="py-16 px-4 text-center rounded-3xl bg-surface border-2 border-dashed border-border-strong max-w-2xl mx-auto shadow-xs">
-                    <div className="w-16 h-16 rounded-2xl bg-brand/10 text-brand flex items-center justify-center mx-auto mb-4">
-                      <Sprout className="w-8 h-8" />
-                    </div>
-                    <h3 className="text-xl font-display font-bold text-foreground">
-                      Start tracking your first crop
-                    </h3>
-                    <p className="text-xs sm:text-sm text-foreground-secondary mt-1.5 max-w-md mx-auto leading-relaxed">
-                      Add your crops to monitor growth, plan harvests, and connect your produce with interested buyers.
-                    </p>
-                    <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-                      <Button
-                        variant="brand"
-                        onClick={() => dispatch(openAddTrackingModal())}
-                        className="rounded-xl px-5 gap-2 font-bold"
-                      >
-                        <Plus className="w-4 h-4" />
-                        Track Your First Crop
-                      </Button>
-                      <Link to="/dashboard/products/new">
-                        <Button variant="outline" className="rounded-xl px-5 gap-2 font-semibold">
-                          Add New Product
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
+                  <EmptyState
+                    icon={<Sprout className="w-8 h-8 text-brand" />}
+                    iconVariant="brand"
+                    title="Start tracking your first crop"
+                    description="Add your crops to monitor growth stages, forecast harvest dates, and connect produce with interested buyers."
+                    action={{
+                      label: 'Track Your First Crop',
+                      icon: <Plus className="w-4 h-4" />,
+                      onClick: () => dispatch(openAddTrackingModal()),
+                    }}
+                    secondaryAction={{
+                      label: 'Add New Product',
+                      icon: <ArrowUpRight className="w-4 h-4" />,
+                      variant: 'outline',
+                      onClick: () => navigate('/dashboard/products/new'),
+                    }}
+                    className="max-w-2xl mx-auto py-16"
+                  />
                 ) : filteredCrops.length === 0 ? (
                   /* Filter Empty State */
-                  <div className="py-14 text-center rounded-2xl bg-surface border border-border-subtle p-6 max-w-md mx-auto">
-                    <Sparkles className="w-8 h-8 text-muted mx-auto mb-2" />
-                    <h4 className="text-sm font-bold text-foreground">No crops match your filters</h4>
-                    <p className="text-xs text-muted mt-1">
-                      Try searching with different terms or reset your active filters.
-                    </p>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
+                  <EmptyState
+                    icon={<Sparkles className="w-7 h-7 text-muted" />}
+                    iconVariant="neutral"
+                    title="No crops match your filters"
+                    description="Try searching with different terms or reset your active lifecycle stage filter."
+                    action={{
+                      label: 'Clear Filters',
+                      variant: 'outline',
+                      onClick: () => {
                         setSearchQuery('');
                         setFilterStage('ALL');
-                      }}
-                      className="mt-4 rounded-xl text-xs"
-                    >
-                      Clear Filters
-                    </Button>
-                  </div>
+                      },
+                    }}
+                    className="max-w-md mx-auto py-12"
+                  />
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch auto-rows-max">
                     {filteredCrops.map((crop, index) => (
@@ -438,9 +470,7 @@ export default function FarmerCropDashboard() {
             )}
 
             {/* Calendar View (Harvest Schedule Agenda) */}
-            {view === 'calendar' && (
-              <CropCalendar crops={filteredCrops} />
-            )}
+            {view === 'calendar' && <CropCalendar crops={filteredCrops} />}
           </motion.div>
         )}
       </AnimatePresence>

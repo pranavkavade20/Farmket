@@ -1,9 +1,34 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, MessageCircle, Share2, Bookmark, ShoppingBag, MapPin, MoreHorizontal, Pin, VolumeX, Volume2, Calendar, Sprout } from 'lucide-react';
-import { useLikePostMutation, useUnlikePostMutation, useSavePostMutation, useUnsavePostMutation } from '../api/socialApi';
+import {
+  Heart,
+  MessageCircle,
+  Share2,
+  Bookmark,
+  ShoppingBag,
+  MapPin,
+  Pin,
+  VolumeX,
+  Volume2,
+  Calendar,
+  Sprout,
+  ShieldCheck,
+  ChevronLeft,
+  ChevronRight,
+  Sparkles,
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import {
+  useLikePostMutation,
+  useUnlikePostMutation,
+  useSavePostMutation,
+  useUnsavePostMutation,
+} from '../api/socialApi';
 import { useAppSelector } from '@/app/hooks';
 import type { Post, Product } from '@/types';
+import { Badge, Button } from '@/components/ui';
+import { MEDIA_BASE_URL } from '@/config/env';
+import { toast } from 'sonner';
 
 interface FeedCardProps {
   post: Post;
@@ -21,82 +46,162 @@ interface ActionButtonsProps {
   post: Post;
   handleSave: () => void;
   isSaved: boolean;
+  handleShare: () => void;
 }
 
-const ActionButtons: React.FC<ActionButtonsProps> = ({ 
-  isDesktop = false, 
-  isLiked, 
-  likesCount, 
-  handleLike, 
-  onCommentClick, 
-  post, 
-  handleSave, 
-  isSaved 
+const resolveMediaUrl = (url?: string) => {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  return `${MEDIA_BASE_URL}${url}`;
+};
+
+const formatTimeAgo = (dateStr: string) => {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffSec = Math.floor((now.getTime() - date.getTime()) / 1000);
+  if (diffSec < 60) return 'Just now';
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return `${diffHr}h ago`;
+  const diffDay = Math.floor(diffHr / 24);
+  if (diffDay < 7) return `${diffDay}d ago`;
+  return date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+};
+
+const ActionButtons: React.FC<ActionButtonsProps> = ({
+  isDesktop = false,
+  isLiked,
+  likesCount,
+  handleLike,
+  onCommentClick,
+  post,
+  handleSave,
+  isSaved,
+  handleShare,
 }) => (
   <>
-    <motion.button 
+    {/* Like Button */}
+    <motion.button
+      type="button"
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
       onClick={handleLike}
-      className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 transition-colors ${isLiked ? 'text-red-500' : 'text-foreground-secondary hover:text-red-500'}`}
-      title="Like"
+      className={`flex ${
+        isDesktop ? 'flex-col' : ''
+      } items-center justify-center gap-1.5 transition-colors ${
+        isLiked ? 'text-danger' : 'text-muted hover:text-danger'
+      }`}
+      title="Like update"
+      aria-label="Like update"
     >
-      <div className={`p-2 rounded-full ${isDesktop ? 'bg-surface-elevated' : ''}`}>
-        <Heart size={isDesktop ? 22 : 24} fill={isLiked ? 'currentColor' : 'none'} className={isLiked ? 'drop-shadow-sm' : ''} />
+      <div
+        className={`p-2 rounded-2xl ${
+          isDesktop
+            ? isLiked
+              ? 'bg-danger/10 text-danger'
+              : 'bg-surface hover:bg-surface-elevated text-muted'
+            : ''
+        }`}
+      >
+        <Heart
+          size={isDesktop ? 20 : 22}
+          fill={isLiked ? 'currentColor' : 'none'}
+          className={isLiked ? 'drop-shadow-xs' : ''}
+        />
       </div>
-      <span className="font-semibold text-xs">{likesCount}</span>
+      <span className="font-bold text-xs select-none">{likesCount}</span>
     </motion.button>
 
-    <motion.button 
+    {/* Comment Button */}
+    <motion.button
+      type="button"
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
       onClick={() => onCommentClick(post.id)}
-      className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 text-foreground-secondary hover:text-brand transition-colors`}
-      title="Comment"
+      className={`flex ${
+        isDesktop ? 'flex-col' : ''
+      } items-center justify-center gap-1.5 text-muted hover:text-brand transition-colors`}
+      title="View comments"
+      aria-label="View comments"
     >
-      <div className={`p-2 rounded-full ${isDesktop ? 'bg-surface-elevated' : ''}`}>
-        <MessageCircle size={isDesktop ? 22 : 24} />
+      <div
+        className={`p-2 rounded-2xl ${
+          isDesktop ? 'bg-surface hover:bg-surface-elevated text-muted' : ''
+        }`}
+      >
+        <MessageCircle size={isDesktop ? 20 : 22} />
       </div>
-      <span className="font-semibold text-xs">{post.comments_count}</span>
+      <span className="font-bold text-xs select-none">{post.comments_count}</span>
     </motion.button>
 
-    <motion.button 
+    {/* Share Button */}
+    <motion.button
+      type="button"
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
-      className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 text-foreground-secondary hover:text-blue-500 transition-colors`}
-      title="Share"
+      onClick={handleShare}
+      className={`flex ${
+        isDesktop ? 'flex-col' : ''
+      } items-center justify-center gap-1.5 text-muted hover:text-blue-500 transition-colors`}
+      title="Share update"
+      aria-label="Share update"
     >
-      <div className={`p-2 rounded-full ${isDesktop ? 'bg-surface-elevated' : ''}`}>
-        <Share2 size={isDesktop ? 22 : 24} />
+      <div
+        className={`p-2 rounded-2xl ${
+          isDesktop ? 'bg-surface hover:bg-surface-elevated text-muted' : ''
+        }`}
+      >
+        <Share2 size={isDesktop ? 20 : 22} />
       </div>
-      {isDesktop && <span className="font-semibold text-xs">Share</span>}
+      {isDesktop && <span className="font-bold text-[11px] select-none">Share</span>}
     </motion.button>
 
-    <motion.button 
+    {/* Bookmark Button */}
+    <motion.button
+      type="button"
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
       onClick={handleSave}
-      className={`flex ${isDesktop ? 'flex-col' : ''} items-center justify-center gap-1.5 transition-colors ${isSaved ? 'text-brand' : 'text-foreground-secondary hover:text-brand'}`}
-      title="Bookmark"
+      className={`flex ${
+        isDesktop ? 'flex-col' : ''
+      } items-center justify-center gap-1.5 transition-colors ${
+        isSaved ? 'text-brand' : 'text-muted hover:text-brand'
+      }`}
+      title="Bookmark post"
+      aria-label="Bookmark post"
     >
-      <div className={`p-2 rounded-full ${isDesktop ? 'bg-surface-elevated' : ''}`}>
-        <Bookmark size={isDesktop ? 22 : 24} fill={isSaved ? 'currentColor' : 'none'} />
+      <div
+        className={`p-2 rounded-2xl ${
+          isDesktop
+            ? isSaved
+              ? 'bg-brand/10 text-brand'
+              : 'bg-surface hover:bg-surface-elevated text-muted'
+            : ''
+        }`}
+      >
+        <Bookmark size={isDesktop ? 20 : 22} fill={isSaved ? 'currentColor' : 'none'} />
       </div>
-      {isDesktop && <span className="font-semibold text-xs">Save</span>}
+      {isDesktop && <span className="font-bold text-[11px] select-none">Save</span>}
     </motion.button>
   </>
 );
 
-export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyNowClick, isActive = false }) => {
+export const FeedCard: React.FC<FeedCardProps> = ({
+  post,
+  onCommentClick,
+  onBuyNowClick,
+  isActive = false,
+}) => {
+  const navigate = useNavigate();
   const [likePost] = useLikePostMutation();
   const [unlikePost] = useUnlikePostMutation();
   const [savePost] = useSavePostMutation();
   const [unsavePost] = useUnsavePostMutation();
-  
+
   const [isLiked, setIsLiked] = useState(post.is_liked);
   const [likesCount, setLikesCount] = useState(post.likes_count);
   const [isSaved, setIsSaved] = useState(post.is_saved);
-  const [isImageExpanded, setIsImageExpanded] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [isCaptionExpanded, setIsCaptionExpanded] = useState(false);
@@ -104,12 +209,13 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
   const videoRef = useRef<HTMLVideoElement>(null);
   const { user } = useAppSelector((state) => state.auth);
 
-  const currentMedia = post.media && post.media.length > 0 ? post.media[currentMediaIndex] : null;
+  const currentMedia =
+    post.media && post.media.length > 0 ? post.media[currentMediaIndex] : null;
   const isVideo = currentMedia?.type === 'video';
 
   useEffect(() => {
     if (!videoRef.current || !isVideo) return;
-    
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -122,7 +228,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
       },
       { threshold: 0.6 }
     );
-    
+
     observer.observe(videoRef.current);
     return () => observer.disconnect();
   }, [post.media, currentMediaIndex, isVideo]);
@@ -131,11 +237,11 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
     try {
       if (isLiked) {
         setIsLiked(false);
-        setLikesCount((p: number) => p - 1);
+        setLikesCount((p) => Math.max(0, p - 1));
         await unlikePost(post.id).unwrap();
       } else {
         setIsLiked(true);
-        setLikesCount((p: number) => p + 1);
+        setLikesCount((p) => p + 1);
         await likePost(post.id).unwrap();
       }
     } catch {
@@ -149,119 +255,210 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
       if (isSaved) {
         setIsSaved(false);
         await unsavePost(post.id).unwrap();
+        toast.info('Post removed from saved collection');
       } else {
         setIsSaved(true);
         await savePost(post.id).unwrap();
+        toast.success('Post saved to bookmarks');
       }
     } catch {
       setIsSaved(!isSaved);
     }
   };
 
-  const formattedDate = new Date(post.created_at).toLocaleDateString('en-US', {
-    month: 'short', day: 'numeric', year: 'numeric'
-  });
+  const handleShare = async () => {
+    const postUrl = `${window.location.origin}/feed#post-${post.id}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: post.title || 'Farmket Farmer Story',
+          text: post.description || 'Check out this fresh farm update on Farmket',
+          url: postUrl,
+        });
+        return;
+      } catch {
+        // Fall back to clipboard
+      }
+    }
+    navigator.clipboard.writeText(postUrl);
+    toast.success('Post link copied to clipboard!');
+  };
 
   const handleMediaClick = () => {
     if (isVideo) {
       setIsMuted(!isMuted);
-    } else {
-      setIsImageExpanded(!isImageExpanded);
     }
   };
 
+  const farmerName =
+    post.farmer?.first_name || post.farmer?.username
+      ? `${post.farmer?.first_name || ''} ${post.farmer?.last_name || ''}`.trim()
+      : 'Local Producer';
+  const farmerInitials = (farmerName || 'F').charAt(0).toUpperCase();
+
   const captionText = post.description || '';
-  const isLongCaption = captionText.length > 120;
-  const displayCaption = isLongCaption && !isCaptionExpanded ? captionText.slice(0, 120) + '...' : captionText;
+  const isLongCaption = captionText.length > 140;
+  const displayCaption =
+    isLongCaption && !isCaptionExpanded ? `${captionText.slice(0, 140)}...` : captionText;
 
-
+  const navigateToFarmerProfile = () => {
+    if (post.farmer?.id) {
+      navigate(`/farmers/${post.farmer.id}`);
+    }
+  };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
+    <motion.article
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`bg-surface rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-border-subtle overflow-hidden mb-8 ${isActive ? 'md:h-full flex flex-col' : ''}`}
+      transition={{ duration: 0.2 }}
+      className={`bg-surface rounded-3xl shadow-xs hover:shadow-md transition-all duration-300 border border-border-subtle overflow-hidden mb-6 ${
+        isActive ? 'ring-2 ring-brand/30' : ''
+      }`}
     >
-      <div className={`flex flex-col md:flex-row ${isActive ? 'md:h-full' : ''}`}>
-        {/* Main Content Area */}
-        <div className={`flex-1 min-w-0 ${isActive ? 'flex flex-col md:h-full' : ''}`}>
-          {/* Header */}
-          <div className="p-4 md:p-5 flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="h-11 w-11 rounded-full bg-brand flex items-center justify-center text-white font-bold text-lg shadow-inner ring-2 ring-background">
-                {post.farmer?.first_name?.[0] || post.farmer?.username?.[0] || 'F'}
+      <div className="flex flex-col md:flex-row">
+        {/* Main Feed Content Column */}
+        <div className="flex-1 min-w-0">
+          {/* Farmer Header Strip */}
+          <div className="p-4 sm:p-5 flex items-center justify-between border-b border-border-subtle/50">
+            <div
+              className="flex items-center space-x-3 cursor-pointer group/author"
+              onClick={navigateToFarmerProfile}
+            >
+              {/* Farmer Avatar */}
+              <div className="h-11 w-11 rounded-full bg-brand text-on-brand flex items-center justify-center font-bold text-base shadow-xs ring-2 ring-background transition-transform group-hover/author:scale-105">
+                {post.farmer?.profile_picture ? (
+                  <img
+                    src={resolveMediaUrl(post.farmer.profile_picture)}
+                    alt={farmerName}
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                ) : (
+                  <span>{farmerInitials}</span>
+                )}
               </div>
+
               <div>
-                <h3 className="font-bold text-foreground flex items-center gap-1.5 text-base">
-                  {post.farmer?.first_name} {post.farmer?.last_name}
-                  {post.is_pinned && <Pin size={14} className="text-brand rotate-45" />}
-                </h3>
-                <p className="text-xs font-medium text-muted flex items-center gap-1">
-                  {post.location && <><MapPin size={12} /> {post.location} • </>}
-                  {formattedDate}
+                <div className="flex items-center gap-1.5">
+                  <h3 className="font-extrabold text-foreground group-hover/author:text-brand transition-colors text-sm sm:text-base flex items-center gap-1.5">
+                    {farmerName}
+                  </h3>
+                  <Badge variant="brand" size="sm" className="gap-1 py-0 px-1.5 text-[10px]">
+                    <ShieldCheck className="h-3 w-3" />
+                    <span className="hidden sm:inline">Verified Producer</span>
+                  </Badge>
+                  {post.is_pinned && (
+                    <span title="Pinned Announcement">
+                      <Pin size={13} className="text-brand rotate-45" />
+                    </span>
+                  )}
+                </div>
+
+                <p className="text-xs text-muted flex items-center gap-1 mt-0.5">
+                  {post.location && (
+                    <>
+                      <MapPin size={12} className="text-muted flex-shrink-0" />
+                      <span className="truncate max-w-[130px] sm:max-w-[180px]">
+                        {post.location}
+                      </span>
+                      <span>•</span>
+                    </>
+                  )}
+                  <span>{formatTimeAgo(post.created_at)}</span>
                 </p>
               </div>
             </div>
-            <button className="p-2 text-muted hover:text-foreground hover:bg-surface-elevated rounded-full transition-colors">
-              <MoreHorizontal size={20} />
-            </button>
+
+            {/* Visit Storefront Quick Action */}
+            {post.farmer?.id && (
+              <button
+                type="button"
+                onClick={navigateToFarmerProfile}
+                className="text-xs font-bold text-brand hover:underline hidden sm:block"
+              >
+                View Farm
+              </button>
+            )}
           </div>
 
-          {/* Caption */}
-          <div className="px-4 md:px-5 pb-4">
-            {post.title && <h4 className="font-bold text-foreground text-lg mb-1">{post.title}</h4>}
+          {/* Caption & Post Body */}
+          <div className="px-4 sm:px-5 py-4 space-y-2">
+            {post.title && (
+              <h4 className="font-extrabold text-foreground text-base sm:text-lg tracking-tight">
+                {post.title}
+              </h4>
+            )}
+
             <div className="text-foreground-secondary text-sm leading-relaxed whitespace-pre-wrap">
               {displayCaption}
               {isLongCaption && (
-                <button 
+                <button
+                  type="button"
                   onClick={() => setIsCaptionExpanded(!isCaptionExpanded)}
-                  className="ml-1 text-brand hover:text-brand-hover font-semibold text-sm focus:outline-none"
+                  className="ml-1.5 text-brand hover:text-brand-hover font-bold text-xs focus:outline-none"
                 >
                   {isCaptionExpanded ? 'Show less' : 'Read more'}
                 </button>
               )}
             </div>
-            
-            {/* Hashtags */}
+
+            {/* Hashtag chips */}
             {post.hashtags && post.hashtags.length > 0 && (
-              <div className="flex flex-wrap gap-2 pt-3">
+              <div className="flex flex-wrap gap-1.5 pt-2">
                 {post.hashtags.map((tag: string, i: number) => (
-                  <span key={i} className="text-xs text-brand bg-brand-muted px-2.5 py-1 rounded-full font-semibold border border-brand/20">
-                    #{tag}
+                  <span
+                    key={i}
+                    className="text-xs text-brand bg-brand-muted/20 px-2.5 py-0.5 rounded-full font-bold border border-brand/20 hover:bg-brand-muted/40 transition-colors cursor-pointer select-none"
+                  >
+                    #{tag.replace(/^#/, '')}
                   </span>
                 ))}
               </div>
             )}
           </div>
 
-          {/* Media Area */}
+          {/* Media Showcase Area */}
           {currentMedia && (
-            <div className={`relative w-full bg-black group ${isActive ? 'flex-1 min-h-0 flex items-center justify-center' : 'aspect-[4/5] sm:aspect-square md:aspect-[4/3]'}`} onClick={handleMediaClick}>
+            <div
+              className="relative w-full bg-surface-elevated overflow-hidden group select-none aspect-[4/3] sm:aspect-[16/10]"
+              onClick={handleMediaClick}
+            >
               {isVideo ? (
                 <>
                   <video
                     key={currentMedia.id}
                     ref={videoRef}
-                    src={currentMedia.file}
+                    src={resolveMediaUrl(currentMedia.file)}
                     autoPlay
                     loop
                     muted={isMuted}
                     playsInline
-                    className="w-full h-full object-contain sm:object-cover"
+                    className="w-full h-full object-cover"
                   />
-                  <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md text-white p-2 rounded-full opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300 z-20">
-                    {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsMuted(!isMuted);
+                    }}
+                    className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md text-white p-2.5 rounded-full shadow-lg transition-transform active:scale-90 z-20"
+                    title={isMuted ? 'Unmute audio' : 'Mute audio'}
+                    aria-label={isMuted ? 'Unmute audio' : 'Mute audio'}
+                  >
+                    {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                  </button>
                 </>
               ) : (
-                <img 
+                <img
                   key={currentMedia.id}
-                  src={currentMedia.file} 
-                  alt={post.title} 
-                  className={`w-full h-full object-contain sm:object-cover transition-transform duration-500 cursor-pointer ${isImageExpanded ? 'scale-105' : ''}`}
+                  src={resolveMediaUrl(currentMedia.file)}
+                  alt={post.title || 'Produce update'}
+                  loading="lazy"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102"
                 />
               )}
-              
+
+              {/* Multi-Media Navigation Arrows */}
               {post.media.length > 1 && (
                 <>
                   <AnimatePresence>
@@ -270,98 +467,127 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -10 }}
-                        onClick={(e) => { e.stopPropagation(); setCurrentMediaIndex(p => p - 1); }}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white p-2 rounded-full backdrop-blur-md transition-colors z-20 sm:opacity-0 sm:group-hover:opacity-100"
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCurrentMediaIndex((p) => p - 1);
+                        }}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/75 text-white p-2 rounded-full backdrop-blur-md transition-all z-20 shadow-md"
+                        aria-label="Previous image"
                       >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                        <ChevronLeft size={20} />
                       </motion.button>
                     )}
                   </AnimatePresence>
+
                   <AnimatePresence>
                     {currentMediaIndex < post.media.length - 1 && (
                       <motion.button
                         initial={{ opacity: 0, x: 10 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: 10 }}
-                        onClick={(e) => { e.stopPropagation(); setCurrentMediaIndex(p => p + 1); }}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white p-2 rounded-full backdrop-blur-md transition-colors z-20 sm:opacity-0 sm:group-hover:opacity-100"
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCurrentMediaIndex((p) => p + 1);
+                        }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/75 text-white p-2 rounded-full backdrop-blur-md transition-all z-20 shadow-md"
+                        aria-label="Next image"
                       >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                        <ChevronRight size={20} />
                       </motion.button>
                     )}
                   </AnimatePresence>
-                  
+
+                  {/* Pagination Dots */}
                   <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 z-10">
-                    {post.media.map((_: unknown, idx: number) => (
-                      <div 
-                        key={idx} 
-                        className={`h-1.5 rounded-full transition-all duration-300 shadow-sm ${idx === currentMediaIndex ? 'bg-white w-5' : 'bg-white/50 w-1.5'}`} 
+                    {post.media.map((_, idx: number) => (
+                      <div
+                        key={idx}
+                        className={`h-1.5 rounded-full transition-all duration-300 shadow-xs ${
+                          idx === currentMediaIndex ? 'bg-white w-5' : 'bg-white/50 w-1.5'
+                        }`}
                       />
                     ))}
                   </div>
 
-                  <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-white font-medium text-xs px-2.5 py-1 rounded-full z-20 pointer-events-none">
-                    {currentMediaIndex + 1}/{post.media.length}
+                  {/* Counter Badge */}
+                  <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-white font-bold text-[11px] px-2.5 py-1 rounded-full z-20 pointer-events-none">
+                    {currentMediaIndex + 1} / {post.media.length}
                   </div>
                 </>
               )}
             </div>
           )}
 
-          {/* Commerce Section (Pinned Product) */}
+          {/* Commerce Section: Pinned Harvest Product */}
           {post.product && (
-            <div className="m-4 md:m-5 bg-surface-elevated border border-border-subtle p-4 rounded-2xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-bold text-foreground flex items-center gap-2">
-                    {post.product.name}
+            <div className="m-4 sm:m-5 bg-surface-elevated/70 border border-border-subtle p-4 rounded-2xl shadow-2xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-extrabold text-foreground truncate">
+                      {post.product.name}
+                    </p>
                     {post.product.is_prebookable && (
-                      <span className="bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 text-[10px] px-2 py-0.5 rounded-full font-extrabold tracking-wide uppercase">
-                        Pre-book
-                      </span>
+                      <Badge variant="warning" size="sm" className="gap-1 font-extrabold uppercase">
+                        <Sparkles className="h-3 w-3" />
+                        <span>Pre-book</span>
+                      </Badge>
                     )}
-                  </p>
-                  <p className="text-xl font-black text-brand mt-0.5">
+                  </div>
+
+                  <p className="text-lg font-black text-brand mt-0.5">
                     ₹{post.product.price}
+                    <span className="text-xs font-medium text-muted ml-1">
+                      / {post.product.unit || 'kg'}
+                    </span>
                   </p>
-                  <p className="text-xs text-foreground-secondary font-medium mt-0.5">
-                    {post.product.market_state === 'READY_FOR_PREBOOKING' ? 'Pre-booking open' : `${post.product.stock_quantity} available`}
+
+                  <p className="text-xs text-muted font-medium mt-0.5">
+                    {post.product.market_state === 'READY_FOR_PREBOOKING'
+                      ? 'Harvest pre-booking currently open'
+                      : `${post.product.stock_quantity ?? 0} in stock ready for dispatch`}
                   </p>
                 </div>
+
                 {user?.user_type === 'buyer' && (
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                  <Button
+                    size="sm"
+                    variant="brand"
                     onClick={() => onBuyNowClick(post.product!)}
-                    className="bg-brand hover:bg-brand-hover text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-sm transition-colors whitespace-nowrap"
+                    leftIcon={
+                      post.product.is_prebookable ? (
+                        <Calendar size={16} />
+                      ) : (
+                        <ShoppingBag size={16} />
+                      )
+                    }
+                    className="w-full sm:w-auto"
                   >
-                    {post.product.is_prebookable ? (
-                      <><Calendar size={18} /> Pre-book</>
-                    ) : (
-                      <><ShoppingBag size={18} /> Buy Now</>
-                    )}
-                  </motion.button>
+                    {post.product.is_prebookable ? 'Pre-Book Harvest' : 'Buy Fresh'}
+                  </Button>
                 )}
               </div>
 
-              {/* Upcoming Harvest Progress */}
+              {/* Crop Stage & Harvest Countdown Progress */}
               {post.product.crop_stage && (
-                <div className="bg-surface/80 backdrop-blur-sm p-3 rounded-xl border border-border-subtle shadow-sm mt-3">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-bold text-brand flex items-center gap-1.5 uppercase tracking-wide">
+                <div className="bg-surface p-3 rounded-xl border border-border-subtle mt-3 space-y-2">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="font-bold text-brand flex items-center gap-1.5 uppercase tracking-wide text-[11px]">
                       <Sprout size={14} /> {post.product.crop_stage.replace(/_/g, ' ')}
                     </span>
-                    <span className="text-xs text-foreground-secondary flex items-center gap-1 font-semibold">
-                      <Calendar size={12} className="text-muted" /> {post.product.harvest_countdown} days to harvest
+                    <span className="text-muted flex items-center gap-1 font-semibold text-[11px]">
+                      <Calendar size={12} />
+                      {post.product.harvest_countdown ?? 0} days to harvest
                     </span>
                   </div>
-                  <div className="w-full bg-border-subtle rounded-full h-2 overflow-hidden shadow-inner">
-                    <div 
-                      className="bg-gradient-to-r from-brand to-emerald-400 h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden" 
-                      style={{ width: `${post.product.progress_percentage || 0}%` }}
-                    >
-                      <div className="absolute inset-0 bg-white/20 w-full animate-pulse"></div>
-                    </div>
+
+                  <div className="w-full bg-surface-elevated rounded-full h-2 overflow-hidden border border-border-subtle/50">
+                    <div
+                      className="bg-brand h-full rounded-full transition-all duration-700 ease-out"
+                      style={{ width: `${Math.min(100, post.product.progress_percentage || 0)}%` }}
+                    />
                   </div>
                 </div>
               )}
@@ -369,36 +595,38 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onCommentClick, onBuyN
           )}
 
           {/* Mobile Action Bar (Horizontal at the bottom) */}
-          <div className="md:hidden flex items-center justify-between p-4 border-t border-border-subtle">
-            <div className="flex items-center gap-6">
-              <ActionButtons 
-                isDesktop={false} 
-                isLiked={isLiked} 
-                likesCount={likesCount} 
-                handleLike={handleLike} 
-                onCommentClick={onCommentClick} 
-                post={post} 
-                handleSave={handleSave} 
-                isSaved={isSaved} 
+          <div className="md:hidden flex items-center justify-between p-3.5 px-5 border-t border-border-subtle bg-surface">
+            <div className="flex items-center justify-between w-full">
+              <ActionButtons
+                isDesktop={false}
+                isLiked={isLiked}
+                likesCount={likesCount}
+                handleLike={handleLike}
+                onCommentClick={onCommentClick}
+                post={post}
+                handleSave={handleSave}
+                isSaved={isSaved}
+                handleShare={handleShare}
               />
             </div>
           </div>
         </div>
 
-        {/* Desktop Action Column (Vertical on the right) */}
-        <div className="hidden md:flex flex-col items-center justify-end p-4 border-l border-border-subtle w-20 bg-surface-elevated gap-8">
-          <ActionButtons 
-            isDesktop={true} 
-            isLiked={isLiked} 
-            likesCount={likesCount} 
-            handleLike={handleLike} 
-            onCommentClick={onCommentClick} 
-            post={post} 
-            handleSave={handleSave} 
-            isSaved={isSaved} 
+        {/* Desktop Vertical Action Column (on the right) */}
+        <div className="hidden md:flex flex-col items-center justify-center p-4 border-l border-border-subtle w-20 bg-surface-elevated/40 gap-6">
+          <ActionButtons
+            isDesktop={true}
+            isLiked={isLiked}
+            likesCount={likesCount}
+            handleLike={handleLike}
+            onCommentClick={onCommentClick}
+            post={post}
+            handleSave={handleSave}
+            isSaved={isSaved}
+            handleShare={handleShare}
           />
         </div>
       </div>
-    </motion.div>
+    </motion.article>
   );
 };
