@@ -23,7 +23,8 @@ import {
   Newspaper
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import logo from "@/assets/images/logo.png";
+import farmketLogo from "@/assets/images/farmket_logo.png";
+import farmketLogoDark from "@/assets/images/farmket_logo_dark.png";
 import NotificationCenter from "./NotificationCenter";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -246,11 +247,17 @@ const Navbar = ({ isDashboard = false, onToggleMobileSidebar }: NavbarProps) => 
       ) : (
         <Container className="flex h-14 items-center justify-between gap-4">
           <div className="flex items-center gap-8 shrink-0 flex-1">
-            <Link to="/" className="flex items-center gap-3 group">
-              <img src={logo} alt="Farmket Logo" className="h-8 w-8 object-contain transition-transform duration-300 group-hover:scale-105" />
-              <span className="text-xl font-display font-bold tracking-tight text-foreground group-hover:text-brand transition-colors duration-300">
-                Farmket
-              </span>
+            <Link to="/" className="flex items-center group py-1" aria-label="Farmket Home">
+              <img
+                src={farmketLogo}
+                alt="Farmket"
+                className="h-8 sm:h-9 w-auto object-contain transition-transform duration-300 group-hover:scale-105 dark:hidden"
+              />
+              <img
+                src={farmketLogoDark}
+                alt="Farmket"
+                className="h-8 sm:h-9 w-auto object-contain transition-transform duration-300 group-hover:scale-105 hidden dark:block"
+              />
             </Link>
             <div className="hidden lg:flex items-center gap-1 ml-4">
               {navLink("/", "Home")}

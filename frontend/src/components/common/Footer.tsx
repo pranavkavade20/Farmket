@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import logo from '@/assets/images/logo.png';
+import farmketLogo from '@/assets/images/farmket_logo.png';
+import farmketLogoDark from '@/assets/images/farmket_logo_dark.png';
 import { ArrowRight, Leaf } from 'lucide-react';
 import { Container } from '@/components/ui';
 
@@ -36,11 +37,17 @@ const Footer = () => {
 
           {/* Brand & Socials */}
           <div className="col-span-1 md:col-span-4 lg:pr-12">
-            <Link to="/" className="flex items-center gap-3 mb-6 group">
-              <img src={logo} alt="Farmket Logo" className="h-10 w-10 object-contain relative z-10 transition-transform duration-300" />
-              <span className="text-2xl font-display font-bold tracking-tighter text-foreground group-hover:text-brand transition-colors duration-300">
-                Farmket
-              </span>
+            <Link to="/" className="inline-block mb-6 group py-1" aria-label="Farmket Home">
+              <img
+                src={farmketLogo}
+                alt="Farmket"
+                className="h-9 sm:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105 dark:hidden"
+              />
+              <img
+                src={farmketLogoDark}
+                alt="Farmket"
+                className="h-9 sm:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105 hidden dark:block"
+              />
             </Link>
             <p className="text-sm text-foreground-secondary mb-8 font-medium leading-relaxed max-w-sm">
               Connecting farmers directly with buyers for a sustainable, fresh, and organic agricultural future. No middlemen, absolute transparency.
@@ -109,7 +116,7 @@ const Footer = () => {
                 <h3 className="text-lg font-bold text-foreground">Join our Newsletter</h3>
               </div>
               <p className="text-sm text-foreground-secondary mb-6 font-medium relative z-10 flex-1">Get exclusive discounts and seasonal offers directly to your inbox.</p>
-              
+
               <form className="relative flex items-center z-10 mt-auto" onSubmit={(e) => e.preventDefault()}>
                 <input
                   type="email"
@@ -134,8 +141,8 @@ const Footer = () => {
             &copy; {new Date().getFullYear()} Farmket Inc. All rights reserved.
           </p>
           <div className="flex items-center gap-6 text-sm font-semibold text-foreground-secondary">
-             <button className="hover:text-foreground transition-colors">English (EN)</button>
-             <button className="hover:text-foreground transition-colors">INR (₹)</button>
+            <button className="hover:text-foreground transition-colors">English (EN)</button>
+            <button className="hover:text-foreground transition-colors">INR (₹)</button>
           </div>
         </div>
       </Container>

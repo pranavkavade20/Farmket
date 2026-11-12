@@ -4,7 +4,8 @@ import { Button, Container } from '@/components/ui';
 import { motion } from 'framer-motion';
 import { Home, ArrowLeft } from 'lucide-react';
 
-import logo from '@/assets/images/logo.png';
+import farmketLogo from '@/assets/images/farmket_logo.png';
+import farmketLogoDark from '@/assets/images/farmket_logo_dark.png';
 
 const NotFound = () => {
   useSEO({ title: '404 — Page Not Found' });
@@ -17,8 +18,9 @@ const NotFound = () => {
         transition={{ duration: 0.4 }}
       >
         <div className="mb-6 flex justify-center">
-          <Link to="/">
-            <img src={logo} alt="Farmket Logo" className="h-16 w-16 object-contain" />
+          <Link to="/" aria-label="Farmket Home">
+            <img src={farmketLogo} alt="Farmket Logo" className="h-14 w-auto object-contain dark:hidden" />
+            <img src={farmketLogoDark} alt="Farmket Logo" className="h-14 w-auto object-contain hidden dark:block" />
           </Link>
         </div>
         {/* Illustration number */}

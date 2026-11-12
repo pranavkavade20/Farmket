@@ -16,7 +16,8 @@ import {
   X,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import logo from "@/assets/images/logo.png";
+import farmketLogo from "@/assets/images/farmket_logo.png";
+import farmketLogoDark from "@/assets/images/farmket_logo_dark.png";
 
 interface SidebarProps {
   isMobileOpen?: boolean;
@@ -85,11 +86,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen = false, onCloseMobile }
     <div className="flex flex-col h-full bg-surface">
       {/* Brand Header */}
       <div className="h-14 flex items-center justify-between px-5 shrink-0 border-b border-border-subtle">
-        <Link to="/" onClick={onCloseMobile} className="flex items-center gap-2 group">
-          <img src={logo} alt="Farmket Logo" className="h-7 w-7 object-contain transition-transform duration-300 group-hover:scale-105" />
-          <span className="text-lg font-display font-bold tracking-tight text-foreground transition-colors duration-300">
-            Farmket
-          </span>
+        <Link to="/" onClick={onCloseMobile} className="flex items-center group py-1" aria-label="Farmket Home">
+          <img src={farmketLogo} alt="Farmket" className="h-7 w-auto object-contain transition-transform duration-300 group-hover:scale-105 dark:hidden" />
+          <img src={farmketLogoDark} alt="Farmket" className="h-7 w-auto object-contain transition-transform duration-300 group-hover:scale-105 hidden dark:block" />
         </Link>
         {onCloseMobile && (
           <button
