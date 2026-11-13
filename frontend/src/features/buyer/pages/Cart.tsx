@@ -369,7 +369,7 @@ const Cart = () => {
                               type="button"
                               onClick={() => handleUpdateQty(item.id, item.quantity - 1)}
                               disabled={isUpdating}
-                              className="h-8 w-8 rounded-lg flex items-center justify-center bg-surface border border-border-subtle text-foreground hover:bg-surface-elevated active:scale-95 disabled:opacity-50 transition-all cursor-pointer shadow-2xs"
+                              className="h-8 w-8 rounded-lg flex items-center justify-center bg-surface border border-border-subtle text-foreground hover:bg-surface-elevated active:scale-95 disabled:opacity-50 transition-all cursor-pointer shadow-2xs focus-ring"
                               aria-label="Decrease quantity"
                             >
                               <Minus className="h-3.5 w-3.5" />
@@ -383,7 +383,7 @@ const Cart = () => {
                               type="button"
                               onClick={() => handleUpdateQty(item.id, item.quantity + 1)}
                               disabled={isUpdating}
-                              className="h-8 w-8 rounded-lg flex items-center justify-center bg-surface border border-border-subtle text-foreground hover:bg-surface-elevated active:scale-95 disabled:opacity-50 transition-all cursor-pointer shadow-2xs"
+                              className="h-8 w-8 rounded-lg flex items-center justify-center bg-surface border border-border-subtle text-foreground hover:bg-surface-elevated active:scale-95 disabled:opacity-50 transition-all cursor-pointer shadow-2xs focus-ring"
                               aria-label="Increase quantity"
                             >
                               <Plus className="h-3.5 w-3.5" />

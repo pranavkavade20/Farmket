@@ -28,6 +28,16 @@ export const ReservationModal: React.FC = () => {
   const unit = crop?.product_details?.unit || 'units';
   const cropName = crop?.product_details?.name || crop?.crop_name || 'Crop Harvest';
 
+  const unitPrice = parseFloat(crop?.product_details?.price || '0');
+  const estimatedCost =
+    !isNaN(unitPrice) && unitPrice > 0 && quantity > 0
+      ? new Intl.NumberFormat('en-IN', {
+          style: 'currency',
+          currency: 'INR',
+          maximumFractionDigits: 0,
+        }).format(quantity * unitPrice)
+      : null;
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!crop) return;
@@ -100,6 +110,14 @@ export const ReservationModal: React.FC = () => {
               required
             />
           </div>
+
+          {/* Cost Estimate Preview */}
+          {estimatedCost && (
+            <div className="flex items-center justify-between p-3 rounded-xl bg-surface-elevated/50 border border-border-subtle text-xs">
+              <span className="text-muted font-medium">Estimated Harvest Value</span>
+              <span className="text-brand font-bold text-sm">{estimatedCost}</span>
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-border-subtle">

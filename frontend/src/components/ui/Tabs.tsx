@@ -24,9 +24,12 @@ export const Tabs: React.FC<{
 export const TabsList: React.FC<{
   children: React.ReactNode;
   className?: string;
-}> = ({ children, className }) => {
+  'aria-label'?: string;
+}> = ({ children, className, 'aria-label': ariaLabel }) => {
   return (
     <div
+      role="tablist"
+      aria-label={ariaLabel}
       className={cn(
         'inline-flex items-center justify-center rounded-lg bg-surface p-1 text-foreground-secondary',
         className
@@ -41,20 +44,25 @@ export const TabsTrigger: React.FC<{
   value: string;
   children: React.ReactNode;
   className?: string;
-}> = ({ value, children, className }) => {
+  id?: string;
+}> = ({ value, children, className, id }) => {
   const context = React.useContext(TabsContext);
   if (!context) throw new Error('TabsTrigger must be used within Tabs');
 
   const isSelected = context.value === value;
+  const triggerId = id || `tab-${value}`;
+  const panelId = `tabpanel-${value}`;
 
   return (
     <button
       type="button"
       role="tab"
+      id={triggerId}
+      aria-controls={panelId}
       aria-selected={isSelected}
       onClick={() => context.onValueChange(value)}
       className={cn(
-        'inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+        'inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer',
         isSelected
           ? 'bg-background text-foreground shadow-sm'
           : 'hover:bg-background/50 hover:text-foreground',
@@ -70,15 +78,22 @@ export const TabsContent: React.FC<{
   value: string;
   children: React.ReactNode;
   className?: string;
-}> = ({ value, children, className }) => {
+  id?: string;
+}> = ({ value, children, className, id }) => {
   const context = React.useContext(TabsContext);
   if (!context) throw new Error('TabsContent must be used within Tabs');
 
   if (context.value !== value) return null;
 
+  const panelId = id || `tabpanel-${value}`;
+  const triggerId = `tab-${value}`;
+
   return (
     <div
       role="tabpanel"
+      id={panelId}
+      aria-labelledby={triggerId}
+      tabIndex={0}
       className={cn(
         'mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         className

@@ -185,6 +185,8 @@ export const PostComposer: React.FC<PostComposerProps> = ({
 
   return (
     <motion.div
+      role="region"
+      aria-label={existingPost ? 'Edit Farm Update' : 'Publish Farm Story'}
       initial={{ opacity: 0, scale: 0.96, y: 15 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.96, y: 15 }}
@@ -194,7 +196,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({
       {/* Header */}
       <div className="p-5 border-b border-border-subtle flex justify-between items-center bg-surface-elevated/40 shrink-0">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-brand-muted/30 text-brand">
+          <div className="p-2 rounded-xl bg-brand-muted/30 text-brand" aria-hidden="true">
             <Sparkles size={18} />
           </div>
           <div>
@@ -211,10 +213,10 @@ export const PostComposer: React.FC<PostComposerProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-full text-muted hover:text-foreground hover:bg-surface-elevated transition-colors"
+            className="p-1.5 rounded-full text-muted hover:text-foreground hover:bg-surface-elevated transition-colors focus-ring"
             aria-label="Close composer"
           >
-            <X size={20} />
+            <X size={20} aria-hidden="true" />
           </button>
         )}
       </div>
@@ -222,14 +224,13 @@ export const PostComposer: React.FC<PostComposerProps> = ({
       <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-5 overflow-y-auto custom-scrollbar flex-1">
         {/* Author Strip */}
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-brand text-on-brand flex items-center justify-center font-bold text-sm shadow-xs flex-shrink-0">
+          <div className="h-10 w-10 rounded-full bg-brand text-on-brand flex items-center justify-center font-bold text-sm shadow-xs flex-shrink-0" aria-hidden="true">
             {farmerInitials}
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <span className="font-bold text-sm text-foreground">{farmerName}</span>
-              <Badge variant="brand" size="sm" className="gap-1 py-0 text-[10px]">
-                <ShieldCheck className="h-3 w-3" />
+              <Badge variant="success" size="sm" icon={<ShieldCheck className="h-3 w-3 stroke-[2.2]" aria-hidden="true" />} className="py-0 text-[10px]">
                 <span>Verified Producer</span>
               </Badge>
             </div>
@@ -242,6 +243,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({
           <input
             type="text"
             placeholder="Post Title (e.g. Fresh Organic Tomatoes Harvest This Week)"
+            aria-label="Post Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="w-full bg-transparent border-b border-border-subtle pb-2 text-base sm:text-lg font-bold placeholder:text-muted focus:outline-none focus:border-brand text-foreground transition-colors"
@@ -252,6 +254,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({
         <div>
           <textarea
             placeholder="What are you harvesting or preparing on the farm today? Describe the yield, soil condition, or expected availability..."
+            aria-label="Post Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={4}
@@ -262,10 +265,11 @@ export const PostComposer: React.FC<PostComposerProps> = ({
         {/* Hashtags Input & Chips */}
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <Tag size={15} className="text-muted flex-shrink-0" />
+            <Tag size={15} className="text-muted flex-shrink-0" aria-hidden="true" />
             <input
               type="text"
               placeholder="Add hashtags (press Enter or comma, e.g. organic, wheat, farmfresh)"
+              aria-label="Add hashtags"
               value={hashtagInput}
               onChange={(e) => setHashtagInput(e.target.value)}
               onKeyDown={handleAddHashtag}
@@ -284,10 +288,10 @@ export const PostComposer: React.FC<PostComposerProps> = ({
                   <button
                     type="button"
                     onClick={() => removeHashtag(tag)}
-                    className="hover:text-danger ml-0.5"
+                    className="hover:text-danger ml-0.5 focus-ring rounded"
                     aria-label={`Remove tag ${tag}`}
                   >
-                    <X size={12} />
+                    <X size={12} aria-hidden="true" />
                   </button>
                 </span>
               ))}
@@ -321,10 +325,11 @@ export const PostComposer: React.FC<PostComposerProps> = ({
                   <button
                     type="button"
                     onClick={() => removeExistingFile(media.id)}
-                    className="absolute top-1.5 right-1.5 bg-black/70 hover:bg-danger text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute top-1.5 right-1.5 bg-black/70 hover:bg-danger text-white p-1 rounded-full opacity-0 group-hover:opacity-100 focus:opacity-100 focus-ring transition-opacity"
                     title="Remove media"
+                    aria-label="Remove attached media"
                   >
-                    <X size={14} />
+                    <X size={14} aria-hidden="true" />
                   </button>
                 </div>
               ))}
@@ -338,15 +343,20 @@ export const PostComposer: React.FC<PostComposerProps> = ({
                   {preview.type === 'video' ? (
                     <video src={preview.url} className="w-full h-full object-cover" />
                   ) : (
-                    <img src={preview.url} alt="preview" className="w-full h-full object-cover" />
+                    <img
+                      src={preview.url}
+                      alt="preview"
+                      className="w-full h-full object-cover"
+                    />
                   )}
                   <button
                     type="button"
                     onClick={() => removeNewFile(i)}
-                    className="absolute top-1.5 right-1.5 bg-black/70 hover:bg-danger text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute top-1.5 right-1.5 bg-black/70 hover:bg-danger text-white p-1 rounded-full opacity-0 group-hover:opacity-100 focus:opacity-100 focus-ring transition-opacity"
                     title="Remove media"
+                    aria-label="Remove attached media"
                   >
-                    <X size={14} />
+                    <X size={14} aria-hidden="true" />
                   </button>
                 </div>
               ))}
@@ -358,7 +368,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({
         <div className="bg-surface-elevated/70 rounded-2xl p-4 sm:p-5 space-y-4 border border-border-subtle">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
-              <Package size={15} className="text-brand" />
+              <Package size={15} className="text-brand" aria-hidden="true" />
               <span>Link Harvest Produce (Optional)</span>
             </span>
             {selectedProduct && (
@@ -371,12 +381,13 @@ export const PostComposer: React.FC<PostComposerProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Product Selector */}
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted" aria-hidden="true">
                 <Package size={16} />
               </div>
               <select
                 value={productId}
                 onChange={(e) => setProductId(e.target.value)}
+                aria-label="Link Harvest Produce"
                 className="pl-9 w-full rounded-xl border border-border-subtle bg-surface py-2.5 text-xs sm:text-sm text-foreground focus:ring-2 focus:ring-brand focus:outline-none"
               >
                 <option value="">Select produce from your farm...</option>
@@ -390,12 +401,13 @@ export const PostComposer: React.FC<PostComposerProps> = ({
 
             {/* Farm Location */}
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted" aria-hidden="true">
                 <MapPin size={16} />
               </div>
               <input
                 type="text"
                 placeholder="Farm Location (e.g. Pune, MH)"
+                aria-label="Farm Location"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 className="pl-9 w-full rounded-xl border border-border-subtle bg-surface py-2.5 text-xs sm:text-sm text-foreground focus:ring-2 focus:ring-brand focus:outline-none"
@@ -412,7 +424,7 @@ export const PostComposer: React.FC<PostComposerProps> = ({
               className="h-4 w-4 rounded-md border-border-subtle text-brand focus:ring-brand"
             />
             <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-              <Pin size={13} className={isPinned ? 'text-brand rotate-45' : 'text-muted'} />
+              <Pin size={13} className={isPinned ? 'text-brand rotate-45' : 'text-muted'} aria-hidden="true" />
               <span>Pin this announcement to top of your profile</span>
             </span>
           </label>
@@ -423,30 +435,32 @@ export const PostComposer: React.FC<PostComposerProps> = ({
           {/* Media Attach Triggers */}
           <div className="flex items-center gap-1.5">
             <label
-              className="p-2 text-brand hover:bg-brand-muted/20 rounded-xl cursor-pointer transition-colors flex items-center gap-1.5 text-xs font-bold"
+              className="p-2 text-brand hover:bg-brand-muted/20 rounded-xl cursor-pointer transition-colors flex items-center gap-1.5 text-xs font-bold focus-within:ring-2 focus-within:ring-brand"
               title="Add Photos"
             >
-              <ImageIcon size={18} />
+              <ImageIcon size={18} aria-hidden="true" />
               <span className="hidden sm:inline">Add Photo</span>
               <input
                 type="file"
                 multiple
                 accept="image/*"
+                aria-label="Upload photos"
                 className="hidden"
                 onChange={handleFileChange}
               />
             </label>
 
             <label
-              className="p-2 text-blue-500 hover:bg-blue-500/10 rounded-xl cursor-pointer transition-colors flex items-center gap-1.5 text-xs font-bold"
+              className="p-2 text-blue-500 hover:bg-blue-500/10 rounded-xl cursor-pointer transition-colors flex items-center gap-1.5 text-xs font-bold focus-within:ring-2 focus-within:ring-brand"
               title="Add Video"
             >
-              <Video size={18} />
+              <Video size={18} aria-hidden="true" />
               <span className="hidden sm:inline">Add Video</span>
               <input
                 type="file"
                 multiple
                 accept="video/*"
+                aria-label="Upload videos"
                 className="hidden"
                 onChange={handleFileChange}
               />

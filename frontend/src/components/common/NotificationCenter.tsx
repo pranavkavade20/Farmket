@@ -76,15 +76,19 @@ export default function NotificationCenter() {
   return (
     <div className="relative" ref={containerRef}>
       <button 
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
+        aria-label={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : "Notifications"}
+        aria-expanded={isOpen}
+        aria-haspopup="true"
         className={cn(
-          "relative flex h-10 w-10 items-center justify-center rounded-full transition-all hover:scale-105 active:scale-95",
+          "relative flex h-10 w-10 items-center justify-center rounded-full transition-all hover:scale-105 active:scale-95 focus-ring cursor-pointer",
           isOpen ? "bg-state-hover text-foreground" : "text-foreground-secondary hover:bg-state-hover hover:text-foreground"
         )}
       >
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-brand px-1 text-[10px] font-black text-white shadow-sm ring-2 ring-background">
+          <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-brand px-1 text-[10px] font-black text-on-brand shadow-sm ring-2 ring-background">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -97,6 +101,8 @@ export default function NotificationCenter() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
+            role="region"
+            aria-label="Notifications panel"
             className="absolute right-0 mt-3 w-80 sm:w-96 bg-surface rounded-[1.5rem] shadow-2xl border border-border-subtle z-50 overflow-hidden origin-top-right"
           >
             <div className="p-4 border-b border-border-subtle flex justify-between items-center bg-background">
@@ -110,8 +116,9 @@ export default function NotificationCenter() {
               </h3>
               {unreadCount > 0 && (
                 <button 
+                  type="button"
                   onClick={markAllAsRead}
-                  className="text-xs text-brand font-bold hover:text-brand-hover transition-colors flex items-center gap-1"
+                  className="text-xs text-brand font-bold hover:text-brand-hover transition-colors flex items-center gap-1 focus-ring rounded-md py-0.5 px-1 cursor-pointer"
                 >
                   <CheckCircle2 className="h-3.5 w-3.5" />
                   Mark all read

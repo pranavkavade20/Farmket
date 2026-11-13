@@ -35,6 +35,7 @@ const AddProduct     = lazy(() => import('@/features/products/pages/AddProduct')
 
 // New Crop Tracking
 const FarmerCropDashboard = lazy(() => import('@/features/crops/pages/FarmerCropDashboard'));
+const PreBookings = lazy(() => import('@/features/crops/pages/PreBookings'));
 
 // Farmer Profile
 const FarmerProfile = lazy(() => import('@/features/farmer/pages/FarmerProfile'));
@@ -97,14 +98,17 @@ function App() {
                         <Route element={<RoleRoute allowedRoles={['buyer']} />}>
                           <Route path="dashboard/orders"     element={<Orders />} />
                           <Route path="dashboard/orders/:id" element={<OrderDetail />} />
+                          <Route path="dashboard/prebookings" element={<PreBookings />} />
                         </Route>
 
                         {/* ── Farmer Routes ── */}
                         <Route element={<RoleRoute allowedRoles={['farmer']} />}>
                           <Route path="dashboard/analytics" element={<Analytics />} />
-                          <Route path="dashboard/products"     element={<MyProducts />} />
-                          <Route path="dashboard/products/new" element={<AddProduct />} />
+                          <Route path="dashboard/products"          element={<MyProducts />} />
+                          <Route path="dashboard/products/new"      element={<AddProduct />} />
+                          <Route path="dashboard/products/:slug/edit" element={<AddProduct />} />
                           <Route path="farmer/crops" element={<FarmerCropDashboard />} />
+                          <Route path="farmer/prebookings" element={<PreBookings />} />
                           <Route path="farmer/posts" element={<FarmerMyPosts />} />
                           {/* Farmers also have orders (received) */}
                           <Route path="farmer/orders"     element={<Orders />} />

@@ -427,14 +427,16 @@ const ProductDetails = () => {
             </div>
 
             {/* Pricing Section */}
-            <div className="flex items-baseline gap-2 pb-5 border-b border-border-subtle">
-              <span className="text-3xl sm:text-4xl font-display font-extrabold text-foreground">
-                {formattedPrice}
-              </span>
-              <span className="text-sm font-bold text-foreground-secondary">
-                / {product.unit}
-              </span>
-              <span className="ml-auto text-xs font-medium text-foreground-secondary">
+            <div className="flex flex-wrap items-baseline justify-between gap-2 pb-5 border-b border-border-subtle">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl sm:text-4xl font-display font-extrabold text-foreground">
+                  {formattedPrice}
+                </span>
+                <span className="text-sm font-bold text-foreground-secondary">
+                  / {product.unit}
+                </span>
+              </div>
+              <span className="text-xs font-medium text-foreground-secondary">
                 {product.is_available && product.in_stock
                   ? `${product.available_quantity} ${product.unit} available in stock`
                   : 'Currently not in stock'}

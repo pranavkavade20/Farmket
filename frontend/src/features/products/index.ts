@@ -3,5 +3,8 @@ export { default as ProductDetails } from './pages/ProductDetails';
 export { default as MyProducts } from './pages/MyProducts';
 export { default as AddProduct } from './pages/AddProduct';
 export { default as ProductCard } from './components/ProductCard';
+export { ProductTable } from './components/ProductTable';
+export { ProductInventoryCard } from './components/ProductInventoryCard';
+export { QuickEditProductModal } from './components/QuickEditProductModal';
+export { ProductStatusBadge } from './components/ProductStatusBadge';
 export { productService } from './services/productService';
-

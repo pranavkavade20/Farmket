@@ -1,5 +1,5 @@
 import api from '@/lib/api';
-import type { Product, ProductFilters, PaginatedResponse, Category, Review } from '@/types';
+import type { Product, ProductFilters, PaginatedResponse, Category, Review, ProductImage } from '@/types';
 
 export const productService = {
   /** GET /api/products/products/ with optional filters */
@@ -37,14 +37,30 @@ export const productService = {
   },
 
   /** PATCH /api/products/products/{slug}/ */
-  updateProduct: async (slug: string, data: Partial<Product>): Promise<Product> => {
-    const response = await api.patch<Product>(`/products/products/${slug}/`, data);
+  updateProduct: async (slug: string, data: Partial<Product> | FormData): Promise<Product> => {
+    const isFormData = data instanceof FormData;
+    const response = await api.patch<Product>(`/products/products/${slug}/`, data, {
+      ...(isFormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {}),
+    });
     return response.data;
   },
 
   /** DELETE /api/products/products/{slug}/ */
   deleteProduct: async (slug: string): Promise<void> => {
     await api.delete(`/products/products/${slug}/`);
+  },
+
+  /** POST /api/products/products/{slug}/images/ — upload additional image */
+  uploadProductImage: async (slug: string, data: FormData): Promise<ProductImage> => {
+    const response = await api.post<ProductImage>(`/products/products/${slug}/images/`, data, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+
+  /** DELETE /api/products/products/{slug}/images/{id}/ */
+  deleteProductImage: async (slug: string, imageId: number): Promise<void> => {
+    await api.delete(`/products/products/${slug}/images/${imageId}/`);
   },
 
   /** POST /api/products/products/{slug}/reviews/ */

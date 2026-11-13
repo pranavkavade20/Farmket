@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth, authService } from '@/features/auth';
 import { useSEO } from '@/hooks';
-import { Button, OrderStatusBadge } from '@/components/ui';
-import { ShoppingBag, Clock, ArrowRight, User, Search } from 'lucide-react';
+import { Button, OrderStatusBadge, Badge } from '@/components/ui';
+import { ShoppingBag, Clock, ArrowRight, User, Search, CalendarCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Order, DashboardStats } from '@/types';
 import { orderService } from '@/features/orders';
+import { useGetReservationsQuery } from '@/features/crops/cropsApi';
 import { toast } from "sonner";
 
 const BuyerDashboard = () => {
@@ -17,6 +18,11 @@ const BuyerDashboard = () => {
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [statsLoading, setStatsLoading] = useState(true);
   const [ordersLoading, setOrdersLoading] = useState(true);
+
+  const { data: reservations, isLoading: isReservationsLoading } = useGetReservationsQuery();
+  const activePrebookings = reservations?.filter(
+    (r) => r.reservation_status === 'PENDING' || r.reservation_status === 'CONFIRMED'
+  ) || [];
 
   useEffect(() => {
     authService.getDashboardStats().then(setStats).catch(() => toast.error('Could not load dashboard stats')).finally(() => setStatsLoading(false));
@@ -69,24 +75,30 @@ const BuyerDashboard = () => {
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-foreground">Quick Actions</h3>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 h-full">
-            <Link to="/dashboard/orders" className="rounded-xl border border-border-subtle bg-surface p-5 flex flex-col items-center justify-center text-center hover:border-brand transition-colors group shadow-sm">
-               <div className="h-12 w-12 rounded-full bg-brand/10 flex items-center justify-center mb-3 group-hover:bg-brand/20 transition-colors">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 h-full">
+            <Link to="/dashboard/orders" className="rounded-xl border border-border-subtle bg-surface p-4 sm:p-5 flex flex-col items-center justify-center text-center hover:border-brand transition-colors group shadow-sm">
+               <div className="h-11 w-11 rounded-full bg-brand/10 flex items-center justify-center mb-2.5 group-hover:bg-brand/20 transition-colors">
                  <Clock className="w-5 h-5 text-brand" />
                </div>
-               <span className="text-sm font-semibold text-foreground">Track Orders</span>
+               <span className="text-xs sm:text-sm font-semibold text-foreground">Track Orders</span>
             </Link>
-            <Link to="/marketplace" className="rounded-xl border border-border-subtle bg-surface p-5 flex flex-col items-center justify-center text-center hover:border-accent-orange transition-colors group shadow-sm">
-               <div className="h-12 w-12 rounded-full bg-accent-orange/10 flex items-center justify-center mb-3 group-hover:bg-accent-orange/20 transition-colors">
+            <Link to="/dashboard/prebookings" className="rounded-xl border border-border-subtle bg-surface p-4 sm:p-5 flex flex-col items-center justify-center text-center hover:border-brand transition-colors group shadow-sm">
+               <div className="h-11 w-11 rounded-full bg-brand/10 flex items-center justify-center mb-2.5 group-hover:bg-brand/20 transition-colors">
+                 <CalendarCheck className="w-5 h-5 text-brand" />
+               </div>
+               <span className="text-xs sm:text-sm font-semibold text-foreground">Pre-Bookings</span>
+            </Link>
+            <Link to="/marketplace" className="rounded-xl border border-border-subtle bg-surface p-4 sm:p-5 flex flex-col items-center justify-center text-center hover:border-accent-orange transition-colors group shadow-sm">
+               <div className="h-11 w-11 rounded-full bg-accent-orange/10 flex items-center justify-center mb-2.5 group-hover:bg-accent-orange/20 transition-colors">
                  <Search className="w-5 h-5 text-accent-orange" />
                </div>
-               <span className="text-sm font-semibold text-foreground">Discover Farmers</span>
+               <span className="text-xs sm:text-sm font-semibold text-foreground">Discover Farmers</span>
             </Link>
-            <Link to="/dashboard/profile" className="rounded-xl border border-border-subtle bg-surface p-5 flex flex-col items-center justify-center text-center hover:border-info transition-colors group shadow-sm">
-               <div className="h-12 w-12 rounded-full bg-info/10 flex items-center justify-center mb-3 group-hover:bg-info/20 transition-colors">
+            <Link to="/dashboard/profile" className="rounded-xl border border-border-subtle bg-surface p-4 sm:p-5 flex flex-col items-center justify-center text-center hover:border-info transition-colors group shadow-sm">
+               <div className="h-11 w-11 rounded-full bg-info/10 flex items-center justify-center mb-2.5 group-hover:bg-info/20 transition-colors">
                  <User className="w-5 h-5 text-info" />
                </div>
-               <span className="text-sm font-semibold text-foreground">Profile Settings</span>
+               <span className="text-xs sm:text-sm font-semibold text-foreground">Profile Settings</span>
             </Link>
           </div>
         </motion.div>
@@ -142,6 +154,60 @@ const BuyerDashboard = () => {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Active Pre-Bookings Card */}
+          <div className="rounded-xl bg-surface border border-border-subtle p-5 shadow-sm space-y-3 mt-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-lg bg-brand/10 text-brand flex items-center justify-center">
+                  <CalendarCheck className="w-4 h-4" />
+                </div>
+                <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">
+                  Active Pre-Bookings
+                </h4>
+              </div>
+              <Link to="/dashboard/prebookings" className="text-xs font-semibold text-brand hover:underline">
+                View all
+              </Link>
+            </div>
+
+            {isReservationsLoading ? (
+              <div className="h-16 bg-surface-elevated animate-pulse rounded-lg" />
+            ) : activePrebookings.length === 0 ? (
+              <div className="text-center py-3">
+                <p className="text-xs text-muted">No active pre-bookings</p>
+                <Link
+                  to="/marketplace?prebookable=true"
+                  className="text-xs font-semibold text-brand hover:underline mt-1 inline-block"
+                >
+                  Pre-book fresh harvests →
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {activePrebookings.slice(0, 3).map((res) => (
+                  <Link
+                    key={res.id}
+                    to="/dashboard/prebookings"
+                    className="p-2.5 rounded-lg bg-surface-elevated/40 border border-border-subtle flex items-center justify-between hover:border-brand transition-colors block text-xs"
+                  >
+                    <div className="min-w-0 pr-2">
+                      <p className="font-bold text-foreground truncate">{res.crop_name}</p>
+                      <p className="text-[11px] text-muted truncate">
+                        {res.quantity_reserved} {res.unit || 'units'} • {res.farmer_name || 'Farmer'}
+                      </p>
+                    </div>
+                    <Badge
+                      variant={res.reservation_status === 'CONFIRMED' ? 'success' : 'pending'}
+                      size="sm"
+                    >
+                      {res.reservation_status === 'CONFIRMED' ? 'Confirmed' : 'Pending'}
+                    </Badge>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         </motion.div>
       </div>

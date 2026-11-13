@@ -90,6 +90,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           className
         )}
         disabled={disabled || isLoading}
+        aria-busy={isLoading || undefined}
         {...props}
       >
         <span
@@ -98,13 +99,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             isLoading && 'opacity-0'
           )}
         >
-          {leftIcon && <span className="shrink-0">{leftIcon}</span>}
+          {leftIcon && <span className="shrink-0" aria-hidden="true">{leftIcon}</span>}
           {children}
-          {rightIcon && <span className="shrink-0">{rightIcon}</span>}
+          {rightIcon && <span className="shrink-0" aria-hidden="true">{rightIcon}</span>}
         </span>
         {isLoading && (
-          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            <Loader2 className="h-4 w-4 animate-spin text-current" />
+          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" role="status">
+            <Loader2 className="h-4 w-4 animate-spin text-current" aria-hidden="true" />
+            <span className="sr-only">Loading...</span>
           </span>
         )}
       </button>

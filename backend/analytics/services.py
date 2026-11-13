@@ -72,6 +72,7 @@ class DashboardAnalyticsService:
     @staticmethod
     def get_user_analytics():
         now = timezone.now()
+        thirty_days_ago = now - timedelta(days=30)
         six_months_ago = now - timedelta(days=180)
         
         user_growth_qs = User.objects.filter(created_at__gte=six_months_ago).annotate(
@@ -85,8 +86,19 @@ class DashboardAnalyticsService:
                 growth_data[month_str] = {'month': month_str, 'farmer': 0, 'buyer': 0}
             growth_data[month_str][item['user_type']] = item['count']
             
+        total_farmers = User.objects.filter(user_type='farmer').count()
+        total_buyers = User.objects.filter(user_type='buyer').count()
+        new_farmers_month = User.objects.filter(user_type='farmer', created_at__gte=thirty_days_ago).count()
+        new_buyers_month = User.objects.filter(user_type='buyer', created_at__gte=thirty_days_ago).count()
+        active_users = User.objects.filter(last_login__gte=now - timedelta(days=7)).count()
+        
         return {
-            'user_growth': list(growth_data.values())
+            'user_growth': list(growth_data.values()),
+            'total_farmers': total_farmers,
+            'total_buyers': total_buyers,
+            'new_farmers_month': new_farmers,
+            'new_buyers_month': new_buyers,
+            'active_users': active_users,
         }
 
     @staticmethod
@@ -95,11 +107,21 @@ class DashboardAnalyticsService:
         order_status = list(Order.objects.values('status').annotate(count=Count('id')))
         
         # Top categories
-        categories = list(Product.objects.values('category__name').annotate(count=Count('id')).order_by('-count')[:5])
+        categories = list(Product.objects.values('category__name').annotate(count=Count('id')).order_by('-count')[:6])
+        
+        total_orders = Order.objects.count()
+        delivered_orders = Order.objects.filter(status='delivered').count()
+        pending_orders = Order.objects.filter(status='pending').count()
+        revenue_dict = Order.objects.filter(status='delivered').aggregate(total=Sum('total_amount'))
+        total_revenue = float(revenue_dict['total'] or 0)
         
         return {
             'order_status': order_status,
-            'top_categories': [{'name': c['category__name'] or 'Unknown', 'value': c['count']} for c in categories]
+            'top_categories': [{'name': c['category__name'] or 'General', 'value': c['count']} for c in categories],
+            'total_orders': total_orders,
+            'delivered_orders': delivered_orders,
+            'pending_orders': pending_orders,
+            'total_revenue': total_revenue,
         }
 
     @staticmethod
@@ -107,23 +129,33 @@ class DashboardAnalyticsService:
         # Top crops listed
         top_crops = list(Product.objects.values('name').annotate(count=Count('id')).order_by('-count')[:10])
         
-        # Harvest Intelligence (TODO: Update with new CropGrowth model)
-        # upcoming_harvests = CropTracking.objects.filter(
-        #     current_stage='growing', 
-        #     expected_harvest_date__gte=timezone.now().date()
-        # ).order_by('expected_harvest_date')[:10]
-        
-        # harvests_list = []
-        # for h in upcoming_harvests:
-        #     harvests_list.append({
-        #         'product': h.product.name,
-        #         'farmer': h.product.farmer.username,
-        #         'expected_date': h.expected_harvest_date.strftime('%Y-%m-%d')
-        #     })
+        harvests_list = []
+        total_tracked = 0
+        try:
+            from crops.models import CropGrowth
+            total_tracked = CropGrowth.objects.count()
+            upcoming_growths = CropGrowth.objects.filter(
+                expected_harvest_date__gte=timezone.now().date()
+            ).select_related('farmer', 'product').order_by('expected_harvest_date')[:15]
+            
+            for h in upcoming_growths:
+                harvests_list.append({
+                    'id': h.id,
+                    'product': h.product.name if h.product else 'Agricultural Produce',
+                    'farmer': h.farmer.get_full_name() or h.farmer.username,
+                    'expected_date': h.expected_harvest_date.strftime('%Y-%m-%d'),
+                    'stage': h.stage,
+                    'expected_quantity': float(h.expected_quantity or 0),
+                    'available_quantity': float(h.available_quantity or 0),
+                    'organic': h.organic
+                })
+        except Exception:
+            pass
             
         return {
             'top_crops': [{'name': c['name'], 'count': c['count']} for c in top_crops],
-            'upcoming_harvests': [] # harvests_list
+            'upcoming_harvests': harvests_list,
+            'total_tracked_crops': total_tracked,
         }
 
     @staticmethod

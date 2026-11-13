@@ -33,6 +33,11 @@ export interface UserGrowthData {
 
 export interface AdminUserData {
   user_growth: UserGrowthData[];
+  total_farmers?: number;
+  total_buyers?: number;
+  new_farmers_month?: number;
+  new_buyers_month?: number;
+  active_users?: number;
 }
 
 export interface CategoryData {
@@ -48,6 +53,10 @@ export interface OrderStatusData {
 export interface AdminMarketplaceData {
   order_status: OrderStatusData[];
   top_categories: CategoryData[];
+  total_orders?: number;
+  delivered_orders?: number;
+  pending_orders?: number;
+  total_revenue?: number;
 }
 
 export interface TopCropData {
@@ -56,14 +65,20 @@ export interface TopCropData {
 }
 
 export interface HarvestData {
+  id?: number;
   product: string;
   farmer: string;
   expected_date: string;
+  stage?: string;
+  expected_quantity?: number;
+  available_quantity?: number;
+  organic?: boolean;
 }
 
 export interface AdminCropData {
   top_crops: TopCropData[];
   upcoming_harvests: HarvestData[];
+  total_tracked_crops?: number;
 }
 
 export const adminAnalyticsService = {

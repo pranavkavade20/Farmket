@@ -1,27 +1,50 @@
 import React from 'react';
-import { Leaf, Sprout, Wheat, Package } from 'lucide-react';
+import { Badge, type BadgeVariant } from '@/components/ui';
 import type { CropStage } from '@/types/crops';
+import { Sprout, Leaf, Wheat, Package } from 'lucide-react';
 
 interface Props {
   stage: CropStage | string;
   className?: string;
+  size?: 'sm' | 'md' | 'lg';
 }
 
-const STAGE_CONFIG: Record<string, { label: string; color: string; icon: React.ElementType }> = {
-  PLANTED: { label: 'Planted', color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', icon: Sprout },
-  GROWING: { label: 'Growing', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400', icon: Leaf },
-  NEAR_HARVEST: { label: 'Near Harvest', color: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400', icon: Wheat },
-  HARVESTED: { label: 'Harvested', color: 'bg-green-800 text-white dark:bg-green-700 dark:text-white', icon: Package },
+const STAGE_CONFIG: Record<string, { label: string; variant: BadgeVariant; icon: React.ReactNode }> = {
+  PLANTED: {
+    label: 'Planted',
+    variant: 'in-progress',
+    icon: <Sprout className="w-3.5 h-3.5 shrink-0 stroke-[2.2]" />,
+  },
+  GROWING: {
+    label: 'Growing',
+    variant: 'success',
+    icon: <Leaf className="w-3.5 h-3.5 shrink-0 stroke-[2.2]" />,
+  },
+  NEAR_HARVEST: {
+    label: 'Near Harvest',
+    variant: 'pending',
+    icon: <Wheat className="w-3.5 h-3.5 shrink-0 stroke-[2.2]" />,
+  },
+  HARVESTED: {
+    label: 'Harvested',
+    variant: 'success',
+    icon: <Package className="w-3.5 h-3.5 shrink-0 stroke-[2.2]" />,
+  },
 };
 
-export const CropStageBadge: React.FC<Props> = ({ stage, className = '' }) => {
+export const CropStageBadge: React.FC<Props> = ({ stage, className = '', size = 'sm' }) => {
   const config = STAGE_CONFIG[stage] || STAGE_CONFIG.PLANTED;
-  const Icon = config.icon;
 
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${config.color} ${className}`}>
-      <Icon className="w-3.5 h-3.5" />
+    <Badge
+      variant={config.variant}
+      size={size}
+      icon={config.icon}
+      className={className}
+    >
       {config.label}
-    </span>
+    </Badge>
   );
 };
+
+export default CropStageBadge;

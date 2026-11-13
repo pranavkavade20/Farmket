@@ -1,6 +1,7 @@
 import React from 'react';
 import type { CropGrowth } from '@/types/crops';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/Table';
+import { Badge } from '@/components/ui';
 import { Leaf, Activity, ArrowRight, Users } from 'lucide-react';
 import { useAppDispatch } from '@/app/hooks';
 import { openStageUpdateModal, openCropDetail } from '../cropsSlice';
@@ -101,9 +102,21 @@ export const CropTable: React.FC<CropTableProps> = ({ crops }) => {
                   <div className="font-semibold text-foreground">
                     {timing.formattedDate}
                   </div>
-                  <span className={`inline-block mt-0.5 px-2 py-0.5 rounded-full font-semibold text-[10px] border ${timing.badgeClass}`}>
+                  <Badge
+                    variant={
+                      timing.isOverdue
+                        ? 'failed'
+                        : timing.isToday
+                        ? 'pending'
+                        : timing.isHarvested
+                        ? 'success'
+                        : 'in-progress'
+                    }
+                    size="sm"
+                    className="mt-1"
+                  >
                     {timing.label}
-                  </span>
+                  </Badge>
                 </TableCell>
 
                 {/* Yield Quantities */}
@@ -123,9 +136,9 @@ export const CropTable: React.FC<CropTableProps> = ({ crops }) => {
                     <span>{reservationsCount} {reservationsCount === 1 ? 'order' : 'orders'}</span>
                   </div>
                   {pendingCount > 0 && (
-                    <span className="inline-block mt-0.5 px-1.5 py-0.2 rounded text-[10px] font-bold bg-warning-muted text-warning border border-warning/30">
+                    <Badge variant="pending" size="sm" className="mt-1 font-bold">
                       {pendingCount} pending
-                    </span>
+                    </Badge>
                   )}
                 </TableCell>
 

@@ -1,12 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion, useInView, useReducedMotion } from 'framer-motion';
+import { useInView, useReducedMotion } from 'framer-motion';
 import {
   Scale,
   PackageSearch,
   UserCheck,
   ShoppingBag,
-  ShieldCheck,
-  Zap,
 } from 'lucide-react';
 import { analyticsService, type PlatformStats } from '@/features/farmer';
 import { Container, Skeleton } from '@/components/ui';
@@ -38,15 +36,17 @@ const AnimatedCounter = ({
   isMillion,
 }: AnimatedCounterProps) => {
   const shouldReduceMotion = useReducedMotion();
-  const [count, setCount] = useState(shouldReduceMotion ? target : 0);
+  const [count, setCount] = useState(() => (shouldReduceMotion ? Math.max(0, target) : 0));
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-40px' });
 
   useEffect(() => {
     if (!isInView) return;
     if (target <= 0 || shouldReduceMotion) {
-      setCount(Math.max(0, target));
-      return;
+      const frameId = requestAnimationFrame(() => {
+        setCount(Math.max(0, target));
+      });
+      return () => cancelAnimationFrame(frameId);
     }
 
     const duration = 800;

@@ -159,3 +159,23 @@ class CropReservationViewSet(viewsets.ModelViewSet):
         crop.save()
         
         return Response({'status': 'rejected'})
+
+    @action(detail=True, methods=['post'])
+    def cancel(self, request, pk=None):
+        reservation = self.get_object()
+        # Either the buyer who made the reservation or the farmer can cancel
+        if request.user != reservation.buyer and request.user != reservation.crop_growth.farmer:
+            return Response({'error': 'You do not have permission to cancel this reservation.'}, status=status.HTTP_403_FORBIDDEN)
+            
+        if reservation.reservation_status in ['CANCELLED', 'COMPLETED']:
+            return Response({'error': f'Reservation is already {reservation.reservation_status.lower()}.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        reservation.reservation_status = 'CANCELLED'
+        reservation.save()
+        
+        # Restore quantity to crop growth
+        crop = reservation.crop_growth
+        crop.available_quantity = float(crop.available_quantity) + float(reservation.quantity_reserved)
+        crop.save()
+        
+        return Response({'status': 'cancelled', 'message': 'Reservation cancelled successfully.'})

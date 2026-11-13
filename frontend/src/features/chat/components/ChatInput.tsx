@@ -357,6 +357,7 @@ export const ChatInput: React.FC<Props> = ({
           onChange={handleInputChange}
           onKeyDown={handleKey}
           rows={1}
+          aria-label="Type your message"
           placeholder={stagedFile ? 'Add a caption… (optional)' : 'Type a message… (Enter to send)'}
           className="flex-1 resize-none bg-transparent py-2 px-1 text-sm focus:outline-none text-foreground placeholder:text-muted max-h-32 overflow-y-auto custom-scrollbar"
           style={{ minHeight: 38 }}
@@ -368,7 +369,7 @@ export const ChatInput: React.FC<Props> = ({
           type="button"
           onClick={submit}
           disabled={(!text.trim() && !stagedFile) || sending || disabled}
-          className="p-2.5 rounded-xl bg-brand text-on-brand hover:bg-brand-hover active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all shadow-xs flex-shrink-0 flex items-center justify-center font-bold"
+          className="p-2.5 rounded-xl bg-brand text-on-brand hover:bg-brand-hover active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all shadow-xs flex-shrink-0 flex items-center justify-center font-bold focus-ring cursor-pointer"
           title="Send message"
           aria-label="Send message"
         >

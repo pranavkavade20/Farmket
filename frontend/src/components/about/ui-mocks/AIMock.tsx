@@ -60,10 +60,10 @@ export const AIMock = ({ className = '', style }: { className?: string, style?: 
             Based on current local demand and weather forecasts, increasing your price by <span className="font-bold text-foreground">8%</span> will maximize revenue without slowing sales velocity.
           </p>
           <div className="flex items-center gap-2 mt-1">
-            <button className="flex-1 py-1.5 rounded-lg bg-brand text-white text-xs font-semibold shadow-sm hover:bg-brand/90 transition-colors">
+            <button type="button" className="flex-1 py-1.5 rounded-lg bg-brand text-on-brand text-xs font-semibold shadow-sm hover:bg-brand/90 transition-colors focus-ring cursor-pointer">
               Apply Strategy
             </button>
-            <button className="flex-1 py-1.5 rounded-lg bg-surface border border-border-subtle text-foreground text-xs font-medium hover:bg-surface-elevated transition-colors">
+            <button type="button" className="flex-1 py-1.5 rounded-lg bg-surface border border-border-subtle text-foreground text-xs font-medium hover:bg-surface-elevated transition-colors focus-ring cursor-pointer">
               View Details
             </button>
           </div>

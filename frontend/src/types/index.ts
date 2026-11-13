@@ -112,6 +112,7 @@ export interface ProductFilters {
   category__slug?: string;
   is_organic?: boolean;
   is_available?: boolean;
+  prebookable?: boolean;
   search?: string;
   ordering?: 'price' | '-price' | 'created_at' | '-created_at' | 'views' | '-views';
   page?: number;

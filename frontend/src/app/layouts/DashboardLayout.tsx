@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Navbar, Sidebar } from '@/components/common';
+import { ReservationModal } from '@/features/crops/components/ReservationModal';
 
 const DashboardLayout = () => {
   const location = useLocation();
@@ -49,6 +50,9 @@ const DashboardLayout = () => {
           )}
         </main>
       </div>
+
+      {/* Global Crop Pre-booking Reservation Modal */}
+      <ReservationModal />
     </div>
   );
 };

@@ -1,13 +1,13 @@
 import React from 'react';
 import type { CropGrowth } from '@/types/crops';
-import { Leaf, Calendar, ArrowRight, Activity, Users, Clock, AlertCircle } from 'lucide-react';
+import { Calendar, ArrowRight, Activity, Users } from 'lucide-react';
 import { useAppDispatch } from '@/app/hooks';
 import { openStageUpdateModal, openCropDetail } from '../cropsSlice';
 import { motion } from 'framer-motion';
 import { CropLifecycleStepper } from './CropLifecycleStepper';
 import { getHarvestTiming, formatCropQuantity } from '../utils/cropUtils';
-import { Button } from '@/components/ui';
-import { cn } from '@/lib/utils/cn';
+import { Button, Badge, QualityBadge } from '@/components/ui';
+import { CropStageBadge } from './CropStageBadge';
 
 export interface CropCardProps {
   crop: CropGrowth;
@@ -87,43 +87,31 @@ export const CropCard: React.FC<CropCardProps> = ({ crop, index = 0, onViewDetai
         {/* Top Badges Row */}
         <div className="absolute top-3 inset-x-3 flex items-center justify-between pointer-events-none">
           <div className="flex items-center gap-1.5">
-            <span className="px-2.5 py-1 rounded-full text-xs font-bold backdrop-blur-md bg-surface/90 border border-white/20 text-foreground shadow-xs">
-              {crop.stage === 'PLANTED' && '🌱 Planted'}
-              {crop.stage === 'GROWING' && '🌿 Growing'}
-              {crop.stage === 'NEAR_HARVEST' && '🌾 Harvest Ready'}
-              {crop.stage === 'HARVESTED' && '📦 Completed'}
-            </span>
+            <CropStageBadge stage={crop.stage} size="sm" className="shadow-xs backdrop-blur-md" />
           </div>
 
           {crop.organic && (
-            <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold backdrop-blur-md bg-brand text-on-brand shadow-xs">
-              <Leaf className="w-3.5 h-3.5" />
-              Organic
-            </span>
+            <QualityBadge size="sm" className="shadow-xs backdrop-blur-md" />
           )}
         </div>
 
         {/* Bottom thumbnail tag: Timing pill */}
         <div className="absolute bottom-2.5 left-3 pointer-events-none">
-          <span
-            className={cn(
-              'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold backdrop-blur-md shadow-xs border',
+          <Badge
+            variant={
               timing.isOverdue
-                ? 'bg-danger/90 text-white border-danger/40'
+                ? 'failed'
                 : timing.isToday
-                ? 'bg-warning/90 text-white border-warning/40 animate-pulse'
+                ? 'pending'
                 : timing.isHarvested
-                ? 'bg-success/90 text-white border-success/40'
-                : 'bg-surface/90 text-foreground border-white/20'
-            )}
+                ? 'success'
+                : 'in-progress'
+            }
+            size="sm"
+            className="shadow-xs backdrop-blur-md"
           >
-            {timing.isOverdue ? (
-              <AlertCircle className="w-3.5 h-3.5" />
-            ) : (
-              <Clock className="w-3.5 h-3.5" />
-            )}
             {timing.label}
-          </span>
+          </Badge>
         </div>
       </div>
 

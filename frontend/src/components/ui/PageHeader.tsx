@@ -47,7 +47,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="space-y-1 min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2.5">
-            <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground tracking-tight truncate">
+            <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground tracking-tight break-words sm:truncate">
               {title}
             </h1>
             {badge && <div className="shrink-0">{badge}</div>}

@@ -21,6 +21,7 @@ import {
   Check,
   X,
   TrendingUp,
+  Leaf,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Order } from '@/types';
@@ -582,12 +583,12 @@ const Orders: React.FC = () => {
                                         {item.product_name || `Product #${item.product}`}
                                       </p>
                                       {isPrebooking && (
-                                        <Badge variant="brand" size="sm" className="font-bold">
+                                        <Badge variant="submitted" size="sm" className="font-bold">
                                           Pre-booking
                                         </Badge>
                                       )}
                                       {item.product_details?.is_organic && (
-                                        <Badge variant="success" size="sm" className="font-bold">
+                                        <Badge variant="success" size="sm" icon={<Leaf className="w-3 h-3 stroke-[2.2]" />} className="font-bold">
                                           Organic
                                         </Badge>
                                       )}

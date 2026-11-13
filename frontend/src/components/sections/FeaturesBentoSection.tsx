@@ -44,14 +44,14 @@ export const FeaturesBentoSection = () => {
         </div>
 
         {/* Bento Grid Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 auto-rows-[320px]">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 auto-rows-auto md:auto-rows-[320px]">
           
           {/* Feature 1 (Large Span) */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="md:col-span-2 lg:col-span-2 row-span-2 bg-background border border-border-subtle rounded-3xl p-8 relative overflow-hidden group hover:shadow-md transition-all duration-300 flex flex-col"
+            className="md:col-span-2 lg:col-span-2 md:row-span-2 bg-background border border-border-subtle rounded-2xl sm:rounded-3xl p-6 sm:p-8 relative overflow-hidden group hover:shadow-md transition-all duration-300 flex flex-col min-h-[380px] md:min-h-0"
           >
             <div className="relative z-10 flex flex-col h-full">
               <div className="w-12 h-12 rounded-xl bg-surface border border-border-strong flex items-center justify-center shadow-sm mb-6 group-hover:scale-105 transition-transform duration-300">
@@ -88,7 +88,7 @@ export const FeaturesBentoSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="md:col-span-1 lg:col-span-2 bg-background border border-border-subtle rounded-3xl p-8 relative overflow-hidden group hover:shadow-md transition-all duration-300"
+            className="md:col-span-1 lg:col-span-2 bg-background border border-border-subtle rounded-2xl sm:rounded-3xl p-6 sm:p-8 relative overflow-hidden group hover:shadow-md transition-all duration-300 min-h-[240px] md:min-h-0 flex flex-col justify-between"
           >
             <div className="relative z-10 flex flex-col h-full">
               <div className="flex items-center justify-between mb-6">
@@ -116,15 +116,17 @@ export const FeaturesBentoSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="md:col-span-1 lg:col-span-1 bg-background border border-border-subtle rounded-3xl p-8 group hover:shadow-md transition-all duration-300 flex flex-col"
+            className="md:col-span-1 lg:col-span-1 bg-background border border-border-subtle rounded-2xl sm:rounded-3xl p-6 sm:p-8 group hover:shadow-md transition-all duration-300 flex flex-col min-h-[240px] md:min-h-0 justify-between"
           >
             <div className="w-12 h-12 rounded-xl bg-surface border border-border-strong flex items-center justify-center shadow-sm mb-6 group-hover:scale-105 transition-transform duration-300">
               <Globe className="w-5 h-5 text-foreground" />
             </div>
-            <h3 className="text-lg font-bold text-foreground mb-2">Localized Access</h3>
-            <p className="text-foreground-secondary text-sm font-medium leading-relaxed">
-              Available in 12+ regional languages to ensure accessibility for every farmer across the country.
-            </p>
+            <div>
+              <h3 className="text-lg font-bold text-foreground mb-2">Localized Access</h3>
+              <p className="text-foreground-secondary text-sm font-medium leading-relaxed">
+                Available in 12+ regional languages to ensure accessibility for every farmer across the country.
+              </p>
+            </div>
           </motion.div>
 
           {/* Feature 4 */}
@@ -133,15 +135,17 @@ export const FeaturesBentoSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
-            className="md:col-span-1 lg:col-span-1 bg-foreground text-background rounded-3xl p-8 border border-transparent group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
+            className="md:col-span-1 lg:col-span-1 bg-foreground text-background rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-transparent group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col min-h-[240px] md:min-h-0 justify-between"
           >
             <div className="w-12 h-12 rounded-xl bg-background/10 border border-background/20 flex items-center justify-center shadow-sm mb-6 group-hover:scale-105 transition-transform duration-300">
               <ShieldCheck className="w-5 h-5 text-background" />
             </div>
-            <h3 className="text-lg font-bold mb-2">100% Secured</h3>
-            <p className="text-background/80 text-sm font-medium leading-relaxed">
-              Bank-grade security for all payments. Instant settlements directly to farmer accounts with zero hidden fees.
-            </p>
+            <div>
+              <h3 className="text-lg font-bold mb-2">100% Secured</h3>
+              <p className="text-background/80 text-sm font-medium leading-relaxed">
+                Bank-grade security for all payments. Instant settlements directly to farmer accounts with zero hidden fees.
+              </p>
+            </div>
           </motion.div>
 
         </div>

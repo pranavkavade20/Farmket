@@ -78,6 +78,11 @@ class ProductViewSet(viewsets.ModelViewSet):
             except Exception:
                 pass
                 
+        prebookable = self.request.query_params.get('prebookable')
+        if prebookable == 'true':
+            prebook_product_ids = CropGrowth.objects.exclude(stage__in=['HARVESTED']).filter(available_quantity__gt=0).values_list('product_id', flat=True)
+            qs = qs.filter(id__in=prebook_product_ids)
+
         return qs
 
     def get_object(self):

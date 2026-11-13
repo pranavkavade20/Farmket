@@ -1,14 +1,15 @@
 import React from 'react';
 import type { CropGrowth } from '@/types/crops';
 import { SegmentedProgress } from './SegmentedProgress';
-import { Leaf, Clock, ShoppingCart, Bell } from 'lucide-react';
+import { ShoppingCart, Bell } from 'lucide-react';
 import { useAppDispatch } from '@/app/hooks';
 import { openReservationModal } from '../cropsSlice';
 import { useFollowCropMutation, useUnfollowCropMutation } from '../cropsApi';
 import { useAuth } from '@/features/auth';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui';
+import { Button, Badge, QualityBadge } from '@/components/ui';
+import { CropStageBadge } from './CropStageBadge';
 import { cn } from '@/lib/utils/cn';
 
 interface BuyerCropCardProps {
@@ -45,13 +46,6 @@ export const BuyerCropCard: React.FC<BuyerCropCardProps> = ({ crop }) => {
     (new Date(crop.expected_harvest_date).getTime() - new Date().getTime()) / (1000 * 3600 * 24)
   );
 
-  let countdownColor = 'text-success bg-success-muted border-success/30';
-  if (daysRemaining < 3) {
-    countdownColor = 'text-danger bg-danger-muted border-danger/30 animate-pulse';
-  } else if (daysRemaining <= 14) {
-    countdownColor = 'text-warning bg-warning-muted border-warning/30';
-  }
-
   const imageUrl = crop.product_details?.images?.[0]?.image;
   const isAvailable = Number(crop.available_quantity) > 0;
   const unit = crop.product_details?.unit || 'unit';
@@ -85,30 +79,24 @@ export const BuyerCropCard: React.FC<BuyerCropCardProps> = ({ crop }) => {
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20 pointer-events-none" />
 
-        {/* Floating Countdown Pill */}
-        <div className="absolute top-3.5 left-3.5 z-10">
-          <div
-            className={cn(
-              'px-3 py-1 rounded-full backdrop-blur-md shadow-xs flex items-center gap-1.5 border text-xs font-bold',
-              countdownColor
-            )}
+        {/* Floating Badges */}
+        <div className="absolute top-3.5 left-3.5 z-10 flex items-center gap-1.5 flex-wrap">
+          <Badge
+            variant={daysRemaining <= 3 ? 'pending' : 'in-progress'}
+            size="sm"
+            className="shadow-xs backdrop-blur-md font-bold"
           >
-            <Clock className="w-3.5 h-3.5" />
-            <span>
-              {daysRemaining > 0
-                ? `Harvest in ${daysRemaining} ${daysRemaining === 1 ? 'Day' : 'Days'}`
-                : 'Harvest Ready!'}
-            </span>
-          </div>
+            {daysRemaining > 0
+              ? `Harvest in ${daysRemaining} ${daysRemaining === 1 ? 'Day' : 'Days'}`
+              : 'Harvest Ready!'}
+          </Badge>
+          <CropStageBadge stage={crop.stage} size="sm" className="shadow-xs backdrop-blur-md" />
         </div>
 
         {/* Organic Badge */}
         {crop.organic && (
-          <div
-            className="absolute top-3.5 right-3.5 z-10 flex items-center justify-center w-8 h-8 rounded-full bg-surface/90 backdrop-blur-md border border-white/20 text-brand shadow-xs"
-            title="Organically cultivated produce"
-          >
-            <Leaf className="w-4 h-4" />
+          <div className="absolute top-3.5 right-3.5 z-10">
+            <QualityBadge size="sm" className="shadow-xs backdrop-blur-md" />
           </div>
         )}
       </div>

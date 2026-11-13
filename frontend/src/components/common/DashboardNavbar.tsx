@@ -40,24 +40,24 @@ export const DashboardNavbar = ({
   return (
     <header
       className={cn(
-        'h-14 flex items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 bg-surface/90 backdrop-blur-md border-b border-border-subtle shrink-0 z-30 transition-colors',
+        'h-14 flex items-center justify-between gap-2.5 sm:gap-4 px-3 sm:px-6 lg:px-8 bg-surface/90 backdrop-blur-md border-b border-border-subtle shrink-0 z-30 transition-colors',
         className
       )}
     >
       {/* Left: Mobile Sidebar Toggle & Search Bar */}
-      <div className="flex items-center gap-3 sm:gap-4 flex-1 max-w-xl">
+      <div className="flex items-center gap-2 sm:gap-4 flex-1 max-w-xl min-w-0">
         {/* Mobile Sidebar Hamburger Toggle */}
         <button
           type="button"
           onClick={onToggleMobileSidebar}
           aria-label="Toggle navigation sidebar"
-          className="flex lg:hidden h-9 w-9 items-center justify-center rounded-xl border border-border-subtle bg-surface hover:bg-state-hover text-foreground transition-colors focus-ring cursor-pointer shrink-0"
+          className="flex lg:hidden h-10 w-10 sm:h-9 sm:w-9 items-center justify-center rounded-xl border border-border-subtle bg-surface hover:bg-state-hover text-foreground transition-colors focus-ring cursor-pointer shrink-0"
         >
           <Menu className="h-4 w-4" />
         </button>
 
         {/* Global Search Bar */}
-        <form onSubmit={handleSearchSubmit} className="relative flex-1 max-w-md">
+        <form onSubmit={handleSearchSubmit} className="relative flex-1 max-w-md min-w-0">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted">
             <Search className="h-4 w-4" />
           </div>
@@ -65,8 +65,8 @@ export const DashboardNavbar = ({
             type="search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search crops, produce, orders..."
-            className="w-full pl-9 pr-12 py-1.5 text-xs sm:text-sm bg-background border border-border-subtle rounded-xl text-foreground placeholder:text-muted/70 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/15 transition-all"
+            placeholder="Search produce, orders..."
+            className="w-full pl-9 pr-8 sm:pr-12 py-1.5 text-xs sm:text-sm bg-background border border-border-subtle rounded-xl text-foreground placeholder:text-muted/70 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/15 transition-all truncate"
           />
           <div className="absolute inset-y-0 right-0 pr-2.5 hidden sm:flex items-center pointer-events-none">
             <kbd className="text-[10px] font-semibold text-muted bg-surface-elevated border border-border-subtle px-1.5 py-0.5 rounded-md">
@@ -77,7 +77,7 @@ export const DashboardNavbar = ({
       </div>
 
       {/* Right: Quick actions, Theme, Cart, Notifications, User */}
-      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+      <div className="flex items-center gap-1 sm:gap-2 shrink-0">
         {/* Quick link to public marketplace */}
         <Link
           to="/marketplace"
@@ -93,7 +93,7 @@ export const DashboardNavbar = ({
           type="button"
           onClick={toggleDark}
           aria-label="Toggle dark mode"
-          className="flex h-9 w-9 items-center justify-center rounded-full text-foreground-secondary transition-all hover:bg-state-hover hover:text-foreground border border-transparent hover:border-border-subtle focus-ring cursor-pointer"
+          className="flex h-10 w-10 sm:h-9 sm:w-9 items-center justify-center rounded-full text-foreground-secondary transition-all hover:bg-state-hover hover:text-foreground border border-transparent hover:border-border-subtle focus-ring cursor-pointer"
         >
           {isDark ? <Sun className="h-4 w-4 text-amber-500" /> : <Moon className="h-4 w-4" />}
         </button>

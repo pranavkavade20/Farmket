@@ -12,6 +12,7 @@ import {
   SocialProofSection,
   PopularCategories,
   WeeklyBestSelling,
+  FeaturesBentoSection,
   ProductGridSection,
   SuccessStoriesSection,
   CTASection,
@@ -41,7 +42,6 @@ const Home = () => {
   useEffect(() => {
     let isMounted = true;
 
-    setIsLoadingProducts(true);
     productService
       .getFeaturedProducts()
       .then((data) => {
@@ -60,7 +60,6 @@ const Home = () => {
         }
       });
 
-    setIsLoadingCategories(true);
     productService
       .getCategories()
       .then((data) => {
@@ -176,10 +175,13 @@ const Home = () => {
         </Section>
       )}
 
-      {/* 6. How Farmket Works & Dual-Journey Value Proposition */}
+      {/* 6. Platform Architecture & Value Proposition Bento */}
+      <FeaturesBentoSection />
+
+      {/* 7. How Farmket Works & Dual-Journey Workflow */}
       <SuccessStoriesSection />
 
-      {/* 7. Final Role-Based Call to Action */}
+      {/* 8. Final High-Conversion Role-Based Call to Action */}
       <CTASection />
     </div>
   );

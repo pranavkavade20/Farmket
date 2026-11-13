@@ -120,12 +120,14 @@ const Footer = () => {
               <form className="relative flex items-center z-10 mt-auto" onSubmit={(e) => e.preventDefault()}>
                 <input
                   type="email"
+                  aria-label="Email address for newsletter"
                   placeholder="Email address..."
                   className="w-full rounded-xl border border-border-strong bg-background py-3 px-4 pr-14 text-sm font-medium text-foreground shadow-sm focus-ring transition-all"
                 />
                 <button
                   type="submit"
-                  className="absolute right-1.5 h-9 w-9 rounded-lg bg-foreground flex items-center justify-center text-background hover:scale-105 active:scale-[0.98] transition-all shadow-sm"
+                  aria-label="Subscribe to newsletter"
+                  className="absolute right-1.5 h-9 w-9 rounded-lg bg-foreground flex items-center justify-center text-background hover:scale-105 active:scale-[0.98] transition-all shadow-sm focus-ring cursor-pointer"
                 >
                   <ArrowRight className="h-4 w-4" />
                 </button>
@@ -141,8 +143,8 @@ const Footer = () => {
             &copy; {new Date().getFullYear()} Farmket Inc. All rights reserved.
           </p>
           <div className="flex items-center gap-6 text-sm font-semibold text-foreground-secondary">
-            <button className="hover:text-foreground transition-colors">English (EN)</button>
-            <button className="hover:text-foreground transition-colors">INR (₹)</button>
+            <button type="button" className="hover:text-foreground transition-colors focus-ring rounded-lg px-2 py-1 cursor-pointer">English (EN)</button>
+            <button type="button" className="hover:text-foreground transition-colors focus-ring rounded-lg px-2 py-1 cursor-pointer">INR (₹)</button>
           </div>
         </div>
       </Container>

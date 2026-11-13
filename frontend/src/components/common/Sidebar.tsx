@@ -19,7 +19,9 @@ import {
   LogOut,
   X,
   Compass,
+  CalendarCheck,
 } from 'lucide-react';
+import { useGetReservationsQuery } from '@/features/crops/cropsApi';
 import { motion, AnimatePresence } from 'framer-motion';
 import farmketLogo from '@/assets/images/farmket_logo.png';
 import farmketLogoDark from '@/assets/images/farmket_logo_dark.png';
@@ -54,6 +56,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const isFarmer = user?.user_type === 'farmer';
   const isAdmin = user?.user_type === 'admin';
   const isBuyer = user?.user_type === 'buyer';
+
+  const { data: reservations } = useGetReservationsQuery(undefined, { skip: !user });
+  const pendingReservationCount = isFarmer
+    ? reservations?.filter((r) => r.reservation_status === 'PENDING').length || 0
+    : 0;
 
   // Handle escape key to close mobile sidebar
   useEffect(() => {
@@ -131,6 +138,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 icon: Sprout,
               },
               {
+                to: '/farmer/prebookings',
+                label: 'Pre-Bookings',
+                icon: CalendarCheck,
+                badge: pendingReservationCount > 0 ? String(pendingReservationCount) : undefined,
+              },
+              {
                 to: '/farmer/orders',
                 label: 'Received Orders',
                 icon: ShoppingBag,
@@ -175,6 +188,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 to: '/dashboard/orders',
                 label: 'My Orders',
                 icon: ShoppingBag,
+              },
+              {
+                to: '/dashboard/prebookings',
+                label: 'My Pre-Bookings',
+                icon: CalendarCheck,
               },
               {
                 to: '/feed',
@@ -300,7 +318,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               type="button"
               onClick={onCloseMobile}
-              className="lg:hidden p-1.5 rounded-lg text-foreground-secondary hover:text-foreground hover:bg-state-hover transition-colors focus-ring"
+              className="lg:hidden h-9 w-9 flex items-center justify-center rounded-xl text-foreground-secondary hover:text-foreground hover:bg-state-hover transition-colors focus-ring cursor-pointer"
               aria-label="Close sidebar"
             >
               <X className="h-4 w-4" />
@@ -354,7 +372,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               type="button"
               onClick={handleLogout}
-              className="p-1.5 rounded-lg text-foreground-secondary hover:text-danger hover:bg-danger/10 transition-colors focus-ring cursor-pointer shrink-0"
+              className="h-9 w-9 flex items-center justify-center rounded-xl text-foreground-secondary hover:text-danger hover:bg-danger/10 transition-colors focus-ring cursor-pointer shrink-0"
               aria-label="Log Out"
               title="Log Out"
             >

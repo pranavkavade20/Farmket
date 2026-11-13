@@ -22,6 +22,8 @@ import {
   ChevronRight,
   SlidersHorizontal,
   Layers,
+  Clock,
+  Leaf,
 } from 'lucide-react';
 import type { Product, Category } from '@/types';
 import { useCart } from '@/features/buyer';
@@ -55,6 +57,8 @@ interface FilterSidebarProps {
   setSelectedCategory: (val: string) => void;
   organicOnly: boolean;
   setOrganicOnly: (val: boolean) => void;
+  prebookOnly: boolean;
+  setPrebookOnly: (val: boolean) => void;
   activeFilterCount: number;
   clearFilters: () => void;
 }
@@ -66,6 +70,8 @@ const FilterSidebar = ({
   setSelectedCategory,
   organicOnly,
   setOrganicOnly,
+  prebookOnly,
+  setPrebookOnly,
   activeFilterCount,
   clearFilters,
 }: FilterSidebarProps) => (
@@ -153,10 +159,17 @@ const FilterSidebar = ({
     </div>
 
     {/* Quality & Certification */}
-    <div className="pt-4 border-t border-border-subtle px-1">
-      <h3 className="text-xs font-bold text-foreground-secondary mb-3 uppercase tracking-wider">
-        Farming Standards
+    <div className="pt-4 border-t border-border-subtle px-1 space-y-3">
+      <h3 className="text-xs font-bold text-foreground-secondary mb-1 uppercase tracking-wider">
+        Harvest & Standards
       </h3>
+      <Checkbox
+        id="prebook-filter"
+        checked={prebookOnly}
+        onChange={(checked) => setPrebookOnly(checked)}
+        label="Pre-Bookable Harvests"
+        description="Reserve growing produce before harvest"
+      />
       <Checkbox
         id="organic-filter"
         checked={organicOnly}
@@ -200,11 +213,13 @@ const Marketplace = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialSearch = searchParams.get('search') || '';
   const initialCategory = searchParams.get('category') || '';
+  const initialPrebook = searchParams.get('prebookable') === 'true';
 
   const [search, setSearch] = useState(initialSearch);
   const debouncedSearch = useDebounce(search, 400);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [organicOnly, setOrganicOnly] = useState(false);
+  const [prebookOnly, setPrebookOnly] = useState(initialPrebook);
   const [sortBy, setSortBy] = useState<SortOption>('-created_at');
   const [page, setPage] = useState(1);
 
@@ -244,8 +259,9 @@ const Marketplace = () => {
     const nextParams = new URLSearchParams();
     if (debouncedSearch.trim()) nextParams.set('search', debouncedSearch.trim());
     if (selectedCategory) nextParams.set('category', selectedCategory);
+    if (prebookOnly) nextParams.set('prebookable', 'true');
     setSearchParams(nextParams, { replace: true });
-  }, [debouncedSearch, selectedCategory, setSearchParams]);
+  }, [debouncedSearch, selectedCategory, prebookOnly, setSearchParams]);
 
   // Fetch Products
   useEffect(() => {
@@ -257,6 +273,7 @@ const Marketplace = () => {
       const params = {
         ...(selectedCategory ? { category__slug: selectedCategory } : {}),
         ...(organicOnly ? { is_organic: true } : {}),
+        ...(prebookOnly ? { prebookable: true } : {}),
         ...(debouncedSearch.trim() ? { search: debouncedSearch.trim() } : {}),
         ordering: sortBy,
         page,
@@ -286,7 +303,7 @@ const Marketplace = () => {
     return () => {
       cancelled = true;
     };
-  }, [debouncedSearch, selectedCategory, organicOnly, sortBy, page]);
+  }, [debouncedSearch, selectedCategory, organicOnly, prebookOnly, sortBy, page]);
 
   // Reset page when major filters change
   const handleCategoryChange = (cat: string) => {
@@ -297,6 +314,11 @@ const Marketplace = () => {
   const handleOrganicChange = (val: boolean) => {
     setPage(1);
     setOrganicOnly(val);
+  };
+
+  const handlePrebookChange = (val: boolean) => {
+    setPage(1);
+    setPrebookOnly(val);
   };
 
   const handleSortChange = (opt: SortOption) => {
@@ -310,6 +332,7 @@ const Marketplace = () => {
     setSearch('');
     setSelectedCategory('');
     setOrganicOnly(false);
+    setPrebookOnly(false);
     setSortBy('-created_at');
   };
 
@@ -322,7 +345,10 @@ const Marketplace = () => {
   };
 
   const activeFilterCount =
-    (organicOnly ? 1 : 0) + (selectedCategory ? 1 : 0) + (search.trim() ? 1 : 0);
+    (organicOnly ? 1 : 0) +
+    (prebookOnly ? 1 : 0) +
+    (selectedCategory ? 1 : 0) +
+    (search.trim() ? 1 : 0);
 
   const selectedSortLabel = useMemo(
     () => SORT_OPTIONS.find((o) => o.value === sortBy)?.label || 'Sort By',
@@ -453,7 +479,7 @@ const Marketplace = () => {
         </div>
       </div>
 
-      {/* Horizontal Category Quick-Chips Bar */}
+      {/* Horizontal Category & Quick-Chips Bar */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
         <button
           type="button"
@@ -467,6 +493,38 @@ const Marketplace = () => {
         >
           All Produce
         </button>
+
+        {/* Pre-bookable Quick Filter Pill */}
+        <button
+          type="button"
+          onClick={() => handlePrebookChange(!prebookOnly)}
+          className={cn(
+            'px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-150 cursor-pointer shrink-0 border flex items-center gap-1.5',
+            prebookOnly
+              ? 'bg-brand text-on-brand border-brand shadow-xs font-bold'
+              : 'border-border-subtle bg-surface text-foreground-secondary hover:text-foreground hover:border-border-strong'
+          )}
+        >
+          <Clock className="w-3.5 h-3.5 text-warning" />
+          <span>Pre-Bookable Harvests</span>
+        </button>
+
+        {/* Organic Quick Filter Pill */}
+        <button
+          type="button"
+          onClick={() => handleOrganicChange(!organicOnly)}
+          className={cn(
+            'px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-150 cursor-pointer shrink-0 border flex items-center gap-1.5',
+            organicOnly
+              ? 'bg-brand text-on-brand border-brand shadow-xs font-bold'
+              : 'border-border-subtle bg-surface text-foreground-secondary hover:text-foreground hover:border-border-strong'
+          )}
+        >
+          <Leaf className="w-3.5 h-3.5 text-brand" />
+          <span>Organic</span>
+        </button>
+
+        <div className="h-4 w-px bg-border-strong shrink-0 mx-1" />
 
         {categories.map((cat) => {
           const isSelected = selectedCategory === cat.slug;
@@ -509,6 +567,8 @@ const Marketplace = () => {
               setSelectedCategory={handleCategoryChange}
               organicOnly={organicOnly}
               setOrganicOnly={handleOrganicChange}
+              prebookOnly={prebookOnly}
+              setPrebookOnly={handlePrebookChange}
               activeFilterCount={activeFilterCount}
               clearFilters={clearFilters}
             />
@@ -582,6 +642,8 @@ const Marketplace = () => {
                   setSelectedCategory={handleCategoryChange}
                   organicOnly={organicOnly}
                   setOrganicOnly={handleOrganicChange}
+                  prebookOnly={prebookOnly}
+                  setPrebookOnly={handlePrebookChange}
                   activeFilterCount={activeFilterCount}
                   clearFilters={clearFilters}
                 />

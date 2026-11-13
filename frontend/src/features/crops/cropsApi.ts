@@ -89,6 +89,13 @@ export const cropsApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: (_result, _error, id) => [{ type: 'Reservation', id }, { type: 'Crop', id: 'LIST' }],
     }),
+    cancelReservation: builder.mutation<{ status: string; message: string }, number>({
+      query: (id) => ({
+        url: `/crops/reservations/${id}/cancel/`,
+        method: 'POST',
+      }),
+      invalidatesTags: (_result, _error, id) => [{ type: 'Reservation', id }, { type: 'Crop', id: 'LIST' }],
+    }),
   }),
 });
 
@@ -104,4 +111,5 @@ export const {
   useGetReservationsQuery,
   useApproveReservationMutation,
   useRejectReservationMutation,
+  useCancelReservationMutation,
 } = cropsApi;

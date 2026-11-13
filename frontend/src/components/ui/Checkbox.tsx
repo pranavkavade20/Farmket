@@ -35,14 +35,15 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
               checked={checked}
               disabled={disabled}
               onChange={handleChange}
-              className="sr-only"
+              className="sr-only peer"
               {...props}
             />
             <div
               className={cn(
-                'h-5 w-5 rounded-md border flex items-center justify-center transition-all duration-200 focus-ring',
+                'h-5 w-5 rounded-md border flex items-center justify-center transition-all duration-200',
+                'peer-focus-visible:ring-2 peer-focus-visible:ring-brand/50 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background',
                 checked
-                  ? 'bg-brand border-brand text-white'
+                  ? 'bg-brand border-brand text-on-brand'
                   : 'bg-surface border-border-strong group-hover:border-foreground-secondary',
                 error && 'border-danger'
               )}

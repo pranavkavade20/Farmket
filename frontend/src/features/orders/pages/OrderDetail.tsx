@@ -16,7 +16,6 @@ import {
   Clock,
   Truck,
   Package,
-  Sprout,
   AlertTriangle,
   Printer,
   Calendar,
@@ -26,6 +25,7 @@ import {
   Smartphone,
   Banknote,
   XCircle,
+  Leaf,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Order } from '@/types';
@@ -199,7 +199,7 @@ const OrderDetail: React.FC = () => {
           <div className="flex items-center gap-2">
             <OrderStatusBadge status={order.status} />
             {hasPrebooking && (
-              <Badge variant="brand" size="sm" className="font-bold">
+              <Badge variant="submitted" size="sm" className="font-bold">
                 Pre-booking
               </Badge>
             )}
@@ -568,12 +568,12 @@ const OrderDetail: React.FC = () => {
                         {item.product_name || `Product #${item.product}`}
                       </h4>
                       {isPrebooking && (
-                        <Badge variant="brand" size="sm" className="font-bold gap-1">
-                          <Sprout className="h-3 w-3" /> Pre-booking
+                        <Badge variant="submitted" size="sm" className="font-bold">
+                          Pre-booking
                         </Badge>
                       )}
                       {item.product_details?.is_organic && (
-                        <Badge variant="success" size="sm" className="font-bold">
+                        <Badge variant="success" size="sm" icon={<Leaf className="w-3 h-3 stroke-[2.2]" />} className="font-bold">
                           Organic Certified
                         </Badge>
                       )}

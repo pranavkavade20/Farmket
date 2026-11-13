@@ -27,15 +27,15 @@ export const DashboardMock = ({ className = '', style }: { className?: string, s
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-6 bg-background/80 flex flex-col gap-6">
+      <div className="flex-1 p-4 sm:p-6 bg-background/80 flex flex-col gap-4 sm:gap-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-display font-semibold text-lg">Farm Overview</h3>
-            <p className="text-xs text-foreground-secondary">Real-time performance metrics</p>
+            <h3 className="font-display font-semibold text-base sm:text-lg">Farm Overview</h3>
+            <p className="text-[11px] sm:text-xs text-foreground-secondary">Real-time performance metrics</p>
           </div>
           <div className="flex -space-x-2">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="w-8 h-8 rounded-full border-2 border-background bg-surface flex items-center justify-center text-xs font-medium z-10 shadow-sm">
+              <div key={i} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-background bg-surface flex items-center justify-center text-xs font-medium z-10 shadow-sm">
                 U{i}
               </div>
             ))}
@@ -43,10 +43,10 @@ export const DashboardMock = ({ className = '', style }: { className?: string, s
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4">
           {[
             { label: 'Total Yield', value: '4,200 kg', icon: Package, trend: '+12%' },
-            { label: 'Revenue', value: '$12,450', icon: TrendingUp, trend: '+8%' },
+            { label: 'Revenue', value: '₹1,24,500', icon: TrendingUp, trend: '+8%' },
             { label: 'Active Buyers', value: '24', icon: Users, trend: '+3' },
           ].map((stat, i) => (
             <motion.div
@@ -54,14 +54,14 @@ export const DashboardMock = ({ className = '', style }: { className?: string, s
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="p-4 rounded-xl border border-border-subtle bg-surface flex flex-col gap-2 shadow-sm"
+              className="p-3 sm:p-4 rounded-xl border border-border-subtle bg-surface flex flex-col gap-1.5 sm:gap-2 shadow-sm"
             >
-              <div className="flex items-center gap-2 text-foreground-secondary text-xs font-medium">
-                <stat.icon className="w-4 h-4" />
+              <div className="flex items-center gap-1.5 sm:gap-2 text-foreground-secondary text-[11px] sm:text-xs font-medium">
+                <stat.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 {stat.label}
               </div>
               <div className="flex items-end justify-between">
-                <span className="font-semibold text-xl">{stat.value}</span>
+                <span className="font-semibold text-base sm:text-xl">{stat.value}</span>
                 <span className="text-xs text-brand font-medium">{stat.trend}</span>
               </div>
             </motion.div>

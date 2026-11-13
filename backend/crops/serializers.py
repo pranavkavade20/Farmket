@@ -12,12 +12,59 @@ class CropStageHistorySerializer(serializers.ModelSerializer):
 
 class CropReservationSerializer(serializers.ModelSerializer):
     buyer_name = serializers.ReadOnlyField(source='buyer.username')
-    crop_name = serializers.ReadOnlyField(source='crop_growth.product.name')
+    buyer_email = serializers.ReadOnlyField(source='buyer.email')
+    buyer_phone = serializers.ReadOnlyField(source='buyer.phone_number')
+    crop_name = serializers.SerializerMethodField()
+    farmer_name = serializers.ReadOnlyField(source='crop_growth.farmer.username')
+    farmer_id = serializers.ReadOnlyField(source='crop_growth.farmer.id')
+    farmer_phone = serializers.ReadOnlyField(source='crop_growth.farmer.phone_number')
+    unit = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
+    crop_stage = serializers.ReadOnlyField(source='crop_growth.stage')
+    expected_harvest_date = serializers.ReadOnlyField(source='crop_growth.expected_harvest_date')
+    product_slug = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
 
     class Meta:
         model = CropReservation
-        fields = ['id', 'buyer', 'buyer_name', 'crop_growth', 'crop_name', 'quantity_reserved', 'reservation_status', 'reserved_at', 'expected_delivery_date']
+        fields = [
+            'id', 'buyer', 'buyer_name', 'buyer_email', 'buyer_phone',
+            'crop_growth', 'crop_name', 'farmer_name', 'farmer_id', 'farmer_phone',
+            'unit', 'price', 'crop_stage', 'expected_harvest_date', 'product_slug',
+            'image', 'quantity_reserved', 'reservation_status', 'reserved_at',
+            'expected_delivery_date'
+        ]
         read_only_fields = ['buyer', 'reserved_at']
+
+    def get_crop_name(self, obj):
+        if obj.crop_growth and obj.crop_growth.product:
+            return obj.crop_growth.product.name
+        return "Unknown Crop"
+
+    def get_unit(self, obj):
+        if obj.crop_growth and obj.crop_growth.product:
+            return obj.crop_growth.product.unit
+        return "kg"
+
+    def get_price(self, obj):
+        if obj.crop_growth and obj.crop_growth.product:
+            return str(obj.crop_growth.product.price)
+        return "0.00"
+
+    def get_product_slug(self, obj):
+        if obj.crop_growth and obj.crop_growth.product:
+            return obj.crop_growth.product.slug
+        return None
+
+    def get_image(self, obj):
+        if obj.crop_growth and obj.crop_growth.product:
+            first_img = obj.crop_growth.product.images.first()
+            if first_img and first_img.image:
+                request = self.context.get('request')
+                if request:
+                    return request.build_absolute_uri(first_img.image.url)
+                return first_img.image.url
+        return None
 
 class CropFollowerSerializer(serializers.ModelSerializer):
     class Meta:

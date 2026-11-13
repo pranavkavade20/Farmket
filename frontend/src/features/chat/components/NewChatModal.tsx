@@ -58,7 +58,12 @@ export const NewChatModal: React.FC<Props> = ({ isOpen, onClose, onSelectUser })
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="new-chat-modal-title"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+        >
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -69,42 +74,44 @@ export const NewChatModal: React.FC<Props> = ({ isOpen, onClose, onSelectUser })
             {/* Modal Header */}
             <div className="p-5 border-b border-border-subtle flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-brand-muted/30 text-brand">
+                <div className="p-2 rounded-xl bg-brand-muted/30 text-brand" aria-hidden="true">
                   <Users className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-extrabold text-foreground">New Message</h3>
+                  <h3 id="new-chat-modal-title" className="text-base font-extrabold text-foreground">New Message</h3>
                   <p className="text-xs text-muted">Direct contact with farmers and buyers</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={handleClose}
-                className="p-1.5 hover:bg-surface-elevated rounded-full transition-colors text-muted hover:text-foreground"
+                className="p-1.5 hover:bg-surface-elevated rounded-full transition-colors text-muted hover:text-foreground focus-ring"
                 aria-label="Close dialog"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
 
             {/* Search Bar */}
             <div className="p-4 border-b border-border-subtle/50 bg-surface-elevated/40">
               <div className="relative">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted pointer-events-none" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted pointer-events-none" aria-hidden="true" />
                 <input
                   autoFocus
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search farmers or buyers by name..."
+                  aria-label="Search farmers or buyers by name"
                   className="w-full rounded-xl bg-surface pl-10 pr-9 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-brand border border-border-subtle transition-all"
                 />
                 {query && (
                   <button
                     type="button"
                     onClick={() => setQuery('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-muted hover:text-foreground rounded-full"
+                    aria-label="Clear search query"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-muted hover:text-foreground rounded-full focus-ring"
                   >
-                    <X className="h-3.5 w-3.5" />
+                    <X className="h-3.5 w-3.5" aria-hidden="true" />
                   </button>
                 )}
               </div>
@@ -150,7 +157,8 @@ export const NewChatModal: React.FC<Props> = ({ isOpen, onClose, onSelectUser })
                         key={u.id}
                         type="button"
                         onClick={() => onSelectUser(u)}
-                        className="w-full flex items-center justify-between p-3.5 sm:px-4 hover:bg-brand-muted/15 transition-colors text-left group"
+                        aria-label={`Chat with ${u.full_name || u.username}`}
+                        className="w-full flex items-center justify-between p-3.5 sm:px-4 hover:bg-brand-muted/15 transition-colors text-left group focus-ring rounded-xl"
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           <ChatAvatar

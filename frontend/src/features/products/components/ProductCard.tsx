@@ -10,6 +10,7 @@ import {
   Sprout,
   ShoppingCart,
   Clock,
+  Leaf,
 } from 'lucide-react';
 import { useCart } from '@/features/buyer';
 import { useAuth } from '@/features/auth';
@@ -98,25 +99,25 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(
         {/* Top Badges & Wishlist Action */}
         <div className="absolute left-3 top-3 z-10 flex flex-wrap gap-1.5 max-w-[calc(100%-48px)]">
           {product.is_organic && (
-            <Badge variant="brand" size="sm" dot>
+            <Badge variant="success" size="sm" icon={<Leaf className="w-3 h-3 stroke-[2.2]" />}>
               Organic
             </Badge>
           )}
 
           {isPrebookable && (
-            <Badge variant="warning" size="sm">
+            <Badge variant="submitted" size="sm">
               Pre-book
             </Badge>
           )}
 
           {isGrowing && product.progress > 0 && (
-            <Badge variant="default" size="sm">
+            <Badge variant="in-progress" size="sm">
               {product.progress}% Grown
             </Badge>
           )}
 
           {!isAvailable && !isPrebookable && (
-            <Badge variant="danger" size="sm">
+            <Badge variant="failed" size="sm">
               Sold Out
             </Badge>
           )}
@@ -243,18 +244,18 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(
                     type="button"
                     onClick={handleDecrease}
                     aria-label="Decrease quantity"
-                    className="flex h-full w-8 sm:w-10 items-center justify-center rounded-lg bg-brand/10 text-brand hover:bg-brand hover:text-on-brand transition-colors cursor-pointer"
+                    className="flex h-full w-8 sm:w-10 items-center justify-center rounded-lg bg-brand/10 text-brand hover:bg-brand hover:text-on-brand transition-colors cursor-pointer focus-ring"
                   >
                     <Minus className="h-3.5 w-3.5" />
                   </button>
-                  <span className="text-xs sm:text-sm font-bold text-foreground">
+                  <span className="text-xs sm:text-sm font-bold text-foreground tabular-nums">
                     {cartItem.quantity}
                   </span>
                   <button
                     type="button"
                     onClick={handleIncrease}
                     aria-label="Increase quantity"
-                    className="flex h-full w-8 sm:w-10 items-center justify-center rounded-lg bg-brand/10 text-brand hover:bg-brand hover:text-on-brand transition-colors cursor-pointer"
+                    className="flex h-full w-8 sm:w-10 items-center justify-center rounded-lg bg-brand/10 text-brand hover:bg-brand hover:text-on-brand transition-colors cursor-pointer focus-ring"
                   >
                     <Plus className="h-3.5 w-3.5" />
                   </button>

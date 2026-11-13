@@ -17,72 +17,72 @@ const buyerSteps = [
 
 export const HowItWorksSection = () => {
   return (
-    <section id="how-it-works" className="relative w-full bg-background dark:bg-background py-24 lg:py-32 border-b border-gray-100 dark:border-white/5 overflow-hidden">
+    <section id="how-it-works" className="relative w-full bg-background py-20 lg:py-32 border-b border-border-subtle overflow-hidden">
       {/* Background Gradients */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[40%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] rounded-full bg-brand-50/50 dark:bg-brand-900/10 blur-[120px] mix-blend-multiply dark:mix-blend-lighten" />
+        <div className="absolute top-[40%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] rounded-full bg-brand/5 dark:bg-brand/10 blur-[120px]" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-[1600px] px-6 sm:px-8 lg:px-12">
+      <div className="relative z-10 mx-auto max-w-[1600px] px-4 sm:px-8 lg:px-12">
         
-        <div className="text-center max-w-3xl mx-auto mb-20">
+        <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white tracking-tight mb-6"
+            className="text-3xl sm:text-5xl lg:text-6xl font-display font-black text-foreground tracking-tight mb-4 sm:mb-6"
           >
-            How Farmket <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-brand-400">Works</span>
+            How Farmket <span className="text-brand">Works</span>
           </motion.h2>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-lg md:text-xl text-gray-600 dark:text-gray-400 font-medium"
+            className="text-sm sm:text-lg md:text-xl text-foreground-secondary font-medium leading-relaxed"
           >
             A frictionless ecosystem designed for maximum efficiency, whether you are growing the food or buying it.
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 relative">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 relative">
           
           {/* Subtle divider between columns on desktop */}
-          <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-gray-200 dark:via-white/10 to-transparent -translate-x-1/2" />
+          <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-px bg-border-subtle -translate-x-1/2" />
 
           {/* Farmer Journey */}
           <div className="relative">
-            <div className="flex items-center gap-4 mb-12">
-              <div className="w-14 h-14 rounded-2xl bg-brand-50 dark:bg-brand-900/30 flex items-center justify-center text-2xl border border-brand-100 dark:border-brand-800/30 shadow-sm">👨🏽‍🌾</div>
-              <h3 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">For Farmers</h3>
+            <div className="flex items-center gap-3.5 mb-8 sm:mb-12">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-brand/10 flex items-center justify-center text-2xl border border-brand/20 shadow-xs">👨🏽‍🌾</div>
+              <h3 className="text-2xl sm:text-3xl font-display font-bold text-foreground tracking-tight">For Farmers</h3>
             </div>
             
             <div className="relative">
               {/* Vertical connecting line */}
-              <div className="absolute left-[27px] top-6 bottom-6 w-0.5 bg-gray-100 dark:bg-gray-800/50 rounded-full overflow-hidden">
+              <div className="absolute left-[23px] sm:left-[27px] top-6 bottom-6 w-0.5 bg-border-subtle rounded-full overflow-hidden">
                 <motion.div 
-                  className="w-full h-1/3 bg-gradient-to-b from-transparent via-brand-500 to-transparent"
+                  className="w-full h-1/3 bg-gradient-to-b from-transparent via-brand to-transparent"
                   animate={{ y: ["-100%", "300%"] }}
                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                 />
               </div>
               
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {farmerSteps.map((step, idx) => (
                   <motion.div 
                     key={step.id}
-                    initial={{ opacity: 0, x: -30 }}
+                    initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true, margin: "-50px" }}
-                    transition={{ delay: idx * 0.1, duration: 0.6, ease: "easeOut" }}
-                    className="relative flex gap-6 group"
+                    transition={{ delay: idx * 0.1, duration: 0.5, ease: "easeOut" }}
+                    className="relative flex gap-3.5 sm:gap-6 group"
                   >
-                    <div className="relative z-10 w-14 h-14 rounded-full bg-white dark:bg-[#111] border-2 border-brand-100 dark:border-brand-900/50 flex items-center justify-center shrink-0 shadow-sm group-hover:border-brand-400 dark:group-hover:border-brand-500 transition-colors duration-300">
-                      <step.icon className="w-6 h-6 text-brand-600 dark:text-brand-400 group-hover:scale-110 transition-transform duration-300" />
+                    <div className="relative z-10 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-surface border-2 border-brand/30 flex items-center justify-center shrink-0 shadow-xs group-hover:border-brand transition-colors duration-300">
+                      <step.icon className="w-5 h-5 sm:w-6 sm:h-6 text-brand group-hover:scale-110 transition-transform duration-300" />
                     </div>
-                    <div className="flex-1 glass-card p-5 group-hover:-translate-y-1 transition-all duration-300">
-                      <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{step.title}</h4>
-                      <p className="text-base font-medium text-gray-500 dark:text-gray-400">{step.desc}</p>
+                    <div className="flex-1 rounded-2xl bg-surface border border-border-subtle p-4 sm:p-5 group-hover:-translate-y-0.5 hover:border-brand/40 transition-all duration-300 shadow-xs">
+                      <h4 className="text-base sm:text-xl font-bold text-foreground mb-1">{step.title}</h4>
+                      <p className="text-xs sm:text-base font-medium text-foreground-secondary">{step.desc}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -92,37 +92,37 @@ export const HowItWorksSection = () => {
 
           {/* Buyer Journey */}
           <div className="relative">
-            <div className="flex items-center gap-4 mb-12">
-              <div className="w-14 h-14 rounded-2xl bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center text-2xl border border-orange-100 dark:border-orange-800/30 shadow-sm">👩🏻‍🦰</div>
-              <h3 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">For Buyers</h3>
+            <div className="flex items-center gap-3.5 mb-8 sm:mb-12">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center text-2xl border border-amber-500/20 shadow-xs">👩🏻‍🦰</div>
+              <h3 className="text-2xl sm:text-3xl font-display font-bold text-foreground tracking-tight">For Buyers</h3>
             </div>
             
             <div className="relative">
               {/* Vertical connecting line */}
-              <div className="absolute left-[27px] top-6 bottom-6 w-0.5 bg-gray-100 dark:bg-gray-800/50 rounded-full overflow-hidden">
+              <div className="absolute left-[23px] sm:left-[27px] top-6 bottom-6 w-0.5 bg-border-subtle rounded-full overflow-hidden">
                 <motion.div 
-                  className="w-full h-1/3 bg-gradient-to-b from-transparent via-accent to-transparent"
+                  className="w-full h-1/3 bg-gradient-to-b from-transparent via-amber-500 to-transparent"
                   animate={{ y: ["-100%", "300%"] }}
                   transition={{ duration: 3, delay: 1.5, repeat: Infinity, ease: "linear" }}
                 />
               </div>
               
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {buyerSteps.map((step, idx) => (
                   <motion.div 
                     key={step.id}
-                    initial={{ opacity: 0, x: 30 }}
+                    initial={{ opacity: 0, x: 20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true, margin: "-50px" }}
-                    transition={{ delay: idx * 0.1, duration: 0.6, ease: "easeOut" }}
-                    className="relative flex gap-6 group"
+                    transition={{ delay: idx * 0.1, duration: 0.5, ease: "easeOut" }}
+                    className="relative flex gap-3.5 sm:gap-6 group"
                   >
-                    <div className="relative z-10 w-14 h-14 rounded-full bg-white dark:bg-[#111] border-2 border-orange-100 dark:border-orange-900/50 flex items-center justify-center shrink-0 shadow-sm group-hover:border-accent dark:group-hover:border-accent transition-colors duration-300">
-                      <step.icon className="w-6 h-6 text-accent dark:text-orange-400 group-hover:scale-110 transition-transform duration-300" />
+                    <div className="relative z-10 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-surface border-2 border-amber-500/30 flex items-center justify-center shrink-0 shadow-xs group-hover:border-amber-500 transition-colors duration-300">
+                      <step.icon className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500 group-hover:scale-110 transition-transform duration-300" />
                     </div>
-                    <div className="flex-1 glass-card p-5 group-hover:-translate-y-1 transition-all duration-300">
-                      <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{step.title}</h4>
-                      <p className="text-base font-medium text-gray-500 dark:text-gray-400">{step.desc}</p>
+                    <div className="flex-1 rounded-2xl bg-surface border border-border-subtle p-4 sm:p-5 group-hover:-translate-y-0.5 hover:border-amber-500/40 transition-all duration-300 shadow-xs">
+                      <h4 className="text-base sm:text-xl font-bold text-foreground mb-1">{step.title}</h4>
+                      <p className="text-xs sm:text-base font-medium text-foreground-secondary">{step.desc}</p>
                     </div>
                   </motion.div>
                 ))}

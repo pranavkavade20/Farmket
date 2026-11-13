@@ -1,12 +1,15 @@
 export { Avatar } from './Avatar';
 export {
   Badge,
+  StatusBadge,
   OrderStatusBadge,
   CropStageBadge,
   QualityBadge,
   RoleBadge,
   type BadgeProps,
   type BadgeVariant,
+  type StatusBadgeProps,
+  type StatusBadgeType,
   type CropStage,
 } from './Badge';
 export { Button, type ButtonProps, type ButtonVariant } from './Button';

@@ -41,7 +41,7 @@ export const ProductCardMock = ({ className = '', style }: { className?: string,
           <div className="flex flex-col gap-1 p-2 rounded-lg bg-background border border-border-subtle">
             <span className="text-[10px] uppercase tracking-wider text-foreground-secondary font-medium">Price</span>
             <div className="flex items-center gap-1 text-sm font-semibold">
-              $2.40 / kg
+              ₹40 / kg
             </div>
           </div>
         </div>

@@ -81,6 +81,7 @@ export const NavUserDropdown = ({ className }: NavUserDropdownProps) => {
   return (
     <div className={cn('relative', className)} ref={dropdownRef}>
       <button
+        type="button"
         onClick={() => setIsOpen((prev) => !prev)}
         aria-haspopup="menu"
         aria-expanded={isOpen}

@@ -280,14 +280,14 @@ const FarmerBuyerStory = () => {
       <div className="relative z-10 w-full flex items-start justify-between gap-2 sm:gap-4 md:gap-5 px-1">
 
         {/* ───────────── 1. Farmer Column (Image Card + Info Card Placed at Bottom) ───────────── */}
-        <div className="flex flex-col items-center w-[155px] xs:w-[185px] sm:w-[220px] md:w-[245px] lg:w-[260px] shrink-0">
+        <div className="flex flex-col items-center w-[118px] xs:w-[155px] sm:w-[220px] md:w-[245px] lg:w-[260px] shrink-0">
           {/* Portrait Image Card */}
-          <div className="relative w-full h-[230px] xs:h-[265px] sm:h-[310px] md:h-[345px] lg:h-[365px] rounded-3xl overflow-hidden bg-[#F0F5F2] dark:bg-surface border border-border-subtle/90 dark:border-border-subtle shadow-md shadow-emerald-950/5 transition-transform duration-300 hover:scale-[1.01]">
+          <div className="relative w-full h-[175px] xs:h-[230px] sm:h-[310px] md:h-[345px] lg:h-[365px] rounded-2xl sm:rounded-3xl overflow-hidden bg-[#F0F5F2] dark:bg-surface border border-border-subtle/90 dark:border-border-subtle shadow-md shadow-emerald-950/5 transition-transform duration-300 hover:scale-[1.01]">
             {/* Top Floating Status Pill */}
-            <div className="absolute top-3 left-3 sm:top-3.5 sm:left-3.5 z-20 whitespace-nowrap px-2.5 sm:px-3 py-1 rounded-full bg-white/95 dark:bg-surface/95 backdrop-blur-md border border-black/5 dark:border-white/10 shadow-xs flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-foreground">
-              <span className="relative flex h-2 w-2">
+            <div className="absolute top-2 left-2 sm:top-3.5 sm:left-3.5 z-20 whitespace-nowrap px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-white/95 dark:bg-surface/95 backdrop-blur-md border border-black/5 dark:border-white/10 shadow-xs flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-xs font-semibold text-foreground">
+              <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-emerald-500" />
               </span>
               <span>Farmer Online</span>
             </div>
@@ -301,32 +301,32 @@ const FarmerBuyerStory = () => {
           </div>
 
           {/* Fresh Vegetables Info Card - Placed cleanly at the bottom of the image card */}
-          <div className="w-full mt-2.5 sm:mt-3 p-2.5 sm:p-3 rounded-2xl bg-white/95 dark:bg-surface/95 backdrop-blur-md border border-border-subtle/80 dark:border-border-subtle shadow-md shadow-emerald-950/5 flex items-center justify-between transition-all">
-            <div className="flex items-center gap-2 min-w-0 pr-1">
-              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs">
-                <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[3]" />
+          <div className="w-full mt-2 sm:mt-3 p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-white/95 dark:bg-surface/95 backdrop-blur-md border border-border-subtle/80 dark:border-border-subtle shadow-md shadow-emerald-950/5 flex items-center justify-between transition-all">
+            <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 pr-1">
+              <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <Check className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 stroke-[3]" />
               </div>
               <div className="min-w-0">
-                <p className="text-[11px] sm:text-xs md:text-sm font-bold text-foreground leading-tight truncate">
+                <p className="text-[10px] sm:text-xs md:text-sm font-bold text-foreground leading-tight truncate">
                   Fresh Vegetables
                 </p>
-                <p className="text-[10px] sm:text-xs font-semibold text-brand mt-0.5 tabular-nums truncate">
-                  ₹34/kg · direct to you
+                <p className="text-[9px] sm:text-xs font-semibold text-brand mt-0.5 tabular-nums truncate">
+                  ₹34/kg · direct
                 </p>
               </div>
             </div>
             <button
               type="button"
               aria-label="Add to favorites"
-              className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-foreground-secondary/60 hover:text-danger hover:bg-danger/10 transition-colors shrink-0"
+              className="w-5 h-5 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-foreground-secondary/60 hover:text-danger hover:bg-danger/10 transition-colors shrink-0"
             >
-              <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
           </div>
         </div>
 
         {/* ───────────── 2. Connection Line & Clean Platform Hub ───────────── */}
-        <div className="relative flex-1 flex flex-col items-center justify-center px-1 sm:px-2 min-w-[65px] sm:min-w-[90px] md:min-w-[110px] self-start mt-[85px] xs:mt-[100px] sm:mt-[120px] md:mt-[135px] lg:mt-[145px]">
+        <div className="relative flex-1 flex flex-col items-center justify-center px-0.5 sm:px-2 min-w-[36px] xs:min-w-[65px] sm:min-w-[90px] md:min-w-[110px] self-start mt-[60px] xs:mt-[85px] sm:mt-[120px] md:mt-[135px] lg:mt-[145px]">
           {/* Horizontal Track & Traveling Cart */}
           <div className="relative w-full flex items-center justify-center">
             {/* Dotted Connection Track */}
@@ -337,12 +337,12 @@ const FarmerBuyerStory = () => {
 
             {/* Directional Arrow pointing into Buyer Card */}
             <div className="absolute -right-1 text-brand pointer-events-none" aria-hidden="true">
-              <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
+              <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 stroke-[2.5]" />
             </div>
 
             {/* Traveling Shopping Cart Indicator */}
             <motion.div
-              className="absolute -top-3.5 sm:-top-4 z-30 pointer-events-none"
+              className="absolute -top-3 sm:-top-4 z-30 pointer-events-none"
               initial={false}
               animate={{
                 left: cartLeft,
@@ -351,15 +351,15 @@ const FarmerBuyerStory = () => {
               }}
               transition={cartTransition}
             >
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white dark:bg-surface border-2 border-brand text-brand shadow-md shadow-brand/15 flex items-center justify-center">
-                <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.2]" />
+              <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white dark:bg-surface border-2 border-brand text-brand shadow-md shadow-brand/15 flex items-center justify-center">
+                <ShoppingCart className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 stroke-[2.2]" />
               </div>
             </motion.div>
           </div>
 
           {/* Small Clean Branded Platform Hub */}
           <motion.div
-            className={`relative z-10 mt-3 sm:mt-3.5 w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-white/95 dark:bg-surface/95 backdrop-blur-md border flex flex-col items-center justify-center p-1.5 transition-all duration-300 ${
+            className={`relative z-10 mt-2 sm:mt-3.5 w-9 h-9 xs:w-11 xs:h-11 sm:w-13 sm:h-13 rounded-xl sm:rounded-2xl bg-white/95 dark:bg-surface/95 backdrop-blur-md border flex flex-col items-center justify-center p-1 sm:p-1.5 transition-all duration-300 ${
               isPlatformActive
                 ? 'border-brand ring-4 ring-brand/20 shadow-lg shadow-brand/20 scale-105'
                 : 'border-border-subtle shadow-sm'
@@ -371,26 +371,26 @@ const FarmerBuyerStory = () => {
             }
             transition={{ duration: 0.6, repeat: isPlatformActive ? Infinity : 0 }}
           >
-            <DoubleLeafIcon className="w-5 h-5 sm:w-6 sm:h-6 text-brand" />
+            <DoubleLeafIcon className="w-4 h-4 xs:w-5 xs:h-5 sm:w-6 sm:h-6 text-brand" />
           </motion.div>
-          <span className="text-[9px] sm:text-[11px] font-semibold text-foreground-secondary mt-1 whitespace-nowrap">
+          <span className="text-[8px] xs:text-[9px] sm:text-[11px] font-semibold text-foreground-secondary mt-1 whitespace-nowrap">
             Our Platform
           </span>
         </div>
 
         {/* ───────────── 3. Buyer Column (Image Card + Info Card Placed at Bottom) ───────────── */}
-        <div className="flex flex-col items-center w-[145px] xs:w-[170px] sm:w-[200px] md:w-[225px] lg:w-[240px] shrink-0">
+        <div className="flex flex-col items-center w-[118px] xs:w-[145px] sm:w-[200px] md:w-[225px] lg:w-[240px] shrink-0">
           {/* Portrait Image Card */}
           <div
-            className={`relative w-full h-[230px] xs:h-[265px] sm:h-[310px] md:h-[345px] lg:h-[365px] rounded-3xl overflow-hidden bg-[#F2F6F3] dark:bg-surface border-2 transition-all duration-500 shadow-md shadow-emerald-950/8 hover:scale-[1.01] ${
+            className={`relative w-full h-[175px] xs:h-[230px] sm:h-[310px] md:h-[345px] lg:h-[365px] rounded-2xl sm:rounded-3xl overflow-hidden bg-[#F2F6F3] dark:bg-surface border-2 transition-all duration-500 shadow-md shadow-emerald-950/8 hover:scale-[1.01] ${
               isBuyerDelivered
                 ? 'border-brand ring-2 ring-brand/30'
                 : 'border-emerald-900/80 dark:border-brand/70'
             }`}
           >
             {/* Top Floating Buyer Pill */}
-            <div className="absolute top-3 left-3 sm:top-3.5 sm:left-3.5 z-20 whitespace-nowrap px-2.5 sm:px-3 py-1 rounded-full bg-white/95 dark:bg-surface/95 backdrop-blur-md border border-black/5 dark:border-white/10 shadow-xs flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-foreground">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <div className="absolute top-2 left-2 sm:top-3.5 sm:left-3.5 z-20 whitespace-nowrap px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-white/95 dark:bg-surface/95 backdrop-blur-md border border-black/5 dark:border-white/10 shadow-xs flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-xs font-semibold text-foreground">
+              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500" />
               <span>Buyer</span>
             </div>
 

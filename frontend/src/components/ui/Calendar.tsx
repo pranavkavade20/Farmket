@@ -48,28 +48,38 @@ export function Calendar({ events = [], className, onEventClick }: CalendarProps
   const blanks = Array.from({ length: firstDayOfMonth }, (_, i) => i);
 
   return (
-    <div className={cn("w-full bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm", className)}>
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{monthName}</h2>
+    <div className={cn("w-full bg-surface border border-border-subtle rounded-2xl overflow-hidden shadow-xs", className)}>
+      <div className="flex items-center justify-between px-6 py-4 border-b border-border-subtle">
+        <h2 className="text-base sm:text-lg font-display font-bold text-foreground">{monthName}</h2>
         <div className="flex gap-2">
-          <button onClick={prevMonth} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-500 dark:text-gray-400">
+          <button 
+            type="button"
+            onClick={prevMonth} 
+            aria-label="Previous month"
+            className="p-2 hover:bg-state-hover rounded-xl transition-colors text-foreground-secondary hover:text-foreground focus-ring cursor-pointer"
+          >
             <ChevronLeft className="w-5 h-5" />
           </button>
-          <button onClick={nextMonth} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-500 dark:text-gray-400">
+          <button 
+            type="button"
+            onClick={nextMonth} 
+            aria-label="Next month"
+            className="p-2 hover:bg-state-hover rounded-xl transition-colors text-foreground-secondary hover:text-foreground focus-ring cursor-pointer"
+          >
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-7 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
+      <div className="grid grid-cols-7 border-b border-border-subtle bg-surface-elevated/50">
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-          <div key={day} className="px-2 py-3 text-center text-sm font-medium text-gray-500 dark:text-gray-400">
+          <div key={day} className="px-2 py-3 text-center text-xs font-bold uppercase tracking-wider text-muted">
             {day}
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-7 auto-rows-[minmax(100px,auto)]">
+      <div className="grid grid-cols-7 auto-rows-[minmax(90px,auto)]">
         {blanks.map(blank => (
-          <div key={`blank-${blank}`} className="p-2 border-r border-b border-gray-200 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-900/30 last:border-r-0" />
+          <div key={`blank-${blank}`} className="p-2 border-r border-b border-border-subtle bg-surface-elevated/20 last:border-r-0" />
         ))}
         {days.map((day, idx) => {
           const dayEvents = getEventsForDay(day);
@@ -78,13 +88,13 @@ export function Calendar({ events = [], className, onEventClick }: CalendarProps
             <div 
               key={day} 
               className={cn(
-                "p-2 border-r border-b border-gray-200 dark:border-gray-800 last:border-r-0 transition-colors hover:bg-gray-50 dark:hover:bg-gray-900",
+                "p-2 border-r border-b border-border-subtle last:border-r-0 transition-colors hover:bg-state-hover/40",
                 (idx + firstDayOfMonth + 1) % 7 === 0 ? "border-r-0" : ""
               )}
             >
               <div className={cn(
-                "w-7 h-7 flex items-center justify-center rounded-full text-sm font-medium mb-1",
-                isToday ? "bg-green-600 text-white shadow-sm" : "text-gray-700 dark:text-gray-300"
+                "w-7 h-7 flex items-center justify-center rounded-full text-xs font-bold mb-1",
+                isToday ? "bg-brand text-on-brand shadow-xs" : "text-foreground-secondary"
               )}>
                 {day}
               </div>
@@ -93,21 +103,22 @@ export function Calendar({ events = [], className, onEventClick }: CalendarProps
                   <Tooltip 
                     key={event.id}
                     content={
-                      <div className="text-left">
-                        <div className="font-semibold">{event.title}</div>
-                        {event.description && <div className="mt-1 text-gray-300 font-normal">{event.description}</div>}
+                      <div className="text-left text-xs">
+                        <div className="font-bold text-foreground">{event.title}</div>
+                        {event.description && <div className="mt-1 text-foreground-secondary font-medium">{event.description}</div>}
                       </div>
                     }
                   >
-                    <div 
+                    <button 
+                      type="button"
                       onClick={() => onEventClick?.(event)}
                       className={cn(
-                        "px-2 py-1 text-xs truncate rounded-md cursor-pointer text-white shadow-sm transition-transform hover:scale-[1.02] w-full text-left",
-                        event.color || "bg-blue-500"
+                        "px-2 py-1 text-xs truncate rounded-md cursor-pointer text-white shadow-xs transition-transform hover:scale-[1.02] w-full text-left focus-ring",
+                        event.color || "bg-brand"
                       )}
                     >
                       {event.title}
-                    </div>
+                    </button>
                   </Tooltip>
                 ))}
               </div>

@@ -32,12 +32,12 @@ const AuthLayout = () => {
       </div>
 
       {/* Floating Glass Card */}
-      <div className="relative z-10 w-full max-w-[520px] bg-surface/80 dark:bg-surface/50 backdrop-blur-xl border border-border-subtle p-8 md:p-12 rounded-[2.5rem] shadow-2xl">
-        <div className="flex items-center justify-center gap-4 mb-10">
-          <div className="h-16 w-16 bg-surface rounded-2xl flex items-center justify-center shadow-sm border border-border-subtle">
-             <img src={logo} alt="Farmket Logo" className="h-10 w-10 object-contain" />
+      <div className="relative z-10 w-full max-w-[520px] bg-surface/80 dark:bg-surface/50 backdrop-blur-xl border border-border-subtle p-5 sm:p-8 md:p-12 rounded-3xl sm:rounded-[2.5rem] shadow-2xl">
+        <div className="flex items-center justify-center gap-3 sm:gap-4 mb-8 sm:mb-10">
+          <div className="h-12 w-12 sm:h-16 sm:w-16 bg-surface rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm border border-border-subtle">
+             <img src={logo} alt="Farmket Logo" className="h-8 w-8 sm:h-10 sm:w-10 object-contain" />
           </div>
-          <span className="text-4xl font-display font-bold tracking-tight text-foreground">
+          <span className="text-3xl sm:text-4xl font-display font-bold tracking-tight text-foreground">
             Farmket
           </span>
         </div>

@@ -15,7 +15,7 @@ import {
   Package,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { Button, Badge } from '@/components/ui';
+import { Button, Badge, StatusBadge } from '@/components/ui';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils/cn';
 
@@ -56,8 +56,6 @@ export const ReservationManagement: React.FC = () => {
   const processedReservations = reservations?.filter((r) => r.reservation_status !== 'PENDING') || [];
   const totalCount = reservations?.length || 0;
 
-  if (totalCount === 0) return null;
-
   return (
     <div className="pt-2">
       <div className="rounded-2xl bg-surface border border-border-subtle overflow-hidden shadow-xs">
@@ -78,7 +76,7 @@ export const ReservationManagement: React.FC = () => {
                   Buyer Pre-booking Reservations
                 </h3>
                 {pendingReservations.length > 0 && (
-                  <Badge variant="warning" className="font-bold">
+                  <Badge variant="pending" size="sm" className="font-bold">
                     {pendingReservations.length} Pending
                   </Badge>
                 )}
@@ -136,7 +134,7 @@ export const ReservationManagement: React.FC = () => {
                                 <span className="text-sm font-bold text-foreground">
                                   {res.buyer_name}
                                 </span>
-                                <Badge variant="warning" size="sm" className="font-bold">
+                                <Badge variant="pending" size="sm" className="font-bold">
                                   Pending
                                 </Badge>
                                 <span className="text-xs font-semibold text-brand flex items-center gap-1">
@@ -219,21 +217,37 @@ export const ReservationManagement: React.FC = () => {
                             </p>
                           </div>
 
-                          <Badge
-                            variant={
+                          <StatusBadge
+                            status={
                               res.reservation_status === 'CONFIRMED'
                                 ? 'success'
                                 : res.reservation_status === 'CANCELLED'
-                                ? 'danger'
-                                : 'default'
+                                ? 'failed'
+                                : res.reservation_status === 'PENDING'
+                                ? 'pending'
+                                : 'expired'
                             }
+                            label={res.reservation_status}
                             size="sm"
-                            className="font-bold shrink-0"
-                          >
-                            {res.reservation_status}
-                          </Badge>
+                            className="font-bold shrink-0 capitalize"
+                          />
                         </div>
                       ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 3. Empty State if no reservations */}
+                {totalCount === 0 && (
+                  <div className="py-8 px-4 text-center space-y-3">
+                    <div className="w-12 h-12 rounded-full bg-brand/10 text-brand flex items-center justify-center mx-auto">
+                      <Package className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-foreground">No pre-booking requests yet</h4>
+                      <p className="text-xs text-muted max-w-sm mx-auto mt-1">
+                        When buyers pre-book your active crop harvests from the marketplace, their requests will appear here for you to review, approve, or reject.
+                      </p>
                     </div>
                   </div>
                 )}

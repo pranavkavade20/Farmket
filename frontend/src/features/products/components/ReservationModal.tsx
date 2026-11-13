@@ -22,6 +22,16 @@ export const ReservationModal: React.FC<ProductReservationModalProps> = ({
   const minOrder = product.minimum_order || 1;
   const maxAvailable = product.available_quantity || 0;
 
+  const unitPrice = parseFloat(product.price || '0');
+  const estimatedCost =
+    !isNaN(unitPrice) && unitPrice > 0 && quantity > 0
+      ? new Intl.NumberFormat('en-IN', {
+          style: 'currency',
+          currency: 'INR',
+          maximumFractionDigits: 0,
+        }).format(quantity * unitPrice)
+      : null;
+
   const handleReserve = async (e: React.FormEvent) => {
     e.preventDefault();
     if (quantity > maxAvailable) {
@@ -83,6 +93,14 @@ export const ReservationModal: React.FC<ProductReservationModalProps> = ({
             required
           />
         </div>
+
+        {/* Estimated Value */}
+        {estimatedCost && (
+          <div className="flex items-center justify-between p-3 rounded-xl bg-surface-elevated/50 border border-border-subtle text-xs">
+            <span className="text-muted font-medium">Estimated Harvest Value</span>
+            <span className="text-brand font-bold text-sm">{estimatedCost}</span>
+          </div>
+        )}
 
         <div className="flex justify-end gap-3 pt-4 border-t border-border-subtle">
           <Button

@@ -9,17 +9,17 @@ export const AISection = () => {
   const prefersReducedMotion = useReducedMotion();
 
   return (
-    <section aria-labelledby="intelligence-title" className="bg-gray-50 dark:bg-[#0A100D] py-20 relative overflow-hidden text-gray-900 dark:text-white transition-colors duration-300 sm:py-24 lg:py-28">
+    <section aria-labelledby="intelligence-title" className="bg-surface/50 border-y border-border-subtle py-20 relative overflow-hidden text-foreground transition-colors duration-300 sm:py-24 lg:py-28">
       {/* Dynamic Background Network */}
       <motion.div 
         variants={ambientBackgroundVariants}
         animate={prefersReducedMotion ? undefined : 'animate'}
-        className="absolute inset-0 z-0 opacity-20"
+        className="absolute inset-0 z-0 opacity-20 pointer-events-none"
       >
         <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(139, 92, 246, 0.3)" strokeWidth="1"/>
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="1" className="text-purple-500/30" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#grid)" />
@@ -39,30 +39,30 @@ export const AISection = () => {
           <span className="text-purple-600 dark:text-purple-400 font-semibold tracking-wider uppercase text-sm mb-4 flex items-center gap-2">
             <Sparkles className="w-4 h-4" /> Intelligence Layer
           </span>
-          <h2 className="text-4xl md:text-5xl font-display font-bold mb-6 text-gray-900 dark:text-white leading-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold mb-6 text-foreground leading-tight tracking-tight">
             Intelligence built into the experience.
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
+          <p className="text-base sm:text-lg text-foreground-secondary mb-8 leading-relaxed">
             Farmket uses AI-assisted discovery to help buyers find relevant produce listings and make more informed sourcing decisions.
           </p>
           
           <div className="space-y-6">
             <div className="flex gap-4">
-              <div className="w-12 h-12 rounded-full bg-purple-500/10 border border-purple-500/30 flex items-center justify-center shrink-0">
-                <Network className="w-6 h-6 text-purple-400" />
+              <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
+                <Network className="w-6 h-6 text-purple-600 dark:text-purple-400" />
               </div>
               <div>
-                <h4 className="font-bold text-lg text-gray-900 dark:text-white mb-1">Relevant discovery</h4>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">Find listings that better fit what buyers are looking for.</p>
+                <h4 className="font-bold text-lg text-foreground mb-1">Relevant discovery</h4>
+                <p className="text-foreground-secondary text-sm">Find listings that better fit what buyers are looking for.</p>
               </div>
             </div>
             <div className="flex gap-4">
-              <div className="w-12 h-12 rounded-full bg-brand/10 border border-brand/30 flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-brand/10 border border-brand/20 flex items-center justify-center shrink-0">
                 <BrainCircuit className="w-6 h-6 text-brand" />
               </div>
               <div>
-                <h4 className="font-bold text-lg text-gray-900 dark:text-white mb-1">Useful product details</h4>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">Compare listings with clearer information in one place.</p>
+                <h4 className="font-bold text-lg text-foreground mb-1">Useful product details</h4>
+                <p className="text-foreground-secondary text-sm">Compare listings with clearer information in one place.</p>
               </div>
             </div>
           </div>

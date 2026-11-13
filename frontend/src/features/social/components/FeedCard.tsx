@@ -15,7 +15,6 @@ import {
   ShieldCheck,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -343,8 +342,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
                   <h3 className="font-extrabold text-foreground group-hover/author:text-brand transition-colors text-sm sm:text-base flex items-center gap-1.5">
                     {farmerName}
                   </h3>
-                  <Badge variant="brand" size="sm" className="gap-1 py-0 px-1.5 text-[10px]">
-                    <ShieldCheck className="h-3 w-3" />
+                  <Badge variant="success" size="sm" icon={<ShieldCheck className="h-3 w-3 stroke-[2.2]" />} className="py-0 px-1.5 text-[10px]">
                     <span className="hidden sm:inline">Verified Producer</span>
                   </Badge>
                   {post.is_pinned && (
@@ -530,8 +528,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
                       {post.product.name}
                     </p>
                     {post.product.is_prebookable && (
-                      <Badge variant="warning" size="sm" className="gap-1 font-extrabold uppercase">
-                        <Sparkles className="h-3 w-3" />
+                      <Badge variant="submitted" size="sm" className="font-extrabold uppercase">
                         <span>Pre-book</span>
                       </Badge>
                     )}
