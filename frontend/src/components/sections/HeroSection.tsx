@@ -32,36 +32,6 @@ export interface HeroSectionProps {
   onTrack?: (event: string, props?: Record<string, unknown>) => void;
 }
 
-/* ───────────── Organic Double Leaf Brand Icon ───────────── */
-
-const DoubleLeafIcon = ({ className = 'w-6 h-6' }: { className?: string }) => (
-  <svg
-    viewBox="0 0 32 32"
-    fill="none"
-    className={className}
-    aria-hidden="true"
-  >
-    {/* Left leaf */}
-    <path
-      d="M15 22C15 22 10 20.5 7.2 15.5C4.5 10.5 7.2 5.5 12.8 6.5C13.4 11 15 17.5 15 22Z"
-      fill="currentColor"
-      opacity="0.88"
-    />
-    {/* Right leaf */}
-    <path
-      d="M15 24C15 24 17.8 17.2 24 13.8C29.6 11 28.5 3.7 20.6 4.3C16.7 8.8 15 18.4 15 24Z"
-      fill="currentColor"
-    />
-    {/* Subtle stem */}
-    <path
-      d="M15 21.5V28"
-      stroke="currentColor"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-    />
-  </svg>
-);
-
 /* ───────────── Hand-Drawn Underline SVG Curve ───────────── */
 
 const CurvedUnderline = ({ animated = true }: { animated?: boolean }) => (
@@ -245,20 +215,20 @@ const FarmerBuyerStory = () => {
   const cartLeft = reduceMotion
     ? '50%'
     : phase === 'ready' || phase === 'reset'
-    ? '0%'
-    : phase === 'to_platform' || phase === 'processing'
-    ? '50%'
-    : '100%';
+      ? '0%'
+      : phase === 'to_platform' || phase === 'processing'
+        ? '50%'
+        : '100%';
 
   const cartOpacity = reduceMotion ? 1 : phase === 'reset' ? 0 : 1;
 
   const cartTransition = reduceMotion
     ? { duration: 0 }
     : phase === 'reset'
-    ? { duration: 0.3 }
-    : phase === 'to_platform' || phase === 'to_buyer'
-    ? { duration: 1.6, ease: 'easeInOut' as const }
-    : { duration: 0.4 };
+      ? { duration: 0.3 }
+      : phase === 'to_platform' || phase === 'to_buyer'
+        ? { duration: 1.6, ease: 'easeInOut' as const }
+        : { duration: 0.4 };
 
   // Status highlights
   const isPlatformActive = phase === 'processing';
@@ -289,7 +259,7 @@ const FarmerBuyerStory = () => {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-emerald-500" />
               </span>
-              <span>Farmer Online</span>
+              <span>Farmer</span>
             </div>
 
             {/* Farmer Photo - 100% visible, completely unobstructed */}
@@ -357,13 +327,12 @@ const FarmerBuyerStory = () => {
             </motion.div>
           </div>
 
-          {/* Small Clean Branded Platform Hub */}
+          {/* Branded Platform Hub */}
           <motion.div
-            className={`relative z-10 mt-2 sm:mt-3.5 w-9 h-9 xs:w-11 xs:h-11 sm:w-13 sm:h-13 rounded-xl sm:rounded-2xl bg-white/95 dark:bg-surface/95 backdrop-blur-md border flex flex-col items-center justify-center p-1 sm:p-1.5 transition-all duration-300 ${
-              isPlatformActive
-                ? 'border-brand ring-4 ring-brand/20 shadow-lg shadow-brand/20 scale-105'
-                : 'border-border-subtle shadow-sm'
-            }`}
+            className={`relative z-10 mt-5 xs:mt-6 sm:mt-8 w-10 h-10 xs:w-12 xs:h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-white/95 dark:bg-surface/95 backdrop-blur-md border flex items-center justify-center p-1.5 sm:p-2 transition-all duration-300 overflow-hidden ${isPlatformActive
+              ? 'border-brand ring-4 ring-brand/20 shadow-lg shadow-brand/20 scale-105'
+              : 'border-border-subtle shadow-sm'
+              }`}
             animate={
               isPlatformActive && !reduceMotion
                 ? { scale: [1, 1.08, 1] }
@@ -371,9 +340,13 @@ const FarmerBuyerStory = () => {
             }
             transition={{ duration: 0.6, repeat: isPlatformActive ? Infinity : 0 }}
           >
-            <DoubleLeafIcon className="w-4 h-4 xs:w-5 xs:h-5 sm:w-6 sm:h-6 text-brand" />
+            <img
+              src="/logo.png"
+              alt="Farmket Logo"
+              className="w-full h-full object-contain select-none"
+            />
           </motion.div>
-          <span className="text-[8px] xs:text-[9px] sm:text-[11px] font-semibold text-foreground-secondary mt-1 whitespace-nowrap">
+          <span className="text-[8px] xs:text-[9px] sm:text-[11px] font-semibold text-foreground-secondary mt-1.5 whitespace-nowrap">
             Our Platform
           </span>
         </div>
@@ -382,15 +355,17 @@ const FarmerBuyerStory = () => {
         <div className="flex flex-col items-center w-[118px] xs:w-[145px] sm:w-[200px] md:w-[225px] lg:w-[240px] shrink-0">
           {/* Portrait Image Card */}
           <div
-            className={`relative w-full h-[175px] xs:h-[230px] sm:h-[310px] md:h-[345px] lg:h-[365px] rounded-2xl sm:rounded-3xl overflow-hidden bg-[#F2F6F3] dark:bg-surface border-2 transition-all duration-500 shadow-md shadow-emerald-950/8 hover:scale-[1.01] ${
-              isBuyerDelivered
-                ? 'border-brand ring-2 ring-brand/30'
-                : 'border-emerald-900/80 dark:border-brand/70'
-            }`}
+            className={`relative w-full h-[175px] xs:h-[230px] sm:h-[310px] md:h-[345px] lg:h-[365px] rounded-2xl sm:rounded-3xl overflow-hidden bg-[#F2F6F3] dark:bg-surface border-2 transition-all duration-500 shadow-md shadow-emerald-950/8 hover:scale-[1.01] ${isBuyerDelivered
+              ? 'border-brand ring-2 ring-brand/30'
+              : 'border-emerald-900/80 dark:border-brand/70'
+              }`}
           >
             {/* Top Floating Buyer Pill */}
-            <div className="absolute top-2 left-2 sm:top-3.5 sm:left-3.5 z-20 whitespace-nowrap px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-white/95 dark:bg-surface/95 backdrop-blur-md border border-black/5 dark:border-white/10 shadow-xs flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-xs font-semibold text-foreground">
-              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500" />
+            <div className="absolute top-2 left-2 sm:top-3.5 sm:left-3.5 z-20 whitespace-nowrap px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-white/95 dark:bg-surface/95 backdrop-blur-md border border-black/5 dark:border-white/10 shadow-xs flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-xs font-semibold text-foreground ">
+              <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-emerald-500" />
+              </span>
               <span>Buyer</span>
             </div>
 
@@ -410,11 +385,10 @@ const FarmerBuyerStory = () => {
               scale: isBuyerDelivered && !reduceMotion ? [1, 1.02, 1] : 1,
             }}
             transition={{ duration: 0.35 }}
-            className={`w-full mt-2.5 sm:mt-3 p-2.5 sm:p-3 rounded-2xl bg-white/95 dark:bg-surface/95 backdrop-blur-md border transition-all shadow-md shadow-emerald-950/5 flex items-center gap-2 ${
-              isBuyerDelivered
-                ? 'border-brand/60 shadow-brand/10'
-                : 'border-border-subtle/80 dark:border-border-subtle'
-            }`}
+            className={`w-full mt-2.5 sm:mt-3 p-2.5 sm:p-3 rounded-2xl bg-white/95 dark:bg-surface/95 backdrop-blur-md border transition-all shadow-md shadow-emerald-950/5 flex items-center gap-2 ${isBuyerDelivered
+              ? 'border-brand/60 shadow-brand/10'
+              : 'border-border-subtle/80 dark:border-border-subtle'
+              }`}
           >
             <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs">
               <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[3]" />
@@ -445,9 +419,8 @@ const FarmerBuyerStory = () => {
           </div>
           <div className="flex items-center gap-1.5">
             <span
-              className={`text-[11px] sm:text-xs md:text-sm font-bold transition-colors ${
-                isOrderedActive ? 'text-foreground' : 'text-foreground-secondary/70'
-              }`}
+              className={`text-[11px] sm:text-xs md:text-sm font-bold transition-colors ${isOrderedActive ? 'text-foreground' : 'text-foreground-secondary/70'
+                }`}
             >
               1. Ordered
             </span>
@@ -469,9 +442,8 @@ const FarmerBuyerStory = () => {
           </div>
           <div className="flex items-center gap-1.5">
             <span
-              className={`text-[11px] sm:text-xs md:text-sm font-bold transition-colors ${
-                isPackedActive ? 'text-foreground' : 'text-foreground-secondary/70'
-              }`}
+              className={`text-[11px] sm:text-xs md:text-sm font-bold transition-colors ${isPackedActive ? 'text-foreground' : 'text-foreground-secondary/70'
+                }`}
             >
               2. Packed
             </span>
@@ -493,9 +465,8 @@ const FarmerBuyerStory = () => {
           </div>
           <div className="flex items-center gap-1.5">
             <span
-              className={`text-[11px] sm:text-xs md:text-sm font-bold transition-colors ${
-                isOnTheWayActive ? 'text-foreground' : 'text-foreground-secondary/70'
-              }`}
+              className={`text-[11px] sm:text-xs md:text-sm font-bold transition-colors ${isOnTheWayActive ? 'text-foreground' : 'text-foreground-secondary/70'
+                }`}
             >
               3. On the way
             </span>
@@ -505,7 +476,7 @@ const FarmerBuyerStory = () => {
           </p>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

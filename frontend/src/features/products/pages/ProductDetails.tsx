@@ -355,8 +355,12 @@ const ProductDetails = () => {
             <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
               <ProductStatusBadge product={product} className="shadow-xs" />
               {product.is_organic && (
-                <Badge variant="brand" size="sm" dot className="shadow-xs">
-                  <Leaf className="h-3 w-3 mr-1" />
+                <Badge
+                  variant="brand"
+                  size="sm"
+                  icon={<Leaf className="w-3.5 h-3.5 stroke-[2.2]" />}
+                  className="shadow-xs"
+                >
                   Certified Organic
                 </Badge>
               )}

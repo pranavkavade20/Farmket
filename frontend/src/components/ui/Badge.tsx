@@ -102,13 +102,13 @@ const variantStyles: Record<BadgeVariant, string> = {
 };
 
 const sizeStyles = {
-  sm: 'px-2.5 py-0.5 text-[11px] gap-1.5 font-medium leading-tight',
-  md: 'px-3 py-1 text-xs sm:text-[13px] gap-1.5 font-medium leading-normal',
-  lg: 'px-3.5 py-1.5 text-sm gap-2 font-medium leading-normal',
+  sm: 'px-2.5 py-1 text-xs gap-1.5 font-medium leading-none',
+  md: 'px-3 py-1.5 text-xs sm:text-[13px] gap-1.5 font-medium leading-none',
+  lg: 'px-3.5 py-2 text-sm gap-2 font-medium leading-none',
 };
 
 const iconSizes = {
-  sm: 'w-3 h-3 shrink-0 stroke-[2.2]',
+  sm: 'w-3.5 h-3.5 shrink-0 stroke-[2.2]',
   md: 'w-3.5 h-3.5 shrink-0 stroke-[2.2]',
   lg: 'w-4 h-4 shrink-0 stroke-[2.2]',
 };
@@ -162,12 +162,12 @@ export const Badge: React.FC<BadgeProps> = ({
     resolvedIcon = getCanonicalIcon(variant, size);
   }
 
-  const shapeClass = shape === 'pill' ? 'rounded-full' : 'rounded-xl';
+  const shapeClass = shape === 'pill' ? 'rounded-full' : 'rounded-[10px]';
 
   return (
     <span
       className={cn(
-        'inline-flex items-center tracking-normal shrink-0 transition-colors select-none',
+        'inline-flex items-center tracking-normal shrink-0 transition-colors select-none whitespace-nowrap',
         shapeClass,
         variantStyles[variant],
         sizeStyles[size],
@@ -181,11 +181,13 @@ export const Badge: React.FC<BadgeProps> = ({
         />
       )}
       {resolvedIcon && (
-        <span className="shrink-0 flex items-center" aria-hidden="true">
+        <span className="shrink-0 inline-flex items-center justify-center" aria-hidden="true">
           {resolvedIcon}
         </span>
       )}
-      <span>{children}</span>
+      <span className="inline-flex items-center gap-1.5 whitespace-nowrap leading-none">
+        {children}
+      </span>
     </span>
   );
 };

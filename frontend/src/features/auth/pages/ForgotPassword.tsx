@@ -51,9 +51,12 @@ const ForgotPassword = () => {
       className="w-full text-center"
     >
       <div className="flex justify-center mb-3">
-        <Badge variant="brand" size="sm" dot>
-          <KeyRound className="w-3.5 h-3.5" />
-          <span>Account Recovery</span>
+        <Badge
+          variant="brand"
+          size="sm"
+          icon={<KeyRound className="w-3.5 h-3.5 stroke-[2.2]" />}
+        >
+          Account Recovery
         </Badge>
       </div>
 

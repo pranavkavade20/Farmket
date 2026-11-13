@@ -65,9 +65,12 @@ const Login = () => {
       className="w-full text-center"
     >
       <div className="flex justify-center mb-3">
-        <Badge variant="brand" size="sm" dot>
-          <ShieldCheck className="w-3.5 h-3.5" />
-          <span>Secure Sign In</span>
+        <Badge
+          variant="brand"
+          size="sm"
+          icon={<ShieldCheck className="w-3.5 h-3.5 stroke-[2.2]" />}
+        >
+          Secure Sign In
         </Badge>
       </div>
 

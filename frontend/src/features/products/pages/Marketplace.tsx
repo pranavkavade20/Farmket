@@ -361,9 +361,12 @@ const Marketplace = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-2 border-b border-border-subtle">
         <div className="space-y-1.5 max-w-2xl">
           <div className="flex items-center gap-2">
-            <Badge variant="brand" size="sm" dot>
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Direct Farm Marketplace</span>
+            <Badge
+              variant="brand"
+              size="sm"
+              icon={<Sparkles className="w-3.5 h-3.5 stroke-[2.2]" />}
+            >
+              Direct Farm Marketplace
             </Badge>
           </div>
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-display font-bold text-foreground tracking-tight">

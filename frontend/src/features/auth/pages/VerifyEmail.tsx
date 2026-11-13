@@ -118,9 +118,12 @@ const VerifyEmail = () => {
       {status === 'success' && (
         <div>
           <div className="flex justify-center mb-3">
-            <Badge variant="brand" size="sm" dot>
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Verified</span>
+            <Badge
+              variant="brand"
+              size="sm"
+              icon={<Sparkles className="w-3.5 h-3.5 stroke-[2.2]" />}
+            >
+              Verified
             </Badge>
           </div>
 
@@ -155,9 +158,12 @@ const VerifyEmail = () => {
       {status === 'error' && (
         <div>
           <div className="flex justify-center mb-3">
-            <Badge variant="danger" size="sm">
-              <XCircle className="w-3.5 h-3.5" />
-              <span>Verification Failed</span>
+            <Badge
+              variant="danger"
+              size="sm"
+              icon={<XCircle className="w-3.5 h-3.5 stroke-[2.2]" />}
+            >
+              Verification Failed
             </Badge>
           </div>
 
@@ -225,9 +231,12 @@ const VerifyEmail = () => {
       {status === 'idle' && (
         <div>
           <div className="flex justify-center mb-3">
-            <Badge variant="brand" size="sm" dot>
-              <Mail className="w-3.5 h-3.5" />
-              <span>Email Verification</span>
+            <Badge
+              variant="brand"
+              size="sm"
+              icon={<Mail className="w-3.5 h-3.5 stroke-[2.2]" />}
+            >
+              Email Verification
             </Badge>
           </div>
 

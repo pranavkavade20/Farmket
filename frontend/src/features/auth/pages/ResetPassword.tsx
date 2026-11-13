@@ -97,9 +97,12 @@ const ResetPassword = () => {
       className="w-full text-center"
     >
       <div className="flex justify-center mb-3">
-        <Badge variant="brand" size="sm" dot>
-          <Lock className="w-3.5 h-3.5" />
-          <span>Set New Password</span>
+        <Badge
+          variant="brand"
+          size="sm"
+          icon={<Lock className="w-3.5 h-3.5 stroke-[2.2]" />}
+        >
+          Set New Password
         </Badge>
       </div>
 

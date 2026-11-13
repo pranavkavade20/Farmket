@@ -120,9 +120,12 @@ const Register = () => {
       className="w-full text-center"
     >
       <div className="flex justify-center mb-3">
-        <Badge variant="brand" size="sm" dot>
-          <UserPlus className="w-3.5 h-3.5" />
-          <span>Join Farmket</span>
+        <Badge
+          variant="brand"
+          size="sm"
+          icon={<UserPlus className="w-3.5 h-3.5 stroke-[2.2]" />}
+        >
+          Join Farmket
         </Badge>
       </div>
 

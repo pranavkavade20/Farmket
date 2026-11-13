@@ -1,6 +1,7 @@
-import { Outlet, Navigate } from 'react-router-dom';
+import { Outlet, Navigate, Link } from 'react-router-dom';
 import { useAuth } from '@/features/auth';
-import logo from '@/assets/images/logo.png';
+import farmketLogoDark from '@/assets/images/farmket_logo_dark.png';
+import farmketLogoOrig from '@/assets/images/farmket_logo_orig.png';
 
 const AuthLayout = () => {
   const { user, loading } = useAuth();
@@ -8,7 +9,11 @@ const AuthLayout = () => {
   if (loading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
-        <img src={logo} alt="Farmket Logo" className="h-12 w-12 animate-pulse-subtle" />
+        <img
+          src="/logo.png"
+          alt="Farmket Logo"
+          className="h-14 w-14 sm:h-16 sm:w-16 object-contain animate-pulse-subtle"
+        />
       </div>
     );
   }
@@ -33,14 +38,34 @@ const AuthLayout = () => {
 
       {/* Floating Glass Card */}
       <div className="relative z-10 w-full max-w-[520px] bg-surface/80 dark:bg-surface/50 backdrop-blur-xl border border-border-subtle p-5 sm:p-8 md:p-12 rounded-3xl sm:rounded-[2.5rem] shadow-2xl">
-        <div className="flex items-center justify-center gap-3 sm:gap-4 mb-8 sm:mb-10">
-          <div className="h-12 w-12 sm:h-16 sm:w-16 bg-surface rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm border border-border-subtle">
-             <img src={logo} alt="Farmket Logo" className="h-8 w-8 sm:h-10 sm:w-10 object-contain" />
+        <Link
+          to="/"
+          className="flex items-center justify-center gap-3 sm:gap-4 mb-8 sm:mb-10 group focus:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded-2xl p-1 transition-all"
+          aria-label="Farmket Home"
+        >
+          {/* Logo icon covering full area */}
+          <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl overflow-hidden shadow-xs group-hover:scale-105 transition-all shrink-0">
+            <img
+              src="/logo.png"
+              alt="Farmket Icon"
+              className="h-full w-full object-cover"
+            />
           </div>
-          <span className="text-3xl sm:text-4xl font-display font-bold tracking-tight text-foreground">
-            Farmket
-          </span>
-        </div>
+
+          {/* Wordmark logo according to theme */}
+          <div className="relative h-9 sm:h-11 flex items-center">
+            <img
+              src={farmketLogoOrig}
+              alt="Farmket"
+              className="h-9 sm:h-11 w-auto object-contain dark:hidden"
+            />
+            <img
+              src={farmketLogoDark}
+              alt="Farmket"
+              className="h-9 sm:h-11 w-auto object-contain hidden dark:block"
+            />
+          </div>
+        </Link>
         <Outlet />
       </div>
     </div>
