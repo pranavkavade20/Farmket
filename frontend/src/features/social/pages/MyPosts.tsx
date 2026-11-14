@@ -164,9 +164,9 @@ export default function MyPosts() {
               <Sprout className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight tabular-nums">
+          <div className="text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight tabular-nums">
             {isLoading ? <Skeleton className="h-8 w-16" /> : stats.totalPosts}
-          </p>
+          </div>
         </div>
 
         {/* Total Likes */}
@@ -179,9 +179,9 @@ export default function MyPosts() {
               <Heart className="w-5 h-5 fill-danger" />
             </div>
           </div>
-          <p className="text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight tabular-nums">
+          <div className="text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight tabular-nums">
             {isLoading ? <Skeleton className="h-8 w-16" /> : stats.totalLikes}
-          </p>
+          </div>
         </div>
 
         {/* Total Comments */}
@@ -194,9 +194,9 @@ export default function MyPosts() {
               <MessageCircle className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight tabular-nums">
+          <div className="text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight tabular-nums">
             {isLoading ? <Skeleton className="h-8 w-16" /> : stats.totalComments}
-          </p>
+          </div>
         </div>
 
         {/* Linked Produce */}
@@ -209,9 +209,9 @@ export default function MyPosts() {
               <ShoppingBag className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight tabular-nums">
+          <div className="text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight tabular-nums">
             {isLoading ? <Skeleton className="h-8 w-16" /> : stats.linkedProducts}
-          </p>
+          </div>
         </div>
       </div>
 

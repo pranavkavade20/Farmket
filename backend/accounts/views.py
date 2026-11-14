@@ -547,6 +547,24 @@ class FarmerProfileViewSet(viewsets.ModelViewSet):
             qs = qs.filter(user_id=user_id)
         return qs
 
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        lookup_val = self.kwargs.get(lookup_url_kwarg)
+
+        # 1. Try matching by FarmerProfile primary key
+        try:
+            return queryset.get(pk=lookup_val)
+        except (FarmerProfile.DoesNotExist, ValueError):
+            pass
+
+        # 2. Try matching by User ID (fallback for user-centric navigation)
+        try:
+            return queryset.get(user_id=lookup_val)
+        except (FarmerProfile.DoesNotExist, ValueError):
+            from django.http import Http404
+            raise Http404("No FarmerProfile matches the given query.")
+
 
 class BuyerProfileViewSet(viewsets.ModelViewSet):
     queryset = BuyerProfile.objects.all()

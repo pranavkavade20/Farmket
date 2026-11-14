@@ -145,6 +145,8 @@ export const PostComposer: React.FC<PostComposerProps> = ({
       formData.append('product_id', '');
     }
 
+    // Append hashtags as JSON string to support full list updates and empty array clearing
+    formData.append('hashtags', JSON.stringify(hashtags));
     if (hashtags.length > 0) {
       hashtags.forEach((tag, idx) => {
         formData.append(`hashtags[${idx}]`, tag);
@@ -169,9 +171,31 @@ export const PostComposer: React.FC<PostComposerProps> = ({
       }
       onSuccess?.();
       onClose?.();
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Failed to save post:', err);
-      toast.error('Failed to publish post. Please check your network and try again.');
+      let errorMsg = 'Failed to publish post. Please check your network and try again.';
+      if (err && typeof err === 'object') {
+        const errorObj = err as Record<string, any>;
+        const data = errorObj.data;
+        if (data) {
+          if (typeof data.error === 'string') {
+            errorMsg = data.error;
+          } else if (typeof data.detail === 'string') {
+            errorMsg = data.detail;
+          } else if (typeof data.error === 'object' && data.error !== null) {
+            errorMsg = Object.entries(data.error)
+              .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
+              .join(' | ');
+          } else if (typeof data === 'object') {
+            errorMsg = Object.entries(data)
+              .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
+              .join(' | ');
+          }
+        } else if (errorObj.message) {
+          errorMsg = String(errorObj.message);
+        }
+      }
+      toast.error(errorMsg);
     }
   };
 

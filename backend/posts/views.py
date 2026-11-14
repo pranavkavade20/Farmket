@@ -1,13 +1,18 @@
+import logging
 from rest_framework import viewsets, permissions, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.pagination import CursorPagination
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from rest_framework.exceptions import ValidationError
 from django.db.models import Count, Exists, OuterRef
 from django.db import transaction
 
 from .models import Post, Media, Comment, Like, Save, Share
 from .serializers import PostSerializer, CommentSerializer, MediaSerializer
 from .services import PostService
+
+logger = logging.getLogger(__name__)
 
 class PostCursorPagination(CursorPagination):
     page_size = 10
@@ -18,6 +23,7 @@ class PostViewSet(viewsets.ModelViewSet):
     pagination_class = PostCursorPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ['title', 'description', 'location', 'hashtags__icontains']
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
     
     def get_permissions(self):
         if self.action in ['list', 'retrieve', 'feed', 'farmer_posts']:
@@ -26,7 +32,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        qs = Post.objects.filter(status='active').select_related(
+        qs = Post.objects.select_related(
             'farmer', 'product', 'category'
         ).prefetch_related(
             'media'
@@ -45,6 +51,15 @@ class PostViewSet(viewsets.ModelViewSet):
                 is_saved_by_user=Exists(saves_subquery)
             )
 
+        # For public feed listing, only show active posts
+        if self.action in ['list', 'feed']:
+            qs = qs.filter(status='active')
+        elif self.action in ['my_posts']:
+            qs = qs.filter(farmer=user)
+        elif self.action in ['update', 'partial_update', 'destroy']:
+            if user.is_authenticated and not user.is_staff:
+                qs = qs.filter(farmer=user)
+
         return qs.order_by('-is_pinned', '-created_at')
 
     def create(self, request, *args, **kwargs):
@@ -58,9 +73,11 @@ class PostViewSet(viewsets.ModelViewSet):
         # Handle multipart/form-data for media files
         for key in request.FILES:
             if key.startswith('media'):
+                f = request.FILES[key]
+                ctype = getattr(f, 'content_type', '')
                 media_files.append({
-                    'file': request.FILES[key],
-                    'type': 'image' if request.FILES[key].content_type.startswith('image') else 'video' if request.FILES[key].content_type.startswith('video') else 'pdf'
+                    'file': f,
+                    'type': 'image' if ctype.startswith('image') else 'video' if ctype.startswith('video') else 'pdf'
                 })
                 
         try:
@@ -69,25 +86,30 @@ class PostViewSet(viewsets.ModelViewSet):
             post = self.get_queryset().get(id=post.id)
             serializer = self.get_serializer(post)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except ValidationError as e:
+            return Response({'error': e.detail if hasattr(e, 'detail') else str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
+            logger.exception("Error creating post: %s", str(e))
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, *args, **kwargs):
         post = self.get_object()
-        if post.farmer != request.user:
+        if post.farmer != request.user and not request.user.is_staff:
             return Response({"error": "You don't have permission to edit this post."}, status=status.HTTP_403_FORBIDDEN)
             
         data = request.data
         media_to_delete = data.get('media_to_delete', [])
         if isinstance(media_to_delete, str):
-            media_to_delete = [int(x) for x in media_to_delete.split(',') if x.strip()]
+            media_to_delete = [int(x.strip()) for x in media_to_delete.split(',') if x.strip().isdigit()]
             
         new_media_files = []
         for key in request.FILES:
             if key.startswith('media'):
+                f = request.FILES[key]
+                ctype = getattr(f, 'content_type', '')
                 new_media_files.append({
-                    'file': request.FILES[key],
-                    'type': 'image' if request.FILES[key].content_type.startswith('image') else 'video'
+                    'file': f,
+                    'type': 'image' if ctype.startswith('image') else 'video' if ctype.startswith('video') else 'pdf'
                 })
                 
         try:
@@ -95,8 +117,14 @@ class PostViewSet(viewsets.ModelViewSet):
             post = self.get_queryset().get(id=post.id)
             serializer = self.get_serializer(post)
             return Response(serializer.data)
+        except ValidationError as e:
+            return Response({'error': e.detail if hasattr(e, 'detail') else str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
+            logger.exception("Error updating post %s: %s", post.id, str(e))
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def partial_update(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
 
     @action(detail=False, methods=['get'])
     def my_posts(self, request):
